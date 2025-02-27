@@ -4,9 +4,20 @@ import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.wolff.armormod.client.ModelBase;
 
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 
-public class ModelCustomArmour extends HumanoidModel<Player> implements ModelBase
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Function;
+
+public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements ModelBase
 {
     public ArmourType type;
 
@@ -18,6 +29,31 @@ public class ModelCustomArmour extends HumanoidModel<Player> implements ModelBas
     public ModelRendererTurbo[] rightLegModel = new ModelRendererTurbo[0];
     public ModelRendererTurbo[] skirtFrontModel = new ModelRendererTurbo[0]; //Acts like a leg piece, but its pitch is set to the maximum of the two legs
     public ModelRendererTurbo[] skirtRearModel = new ModelRendererTurbo[0]; //Acts like a leg piece, but its pitch is set to the minimum of the two legs
+
+    public ModelCustomArmour(ModelPart pRoot)
+    {
+        super(pRoot);
+    }
+
+    public ModelCustomArmour(ModelPart pRoot, Function<ResourceLocation, RenderType> pRenderType)
+    {
+        super(pRoot, pRenderType);
+    }
+
+    @Override
+    public List<ModelRendererTurbo> getModelRendererTurbos()
+    {
+        List<ModelRendererTurbo> modelRendererTurbos = new ArrayList<>();
+        Collections.addAll(modelRendererTurbos, headModel);
+        Collections.addAll(modelRendererTurbos, bodyModel);
+        Collections.addAll(modelRendererTurbos, leftArmModel);
+        Collections.addAll(modelRendererTurbos, rightArmModel);
+        Collections.addAll(modelRendererTurbos, leftLegModel);
+        Collections.addAll(modelRendererTurbos, rightLegModel);
+        Collections.addAll(modelRendererTurbos, skirtFrontModel);
+        Collections.addAll(modelRendererTurbos, skirtRearModel);
+        return modelRendererTurbos;
+    }
 
     public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
     {

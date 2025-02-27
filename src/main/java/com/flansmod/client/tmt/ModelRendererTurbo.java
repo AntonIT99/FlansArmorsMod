@@ -1,8 +1,6 @@
 package com.flansmod.client.tmt;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.TexturedQuad;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.GLAllocation;
@@ -14,6 +12,7 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import com.wolff.armormod.client.ModelBase;
+import com.wolff.armormod.client.ModelRenderer;
 
 import java.util.*;
 
@@ -28,7 +27,7 @@ import java.util.*;
  *
  * @author GaryCXJk
  */
-public class ModelRendererTurbo extends ModelPart
+public class ModelRendererTurbo extends ModelRenderer
 {
     public static final int MR_FRONT = 0;
     public static final int MR_BACK = 1;
@@ -39,7 +38,7 @@ public class ModelRendererTurbo extends ModelPart
 
     private static final float PI = (float) Math.PI;
 
-    //lighting stuff
+    //Lighting stuff
     private static float lightmapLastX;
     private static float lightmapLastY;
     private static boolean optifineBreak = false;
@@ -68,7 +67,7 @@ public class ModelRendererTurbo extends ModelPart
     private String defaultTexture;
 
     public ModelRendererTurbo(ModelBase modelBase, String s) {
-        super(modelBase.getCubes(), s);
+        super(modelBase, s);
         flip = false;
         compiled = false;
         displayList = 0;
@@ -2129,10 +2128,5 @@ public class ModelRendererTurbo extends ModelPart
 
     private float getPixelSize(float wScale, float hScale, float dScale, int wDir, int hDir, int checkDir, int texPosX, int texPosY) {
         return (wDir == checkDir ? wScale * texPosX : (hDir == checkDir ? hScale * texPosY : dScale));
-    }
-
-    public void setRotationPoint(float rotationPointX, float rotationPointY, float rotationPointZ)
-    {
-        //TODO: implement
     }
 }

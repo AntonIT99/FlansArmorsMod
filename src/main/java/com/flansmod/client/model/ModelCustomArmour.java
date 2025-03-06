@@ -1,21 +1,24 @@
 package com.flansmod.client.model;
 
+import org.lwjgl.opengl.GL11;
+
 import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.wolff.armormod.ArmourType;
 import com.wolff.armormod.client.ModelBase;
+import com.wolff.armormod.client.ModelRenderer;
+import com.wolff.armormod.client.TextureOffset;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-import java.util.function.Function;
+import java.util.Map;
 
 public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements ModelBase
 {
@@ -30,29 +33,11 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements Mo
     public ModelRendererTurbo[] skirtFrontModel = new ModelRendererTurbo[0]; //Acts like a leg piece, but its pitch is set to the maximum of the two legs
     public ModelRendererTurbo[] skirtRearModel = new ModelRendererTurbo[0]; //Acts like a leg piece, but its pitch is set to the minimum of the two legs
 
-    public ModelCustomArmour(ModelPart pRoot)
-    {
-        super(pRoot);
-    }
+    private final List<ModelRenderer> boxList = new ArrayList<>();
+    private final Map<String, TextureOffset> modelTextureMap = new HashMap<>();
 
-    public ModelCustomArmour(ModelPart pRoot, Function<ResourceLocation, RenderType> pRenderType)
-    {
-        super(pRoot, pRenderType);
-    }
-
-    @Override
-    public List<ModelRendererTurbo> getModelRendererTurbos()
-    {
-        List<ModelRendererTurbo> modelRendererTurbos = new ArrayList<>();
-        Collections.addAll(modelRendererTurbos, headModel);
-        Collections.addAll(modelRendererTurbos, bodyModel);
-        Collections.addAll(modelRendererTurbos, leftArmModel);
-        Collections.addAll(modelRendererTurbos, rightArmModel);
-        Collections.addAll(modelRendererTurbos, leftLegModel);
-        Collections.addAll(modelRendererTurbos, rightLegModel);
-        Collections.addAll(modelRendererTurbos, skirtFrontModel);
-        Collections.addAll(modelRendererTurbos, skirtRearModel);
-        return modelRendererTurbos;
+    public ModelCustomArmour() {
+        super();
     }
 
     public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
@@ -60,8 +45,8 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements Mo
         GL11.glPushMatrix();
         GL11.glScalef(type.modelScale, type.modelScale, type.modelScale);
         isSneak = entity.isSneaking();
-        ItemStack itemstack = ((EntityLivingBase)entity).getEquipmentInSlot(0);
-        heldItemRight = itemstack != null ? 1 : 0;
+        ItemStack itemstack = ((LivingEntity)entity).getItemBySlot(EquipmentSlot.MAINHAND);
+        heldItemRight = itemstack != ItemStack.EMPTY ? 1 : 0;
 
         aimedBow = false;
         if (itemstack != null && entity instanceof EntityPlayer && ((EntityPlayer)entity).getItemInUseCount() > 0)
@@ -77,22 +62,22 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements Mo
             }
         }
         setRotationAngles(f, f1, f2, f3, f4, f5, entity);
-        render(headModel, bipedHead, f5, type.modelScale);
-        render(bodyModel, bipedBody, f5, type.modelScale);
-        render(leftArmModel, bipedLeftArm, f5, type.modelScale);
-        render(rightArmModel, bipedRightArm, f5, type.modelScale);
-        render(leftLegModel, bipedLeftLeg, f5, type.modelScale);
-        render(rightLegModel, bipedRightLeg, f5, type.modelScale);
+        render(headModel, head, f5, type.modelScale);
+        render(bodyModel, body, f5, type.modelScale);
+        render(leftArmModel, leftArm, f5, type.modelScale);
+        render(rightArmModel, rightArm, f5, type.modelScale);
+        render(leftLegModel, leftLeg, f5, type.modelScale);
+        render(rightLegModel, rightLeg, f5, type.modelScale);
         //Skirt front
         {
             for(ModelRendererTurbo mod : skirtFrontModel)
             {
-                mod.rotationPointX = (bipedLeftLeg.rotationPointX + bipedRightLeg.rotationPointX) / 2F / type.modelScale;
-                mod.rotationPointY = (bipedLeftLeg.rotationPointY + bipedRightLeg.rotationPointY) / 2F / type.modelScale;
-                mod.rotationPointZ = (bipedLeftLeg.rotationPointZ + bipedRightLeg.rotationPointZ) / 2F / type.modelScale;
-                mod.rotateAngleX = Math.min(bipedLeftLeg.rotateAngleX, bipedRightLeg.rotateAngleX);
-                mod.rotateAngleY = bipedLeftLeg.rotateAngleY;
-                mod.rotateAngleZ = bipedLeftLeg.rotateAngleZ;
+                mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / type.modelScale;
+                mod.rotationPointY = (leftLeg.y + rightLeg.y) / 2F / type.modelScale;
+                mod.rotationPointZ = (leftLeg.z + rightLeg.z) / 2F / type.modelScale;
+                mod.rotateAngleX = Math.min(leftLeg.xRot, rightLeg.xRot);
+                mod.rotateAngleY = leftLeg.yRot;
+                mod.rotateAngleZ = leftLeg.zRot;
                 mod.render(f5);
             }
         }
@@ -100,37 +85,49 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements Mo
         {
             for(ModelRendererTurbo mod : skirtRearModel)
             {
-                mod.rotationPointX = (bipedLeftLeg.rotationPointX + bipedRightLeg.rotationPointX) / 2F / type.modelScale;
-                mod.rotationPointY = (bipedLeftLeg.rotationPointY + bipedRightLeg.rotationPointY) / 2F / type.modelScale;
-                mod.rotationPointZ = (bipedLeftLeg.rotationPointZ + bipedRightLeg.rotationPointZ) / 2F / type.modelScale;
-                mod.rotateAngleX = Math.max(bipedLeftLeg.rotateAngleX, bipedRightLeg.rotateAngleX);
-                mod.rotateAngleY = bipedLeftLeg.rotateAngleY;
-                mod.rotateAngleZ = bipedLeftLeg.rotateAngleZ;
+                mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / type.modelScale;
+                mod.rotationPointY = (leftLeg.y + rightLeg.x) / 2F / type.modelScale;
+                mod.rotationPointZ = (leftLeg.z + rightLeg.z) / 2F / type.modelScale;
+                mod.rotateAngleX = Math.max(leftLeg.xRot, rightLeg.xRot);
+                mod.rotateAngleY = leftLeg.yRot;
+                mod.rotateAngleZ = leftLeg.zRot;
                 mod.render(f5);
             }
         }
         GL11.glPopMatrix();
     }
 
-    public void render(ModelRendererTurbo[] models, ModelRenderer bodyPart, float f5, float scale)
+    public void render(ModelRendererTurbo[] models, ModelPart bodyPart, float f5, float scale)
     {
         setBodyPart(models, bodyPart, scale);
         for(ModelRendererTurbo mod : models)
         {
-            mod.rotateAngleX = bodyPart.rotateAngleX;
-            mod.rotateAngleY = bodyPart.rotateAngleY;
-            mod.rotateAngleZ = bodyPart.rotateAngleZ;
+            mod.rotateAngleX = bodyPart.xRot;
+            mod.rotateAngleY = bodyPart.yRot;
+            mod.rotateAngleZ = bodyPart.zRot;
             mod.render(f5);
         }
     }
 
-    public void setBodyPart(ModelRendererTurbo[] models, ModelRenderer bodyPart, float scale)
+    public void setBodyPart(ModelRendererTurbo[] models, ModelPart bodyPart, float scale)
     {
         for(ModelRendererTurbo mod : models)
         {
-            mod.rotationPointX = bodyPart.rotationPointX / scale;
-            mod.rotationPointY = bodyPart.rotationPointY / scale;
-            mod.rotationPointZ = bodyPart.rotationPointZ / scale;
+            mod.rotationPointX = bodyPart.x / scale;
+            mod.rotationPointY = bodyPart.y / scale;
+            mod.rotationPointZ = bodyPart.z / scale;
         }
+    }
+
+    @Override
+    public List<ModelRenderer> getBoxList()
+    {
+        return boxList;
+    }
+
+    @Override
+    public Map<String, TextureOffset> getModelTextureMap()
+    {
+        return modelTextureMap;
     }
 }

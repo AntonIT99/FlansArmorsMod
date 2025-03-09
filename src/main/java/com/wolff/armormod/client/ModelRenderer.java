@@ -1,5 +1,11 @@
 package com.wolff.armormod.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Quaternionf;
+
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.Direction;
 
@@ -11,6 +17,9 @@ import java.util.Set;
 
 public class ModelRenderer
 {
+    public static final float PI = (float) Math.PI;
+    public static final float DEGREE_CONVERSION_FACTOR = 180F / PI;
+    
     /** The size of the texture file's width in pixels. */
     public float textureWidth;
     /** The size of the texture file's height in pixels. */
@@ -27,8 +36,9 @@ public class ModelRenderer
     /** Hides the model. */
     public boolean isHidden;
 
-    public List<ModelPart.Cube> cubeList;
-    public Map<String, ModelPart> childModels;
+    public final List<ModelPart.Cube> cubeList = new ArrayList<>();
+    public final List<ModelRenderer> childModels = new ArrayList<>();
+    public final Map<String, ModelPart> children = new HashMap<>();
     public final String boxName;
     //TODO: do something with offsets
     public float offsetX;
@@ -43,26 +53,25 @@ public class ModelRenderer
     private int displayList;
 
     //TODO: do something with baseModel
-    private final ModelBase baseModel;
+    private final IModelBase baseModel;
 
-    public ModelRenderer(ModelBase model, String boxNameIn)
+    public ModelRenderer(IModelBase model, String boxNameIn)
     {
         textureWidth = 64.0F;
         textureHeight = 32.0F;
         showModel = true;
-        cubeList = new ArrayList<>();
         baseModel = model;
         model.getBoxList().add(this);
         boxName = boxNameIn;
         setTextureSize(model.getTextureWidth(), model.getTextureHeight());
     }
 
-    public ModelRenderer(ModelBase model)
+    public ModelRenderer(IModelBase model)
     {
         this(model, "");
     }
 
-    public ModelRenderer(ModelBase model, int texOffX, int texOffY)
+    public ModelRenderer(IModelBase model, int texOffX, int texOffY)
     {
         this(model);
         setTextureOffset(texOffX, texOffY);
@@ -73,12 +82,8 @@ public class ModelRenderer
      */
     public void addChild(ModelRenderer renderer)
     {
-        if (childModels == null)
-        {
-            childModels = new HashMap<>();
-        }
-
-        childModels.put(boxName + childModels.size(), renderer.toModelPart());
+        childModels.add(renderer);
+        children.put(boxName + children.size(), renderer.toModelPart());
     }
 
     public ModelRenderer setTextureOffset(int x, int y)
@@ -128,19 +133,129 @@ public class ModelRenderer
         rotationPointZ = rotationPointZIn;
     }
 
+    @SuppressWarnings("ForLoopReplaceableByForEach")
+    @OnlyIn(Dist.CLIENT)
+    public void render(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, float scale)
+    {
+        if (!isVisible() || (cubeList.isEmpty() && childModels.isEmpty())) return;
+
+        poseStack.pushPose();
+        poseStack.translate(offsetX, offsetY, offsetZ);
+        translateAndRotate(poseStack, scale);
+
+        for (int i = 0; i < childModels.size(); ++i)
+        {
+            childModels.get(i).render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, scale);
+        }
+
+        poseStack.translate(-offsetX, -offsetY, -offsetZ);
+        poseStack.popPose();
+    }
+
+    public void translateAndRotate(PoseStack poseStack, float scale) {
+        poseStack.translate(rotationPointX * 0.0625F, rotationPointY * 0.0625F, rotationPointZ * 0.0625F);
+
+        if (rotateAngleX != 0.0F || rotateAngleY != 0.0F || rotateAngleZ != 0.0F)
+        {
+            poseStack.mulPose((new Quaternionf()).rotationZYX(rotateAngleZ, rotateAngleY, rotateAngleX));
+        }
+
+        if (scale != 1.0F)
+        {
+            poseStack.scale(scale, scale, scale);
+        }
+    }
+
+    /*@OnlyIn(Dist.CLIENT)
+    public void renderWithRotation(float scale)
+    {
+        if (!isVisible() || (cubeList.isEmpty() && childModels.isEmpty())) return;
+
+        if (!compiled)
+        {
+            compileDisplayList(scale);
+        }
+
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(rotationPointX * scale, rotationPointY * scale, rotationPointZ * scale);
+
+        if (rotateAngleY != 0.0F)
+        {
+            GlStateManager.rotate(rotateAngleY * DEGREE_CONVERSION_FACTOR, 0.0F, 1.0F, 0.0F);
+        }
+
+        if (rotateAngleX != 0.0F)
+        {
+            GlStateManager.rotate(rotateAngleX * DEGREE_CONVERSION_FACTOR, 1.0F, 0.0F, 0.0F);
+        }
+
+        if (rotateAngleZ != 0.0F)
+        {
+            GlStateManager.rotate(rotateAngleZ * DEGREE_CONVERSION_FACTOR, 0.0F, 0.0F, 1.0F);
+        }
+
+        GlStateManager.callList(displayList);
+        GlStateManager.popMatrix();
+    }*/
+
+    /**
+     * Allows the changing of Angles after a box has been rendered
+     */
+    /*@OnlyIn(Dist.CLIENT)
+    public void postRender(float scale)
+    {
+        if (!isVisible()) return;
+        
+        if (!compiled)
+        {
+            compileDisplayList(scale);
+        }
+
+        if (rotateAngleX == 0.0F && rotateAngleY == 0.0F && rotateAngleZ == 0.0F)
+        {
+            if (rotationPointX != 0.0F || rotationPointY != 0.0F || rotationPointZ != 0.0F)
+            {
+                GlStateManager.translate(rotationPointX * scale, rotationPointY * scale, rotationPointZ * scale);
+            }
+        }
+        else
+        {
+            GlStateManager.translate(rotationPointX * scale, rotationPointY * scale, rotationPointZ * scale);
+
+            if (rotateAngleZ != 0.0F)
+            {
+                GlStateManager.rotate(rotateAngleZ * (180F / PI), 0.0F, 0.0F, 1.0F);
+            }
+
+            if (rotateAngleY != 0.0F)
+            {
+                GlStateManager.rotate(rotateAngleY * (180F / PI), 0.0F, 1.0F, 0.0F);
+            }
+
+            if (rotateAngleX != 0.0F)
+            {
+                GlStateManager.rotate(rotateAngleX * (180F / PI), 1.0F, 0.0F, 0.0F);
+            }
+        }
+    }*/
+
     public ModelRenderer setTextureSize(int textureWidthIn, int textureHeightIn)
     {
         textureWidth = textureWidthIn;
         textureHeight = textureHeightIn;
         return this;
     }
+    
+    public boolean isVisible() {
+        return !isHidden && showModel;
+    }
 
     public ModelPart toModelPart()
     {
-        ModelPart part = new ModelPart(cubeList, childModels);
+        ModelPart part = new ModelPart(cubeList, children);
         part.setPos(rotationPointX, rotationPointY, rotationPointZ);
         part.setRotation(rotateAngleX, rotateAngleY, rotateAngleZ);
-        part.visible = showModel && !isHidden;
+        part.visible = isVisible();
         return part;
     }
 }

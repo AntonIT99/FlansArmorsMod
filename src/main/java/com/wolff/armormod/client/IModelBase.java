@@ -1,12 +1,9 @@
 package com.wolff.armormod.client;
 
-import com.flansmod.client.tmt.ModelRendererTurbo;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public interface ModelBase
+public interface IModelBase
 {
     int TEXTURE_WIDTH = 64;
     int TEXTURE_HEIGHT = 32;

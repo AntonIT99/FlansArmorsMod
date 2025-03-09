@@ -1,26 +1,29 @@
 package com.flansmod.client.model;
 
-import org.lwjgl.opengl.GL11;
-
 import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolff.armormod.ArmourType;
-import com.wolff.armormod.client.ModelBase;
+import com.wolff.armormod.client.IModelBase;
 import com.wolff.armormod.client.ModelRenderer;
 import com.wolff.armormod.client.TextureOffset;
+import com.wolff.armormod.util.ReflectionUtils;
+import org.jetbrains.annotations.NotNull;
 
+import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements ModelBase
+public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IModelBase
 {
     public ArmourType type;
 
@@ -37,67 +40,77 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements Mo
     private final Map<String, TextureOffset> modelTextureMap = new HashMap<>();
 
     public ModelCustomArmour() {
-        super();
+        super(new ModelPart(new ArrayList<>(), new HashMap<>()));
     }
 
-    public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
+    @Override
+    public void renderToBuffer(@NotNull PoseStack pPoseStack, @NotNull VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
     {
-        GL11.glPushMatrix();
-        GL11.glScalef(type.modelScale, type.modelScale, type.modelScale);
-        isSneak = entity.isSneaking();
-        ItemStack itemstack = ((LivingEntity)entity).getItemBySlot(EquipmentSlot.MAINHAND);
-        heldItemRight = itemstack != ItemStack.EMPTY ? 1 : 0;
+        boolean scaleHead = ReflectionUtils.getBooleanValue("scaleHead", AgeableListModel.class, this, true);
+        float babyYHeadOffset = ReflectionUtils.getFloatValue("babyYHeadOffset", AgeableListModel.class, this, 16.0F);
+        float babyZHeadOffset = ReflectionUtils.getFloatValue("babyZHeadOffset", AgeableListModel.class, this, 0.0F);
+        float babyHeadScale = ReflectionUtils.getFloatValue("babyHeadScale", AgeableListModel.class, this, 2.0F);
+        float babyBodyScale = ReflectionUtils.getFloatValue("babyBodyScale", AgeableListModel.class, this, 2.0F);
+        float bodyYOffset = ReflectionUtils.getFloatValue("bodyYOffset", AgeableListModel.class, this, 24.0F);
 
-        aimedBow = false;
-        if (itemstack != null && entity instanceof EntityPlayer && ((EntityPlayer)entity).getItemInUseCount() > 0)
+        if (young)
         {
-            EnumAction enumaction = itemstack.getItemUseAction();
-            if (enumaction == EnumAction.block)
-            {
-                heldItemRight = 3;
+            pPoseStack.pushPose();
+            if (scaleHead) {
+                float f = 1.5F / babyHeadScale;
+                pPoseStack.scale(f, f, f);
             }
-            else if (enumaction == EnumAction.bow)
-            {
-                aimedBow = true;
-            }
+
+            pPoseStack.translate(0.0F, babyYHeadOffset * 0.0625F, babyZHeadOffset * 0.0625F);
+            renderHeadModels(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+            pPoseStack.popPose();
+            pPoseStack.pushPose();
+            float f1 = 1.0F / babyBodyScale;
+            pPoseStack.scale(f1, f1, f1);
+            pPoseStack.translate(0.0F, bodyYOffset * 0.0625F, 0.0F);
+            renderBodyModels(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+            pPoseStack.popPose();
         }
-        setRotationAngles(f, f1, f2, f3, f4, f5, entity);
-        render(headModel, head, f5, type.modelScale);
-        render(bodyModel, body, f5, type.modelScale);
-        render(leftArmModel, leftArm, f5, type.modelScale);
-        render(rightArmModel, rightArm, f5, type.modelScale);
-        render(leftLegModel, leftLeg, f5, type.modelScale);
-        render(rightLegModel, rightLeg, f5, type.modelScale);
-        //Skirt front
+        else
         {
-            for(ModelRendererTurbo mod : skirtFrontModel)
-            {
-                mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / type.modelScale;
-                mod.rotationPointY = (leftLeg.y + rightLeg.y) / 2F / type.modelScale;
-                mod.rotationPointZ = (leftLeg.z + rightLeg.z) / 2F / type.modelScale;
-                mod.rotateAngleX = Math.min(leftLeg.xRot, rightLeg.xRot);
-                mod.rotateAngleY = leftLeg.yRot;
-                mod.rotateAngleZ = leftLeg.zRot;
-                mod.render(f5);
-            }
+            renderHeadModels(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+            renderBodyModels(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
         }
-        //Skirt back
-        {
-            for(ModelRendererTurbo mod : skirtRearModel)
-            {
-                mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / type.modelScale;
-                mod.rotationPointY = (leftLeg.y + rightLeg.x) / 2F / type.modelScale;
-                mod.rotationPointZ = (leftLeg.z + rightLeg.z) / 2F / type.modelScale;
-                mod.rotateAngleX = Math.max(leftLeg.xRot, rightLeg.xRot);
-                mod.rotateAngleY = leftLeg.yRot;
-                mod.rotateAngleZ = leftLeg.zRot;
-                mod.render(f5);
-            }
-        }
-        GL11.glPopMatrix();
     }
 
-    public void render(ModelRendererTurbo[] models, ModelPart bodyPart, float f5, float scale)
+    protected void renderHeadModels(PoseStack pPoseStack, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
+        render(headModel, head, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
+    }
+
+    protected void renderBodyModels(PoseStack pPoseStack, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
+        render(bodyModel, body, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
+        render(leftArmModel, leftArm, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
+        render(rightArmModel, rightArm, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
+        render(leftLegModel, leftLeg, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
+        render(rightLegModel, rightLeg, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
+        for(ModelRendererTurbo mod : skirtFrontModel)
+        {
+            mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / type.modelScale;
+            mod.rotationPointY = (leftLeg.y + rightLeg.y) / 2F / type.modelScale;
+            mod.rotationPointZ = (leftLeg.z + rightLeg.z) / 2F / type.modelScale;
+            mod.rotateAngleX = Math.min(leftLeg.xRot, rightLeg.xRot);
+            mod.rotateAngleY = leftLeg.yRot;
+            mod.rotateAngleZ = leftLeg.zRot;
+            mod.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
+        }
+        for(ModelRendererTurbo mod : skirtRearModel)
+        {
+            mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / type.modelScale;
+            mod.rotationPointY = (leftLeg.y + rightLeg.x) / 2F / type.modelScale;
+            mod.rotationPointZ = (leftLeg.z + rightLeg.z) / 2F / type.modelScale;
+            mod.rotateAngleX = Math.max(leftLeg.xRot, rightLeg.xRot);
+            mod.rotateAngleY = leftLeg.yRot;
+            mod.rotateAngleZ = leftLeg.zRot;
+            mod.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
+        }
+    }
+
+    public void render(ModelRendererTurbo[] models, ModelPart bodyPart, PoseStack pPoseStack, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha, float scale)
     {
         setBodyPart(models, bodyPart, scale);
         for(ModelRendererTurbo mod : models)
@@ -105,7 +118,7 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements Mo
             mod.rotateAngleX = bodyPart.xRot;
             mod.rotateAngleY = bodyPart.yRot;
             mod.rotateAngleZ = bodyPart.zRot;
-            mod.render(f5);
+            mod.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale);
         }
     }
 
@@ -129,5 +142,10 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements Mo
     public Map<String, TextureOffset> getModelTextureMap()
     {
         return modelTextureMap;
+    }
+
+    public static LayerDefinition createBodyLayer() {
+        MeshDefinition mesh = HumanoidModel.createMesh(CubeDeformation.NONE, 0.0F);
+        return LayerDefinition.create(mesh, 64, 64);
     }
 }

@@ -1,14 +1,8 @@
 package com.flansmod.client.tmt;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
-import org.lwjgl.opengl.GL11;
-
-import com.wolff.armormod.client.ModelBase;
+import com.wolff.armormod.client.IModelBase;
 import com.wolff.armormod.client.ModelRenderer;
 import com.wolff.armormod.client.TexturedQuad;
 
@@ -34,8 +28,6 @@ public class ModelRendererTurbo extends ModelRenderer
     public static final int MR_TOP = 4;
     public static final int MR_BOTTOM = 5;
 
-    private static final float PI = (float) Math.PI;
-
     //Lighting stuff
     private static float lightmapLastX;
     private static float lightmapLastY;
@@ -49,27 +41,26 @@ public class ModelRendererTurbo extends ModelRenderer
     public boolean isHidden;
     public boolean forcedRecompile;
     public boolean useLegacyCompiler;
-    public List<ModelPart> childModels;
 
     private PositionTextureVertex[] vertices;
     private TexturedPolygon[] faces;
     private int textureOffsetX;
     private int textureOffsetY;
-    private boolean compiled;
-    private int displayList;
-    private int[] displayListArray;
+    //private boolean compiled;
+    //private int displayList;
+    //private int[] displayListArray;
     private final Map<String, TransformGroup> transformGroup;
     private final Map<String, TextureGroup> textureGroup;
     private TransformGroup currentGroup;
     private TextureGroup currentTextureGroup;
     private String defaultTexture;
 
-    public ModelRendererTurbo(ModelBase modelbase, String s)
+    public ModelRendererTurbo(IModelBase modelbase, String s)
     {
         super(modelbase, s);
         flip = false;
-        compiled = false;
-        displayList = 0;
+        //compiled = false;
+        //displayList = 0;
         mirror = false;
         showModel = true;
         isHidden = false;
@@ -88,7 +79,7 @@ public class ModelRendererTurbo extends ModelRenderer
         useLegacyCompiler = false;
     }
 
-    public ModelRendererTurbo(ModelBase modelbase)
+    public ModelRendererTurbo(IModelBase modelbase)
     {
         this(modelbase, null);
     }
@@ -101,7 +92,7 @@ public class ModelRendererTurbo extends ModelRenderer
      * @param textureX  the x-coordinate on the texture
      * @param textureY  the y-coordinate on the texture
      */
-    public ModelRendererTurbo(ModelBase modelbase, int textureX, int textureY)
+    public ModelRendererTurbo(IModelBase modelbase, int textureX, int textureY)
     {
         this(modelbase, textureX, textureY, 64, 32);
     }
@@ -117,7 +108,7 @@ public class ModelRendererTurbo extends ModelRenderer
      * @param textureU
      * @param textureV
      */
-    public ModelRendererTurbo(ModelBase modelbase, int textureX, int textureY, int textureU, int textureV)
+    public ModelRendererTurbo(IModelBase modelbase, int textureX, int textureY, int textureU, int textureV)
     {
         this(modelbase);
         textureOffsetX = textureX;
@@ -555,23 +546,6 @@ public class ModelRendererTurbo extends ModelRenderer
                 break;
         }
 
-        float[] qValues = new float[]{
-                Math.abs((v[0] - v1[0]) / (v3[0] - v2[0])),
-                Math.abs((v[0] - v1[0]) / (v4[0] - v5[0])),
-                Math.abs((v4[0] - v5[0]) / (v7[0] - v6[0])),
-                Math.abs((v3[0] - v2[0]) / (v7[0] - v6[0])),
-
-                Math.abs((v[1] - v3[1]) / (v1[1] - v2[1])),
-                Math.abs((v4[1] - v7[1]) / (v5[1] - v6[1])),
-                Math.abs((v[1] - v3[1]) / (v4[1] - v7[1])),
-                Math.abs((v1[1] - v2[1]) / (v5[1] - v6[1])),
-
-                Math.abs((v[2] - v4[2]) / (v1[2] - v5[2])),
-                Math.abs((v[2] - v4[2]) / (v3[2] - v7[2])),
-                Math.abs((v1[2] - v5[2]) / (v2[2] - v6[2])),
-                Math.abs((v3[2] - v7[2]) / (v2[2] - v6[2]))
-        };
-
         addRectShape(v, v1, v2, v3, v4, v5, v6, v7, w, h, d);
     }
 
@@ -687,22 +661,6 @@ public class ModelRendererTurbo extends ModelRenderer
                 break;
         }
 
-        float[] qValues = new float[]{
-                Math.abs((v[0] - v1[0]) / (v3[0] - v2[0])),
-                Math.abs((v[0] - v1[0]) / (v4[0] - v5[0])),
-                Math.abs((v4[0] - v5[0]) / (v7[0] - v6[0])),
-                Math.abs((v3[0] - v2[0]) / (v7[0] - v6[0])),
-
-                Math.abs((v[1] - v3[1]) / (v1[1] - v2[1])),
-                Math.abs((v4[1] - v7[1]) / (v5[1] - v6[1])),
-                Math.abs((v[1] - v3[1]) / (v4[1] - v7[1])),
-                Math.abs((v1[1] - v2[1]) / (v5[1] - v6[1])),
-
-                Math.abs((v[2] - v4[2]) / (v1[2] - v5[2])),
-                Math.abs((v[2] - v4[2]) / (v3[2] - v7[2])),
-                Math.abs((v1[2] - v5[2]) / (v2[2] - v6[2])),
-                Math.abs((v3[2] - v7[2]) / (v2[2] - v6[2]))
-        };
 
         addRectShape(v, v1, v2, v3, v4, v5, v6, v7, w, h, d);
     }
@@ -2137,11 +2095,11 @@ public class ModelRendererTurbo extends ModelRenderer
      *
      * @param worldScale the scale of the shape. Usually is 0.0625.
      */
-    @Override
+    /*@Override
     public void render(float worldScale)
     {
         render(worldScale, false);
-    }
+    }*/
 
 
     /**
@@ -2150,7 +2108,7 @@ public class ModelRendererTurbo extends ModelRenderer
      * @param worldScale     The scale of the shape
      * @param oldRotateOrder Whether to use the old rotate order (ZYX) instead of the new one (YZX)
      */
-    public void render(float worldScale, boolean oldRotateOrder)
+    /*public void render(float worldScale, boolean oldRotateOrder)
     {
         if(isHidden)
         {
@@ -2222,9 +2180,9 @@ public class ModelRendererTurbo extends ModelRenderer
 
             }
         }
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void renderWithRotation(float f)
     {
         if(isHidden)
@@ -2255,9 +2213,9 @@ public class ModelRendererTurbo extends ModelRenderer
         }
         callDisplayList();
         GlStateManager.popMatrix();
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void postRender(float f)
     {
         if(isHidden)
@@ -2292,9 +2250,9 @@ public class ModelRendererTurbo extends ModelRenderer
         {
             GlStateManager.translate(rotationPointX * f, rotationPointY * f, rotationPointZ * f);
         }
-    }
+    }*/
 
-    private void callDisplayList()
+    /*private void callDisplayList()
     {
         if(useLegacyCompiler)
             GlStateManager.callList(displayList);
@@ -2314,11 +2272,11 @@ public class ModelRendererTurbo extends ModelRenderer
                     renderEngine.bindTexture(new ResourceLocation("", defaultTexture)); //TODO : Check. Not sure about this one
             }
         }
-    }
+    }*/
 
-    private void compileDisplayList(float worldScale)
+    /*private void compileDisplayList(float worldScale)
     {
-        if(useLegacyCompiler)
+        if (useLegacyCompiler)
             compileLegacyDisplayList(worldScale);
         else
         {
@@ -2343,9 +2301,9 @@ public class ModelRendererTurbo extends ModelRenderer
         }
 
         compiled = true;
-    }
+    }*/
 
-    private void compileLegacyDisplayList(float worldScale)
+    /*private void compileLegacyDisplayList(float worldScale)
     {
         displayList = GLAllocation.generateDisplayLists(1);
         GlStateManager.glNewList(displayList, GL11.GL_COMPILE);
@@ -2356,5 +2314,5 @@ public class ModelRendererTurbo extends ModelRenderer
         }
 
         GlStateManager.glEndList();
-    }
+    }*/
 }

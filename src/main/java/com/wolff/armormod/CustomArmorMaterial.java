@@ -1,5 +1,7 @@
 package com.wolff.armormod;
 
+import org.jetbrains.annotations.NotNull;
+
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ArmorItem;
@@ -33,12 +35,54 @@ public enum  CustomArmorMaterial implements ArmorMaterial
         this.repairMaterial = repairMaterial;
     }
 
-    @Override public int getDurabilityForType(ArmorItem.Type slot) { return durability; }
-    @Override public int getDefenseForType(ArmorItem.Type slot) { return defense[slot.getSlot().getIndex()]; }
-    @Override public int getEnchantmentValue() { return enchantability; }
-    @Override public SoundEvent getEquipSound() { return equipSound; }
-    @Override public Ingredient getRepairIngredient() { return repairMaterial.get(); }
-    @Override public String getName() { return name; }
-    @Override public float getToughness() { return toughness; }
-    @Override public float getKnockbackResistance() { return knockbackResistance; }
+    @Override
+    public int getDurabilityForType(@NotNull ArmorItem.Type slot)
+    {
+        return durability;
+    }
+
+    @Override
+    public int getDefenseForType(@NotNull ArmorItem.Type slot)
+    {
+        return defense[slot.getSlot().getIndex()];
+    }
+
+    @Override
+    public int getEnchantmentValue()
+    {
+        return enchantability;
+    }
+
+    @Override
+    @NotNull
+    public SoundEvent getEquipSound()
+    {
+        return equipSound;
+    }
+
+    @Override
+    @NotNull
+    public Ingredient getRepairIngredient()
+    {
+        return repairMaterial.get();
+    }
+
+    @Override
+    @NotNull
+    public String getName()
+    {
+        return name;
+    }
+
+    @Override
+    public float getToughness()
+    {
+        return toughness;
+    }
+
+    @Override
+    public float getKnockbackResistance()
+    {
+        return knockbackResistance;
+    }
 }

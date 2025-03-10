@@ -2,7 +2,6 @@ package com.wolff.armormod.item;
 
 import com.wolff.armormod.ArmorMod;
 import com.wolff.armormod.CustomArmorMaterial;
-import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;

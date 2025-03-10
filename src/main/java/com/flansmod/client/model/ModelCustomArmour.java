@@ -25,8 +25,9 @@ import java.util.Map;
 
 public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IModelBase
 {
-    public ArmourType type;
+    public static ModelPart ROOT;
 
+    public ArmourType type;
     public ModelRendererTurbo[] headModel = new ModelRendererTurbo[0];
     public ModelRendererTurbo[] bodyModel = new ModelRendererTurbo[0];
     public ModelRendererTurbo[] leftArmModel = new ModelRendererTurbo[0];
@@ -41,12 +42,7 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
 
     public ModelCustomArmour()
     {
-        super(new ModelPart(new ArrayList<>(), new HashMap<>()));
-    }
-
-    public ModelCustomArmour(ModelPart root)
-    {
-        super(root);
+        super(ROOT);
     }
 
     @Override

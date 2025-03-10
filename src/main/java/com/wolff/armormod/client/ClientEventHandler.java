@@ -1,6 +1,6 @@
 package com.wolff.armormod.client;
 
-import com.wolff.armormod.CustomArmorLayer;
+import com.flansmod.client.model.ModelCustomArmour;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -20,14 +20,20 @@ public class ClientEventHandler
     @SubscribeEvent
     public static void registerArmorLayer(EntityRenderersEvent.AddLayers event)
     {
+        ModelManager modelManager = Minecraft.getInstance().getModelManager();
+        EntityModelSet modelSet = event.getEntityModels();
+
+        if (ModelCustomArmour.ROOT == null)
+        {
+            ModelCustomArmour.ROOT = modelSet.bakeLayer(ModModelLayers.CUSTOM_ARMOR);
+        }
+
         for (String skin : event.getSkins())
         {
             LivingEntityRenderer<?, ?> renderer = event.getSkin(skin);
             if (renderer instanceof PlayerRenderer playerRenderer)
             {
-                ModelManager modelManager = Minecraft.getInstance().getModelManager();
-                EntityModelSet modelSet = event.getEntityModels();
-                playerRenderer.addLayer(new CustomArmorLayer<>(playerRenderer, modelSet, modelManager));
+                playerRenderer.addLayer(new CustomArmorLayer<>(playerRenderer, modelManager));
             }
         }
     }

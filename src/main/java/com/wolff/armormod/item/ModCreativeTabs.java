@@ -1,9 +1,7 @@
 package com.wolff.armormod.item;
 
 import com.wolff.armormod.ArmorMod;
-
 import net.minecraftforge.registries.DeferredRegister;
-
 import net.minecraftforge.registries.RegistryObject;
 
 import net.minecraft.core.registries.Registries;
@@ -15,10 +13,8 @@ public class ModCreativeTabs
 {
     private ModCreativeTabs() {}
 
-    // Register creative mode tab
     public static final DeferredRegister<CreativeModeTab> REGISTRY = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ArmorMod.MOD_ID);
 
-    // Define the creative tab
     public static final RegistryObject<CreativeModeTab> CREATIVE_TAB = REGISTRY.register("custom_tab", () -> CreativeModeTab.builder()
         .title(Component.translatable("creativetab.custom_tab"))
         .icon(() -> new ItemStack(ModItems.CUSTOM_HELMET.get()))

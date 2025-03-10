@@ -1,4 +1,4 @@
-package com.wolff.armormod.client;
+package com.wolff.armormod.client.model;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;

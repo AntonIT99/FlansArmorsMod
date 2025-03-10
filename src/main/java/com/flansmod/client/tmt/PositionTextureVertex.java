@@ -2,7 +2,7 @@ package com.flansmod.client.tmt;
 
 import net.minecraft.world.phys.Vec3;
 
-public class PositionTextureVertex extends com.wolff.armormod.client.PositionTextureVertex
+public class PositionTextureVertex extends com.wolff.armormod.client.model.PositionTextureVertex
 {
     public float texturePositionW = 1F;
 

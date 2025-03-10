@@ -1,4 +1,4 @@
-package com.wolff.armormod.client;
+package com.wolff.armormod.client.model;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

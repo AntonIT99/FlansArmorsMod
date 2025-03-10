@@ -1,4 +1,4 @@
-package com.wolff.armormod.client;
+package com.wolff.armormod.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

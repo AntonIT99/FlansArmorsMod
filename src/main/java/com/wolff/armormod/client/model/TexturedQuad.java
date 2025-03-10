@@ -1,4 +1,4 @@
-package com.wolff.armormod.client;
+package com.wolff.armormod.client.model;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -45,7 +45,7 @@ public class TexturedQuad
     }
 
     /**
-     * Draw this primitve. This is typically called only once as the generated drawing instructions are saved by the
+     * Draw this primitive. This is typically called only once as the generated drawing instructions are saved by the
      * renderer and reused later.
      */
     @OnlyIn(Dist.CLIENT)

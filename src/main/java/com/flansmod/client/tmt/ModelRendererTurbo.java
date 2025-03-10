@@ -2,9 +2,9 @@ package com.flansmod.client.tmt;
 
 import net.minecraft.world.phys.Vec3;
 
-import com.wolff.armormod.client.IModelBase;
-import com.wolff.armormod.client.ModelRenderer;
-import com.wolff.armormod.client.TexturedQuad;
+import com.wolff.armormod.client.model.IModelBase;
+import com.wolff.armormod.client.model.ModelRenderer;
+import com.wolff.armormod.client.model.TexturedQuad;
 
 import java.util.*;
 

@@ -4,9 +4,9 @@ import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolff.armormod.ArmourType;
-import com.wolff.armormod.client.IModelBase;
-import com.wolff.armormod.client.ModelRenderer;
-import com.wolff.armormod.client.TextureOffset;
+import com.wolff.armormod.client.model.IModelBase;
+import com.wolff.armormod.client.model.ModelRenderer;
+import com.wolff.armormod.client.model.TextureOffset;
 import com.wolff.armormod.util.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -39,8 +39,14 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
     private final List<ModelRenderer> boxList = new ArrayList<>();
     private final Map<String, TextureOffset> modelTextureMap = new HashMap<>();
 
-    public ModelCustomArmour() {
+    public ModelCustomArmour()
+    {
         super(new ModelPart(new ArrayList<>(), new HashMap<>()));
+    }
+
+    public ModelCustomArmour(ModelPart root)
+    {
+        super(root);
     }
 
     @Override

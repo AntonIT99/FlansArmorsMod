@@ -20,9 +20,4 @@ public class ModItems
     public static final RegistryObject<Item> CUSTOM_CHESTPLATE = REGISTRY.register("custom_chestplate", () -> new CustomArmorItem(CustomArmorMaterial.CUSTOM, ArmorItem.Type.CHESTPLATE, new Item.Properties()));
     public static final RegistryObject<Item> CUSTOM_LEGGINGS = REGISTRY.register("custom_leggings", () -> new CustomArmorItem(CustomArmorMaterial.CUSTOM, ArmorItem.Type.LEGGINGS, new Item.Properties()));
     public static final RegistryObject<Item> CUSTOM_BOOTS = REGISTRY.register("custom_boots", () -> new CustomArmorItem(CustomArmorMaterial.CUSTOM, ArmorItem.Type.BOOTS, new Item.Properties()));
-
-    public static void register(IEventBus eventBus)
-    {
-        REGISTRY.register(eventBus);
-    }
 }

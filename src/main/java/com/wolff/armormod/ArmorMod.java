@@ -2,6 +2,7 @@ package com.wolff.armormod;
 
 import com.flansmod.client.model.ModelCustomArmour;
 import com.mojang.logging.LogUtils;
+import com.wolff.armormod.item.ModCreativeTabs;
 import com.wolff.armormod.item.ModItems;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -19,8 +20,8 @@ public class ArmorMod {
         MinecraftForge.EVENT_BUS.register(this);
         IEventBus eventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        // Register items (armor pieces)
-        ModItems.register(eventBus);
+        ModItems.REGISTRY.register(eventBus);
+        ModCreativeTabs.REGISTRY.register(eventBus);
 
         // Register model layers for custom armor rendering
         eventBus.addListener(this::registerLayerDefinitions);

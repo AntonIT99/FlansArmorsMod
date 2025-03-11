@@ -1,13 +1,6 @@
 package com.wolff.armormod;
 
-import com.flansmod.client.model.ModelCustomArmour;
 import com.mojang.logging.LogUtils;
-import com.wolff.armormod.client.ModModelLayers;
-import com.wolff.armormod.item.ModCreativeTabs;
-import com.wolff.armormod.item.ModItems;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -27,13 +20,5 @@ public class ArmorMod
 
         ModItems.REGISTRY.register(eventBus);
         ModCreativeTabs.REGISTRY.register(eventBus);
-
-        eventBus.addListener(this::registerLayerDefinitions);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event)
-    {
-        event.registerLayerDefinition(ModModelLayers.CUSTOM_ARMOR, ModelCustomArmour::createBodyLayer);
     }
 }

@@ -133,7 +133,6 @@ public class ModelRenderer
         rotationPointZ = rotationPointZIn;
     }
 
-    @SuppressWarnings("ForLoopReplaceableByForEach")
     @OnlyIn(Dist.CLIENT)
     public void render(PoseStack pPoseStack, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha, float scale)
     {
@@ -144,9 +143,9 @@ public class ModelRenderer
         translateAndRotate(pPoseStack, scale);
         compile(pPoseStack.last(), pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
 
-        for (int i = 0; i < childModels.size(); ++i)
+        for (ModelRenderer childModel : childModels)
         {
-            childModels.get(i).render(pPoseStack, pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale);
+            childModel.render(pPoseStack, pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale);
         }
 
         pPoseStack.translate(-offsetX, -offsetY, -offsetZ);
@@ -167,11 +166,12 @@ public class ModelRenderer
         }
     }
 
-    private void compile(PoseStack.Pose pPose, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
-        for(ModelPart.Cube modelpart$cube : cubeList) {
-            modelpart$cube.compile(pPose, pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+    protected void compile(PoseStack.Pose pPose, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
+    {
+        for (ModelPart.Cube cube : cubeList)
+        {
+            cube.compile(pPose, pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
         }
-
     }
 
     /*@OnlyIn(Dist.CLIENT)

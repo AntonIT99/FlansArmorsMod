@@ -109,8 +109,8 @@ public class TexturedPolygon
         for(int i = 0; i < nVertices; i++)
         {
             PositionTextureVertex positionTexturevertex = vertexPositions[i];
-            if(positionTexturevertex instanceof PositionTransformVertex)
-                ((PositionTransformVertex)positionTexturevertex).setTransformation();
+            if(positionTexturevertex instanceof PositionTransformVertex positionTransformVertex)
+                positionTransformVertex.setTransformation();
             if(i < iNormals.size())
             {
                 if(invertNormal)

@@ -1,7 +1,12 @@
 package com.flansmod.client.tmt;
 
+import org.lwjgl.opengl.GL11;
+
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.phys.Vec3;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolff.armormod.client.model.IModelBase;
 import com.wolff.armormod.client.model.ModelRenderer;
 import com.wolff.armormod.client.model.TexturedQuad;
@@ -2070,11 +2075,24 @@ public class ModelRendererTurbo extends ModelRenderer
      *
      * @param worldScale the scale of the shape. Usually is 0.0625.
      */
-    /*@Override
-    public void render(float worldScale)
+    @Override
+    public void render(PoseStack pPoseStack, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha, float scale)
     {
-        render(worldScale, false);
-    }*/
+        if (!isVisible()) return;
+
+        pPoseStack.pushPose();
+        pPoseStack.translate(offsetX, offsetY, offsetZ);
+        translateAndRotate(pPoseStack, scale);
+        compile(pPoseStack.last(), pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale);
+
+        for (ModelRenderer childModel : childModels)
+        {
+            childModel.render(pPoseStack, pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale);
+        }
+
+        pPoseStack.translate(-offsetX, -offsetY, -offsetZ);
+        pPoseStack.popPose();
+    }
 
 
     /**
@@ -2083,9 +2101,11 @@ public class ModelRendererTurbo extends ModelRenderer
      * @param worldScale     The scale of the shape
      * @param oldRotateOrder Whether to use the old rotate order (ZYX) instead of the new one (YZX)
      */
-    //TODO: implement rendering of shapes
-    /*public void render(float worldScale, boolean oldRotateOrder)
+    public void render(PoseStack pPoseStack, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha,float worldScale, boolean oldRotateOrder)
     {
+        super.render(pPoseStack, pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, worldScale);
+    }
+    /*{
         if(isHidden)
         {
             return;
@@ -2227,6 +2247,18 @@ public class ModelRendererTurbo extends ModelRenderer
             GlStateManager.translate(rotationPointX * f, rotationPointY * f, rotationPointZ * f);
         }
     }*/
+
+    protected void compile(PoseStack.Pose pPose, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha, float scale)
+    {
+        for (TextureGroup usedGroup : textureGroup.values())
+        {
+            for (TexturedPolygon poly : usedGroup.poly)
+            {
+                //TODO: implement this with new rendering system
+                poly.draw(TmtTessellator.instance, scale);
+            }
+        }
+    }
 
     /*private void callDisplayList()
     {

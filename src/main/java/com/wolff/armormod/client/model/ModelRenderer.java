@@ -135,21 +135,22 @@ public class ModelRenderer
 
     @SuppressWarnings("ForLoopReplaceableByForEach")
     @OnlyIn(Dist.CLIENT)
-    public void render(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, float scale)
+    public void render(PoseStack pPoseStack, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha, float scale)
     {
         if (!isVisible() || (cubeList.isEmpty() && childModels.isEmpty())) return;
 
-        poseStack.pushPose();
-        poseStack.translate(offsetX, offsetY, offsetZ);
-        translateAndRotate(poseStack, scale);
+        pPoseStack.pushPose();
+        pPoseStack.translate(offsetX, offsetY, offsetZ);
+        translateAndRotate(pPoseStack, scale);
+        compile(pPoseStack.last(), pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
 
         for (int i = 0; i < childModels.size(); ++i)
         {
-            childModels.get(i).render(poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha, scale);
+            childModels.get(i).render(pPoseStack, pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale);
         }
 
-        poseStack.translate(-offsetX, -offsetY, -offsetZ);
-        poseStack.popPose();
+        pPoseStack.translate(-offsetX, -offsetY, -offsetZ);
+        pPoseStack.popPose();
     }
 
     public void translateAndRotate(PoseStack poseStack, float scale) {
@@ -164,6 +165,13 @@ public class ModelRenderer
         {
             poseStack.scale(scale, scale, scale);
         }
+    }
+
+    private void compile(PoseStack.Pose pPose, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha) {
+        for(ModelPart.Cube modelpart$cube : cubeList) {
+            modelpart$cube.compile(pPose, pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+        }
+
     }
 
     /*@OnlyIn(Dist.CLIENT)

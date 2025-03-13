@@ -33,12 +33,8 @@ public class ModelRendererTurbo extends ModelRenderer
     private static float lightmapLastY;
     private static boolean optifineBreak = false;
 
-    public final String boxName;
     public boolean glow = false;
-    public boolean mirror;
     public boolean flip;
-    public boolean showModel;
-    public boolean isHidden;
     public boolean forcedRecompile;
     public boolean useLegacyCompiler;
 
@@ -72,10 +68,7 @@ public class ModelRendererTurbo extends ModelRenderer
         textureGroup = new HashMap<>();
         textureGroup.put("0", new TextureGroup());
         currentTextureGroup = textureGroup.get("0");
-        boxName = s;
-
         defaultTexture = "";
-
         useLegacyCompiler = false;
     }
 

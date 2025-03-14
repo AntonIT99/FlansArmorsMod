@@ -178,6 +178,6 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
     public static LayerDefinition createLayer()
     {
         MeshDefinition mesh = ModelCustomArmour.createMesh();
-        return LayerDefinition.create(mesh, 64, 64);
+        return LayerDefinition.create(mesh, TEXTURE_WIDTH, TEXTURE_HEIGHT);
     }
 }

@@ -1,6 +1,6 @@
 package com.wolff.armormod.client;
 
-import com.flansmod.client.model.mw.ModelSuperHeavyHelmet;
+import com.flansmod.client.model.ModelCustomArmour;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -17,7 +17,7 @@ public class CustomArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>
     @SuppressWarnings("unchecked")
     public CustomArmorLayer(RenderLayerParent<T, M> parent, ModelManager modelManager)
     {
-        super(parent, (HumanoidModel<T>) new ModelSuperHeavyHelmet(), (HumanoidModel<T>) new ModelSuperHeavyHelmet(), modelManager);
+        super(parent, (HumanoidModel<T>) new ModelCustomArmour(), (HumanoidModel<T>) new ModelCustomArmour(), modelManager);
     }
 
     //@Override public ResourceLocation getArmorResource(net.minecraft.world.entity.Entity entity, ItemStack stack, EquipmentSlot slot, @Nullable String type) {}

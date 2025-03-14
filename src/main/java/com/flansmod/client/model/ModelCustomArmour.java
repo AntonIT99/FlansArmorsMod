@@ -4,12 +4,14 @@ import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolff.armormod.ArmourType;
+import com.wolff.armormod.client.ClientEventHandler;
 import com.wolff.armormod.client.model.IModelBase;
 import com.wolff.armormod.client.model.ModelRenderer;
 import com.wolff.armormod.client.model.TextureOffset;
 import com.wolff.armormod.util.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -27,7 +29,7 @@ import java.util.Map;
 
 public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IModelBase
 {
-    public static ModelPart ROOT;
+    protected static ModelPart ROOT;
 
     public ArmourType type;
     public ModelRendererTurbo[] headModel = new ModelRendererTurbo[0];
@@ -44,7 +46,16 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
 
     public ModelCustomArmour()
     {
-        super(ROOT);
+        super(getRoot());
+    }
+
+    private static ModelPart getRoot()
+    {
+        if (ROOT == null)
+        {
+            ROOT = Minecraft.getInstance().getEntityModels().bakeLayer(ClientEventHandler.CUSTOM_ARMOR);
+        }
+        return ROOT;
     }
 
     public static MeshDefinition createMesh()
@@ -108,7 +119,7 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
         render(rightArmModel, rightArm, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
         render(leftLegModel, leftLeg, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
         render(rightLegModel, rightLeg, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
-        for(ModelRendererTurbo mod : skirtFrontModel)
+        for (ModelRendererTurbo mod : skirtFrontModel)
         {
             mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / type.modelScale;
             mod.rotationPointY = (leftLeg.y + rightLeg.y) / 2F / type.modelScale;
@@ -118,7 +129,7 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
             mod.rotateAngleZ = leftLeg.zRot;
             mod.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
         }
-        for(ModelRendererTurbo mod : skirtRearModel)
+        for (ModelRendererTurbo mod : skirtRearModel)
         {
             mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / type.modelScale;
             mod.rotationPointY = (leftLeg.y + rightLeg.x) / 2F / type.modelScale;

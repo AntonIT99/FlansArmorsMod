@@ -1,11 +1,18 @@
 package com.flansmod.client.tmt;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.lwjgl.opengl.GL11;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
+
 import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class TexturedPolygon
 {
@@ -63,9 +70,80 @@ public class TexturedPolygon
         iNormals = vec;
     }
 
+    public void draw(PoseStack.Pose pPose, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
+    {
+        Matrix4f matrix4f = pPose.pose();
+        Matrix3f matrix3f = pPose.normal();
+        Vector3f vector3f = new Vector3f();
+
+        if (iNormals.isEmpty())
+        {
+            if (normals.length == 3)
+            {
+                if (invertNormal)
+                {
+                    vector3f = matrix3f.transform(new Vector3f(-normals[0], -normals[1], -normals[2]));
+                }
+                else
+                {
+                    vector3f = matrix3f.transform(new Vector3f(normals[0], normals[1], normals[2]));
+                }
+            }
+            else if (vertexPositions.length >= 3)
+            {
+                Vec3 vec3d = vertexPositions[1].vector3D.subtract(vertexPositions[0].vector3D);
+                Vec3 vec31 = vertexPositions[1].vector3D.subtract(vertexPositions[2].vector3D);
+                Vec3 vec32 = vec31.cross(vec3d).normalize();
+
+                if (invertNormal)
+                {
+                    vector3f = matrix3f.transform(new Vector3f((float) -vec32.x, (float) -vec32.y, (float) -vec32.z));
+                }
+                else
+                {
+                    vector3f = matrix3f.transform(new Vector3f((float) vec32.x, (float) vec32.y, (float) vec32.z));
+                }
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        for (int i = 0; i < nVertices; i++)
+        {
+            PositionTextureVertex positionTexturevertex = vertexPositions[i];
+
+            if (positionTexturevertex instanceof PositionTransformVertex positionTransformVertex)
+                positionTransformVertex.setTransformation();
+
+            if (i < iNormals.size())
+            {
+                if(invertNormal)
+                {
+                    vector3f = matrix3f.transform(new Vector3f((float) -iNormals.get(i).x, (float) -iNormals.get(i).y, (float) -iNormals.get(i).z));
+                }
+                else
+                {
+                    vector3f = matrix3f.transform(new Vector3f((float) iNormals.get(i).x, (float) iNormals.get(i).y, (float) iNormals.get(i).z));
+                }
+            }
+
+            float f = vector3f.x();
+            float f1 = vector3f.y();
+            float f2 = vector3f.z();
+            float f3 = (float) positionTexturevertex.vector3D.x() / 16.0F;
+            float f4 = (float) positionTexturevertex.vector3D.y() / 16.0F;
+            float f5 = (float) positionTexturevertex.vector3D.z() / 16.0F;
+
+            Vector4f vector4f = matrix4f.transform(new Vector4f(f3, f4, f5, 1.0F));
+            pVertexConsumer.vertex(vector4f.x(), vector4f.y(), vector4f.z(), pRed, pGreen, pBlue, pAlpha, positionTexturevertex.texturePositionX, positionTexturevertex.texturePositionY, pPackedOverlay, pPackedLight, f, f1, f2);
+        }
+    }
+
+    @Deprecated
     public void draw(TmtTessellator tessellator, float f)
     {
-
         if(nVertices == 3)
             tessellator.startDrawing(GL11.GL_TRIANGLES);
         else if(nVertices == 4)

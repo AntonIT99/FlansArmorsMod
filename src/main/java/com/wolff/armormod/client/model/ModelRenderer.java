@@ -10,49 +10,44 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.core.Direction;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class ModelRenderer
 {
     public static final float PI = (float) Math.PI;
-    public static final float DEGREE_CONVERSION_FACTOR = 180F / PI;
     
     /** The size of the texture file's width in pixels. */
     public float textureWidth;
+
     /** The size of the texture file's height in pixels. */
     public float textureHeight;
+
     public float rotationPointX;
     public float rotationPointY;
     public float rotationPointZ;
     public float rotateAngleX;
     public float rotateAngleY;
     public float rotateAngleZ;
-    //TODO: do something with mirror
+    public float offsetX;
+    public float offsetY;
+    public float offsetZ;
     public boolean mirror;
     public boolean showModel;
+
     /** Hides the model. */
     public boolean isHidden;
 
     public final List<ModelPart.Cube> cubeList = new ArrayList<>();
     public final List<ModelRenderer> childModels = new ArrayList<>();
-    public final Map<String, ModelPart> children = new HashMap<>();
     public final String boxName;
-    //TODO: do something with offsets
-    public float offsetX;
-    public float offsetY;
-    public float offsetZ;
 
     /** The X offset into the texture used for displaying this model */
     private int textureOffsetX;
+
     /** The Y offset into the texture used for displaying this model */
     private int textureOffsetY;
-    /** The GL display list rendered by the Tessellator for this model */
-    private int displayList;
 
-    //TODO: do something with baseModel
     private final IModelBase baseModel;
 
     public ModelRenderer(IModelBase model, String boxNameIn)
@@ -83,7 +78,6 @@ public class ModelRenderer
     public void addChild(ModelRenderer renderer)
     {
         childModels.add(renderer);
-        children.put(boxName + children.size(), renderer.toModelPart());
     }
 
     public ModelRenderer setTextureOffset(int x, int y)
@@ -122,7 +116,8 @@ public class ModelRenderer
         addBox(offX, offY, offZ, width, height, depth, scaleFactor, mirror);
     }
 
-    protected void addBox(float offX, float offY, float offZ, int width, int height, int depth, float scaleFactor, boolean mirrored) {
+    protected void addBox(float offX, float offY, float offZ, int width, int height, int depth, float scaleFactor, boolean mirrored)
+    {
         cubeList.add(new ModelPart.Cube(textureOffsetX, textureOffsetY, offX, offY, offZ, width, height, depth, scaleFactor, scaleFactor, scaleFactor, mirrored, 1.0F, 1.0F, Set.of(Direction.values())));
     }
 
@@ -152,7 +147,8 @@ public class ModelRenderer
         pPoseStack.popPose();
     }
 
-    public void translateAndRotate(PoseStack poseStack, float scale) {
+    public void translateAndRotate(PoseStack poseStack, float scale)
+    {
         poseStack.translate(rotationPointX * 0.0625F, rotationPointY * 0.0625F, rotationPointZ * 0.0625F);
 
         if (rotateAngleX != 0.0F || rotateAngleY != 0.0F || rotateAngleZ != 0.0F)
@@ -174,79 +170,6 @@ public class ModelRenderer
         }
     }
 
-    /*@OnlyIn(Dist.CLIENT)
-    public void renderWithRotation(float scale)
-    {
-        if (!isVisible() || (cubeList.isEmpty() && childModels.isEmpty())) return;
-
-        if (!compiled)
-        {
-            compileDisplayList(scale);
-        }
-
-        GlStateManager.pushMatrix();
-        GlStateManager.translate(rotationPointX * scale, rotationPointY * scale, rotationPointZ * scale);
-
-        if (rotateAngleY != 0.0F)
-        {
-            GlStateManager.rotate(rotateAngleY * DEGREE_CONVERSION_FACTOR, 0.0F, 1.0F, 0.0F);
-        }
-
-        if (rotateAngleX != 0.0F)
-        {
-            GlStateManager.rotate(rotateAngleX * DEGREE_CONVERSION_FACTOR, 1.0F, 0.0F, 0.0F);
-        }
-
-        if (rotateAngleZ != 0.0F)
-        {
-            GlStateManager.rotate(rotateAngleZ * DEGREE_CONVERSION_FACTOR, 0.0F, 0.0F, 1.0F);
-        }
-
-        GlStateManager.callList(displayList);
-        GlStateManager.popMatrix();
-    }*/
-
-    /**
-     * Allows the changing of Angles after a box has been rendered
-     */
-    /*@OnlyIn(Dist.CLIENT)
-    public void postRender(float scale)
-    {
-        if (!isVisible()) return;
-        
-        if (!compiled)
-        {
-            compileDisplayList(scale);
-        }
-
-        if (rotateAngleX == 0.0F && rotateAngleY == 0.0F && rotateAngleZ == 0.0F)
-        {
-            if (rotationPointX != 0.0F || rotationPointY != 0.0F || rotationPointZ != 0.0F)
-            {
-                GlStateManager.translate(rotationPointX * scale, rotationPointY * scale, rotationPointZ * scale);
-            }
-        }
-        else
-        {
-            GlStateManager.translate(rotationPointX * scale, rotationPointY * scale, rotationPointZ * scale);
-
-            if (rotateAngleZ != 0.0F)
-            {
-                GlStateManager.rotate(rotateAngleZ * (180F / PI), 0.0F, 0.0F, 1.0F);
-            }
-
-            if (rotateAngleY != 0.0F)
-            {
-                GlStateManager.rotate(rotateAngleY * (180F / PI), 0.0F, 1.0F, 0.0F);
-            }
-
-            if (rotateAngleX != 0.0F)
-            {
-                GlStateManager.rotate(rotateAngleX * (180F / PI), 1.0F, 0.0F, 0.0F);
-            }
-        }
-    }*/
-
     public ModelRenderer setTextureSize(int textureWidthIn, int textureHeightIn)
     {
         textureWidth = textureWidthIn;
@@ -254,16 +177,8 @@ public class ModelRenderer
         return this;
     }
     
-    public boolean isVisible() {
-        return !isHidden && showModel;
-    }
-
-    public ModelPart toModelPart()
+    public boolean isVisible()
     {
-        ModelPart part = new ModelPart(cubeList, children);
-        part.setPos(rotationPointX, rotationPointY, rotationPointZ);
-        part.setRotation(rotateAngleX, rotateAngleY, rotateAngleZ);
-        part.visible = isVisible();
-        return part;
+        return !isHidden && showModel;
     }
 }

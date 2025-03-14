@@ -7,7 +7,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
@@ -31,11 +30,6 @@ public class ClientEventHandler
     @SubscribeEvent
     public static void registerArmorLayer(EntityRenderersEvent.AddLayers event)
     {
-        if (ModelCustomArmour.ROOT == null)
-        {
-            ModelCustomArmour.ROOT = event.getEntityModels().bakeLayer(CUSTOM_ARMOR);
-        }
-
         for (String skin : event.getSkins())
         {
             LivingEntityRenderer<?, ?> renderer = event.getSkin(skin);

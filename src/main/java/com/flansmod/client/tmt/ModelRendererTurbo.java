@@ -1,17 +1,17 @@
 package com.flansmod.client.tmt;
 
-import org.lwjgl.opengl.GL11;
-
-import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.world.phys.Vec3;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolff.armormod.client.model.IModelBase;
 import com.wolff.armormod.client.model.ModelRenderer;
 import com.wolff.armormod.client.model.TexturedQuad;
 
-import java.util.*;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An extension to the ModelRenderer class. It basically is a copy to ModelRenderer,
@@ -34,6 +34,7 @@ public class ModelRendererTurbo extends ModelRenderer
     public static final int MR_BOTTOM = 5;
 
     //Lighting stuff
+    //TODO: implement
     private static float lightmapLastX;
     private static float lightmapLastY;
     private static boolean optifineBreak = false;
@@ -43,18 +44,16 @@ public class ModelRendererTurbo extends ModelRenderer
     public boolean forcedRecompile;
     public boolean useLegacyCompiler;
 
-    private PositionTextureVertex[] vertices;
-    private TexturedPolygon[] faces;
     private int textureOffsetX;
     private int textureOffsetY;
-    //private boolean compiled;
-    //private int displayList;
-    //private int[] displayListArray;
-    private final Map<String, TransformGroup> transformGroup;
-    private final Map<String, TextureGroup> textureGroup;
+    private PositionTextureVertex[] vertices;
+    private TexturedPolygon[] faces;
     private TransformGroup currentGroup;
     private TextureGroup currentTextureGroup;
     private String defaultTexture;
+
+    private final Map<String, TransformGroup> transformGroup;
+    private final Map<String, TextureGroup> textureGroup;
 
     public ModelRendererTurbo(IModelBase modelbase, String s)
     {
@@ -2083,7 +2082,7 @@ public class ModelRendererTurbo extends ModelRenderer
         pPoseStack.pushPose();
         pPoseStack.translate(offsetX, offsetY, offsetZ);
         translateAndRotate(pPoseStack, scale);
-        compile(pPoseStack.last(), pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale);
+        compile(pPoseStack.last(), pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
 
         for (ModelRenderer childModel : childModels)
         {
@@ -2248,14 +2247,14 @@ public class ModelRendererTurbo extends ModelRenderer
         }
     }*/
 
-    protected void compile(PoseStack.Pose pPose, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha, float scale)
+    @Override
+    protected void compile(PoseStack.Pose pPose, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
     {
         for (TextureGroup usedGroup : textureGroup.values())
         {
             for (TexturedPolygon poly : usedGroup.poly)
             {
-                //TODO: implement this with new rendering system
-                poly.draw(TmtTessellator.instance, scale);
+                poly.draw(pPose, pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
             }
         }
     }
@@ -2277,7 +2276,7 @@ public class ModelRendererTurbo extends ModelRenderer
                 curTexGroup.loadTexture();
                 GlStateManager.callList(displayListArray[i]);
                 if(!defaultTexture.isEmpty())
-                    renderEngine.bindTexture(new ResourceLocation("", defaultTexture)); //TODO : Check. Not sure about this one
+                    renderEngine.bindTexture(new ResourceLocation("", defaultTexture));
             }
         }
     }*/

@@ -54,6 +54,10 @@ public class ModelExoskeletonHelmet extends ModelCustomArmour
 
 		headModel[9].addShapeBox(-20F, -90F + y, 5F, 4, 7, 8, 0F,0F, 0F, 0F,0F, 0F, 0F,0F, 0F, 0F,0F, 0F, 0F,0F, 0F, 0F,0F, 0F, 0F,0F, 0F, 0F,0F, 0F, 0F); // Box 15
 		headModel[9].setRotationPoint(0F, 0F, 0F);
-		
+
+		/*for (ModelRendererTurbo model : headModel)
+		{
+			model.glow = true;
+		}*/
 	}
 }

@@ -7,12 +7,16 @@ import com.wolff.armormod.client.model.ModelRenderer;
 import com.wolff.armormod.client.model.TexturedQuad;
 import org.joml.Quaternionf;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.wolff.armormod.client.ClientEventHandler.TEXTURE;
 
 /**
  * An extension to the ModelRenderer class. It basically is a copy to ModelRenderer,
@@ -2081,6 +2085,12 @@ public class ModelRendererTurbo extends ModelRenderer
     public void render(PoseStack pPoseStack, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha, float scale, boolean rotateOrderZYX)
     {
         if (!isVisible()) return;
+
+        if (glow)
+        {
+            pVertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.eyes(TEXTURE));
+            pPackedLight = 15728640;
+        }
 
         pPoseStack.pushPose();
         pPoseStack.translate(offsetX, offsetY, offsetZ);

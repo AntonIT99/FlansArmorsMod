@@ -24,7 +24,8 @@ public enum  CustomArmorMaterial implements ArmorMaterial
     private final float knockbackResistance;
     private final Supplier<Ingredient> repairMaterial;
 
-    CustomArmorMaterial(String name, int durability, int[] defense, int enchantability, SoundEvent equipSound, float toughness, float knockbackResistance, Supplier<Ingredient> repairMaterial) {
+    CustomArmorMaterial(String name, int durability, int[] defense, int enchantability, SoundEvent equipSound, float toughness, float knockbackResistance, Supplier<Ingredient> repairMaterial)
+    {
         this.name = name;
         this.durability = durability;
         this.defense = defense;

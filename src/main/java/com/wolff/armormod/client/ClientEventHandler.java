@@ -19,7 +19,8 @@ public class ClientEventHandler
 {
     private ClientEventHandler() {}
 
-    public static final ModelLayerLocation CUSTOM_ARMOR = new ModelLayerLocation(new ResourceLocation(MOD_ID, "custom_armor"), "main");
+    public static final ResourceLocation TEXTURE = new ResourceLocation(MOD_ID, "armor/exoskeleton_1.png");
+    public static final ModelLayerLocation CUSTOM_ARMOR = new ModelLayerLocation(TEXTURE, "main");
 
     @SubscribeEvent
     public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event)

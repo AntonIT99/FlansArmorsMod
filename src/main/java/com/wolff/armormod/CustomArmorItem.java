@@ -1,6 +1,6 @@
 package com.wolff.armormod;
 
-import com.flansmod.client.model.mw.ModelSuperHeavyHelmet;
+import com.flansmod.client.model.mw.ModelExoskeletonHelmet;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 
 import net.minecraft.client.model.HumanoidModel;
@@ -26,7 +26,7 @@ public class CustomArmorItem extends ArmorItem
         {
             public HumanoidModel<?> getHumanoidArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> defaultModel)
             {
-                return new ModelSuperHeavyHelmet();
+                return new ModelExoskeletonHelmet();
             }
         });
     }

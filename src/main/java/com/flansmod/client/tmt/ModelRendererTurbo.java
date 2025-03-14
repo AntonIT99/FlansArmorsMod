@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolff.armormod.client.model.IModelBase;
 import com.wolff.armormod.client.model.ModelRenderer;
 import com.wolff.armormod.client.model.TexturedQuad;
+import org.joml.Quaternionf;
 
 import net.minecraft.world.phys.Vec3;
 
@@ -32,12 +33,6 @@ public class ModelRendererTurbo extends ModelRenderer
     public static final int MR_RIGHT = 3;
     public static final int MR_TOP = 4;
     public static final int MR_BOTTOM = 5;
-
-    //Lighting stuff
-    //TODO: implement
-    private static float lightmapLastX;
-    private static float lightmapLastY;
-    private static boolean optifineBreak = false;
 
     public boolean glow = false;
     public boolean flip;
@@ -2016,11 +2011,7 @@ public class ModelRendererTurbo extends ModelRenderer
      */
     public void setTextureGroup(String groupName)
     {
-        if(!textureGroup.containsKey(groupName))
-        {
-            textureGroup.put(groupName, new TextureGroup());
-        }
-        currentTextureGroup = textureGroup.get(groupName);
+        currentTextureGroup = textureGroup.computeIfAbsent(groupName, k -> new TextureGroup());
     }
 
     /**
@@ -2072,16 +2063,28 @@ public class ModelRendererTurbo extends ModelRenderer
     /**
      * Renders the shape.
      *
-     * @param worldScale the scale of the shape. Usually is 0.0625.
+     * @param scale the scale of the shape. Default is 1.
      */
     @Override
     public void render(PoseStack pPoseStack, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha, float scale)
+    {
+        render(pPoseStack, pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale, false);
+    }
+
+
+    /**
+     * Renders the shape
+     *
+     * @param scale     The scale of the shape. Default is 1.
+     * @param rotateOrderZYX Whether to use the rotate order ZYX instead of YZX
+     */
+    public void render(PoseStack pPoseStack, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha, float scale, boolean rotateOrderZYX)
     {
         if (!isVisible()) return;
 
         pPoseStack.pushPose();
         pPoseStack.translate(offsetX, offsetY, offsetZ);
-        translateAndRotate(pPoseStack, scale);
+        translateAndRotate(pPoseStack, scale, rotateOrderZYX);
         compile(pPoseStack.last(), pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
 
         for (ModelRenderer childModel : childModels)
@@ -2093,159 +2096,35 @@ public class ModelRendererTurbo extends ModelRenderer
         pPoseStack.popPose();
     }
 
-
     /**
-     * Renders the shape
+     * Translate and rotate the shape
      *
-     * @param worldScale     The scale of the shape
-     * @param oldRotateOrder Whether to use the old rotate order (ZYX) instead of the new one (YZX)
+     * @param scale     The scale of the shape. Default is 1.
+     * @param rotateOrderZYX Whether to use the rotate order ZYX instead of YZX
      */
-    public void render(PoseStack pPoseStack, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha,float worldScale, boolean oldRotateOrder)
+    public void translateAndRotate(PoseStack poseStack, float scale, boolean rotateOrderZYX)
     {
-        super.render(pPoseStack, pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, worldScale);
+        poseStack.translate(rotationPointX * 0.0625F * scale, rotationPointY * 0.0625F * scale, rotationPointZ * 0.0625F * scale);
+
+        if (rotateAngleX != 0.0F || rotateAngleY != 0.0F || rotateAngleZ != 0.0F)
+        {
+            Quaternionf rotation;
+            if (rotateOrderZYX)
+            {
+                rotation = new Quaternionf().rotationZYX(rotateAngleZ, rotateAngleY, rotateAngleX);
+            }
+            else
+            {
+                rotation = new Quaternionf().rotationY(rotateAngleY).rotateZ(rotateAngleZ).rotateX(rotateAngleX);
+            }
+            poseStack.mulPose(rotation);
+        }
+
+        if (scale != 1.0F)
+        {
+            poseStack.scale(scale, scale, scale);
+        }
     }
-    /*{
-        if(isHidden)
-        {
-            return;
-        }
-        if(!showModel)
-        {
-            return;
-        }
-        if(!compiled || forcedRecompile)
-        {
-            compileDisplayList(worldScale);
-        }
-        if(rotateAngleX != 0.0F || rotateAngleY != 0.0F || rotateAngleZ != 0.0F)
-        {
-            GlStateManager.pushMatrix();
-            GlStateManager.translate(rotationPointX * worldScale, rotationPointY * worldScale, rotationPointZ * worldScale);
-            if(!oldRotateOrder && rotateAngleY != 0.0F)
-            {
-                GlStateManager.rotate(rotateAngleY * 57.29578F, 0.0F, 1.0F, 0.0F);
-            }
-            if(rotateAngleZ != 0.0F)
-            {
-                GlStateManager.rotate((oldRotateOrder ? -1 : 1) * rotateAngleZ * 57.29578F, 0.0F, 0.0F, 1.0F);
-            }
-            if(oldRotateOrder && rotateAngleY != 0.0F)
-            {
-                GlStateManager.rotate(-rotateAngleY * 57.29578F, 0.0F, 1.0F, 0.0F);
-            }
-            if(rotateAngleX != 0.0F)
-            {
-                GlStateManager.rotate(rotateAngleX * 57.29578F, 1.0F, 0.0F, 0.0F);
-            }
-
-            callDisplayList();
-            if(childModels != null)
-            {
-                for(Object childModel : childModels)
-                {
-                    ((ModelRenderer)childModel).render(worldScale);
-                }
-
-            }
-            GlStateManager.popMatrix();
-        }
-        else if(rotationPointX != 0.0F || rotationPointY != 0.0F || rotationPointZ != 0.0F)
-        {
-            GlStateManager.translate(rotationPointX * worldScale, rotationPointY * worldScale, rotationPointZ * worldScale);
-            callDisplayList();
-            if(childModels != null)
-            {
-                for(Object childModel : childModels)
-                {
-                    ((ModelRenderer)childModel).render(worldScale);
-                }
-
-            }
-            GlStateManager.translate(-rotationPointX * worldScale, -rotationPointY * worldScale, -rotationPointZ * worldScale);
-        }
-        else
-        {
-            callDisplayList();
-            if(childModels != null)
-            {
-                for(Object childModel : childModels)
-                {
-                    ((ModelRenderer)childModel).render(worldScale);
-                }
-
-            }
-        }
-    }*/
-
-    /*@Override
-    public void renderWithRotation(float f)
-    {
-        if(isHidden)
-        {
-            return;
-        }
-        if(!showModel)
-        {
-            return;
-        }
-        if(!compiled)
-        {
-            compileDisplayList(f);
-        }
-        GlStateManager.pushMatrix();
-        GlStateManager.translate(rotationPointX * f, rotationPointY * f, rotationPointZ * f);
-        if(rotateAngleY != 0.0F)
-        {
-            GlStateManager.rotate(rotateAngleY * 57.29578F, 0.0F, 1.0F, 0.0F);
-        }
-        if(rotateAngleX != 0.0F)
-        {
-            GlStateManager.rotate(rotateAngleX * 57.29578F, 1.0F, 0.0F, 0.0F);
-        }
-        if(rotateAngleZ != 0.0F)
-        {
-            GlStateManager.rotate(rotateAngleZ * 57.29578F, 0.0F, 0.0F, 1.0F);
-        }
-        callDisplayList();
-        GlStateManager.popMatrix();
-    }*/
-
-    /*@Override
-    public void postRender(float f)
-    {
-        if(isHidden)
-        {
-            return;
-        }
-        if(!showModel)
-        {
-            return;
-        }
-        if(!compiled || forcedRecompile)
-        {
-            compileDisplayList(f);
-        }
-        if(rotateAngleX != 0.0F || rotateAngleY != 0.0F || rotateAngleZ != 0.0F)
-        {
-            GlStateManager.translate(rotationPointX * f, rotationPointY * f, rotationPointZ * f);
-            if(rotateAngleZ != 0.0F)
-            {
-                GlStateManager.rotate(rotateAngleZ * 57.29578F, 0.0F, 0.0F, 1.0F);
-            }
-            if(rotateAngleY != 0.0F)
-            {
-                GlStateManager.rotate(rotateAngleY * 57.29578F, 0.0F, 1.0F, 0.0F);
-            }
-            if(rotateAngleX != 0.0F)
-            {
-                GlStateManager.rotate(rotateAngleX * 57.29578F, 1.0F, 0.0F, 0.0F);
-            }
-        }
-        else if(rotationPointX != 0.0F || rotationPointY != 0.0F || rotationPointZ != 0.0F)
-        {
-            GlStateManager.translate(rotationPointX * f, rotationPointY * f, rotationPointZ * f);
-        }
-    }*/
 
     @Override
     protected void compile(PoseStack.Pose pPose, VertexConsumer pVertexConsumer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
@@ -2258,68 +2137,4 @@ public class ModelRendererTurbo extends ModelRenderer
             }
         }
     }
-
-    /*private void callDisplayList()
-    {
-        if(useLegacyCompiler)
-            GlStateManager.callList(displayList);
-        else
-        {
-            TextureManager renderEngine = Minecraft.getMinecraft().renderEngine;
-
-            Collection<TextureGroup> textures = textureGroup.values();
-
-            Iterator<TextureGroup> itr = textures.iterator();
-            for(int i = 0; itr.hasNext(); i++)
-            {
-                TextureGroup curTexGroup = itr.next();
-                curTexGroup.loadTexture();
-                GlStateManager.callList(displayListArray[i]);
-                if(!defaultTexture.isEmpty())
-                    renderEngine.bindTexture(new ResourceLocation("", defaultTexture));
-            }
-        }
-    }*/
-
-    /*private void compileDisplayList(float worldScale)
-    {
-        if (useLegacyCompiler)
-            compileLegacyDisplayList(worldScale);
-        else
-        {
-            Collection<TextureGroup> textures = textureGroup.values();
-
-            Iterator<TextureGroup> itr = textures.iterator();
-            displayListArray = new int[textureGroup.size()];
-            for(int i = 0; itr.hasNext(); i++)
-            {
-                displayListArray[i] = GLAllocation.generateDisplayLists(1);
-                GlStateManager.glNewList(displayListArray[i], GL11.GL_COMPILE);
-                TmtTessellator tessellator = TmtTessellator.instance;
-
-                TextureGroup usedGroup = itr.next();
-                for(int j = 0; j < usedGroup.poly.size(); j++)
-                {
-                    usedGroup.poly.get(j).draw(tessellator, worldScale);
-                }
-
-                GlStateManager.glEndList();
-            }
-        }
-
-        compiled = true;
-    }*/
-
-    /*private void compileLegacyDisplayList(float worldScale)
-    {
-        displayList = GLAllocation.generateDisplayLists(1);
-        GlStateManager.glNewList(displayList, GL11.GL_COMPILE);
-        TmtTessellator tessellator = TmtTessellator.instance;
-        for(TexturedPolygon face : faces)
-        {
-            face.draw(tessellator, worldScale);
-        }
-
-        GlStateManager.glEndList();
-    }*/
 }

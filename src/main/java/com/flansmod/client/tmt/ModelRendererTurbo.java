@@ -1,5 +1,7 @@
 package com.flansmod.client.tmt;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolff.armormod.client.model.IModelBase;
@@ -58,8 +60,6 @@ public class ModelRendererTurbo extends ModelRenderer
     {
         super(modelbase, s);
         flip = false;
-        //compiled = false;
-        //displayList = 0;
         mirror = false;
         showModel = true;
         isHidden = false;
@@ -2090,6 +2090,9 @@ public class ModelRendererTurbo extends ModelRenderer
         {
             pVertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.eyes(TEXTURE));
             pPackedLight = 15728640;
+
+            RenderSystem.disableDepthTest(); // Disable depth write to allow glowing effect to be visible on top of other objects
+            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);  // Additive blending for glow effect
         }
 
         pPoseStack.pushPose();
@@ -2104,6 +2107,12 @@ public class ModelRendererTurbo extends ModelRenderer
 
         pPoseStack.translate(-offsetX, -offsetY, -offsetZ);
         pPoseStack.popPose();
+
+        if (glow)
+        {
+            RenderSystem.enableDepthTest(); // Re-enable depth testing after rendering the glow effect
+            RenderSystem.defaultBlendFunc();  // Restore the default blend function
+        }
     }
 
     /**

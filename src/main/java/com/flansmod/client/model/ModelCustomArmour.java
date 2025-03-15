@@ -3,11 +3,11 @@ package com.flansmod.client.model;
 import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolff.armormod.ArmourType;
 import com.wolff.armormod.client.ClientEventHandler;
 import com.wolff.armormod.client.model.IModelBase;
 import com.wolff.armormod.client.model.ModelRenderer;
 import com.wolff.armormod.client.model.TextureOffset;
+import com.wolff.armormod.common.types.ArmourType;
 import com.wolff.armormod.util.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
 

@@ -1,10 +1,12 @@
 package com.flansmod.client.tmt;
 
+import com.wolff.armormod.ArmorMod;
+import net.minecraftforge.fml.loading.FMLPaths;
+
+import javax.annotation.Nullable;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-
-import net.minecraftforge.fml.loading.FMLPaths;
 
 public class ModelPool
 {
@@ -18,40 +20,45 @@ public class ModelPool
 
     private ModelPool() {}
 
+    @Nullable
     public static ModelPoolEntry addFile(String file, Class<?> modelClass, Map<String, TransformGroup> group, Map<String, TextureGroup> textureGroup)
     {
-        ModelPoolEntry entry = null;
-        if(modelMap.containsKey(file))
+        ModelPoolEntry entry;
+
+        if (modelMap.containsKey(file))
         {
             entry = modelMap.get(file);
             entry.applyGroups(group, textureGroup);
             return entry;
         }
+
         try
         {
-            entry = (ModelPoolEntry)modelClass.getConstructor().newInstance();
+            entry = (ModelPoolEntry) modelClass.getConstructor().newInstance();
         }
         catch(Exception e)
         {
-            //TODO: Log exception
-            //FlansMod.log.error("A new " + entry.getClass().getName() + " could not be initialized.");
-            //FlansMod.log.error(e.getMessage());
+            ArmorMod.LOG.error("A new {} could not be initialized.", modelClass.getName());
+            ArmorMod.LOG.error(e.getMessage());
             return null;
         }
+
         File modelFile = null;
-        for(int i = 0; i < resourceDir.length && (modelFile == null || !modelFile.exists()); i++)
+
+        for (int i = 0; i < resourceDir.length && (modelFile == null || !modelFile.exists()); i++)
         {
             String absPath = new File(FMLPaths.CONFIGDIR.get().getParent().toFile(), resourceDir[i]).getAbsolutePath();
             if(!absPath.endsWith("/") || !absPath.endsWith("\\"))
                 absPath += "/";
             modelFile = entry.checkValidPath(absPath + file);
         }
+
         if(modelFile == null || !modelFile.exists())
         {
-            //TODO: Log warning
-            //FlansMod.log.warn("The model with the name " + file + " does not exist.");
+            ArmorMod.LOG.warn("The model with the name {} does not exist.", file);
             return null;
         }
+
         entry.groups = new HashMap<>();
         entry.textures = new HashMap<>();
         entry.name = file;

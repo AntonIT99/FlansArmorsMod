@@ -1,4 +1,4 @@
-package com.wolff.armormod;
+package com.wolff.armormod.common;
 
 import com.flansmod.client.model.mw.ModelExoskeletonHelmet;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;

@@ -1,5 +1,6 @@
-package com.wolff.armormod;
+package com.wolff.armormod.common;
 
+import com.wolff.armormod.ArmorMod;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 

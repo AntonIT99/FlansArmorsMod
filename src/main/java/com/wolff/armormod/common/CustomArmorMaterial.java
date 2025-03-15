@@ -1,4 +1,4 @@
-package com.wolff.armormod;
+package com.wolff.armormod.common;
 
 import org.jetbrains.annotations.NotNull;
 

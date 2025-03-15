@@ -1,4 +1,4 @@
-package com.wolff.armormod;
+package com.wolff.armormod.common.types;
 
 public class ArmourType
 {

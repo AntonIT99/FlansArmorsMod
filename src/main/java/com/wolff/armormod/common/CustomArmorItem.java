@@ -3,7 +3,10 @@ package com.wolff.armormod.common;
 import com.flansmod.client.model.mw.ModelExoskeletonHelmet;
 import com.wolff.armormod.client.CustomItemRenderer;
 import com.wolff.armormod.common.types.ArmourType;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -23,7 +26,11 @@ public class CustomArmorItem extends ArmorItem implements ICustomIconItem
     public CustomArmorItem(ArmourType type)
     {
         super(CustomArmorMaterial.CUSTOM, type.getType(), new Item.Properties());
-        iconPath = type.getIconPath();
+
+        if (FMLEnvironment.dist.isClient())
+        {
+            iconPath = type.getIconPath();
+        }
     }
 
     @Override
@@ -45,6 +52,7 @@ public class CustomArmorItem extends ArmorItem implements ICustomIconItem
         });
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public Path getIconPath()
     {

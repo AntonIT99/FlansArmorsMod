@@ -192,14 +192,14 @@ public class ContentManager
                             }
                             catch (Exception e)
                             {
-                                ArmorMod.LOG.error("Failed to instantiate item {}/{}/{}", typeFile.getContentPack().getName(), type.getFolderName(), typeFile.getName());
+                                ArmorMod.LOG.error("Failed to instantiate item {}/{}/{}", typeFile.getContentPack().getName(), type.getConfigFolderName(), typeFile.getName());
                                 return null;
                             }
                         });
                     }
                     else
                     {
-                        ArmorMod.LOG.error("ShortName not set: {}/{}/{}", typeFile.getContentPack().getName(), type.getFolderName(), typeFile.getName());
+                        ArmorMod.LOG.error("ShortName not set: {}/{}/{}", typeFile.getContentPack().getName(), type.getConfigFolderName(), typeFile.getName());
                     }
 
                 }

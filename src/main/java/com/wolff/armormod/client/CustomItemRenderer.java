@@ -5,6 +5,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.wolff.armormod.ArmorMod;
 import com.wolff.armormod.common.ICustomIconItem;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.client.Minecraft;
@@ -23,6 +25,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 
+@OnlyIn(Dist.CLIENT)
 public class CustomItemRenderer extends BlockEntityWithoutLevelRenderer
 {
     public static final CustomItemRenderer INSTANCE = new CustomItemRenderer();

@@ -11,17 +11,19 @@ import java.util.Optional;
 
 public enum EnumType
 {
-    ARMOR("armor", "armorFiles", ArmourType.class, CustomArmorItem.class);
+    ARMOR("armor", "armorFiles", "armor", ArmourType.class, CustomArmorItem.class);
 
     private final String displayName;
-    private final String folderName;
+    private final String configFolderName;
+    private final String textureFolderName;
     private final Class<? extends InfoType> typeClass;
     private final Class<? extends Item> itemClass;
 
-    EnumType(String name, String folder, Class<? extends InfoType> type, Class<? extends Item> item)
+    EnumType(String name, String configFolder, String textureFolder, Class<? extends InfoType> type, Class<? extends Item> item)
     {
         displayName = name;
-        folderName = folder;
+        configFolderName = configFolder;
+        textureFolderName = textureFolder;
         typeClass = type;
         itemClass = item;
     }
@@ -31,9 +33,14 @@ public enum EnumType
         return displayName;
     }
 
-    public String getFolderName()
+    public String getTextureFolderName()
     {
-        return folderName;
+        return textureFolderName;
+    }
+
+    public String getConfigFolderName()
+    {
+        return configFolderName;
     }
 
     public Class<? extends InfoType> getTypeClass()
@@ -48,11 +55,11 @@ public enum EnumType
 
     public static List<String> getFoldersList()
     {
-        return Arrays.stream(EnumType.values()).map(EnumType::getFolderName).toList();
+        return Arrays.stream(EnumType.values()).map(EnumType::getConfigFolderName).toList();
     }
 
     public static Optional<EnumType> getType(String folderName)
     {
-        return Arrays.stream(EnumType.values()).filter(type -> StringUtils.equals(type.getFolderName(), folderName)).findFirst();
+        return Arrays.stream(EnumType.values()).filter(type -> StringUtils.equals(type.getConfigFolderName(), folderName)).findFirst();
     }
 }

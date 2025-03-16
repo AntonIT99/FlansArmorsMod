@@ -29,17 +29,17 @@ import java.util.Map;
 
 public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IModelBase
 {
-    protected static ModelPart ROOT;
+    private static ModelPart root;
 
-    public ArmourType type;
-    public ModelRendererTurbo[] headModel = new ModelRendererTurbo[0];
-    public ModelRendererTurbo[] bodyModel = new ModelRendererTurbo[0];
-    public ModelRendererTurbo[] leftArmModel = new ModelRendererTurbo[0];
-    public ModelRendererTurbo[] rightArmModel = new ModelRendererTurbo[0];
-    public ModelRendererTurbo[] leftLegModel = new ModelRendererTurbo[0];
-    public ModelRendererTurbo[] rightLegModel = new ModelRendererTurbo[0];
-    public ModelRendererTurbo[] skirtFrontModel = new ModelRendererTurbo[0]; //Acts like a leg piece, but its pitch is set to the maximum of the two legs
-    public ModelRendererTurbo[] skirtRearModel = new ModelRendererTurbo[0]; //Acts like a leg piece, but its pitch is set to the minimum of the two legs
+    protected ArmourType type;
+    protected ModelRendererTurbo[] headModel = new ModelRendererTurbo[0];
+    protected ModelRendererTurbo[] bodyModel = new ModelRendererTurbo[0];
+    protected ModelRendererTurbo[] leftArmModel = new ModelRendererTurbo[0];
+    protected ModelRendererTurbo[] rightArmModel = new ModelRendererTurbo[0];
+    protected ModelRendererTurbo[] leftLegModel = new ModelRendererTurbo[0];
+    protected ModelRendererTurbo[] rightLegModel = new ModelRendererTurbo[0];
+    protected ModelRendererTurbo[] skirtFrontModel = new ModelRendererTurbo[0]; //Acts like a leg piece, but its pitch is set to the maximum of the two legs
+    protected ModelRendererTurbo[] skirtRearModel = new ModelRendererTurbo[0]; //Acts like a leg piece, but its pitch is set to the minimum of the two legs
 
     private final List<ModelRenderer> boxList = new ArrayList<>();
     private final Map<String, TextureOffset> modelTextureMap = new HashMap<>();
@@ -51,11 +51,11 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
 
     private static ModelPart getRoot()
     {
-        if (ROOT == null)
+        if (root == null)
         {
-            ROOT = Minecraft.getInstance().getEntityModels().bakeLayer(ClientEventHandler.CUSTOM_ARMOR);
+            root = Minecraft.getInstance().getEntityModels().bakeLayer(ClientEventHandler.CUSTOM_ARMOR);
         }
-        return ROOT;
+        return root;
     }
 
     public static MeshDefinition createMesh()

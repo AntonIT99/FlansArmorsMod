@@ -11,7 +11,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.function.Supplier;
 
-public enum  CustomArmorMaterial implements ArmorMaterial
+public enum CustomArmorMaterial implements ArmorMaterial
 {
     CUSTOM("customarmor", 30, new int[]{2, 5, 6, 2}, 10, SoundEvents.ARMOR_EQUIP_IRON, 0.0F, 0.0F, () -> Ingredient.of(Items.IRON_INGOT));
 

@@ -1,6 +1,8 @@
 package com.wolff.armormod;
 
 import com.wolff.armormod.common.types.EnumType;
+import com.wolff.armormod.common.types.InfoType;
+import com.wolff.armormod.common.types.TypeFile;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.FilenameUtils;
 
@@ -11,30 +13,39 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ContentManager
 {
-    private Path flan;
-    private List<IContentProvider> contentPacks = new ArrayList<>();
+    private Path flanFolder;
+    private final List<IContentProvider> contentPacks = new ArrayList<>();
+    private final Map<EnumType, ArrayList<TypeFile>> files = new EnumMap<>(EnumType.class);
+
+    public ContentManager()
+    {
+        for (EnumType type : EnumType.values())
+            files.put(type, new ArrayList<>());
+    }
 
     public void findContentInFlanFolder()
     {
         loadFlanFolder();
-        if (flan == null)
+        if (flanFolder == null)
             return;
 
         try
         {
-            contentPacks = loadFoldersAndJarZipFiles(flan)
+            contentPacks.addAll(loadFoldersAndJarZipFiles(flanFolder)
                 .entrySet()
                 .stream()
                 .map(entry -> new ContentPack(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
+                .toList());
         }
         catch (IOException e)
         {
@@ -64,31 +75,34 @@ public class ContentManager
             flanPath = fallbackFlanPath;
         }
 
-        flan = flanPath;
+        flanFolder = flanPath;
     }
 
-    private static Map<String, Path> loadFoldersAndJarZipFiles(Path rootPath) throws IOException
+    private Map<String, Path> loadFoldersAndJarZipFiles(Path rootPath) throws IOException
     {
         Set<String> processedNames = new HashSet<>();
 
-        try (var stream = Files.walk(rootPath))
+        try (Stream<Path> stream = Files.walk(rootPath))
         {
             return stream
                 .filter(path ->
                 {
+                    if (path.equals(rootPath))
+                        return false;
+
                     if (Files.isDirectory(path) || path.toString().endsWith(".jar") || path.toString().endsWith(".zip"))
                     {
                         String name = FilenameUtils.getBaseName(path.getFileName().toString());
                         if (!processedNames.contains(name))
                         {
-                            ArmorMod.LOG.info("Loaded content pack from flan folder: {}", path.getFileName());
+                            ArmorMod.LOG.info("Loaded content pack from flan folder: '{}'", path.getFileName());
                             processedNames.add(name);
                             return true;
 
                         }
                         else
                         {
-                            ArmorMod.LOG.info("Skipping loading content pack from flan folder as it is duplicated: {}", path.getFileName());
+                            ArmorMod.LOG.info("Skipping loading content pack from flan folder as it is duplicated: '{}'", path.getFileName());
                             return false;
                         }
                     }
@@ -101,9 +115,7 @@ public class ContentManager
     public void loadTypes()
     {
         for (IContentProvider provider : contentPacks)
-        {
             loadTypes(provider);
-        }
     }
 
     private void loadTypes(IContentProvider provider)
@@ -116,59 +128,87 @@ public class ContentManager
             {
                 for (Path folder : dirStream)
                 {
-                    readTypeFolder(folder, provider.getName());
+                    readTypeFolder(folder, provider);
                 }
             }
         }
         catch (IOException e)
         {
-            ArmorMod.LOG.error("Failed to load types in content pack: {}", provider.getName());
+            ArmorMod.LOG.error("Failed to load types in content pack '{}'", provider.getName());
         }
     }
 
-    private void readTypeFolder(Path folder, String contentPack)
+    private void readTypeFolder(Path folder, IContentProvider provider)
     {
         String folderName = folder.getFileName().toString();
         if (EnumType.getFoldersList().contains(folderName))
         {
-            try (var txtFileStream = Files.newDirectoryStream(folder, p -> Files.isRegularFile(p) && p.toString().endsWith(".txt")))
+            try (DirectoryStream<Path> txtFileStream = Files.newDirectoryStream(folder, p -> Files.isRegularFile(p) && p.toString().endsWith(".txt")))
             {
-                txtFileStream.forEach(this::readTypeFile);
+                txtFileStream.forEach(file -> readTypeFile(file, folderName, provider));
             }
             catch (IOException e)
             {
-                ArmorMod.LOG.error("Failed to read {} folder in content pack: {}", folderName, contentPack);
+                ArmorMod.LOG.error("Failed to read '{}' folder in content pack '{}'", folderName, provider.getName());
             }
         }
-
-        /*
-        for (EnumType type : EnumType.values())
-        {
-            if (entry.getFileName().toString().startsWith(type.getFolderName() + "/")
-                    && entry.getFileName().toString().split(type.folderName + "/").length > 1
-                    && entry.getFileName().toString().split(type.folderName + "/")[1].length() > 0)
-            {
-                String[] splitName = entry.getFileName().toString().split("/");
-                typeFile = new TypeFile(contentPack.toString(), type, splitName[splitName.length - 1].split("\\.")[0]);
-            }
-        }
-        */
     }
 
-    private void readTypeFile(Path file)
+    private void readTypeFile(Path file, String folderName, IContentProvider provider)
     {
-        //TODO: implement
-        /*try (BufferedReader reader = Files.newBufferedReader(entry))
+        try
         {
-            String line;
-            while ((line = reader.readLine()) != null)
-            {
-                typeFile.parseLine(line);
-            }
+            loadTypeFile(new TypeFile(file.getFileName().toString(), EnumType.getType(folderName).orElse(null), provider, Files.readAllLines(file)));
         }
         catch (IOException e)
         {
-            FlansMod.log.throwing(e);
-        }*/
+            ArmorMod.LOG.error("Failed to read '{}/{}' in content pack '{}'", folderName, file.getFileName(), provider.getName());
+        }
+    }
+
+    private void loadTypeFile(TypeFile file)
+    {
+        files.get(file.getType()).add(file);
+    }
+
+    public void registerItems()
+    {
+        for (EnumType type : EnumType.values())
+        {
+            for (TypeFile typeFile : files.get(type))
+            {
+                try
+                {
+                    Class<? extends InfoType> typeClass = type.getTypeClass();
+                    InfoType infoType = typeClass.getConstructor().newInstance();
+                    infoType.read(typeFile);
+                    if (!infoType.getShortName().isBlank())
+                    {
+                        ArmorMod.registerItem(infoType.getShortName(), () ->
+                        {
+                            try
+                            {
+                                return type.getItemClass().getConstructor(typeClass).newInstance(typeClass.cast(infoType));
+                            }
+                            catch (Exception e)
+                            {
+                                ArmorMod.LOG.error("Failed to instantiate item {}/{}/{}", typeFile.getContentPack().getName(), type.getFolderName(), typeFile.getName());
+                                return null;
+                            }
+                        });
+                    }
+                    else
+                    {
+                        ArmorMod.LOG.error("ShortName not set: {}/{}/{}", typeFile.getContentPack().getName(), type.getFolderName(), typeFile.getName());
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    ArmorMod.LOG.error("Failed to add {} from '{}': {}", type.getDisplayName(), typeFile.getContentPack().getName(), typeFile.getName(), e);
+                }
+            }
+            ArmorMod.LOG.info("Loaded {}.", type.getDisplayName());
+        }
     }
 }

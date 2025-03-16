@@ -13,7 +13,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -33,11 +32,6 @@ public class CustomArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>
     @Override
     @NotNull
     public ResourceLocation getArmorResource(@NotNull Entity entity, @NotNull ItemStack stack, @NotNull EquipmentSlot slot, @Nullable String type)
-    {
-        return TEXTURE;
-    }
-
-    private ResourceLocation getArmorLocation(ArmorItem pArmorItem, boolean pLayer2, @Nullable String pSuffix)
     {
         return TEXTURE;
     }

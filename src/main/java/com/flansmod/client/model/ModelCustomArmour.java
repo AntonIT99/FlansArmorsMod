@@ -109,35 +109,35 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
 
     protected void renderHeadModels(PoseStack pPoseStack, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
     {
-        render(headModel, head, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
+        render(headModel, head, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
     }
 
     protected void renderBodyModels(PoseStack pPoseStack, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
     {
-        render(bodyModel, body, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
-        render(leftArmModel, leftArm, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
-        render(rightArmModel, rightArm, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
-        render(leftLegModel, leftLeg, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
-        render(rightLegModel, rightLeg, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
+        render(bodyModel, body, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
+        render(leftArmModel, leftArm, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
+        render(rightArmModel, rightArm, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
+        render(leftLegModel, leftLeg, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
+        render(rightLegModel, rightLeg, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
         for (ModelRendererTurbo mod : skirtFrontModel)
         {
-            mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / type.modelScale;
-            mod.rotationPointY = (leftLeg.y + rightLeg.y) / 2F / type.modelScale;
-            mod.rotationPointZ = (leftLeg.z + rightLeg.z) / 2F / type.modelScale;
+            mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / type.getModelScale();
+            mod.rotationPointY = (leftLeg.y + rightLeg.y) / 2F / type.getModelScale();
+            mod.rotationPointZ = (leftLeg.z + rightLeg.z) / 2F / type.getModelScale();
             mod.rotateAngleX = Math.min(leftLeg.xRot, rightLeg.xRot);
             mod.rotateAngleY = leftLeg.yRot;
             mod.rotateAngleZ = leftLeg.zRot;
-            mod.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
+            mod.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
         }
         for (ModelRendererTurbo mod : skirtRearModel)
         {
-            mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / type.modelScale;
-            mod.rotationPointY = (leftLeg.y + rightLeg.x) / 2F / type.modelScale;
-            mod.rotationPointZ = (leftLeg.z + rightLeg.z) / 2F / type.modelScale;
+            mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / type.getModelScale();
+            mod.rotationPointY = (leftLeg.y + rightLeg.x) / 2F / type.getModelScale();
+            mod.rotationPointZ = (leftLeg.z + rightLeg.z) / 2F / type.getModelScale();
             mod.rotateAngleX = Math.max(leftLeg.xRot, rightLeg.xRot);
             mod.rotateAngleY = leftLeg.yRot;
             mod.rotateAngleZ = leftLeg.zRot;
-            mod.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.modelScale);
+            mod.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
         }
     }
 

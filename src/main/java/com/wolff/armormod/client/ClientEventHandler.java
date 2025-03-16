@@ -19,7 +19,9 @@ public class ClientEventHandler
 {
     private ClientEventHandler() {}
 
-    public static final ResourceLocation TEXTURE = new ResourceLocation(ArmorMod.MOD_ID, "armor/exoskeleton_1.png");
+    //TODO: make dynamic
+    public static final ResourceLocation TEXTURE = new ResourceLocation(ArmorMod.MOD_ID, "");
+    //public static final ResourceLocation TEXTURE = new ResourceLocation(ArmorMod.MOD_ID, "armor/exoskeleton_1.png");
     public static final ModelLayerLocation CUSTOM_ARMOR = new ModelLayerLocation(TEXTURE, "main");
 
     @SubscribeEvent

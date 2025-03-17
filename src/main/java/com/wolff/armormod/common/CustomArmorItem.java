@@ -6,6 +6,7 @@ import com.wolff.armormod.common.types.ArmourType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -20,8 +21,8 @@ import java.util.function.Consumer;
 
 public class CustomArmorItem extends ArmorItem implements ICustomIconItem
 {
-    private Path iconPath;
-    private Path texturePath;
+    private final Path iconPath;
+    private final Path texturePath;
     private ModelCustomArmour model;
 
     public CustomArmorItem(ArmourType type)
@@ -39,6 +40,7 @@ public class CustomArmorItem extends ArmorItem implements ICustomIconItem
         consumer.accept(new IClientItemExtensions()
         {
             @Override
+            @NotNull
             public HumanoidModel<?> getHumanoidArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> defaultModel)
             {
                 if (model != null)

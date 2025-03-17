@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 public interface IContentProvider
 {
-    String getName();
+    String name();
 
-    Path getPath();
+    Path path();
 }

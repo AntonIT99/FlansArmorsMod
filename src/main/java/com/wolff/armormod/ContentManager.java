@@ -82,33 +82,30 @@ public class ContentManager
     {
         Set<String> processedNames = new HashSet<>();
 
-        try (Stream<Path> stream = Files.walk(rootPath))
+        try (Stream<Path> stream = Files.walk(rootPath, 1))
         {
-            return stream
-                .filter(path ->
-                {
-                    if (path.equals(rootPath))
-                        return false;
-
-                    if (Files.isDirectory(path) || path.toString().endsWith(".jar") || path.toString().endsWith(".zip"))
-                    {
-                        String name = FilenameUtils.getBaseName(path.getFileName().toString());
-                        if (!processedNames.contains(name))
-                        {
-                            ArmorMod.LOG.info("Loaded content pack from flan folder: '{}'", path.getFileName());
-                            processedNames.add(name);
-                            return true;
-
-                        }
-                        else
-                        {
-                            ArmorMod.LOG.info("Skipping loading content pack from flan folder as it is duplicated: '{}'", path.getFileName());
-                            return false;
-                        }
-                    }
+            return stream.filter(path -> {
+                if (path.equals(rootPath))
                     return false;
-                })
-                .collect(Collectors.toMap(path -> path.getFileName().toString(), path -> path));
+
+                if (Files.isDirectory(path) || path.toString().endsWith(".jar") || path.toString().endsWith(".zip"))
+                {
+                    String name = FilenameUtils.getBaseName(path.getFileName().toString());
+                    if (!processedNames.contains(name))
+                    {
+                        ArmorMod.LOG.info("Loaded content pack from flan folder: '{}'", path.getFileName());
+                        processedNames.add(name);
+                        return true;
+
+                    }
+                    else
+                    {
+                        ArmorMod.LOG.info("Skipping loading content pack from flan folder as it is duplicated: '{}'", path.getFileName());
+                        return false;
+                    }
+                }
+                return false;
+            }).collect(Collectors.toMap(path -> path.getFileName().toString(), path -> path));
         }
     }
 
@@ -120,21 +117,28 @@ public class ContentManager
 
     private void loadTypes(IContentProvider provider)
     {
-        try (FileSystem fs = FileSystems.newFileSystem(provider.getPath()))
+        if (Files.isDirectory(provider.path()))
         {
-            Path root = fs.getPath("/");
-
-            try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(root, Files::isDirectory))
+            try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(provider.path(), Files::isDirectory))
             {
-                for (Path folder : dirStream)
-                {
-                    readTypeFolder(folder, provider);
-                }
+                dirStream.forEach(folder -> readTypeFolder(folder, provider));
+            }
+            catch (IOException e)
+            {
+                ArmorMod.LOG.error("Failed to load types in content pack '{}'", provider.name(), e);
             }
         }
-        catch (IOException e)
+        else
         {
-            ArmorMod.LOG.error("Failed to load types in content pack '{}'", provider.getName());
+            try (FileSystem fs = FileSystems.newFileSystem(provider.path());
+                 DirectoryStream<Path> dirStream = Files.newDirectoryStream(fs.getPath("/"), Files::isDirectory))
+            {
+                dirStream.forEach(folder -> readTypeFolder(folder, provider));
+            }
+            catch (IOException e)
+            {
+                ArmorMod.LOG.error("Failed to load types in content pack '{}'", provider.name(), e);
+            }
         }
     }
 
@@ -149,7 +153,7 @@ public class ContentManager
             }
             catch (IOException e)
             {
-                ArmorMod.LOG.error("Failed to read '{}' folder in content pack '{}'", folderName, provider.getName());
+                ArmorMod.LOG.error("Failed to read '{}' folder in content pack '{}'", folderName, provider.name());
             }
         }
     }
@@ -162,7 +166,7 @@ public class ContentManager
         }
         catch (IOException e)
         {
-            ArmorMod.LOG.error("Failed to read '{}/{}' in content pack '{}'", folderName, file.getFileName(), provider.getName());
+            ArmorMod.LOG.error("Failed to read '{}/{}' in content pack '{}'", folderName, file.getFileName(), provider.name());
         }
     }
 
@@ -192,20 +196,20 @@ public class ContentManager
                             }
                             catch (Exception e)
                             {
-                                ArmorMod.LOG.error("Failed to instantiate item {}/{}/{}", typeFile.getContentPack().getName(), type.getConfigFolderName(), typeFile.getName());
+                                ArmorMod.LOG.error("Failed to instantiate item {}/{}/{}", typeFile.getContentPack().name(), type.getConfigFolderName(), typeFile.getName());
                                 return null;
                             }
                         });
                     }
                     else
                     {
-                        ArmorMod.LOG.error("ShortName not set: {}/{}/{}", typeFile.getContentPack().getName(), type.getConfigFolderName(), typeFile.getName());
+                        ArmorMod.LOG.error("ShortName not set: {}/{}/{}", typeFile.getContentPack().name(), type.getConfigFolderName(), typeFile.getName());
                     }
 
                 }
                 catch (Exception e)
                 {
-                    ArmorMod.LOG.error("Failed to add {} from '{}': {}", type.getDisplayName(), typeFile.getContentPack().getName(), typeFile.getName(), e);
+                    ArmorMod.LOG.error("Failed to add {} from '{}': {}", type.getDisplayName(), typeFile.getContentPack().name(), typeFile.getName(), e);
                 }
             }
             ArmorMod.LOG.info("Loaded {}.", type.getDisplayName());

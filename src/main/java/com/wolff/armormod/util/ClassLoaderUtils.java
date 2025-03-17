@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -89,30 +90,35 @@ public class ClassLoaderUtils
 
     public static Class<?> loadAndModifyClass(Path parentPath, String className) throws IOException
     {
-        // Load the class file into a byte array
         String relativeClassPath = className.replace('.', '/') + ".class";
-        Path classPath = parentPath.resolve(relativeClassPath);
 
-        //TODO: check for file system, zip
-        //byte[] classData = Files.readAllBytes(classPath);
-        byte[] classData = readFileBytesFromJar(parentPath, relativeClassPath);
-        // Modify the class bytecode
+        byte[] classData;
+
+        if (Files.isDirectory(parentPath))
+        {
+            classData = Files.readAllBytes(parentPath.resolve(relativeClassPath));
+        }
+        else if (Files.isRegularFile(parentPath) && (parentPath.endsWith(".jar") || parentPath.endsWith(".zip")))
+        {
+            classData = readFileBytesFromArchive(parentPath, relativeClassPath);
+        }
+        else
+        {
+            throw new IllegalArgumentException(parentPath + " is not an existing directory or JAR/ZIP file.");
+        }
+
         ClassReader classReader = new ClassReader(classData);
         ClassWriter classWriter = new ClassWriter(classReader, 0);
 
-        // Use a custom ClassVisitor to modify the superclass
         ReferenceModifierClassVisitor classVisitor = new ReferenceModifierClassVisitor(classWriter,
                 "net/minecraft/client/model/ModelBase",
                 "com/wolff/armormod/client/model/IModelBase",
                 minecraftMethodMappings, minecraftFieldMappings);
 
-        // Apply the visitor to modify the class
         classReader.accept(classVisitor, 0);
 
-        // Get the modified byte array
         byte[] modifiedClassData = classWriter.toByteArray();
 
-        // Define the modified class using the custom class loader
         return new CustomClassLoader().defineClass(className, modifiedClassData);
     }
 
@@ -125,15 +131,12 @@ public class ClassLoaderUtils
         }
     }
 
-    private static byte[] readFileBytesFromJar(Path archivePath, String filePath) throws IOException
+    private static byte[] readFileBytesFromArchive(Path archivePath, String filePath) throws IOException
     {
-        // Create a FileSystemManager
         FileSystemManager fsManager = VFS.getManager();
 
-        // Open the JAR file as a virtual file system
-        FileObject jarFile = fsManager.resolveFile("jar:file://" + archivePath.toUri().getPath());
-
-        // Access the file inside the JAR
+        boolean isJar = archivePath.toString().endsWith(".jar");
+        FileObject jarFile = fsManager.resolveFile((isJar ? "jar" : "zip") + ":file://" + archivePath.toUri().getPath());
         FileObject fileInJarObject = jarFile.resolveFile(filePath);
 
         try (InputStream inputStream = fileInJarObject.getContent().getInputStream();

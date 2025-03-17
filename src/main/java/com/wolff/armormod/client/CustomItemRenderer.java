@@ -58,7 +58,7 @@ public class CustomItemRenderer extends BlockEntityWithoutLevelRenderer
             File file = path.toFile();
             if (!file.exists())
             {
-                ArmorMod.LOG.error("Texture file not found: {}", path);
+                ArmorMod.LOG.error("File not found: {}", path);
                 return null;
             }
 
@@ -67,14 +67,14 @@ public class CustomItemRenderer extends BlockEntityWithoutLevelRenderer
             fileInputStream.close();
 
             DynamicTexture texture = new DynamicTexture(nativeImage);
-            ResourceLocation location = new ResourceLocation("yourmod", "external_texture_" + file.getName());
+            ResourceLocation location = new ResourceLocation(ArmorMod.MOD_ID, file.getName());
             Minecraft.getInstance().getTextureManager().register(location, texture);
 
             return location;
         }
         catch (IOException e)
         {
-            ArmorMod.LOG.error("Failed to load texture file: {}", path);
+            ArmorMod.LOG.error("Failed to load file: {}", path);
             return null;
         }
     }

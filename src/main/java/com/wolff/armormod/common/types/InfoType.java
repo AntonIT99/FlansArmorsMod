@@ -35,7 +35,7 @@ public abstract class InfoType
 
     public void read(TypeFile file)
     {
-        contentPack = file.getContentPack().getName();
+        contentPack = file.getContentPack().name();
 
         for (String line : file.getLines())
         {
@@ -60,8 +60,8 @@ public abstract class InfoType
 
     protected void postRead(TypeFile file)
     {
-        iconPath = file.getContentPack().getPath().resolve(ICONS_RELATIVE_PATH).resolve(icon + ".png");
-        texturePath = file.getContentPack().getPath().resolve(TEXTURES_RELATIVE_PATH).resolve(file.getType().getTextureFolderName()).resolve(getTextureFileName());
+        iconPath = file.getContentPack().path().resolve(ICONS_RELATIVE_PATH).resolve(icon + ".png");
+        texturePath = file.getContentPack().path().resolve(TEXTURES_RELATIVE_PATH).resolve(file.getType().getTextureFolderName()).resolve(getTextureFileName());
 
         if (!modelName.isBlank() && !modelName.equalsIgnoreCase("null") && !modelName.equalsIgnoreCase("none"))
         {
@@ -77,19 +77,19 @@ public abstract class InfoType
 
             try
             {
-                if (ClassLoaderUtils.loadAndModifyClass(file.getContentPack().getPath(), modelClassName).getConstructor().newInstance() instanceof IModelBase modelBase)
+                if (ClassLoaderUtils.loadAndModifyClass(file.getContentPack().path(), modelClassName).getConstructor().newInstance() instanceof IModelBase modelBase)
                 {
                     model = modelBase;
                     model.setType(this);
                 }
                 else
                 {
-                    ArmorMod.LOG.error("Could not load model class {} from {}: class is not a Model.", modelClassName, file.getContentPack().getPath());
+                    ArmorMod.LOG.error("Could not load model class {} from {}: class is not a Model.", modelClassName, file.getContentPack().path());
                 }
             }
             catch (Exception e)
             {
-                ArmorMod.LOG.error("Could not load model class {} from {}", modelClassName, file.getContentPack().getPath(), e);
+                ArmorMod.LOG.error("Could not load model class {} from {}", modelClassName, file.getContentPack().path(), e);
             }
         }
     }

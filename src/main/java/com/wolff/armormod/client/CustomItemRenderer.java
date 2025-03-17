@@ -41,9 +41,13 @@ public class CustomItemRenderer extends BlockEntityWithoutLevelRenderer
         Item item = pStack.getItem();
         if (item instanceof ICustomIconItem customIconItem)
         {
-            RenderSystem.setShaderTexture(0, customIconItem.getIcon());
-            GuiGraphics guiGraphics = new GuiGraphics(Minecraft.getInstance(), Minecraft.getInstance().renderBuffers().bufferSource());
-            guiGraphics.blit(customIconItem.getIcon(), 0, 0, 16, 16, 16, 16);
+            ResourceLocation icon = loadExternalTexture(customIconItem.getIconPath());
+            if (icon != null)
+            {
+                RenderSystem.setShaderTexture(0, icon);
+                GuiGraphics guiGraphics = new GuiGraphics(Minecraft.getInstance(), Minecraft.getInstance().renderBuffers().bufferSource());
+                guiGraphics.blit(icon, 0, 0, 16, 16, 16, 16);
+            }
         }
     }
 
@@ -52,7 +56,8 @@ public class CustomItemRenderer extends BlockEntityWithoutLevelRenderer
         try
         {
             File file = path.toFile();
-            if (!file.exists()) {
+            if (!file.exists())
+            {
                 ArmorMod.LOG.error("Texture file not found: {}", path);
                 return null;
             }

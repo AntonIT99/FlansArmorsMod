@@ -1,5 +1,9 @@
 package com.wolff.armormod.client.model;
 
+import com.wolff.armormod.common.types.InfoType;
+
+import net.minecraft.resources.ResourceLocation;
+
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +26,10 @@ public interface IModelBase
     {
         return getModelTextureMap().get(partName);
     }
+
+    void setType(InfoType type);
+
+    ResourceLocation getTexture();
 
     List<ModelRenderer> getBoxList();
 

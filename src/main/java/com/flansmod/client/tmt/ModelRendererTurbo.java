@@ -18,8 +18,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.wolff.armormod.client.ClientEventHandler.TEXTURE;
-
 /**
  * An extension to the ModelRenderer class. It basically is a copy to ModelRenderer,
  * however, it contains various new methods to make your models.
@@ -2088,7 +2086,7 @@ public class ModelRendererTurbo extends ModelRenderer
 
         if (glow)
         {
-            pVertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.eyes(TEXTURE));
+            pVertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.eyes(baseModel.getTexture()));
             pPackedLight = 15728640;
 
             RenderSystem.disableDepthTest(); // Disable depth write to allow glowing effect to be visible on top of other objects

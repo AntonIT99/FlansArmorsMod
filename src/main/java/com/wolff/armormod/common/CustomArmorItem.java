@@ -1,12 +1,11 @@
 package com.wolff.armormod.common;
 
-import com.flansmod.client.model.mw.ModelExoskeletonHelmet;
+import com.flansmod.client.model.ModelCustomArmour;
 import com.wolff.armormod.client.CustomItemRenderer;
 import com.wolff.armormod.common.types.ArmourType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -22,15 +21,16 @@ import java.util.function.Consumer;
 public class CustomArmorItem extends ArmorItem implements ICustomIconItem
 {
     private Path iconPath;
+    private Path texturePath;
+    private ModelCustomArmour model;
 
     public CustomArmorItem(ArmourType type)
     {
         super(CustomArmorMaterial.CUSTOM, type.getType(), new Item.Properties());
-
-        if (FMLEnvironment.dist.isClient())
-        {
-            iconPath = type.getIconPath();
-        }
+        iconPath = type.getIconPath();
+        texturePath = type.getTexturePath();
+        if (type.getModel() instanceof ModelCustomArmour modelCustomArmour)
+            model = modelCustomArmour;
     }
 
     @Override
@@ -41,7 +41,11 @@ public class CustomArmorItem extends ArmorItem implements ICustomIconItem
             @Override
             public HumanoidModel<?> getHumanoidArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> defaultModel)
             {
-                return new ModelExoskeletonHelmet();
+                if (model != null)
+                {
+                    return model;
+                }
+                return defaultModel;
             }
 
             @Override
@@ -57,5 +61,11 @@ public class CustomArmorItem extends ArmorItem implements ICustomIconItem
     public Path getIconPath()
     {
         return iconPath;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Path getTexturePath()
+    {
+        return texturePath;
     }
 }

@@ -5,7 +5,6 @@ import com.wolff.armormod.client.model.IModelBase;
 import com.wolff.armormod.util.ClassLoaderUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -17,7 +16,6 @@ import static com.wolff.armormod.util.TypeReaderUtils.readValues;
 public abstract class InfoType
 {
     protected static final String ICONS_RELATIVE_PATH = "assets" + File.separator + "flansmod" + File.separator + "textures" + File.separator + "items";
-    protected static final String MODEL_RELATIVE_PATH = "com" + File.separator + "flansmod" + File.separator + "client" + File.separator + "model";
     protected static final String TEXTURES_RELATIVE_PATH = "assets" + File.separator + "flansmod";
     protected static final String MODEL_PACKAGE_NAME = "com.flansmod.client.model.";
 
@@ -30,7 +28,6 @@ public abstract class InfoType
     protected String texture = StringUtils.EMPTY;
     protected float modelScale = 1F;
 
-    protected Path modelPath;
     protected Path texturePath;
     protected Path iconPath;
 
@@ -55,43 +52,44 @@ public abstract class InfoType
     {
         shortName = readValue(split, "ShortName", shortName, file).toLowerCase();
         description = readValues(split, "Description", description, file);
-        icon = readValue(split, "Icon", StringUtils.EMPTY, file);
+        icon = readValue(split, "Icon", icon, file);
         texture = readValue(split, "Texture", texture, file);
-        modelName = readValue(split, "Model", modelClassName, file);
+        modelName = readValue(split, "Model", modelName, file);
         modelScale = readValue(split, "ModelScale", modelScale, file);
     }
 
     protected void postRead(TypeFile file)
     {
-        if (FMLEnvironment.dist.isClient())
-        {
-            iconPath = file.getContentPack().getPath().resolve(ICONS_RELATIVE_PATH).resolve(icon + ".png");
-            texturePath = file.getContentPack().getPath().resolve(TEXTURES_RELATIVE_PATH).resolve(file.getType().getTextureFolderName()).resolve(getTextureFileName());
+        iconPath = file.getContentPack().getPath().resolve(ICONS_RELATIVE_PATH).resolve(icon + ".png");
+        texturePath = file.getContentPack().getPath().resolve(TEXTURES_RELATIVE_PATH).resolve(file.getType().getTextureFolderName()).resolve(getTextureFileName());
 
-            modelClassName = MODEL_PACKAGE_NAME + modelName;
+        if (!modelName.isBlank() && !modelName.equalsIgnoreCase("null") && !modelName.equalsIgnoreCase("none"))
+        {
             String[] modelNameSplit = modelName.split("\\.");
-            String modelPackageFolder = modelNameSplit.length > 1 ? modelNameSplit[0] : StringUtils.EMPTY;
-            modelPath = file.getContentPack().getPath().resolve(MODEL_RELATIVE_PATH);
-            if (!modelPackageFolder.isBlank())
+            if (modelNameSplit.length > 1)
             {
-                modelPath = modelPath.resolve(modelPackageFolder);
+                modelClassName = MODEL_PACKAGE_NAME + modelNameSplit[0] + ".Model" + modelNameSplit[1];
             }
-            modelPath = modelPath.resolve(modelName);
+            else
+            {
+                modelClassName = MODEL_PACKAGE_NAME + "Model" + modelName;
+            }
 
             try
             {
-                if (ClassLoaderUtils.loadClassFromFile(modelPath, modelClassName).getConstructor().newInstance() instanceof IModelBase modelBase)
+                if (ClassLoaderUtils.loadAndModifyClass(file.getContentPack().getPath(), modelClassName).getConstructor().newInstance() instanceof IModelBase modelBase)
                 {
                     model = modelBase;
+                    model.setType(this);
                 }
                 else
                 {
-                    ArmorMod.LOG.error("Could not load model class at {}: class is not a Model.", modelPath);
+                    ArmorMod.LOG.error("Could not load model class {} from {}: class is not a Model.", modelClassName, file.getContentPack().getPath());
                 }
             }
             catch (Exception e)
             {
-                ArmorMod.LOG.error("Could not load model class at {}.", modelPath, e);
+                ArmorMod.LOG.error("Could not load model class {} from {}", modelClassName, file.getContentPack().getPath(), e);
             }
         }
     }

@@ -48,7 +48,7 @@ public class ModelRenderer
     /** The Y offset into the texture used for displaying this model */
     private int textureOffsetY;
 
-    private final IModelBase baseModel;
+    protected final IModelBase baseModel;
 
     public ModelRenderer(IModelBase model, String boxNameIn)
     {

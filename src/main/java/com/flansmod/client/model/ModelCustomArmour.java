@@ -3,15 +3,14 @@ package com.flansmod.client.model;
 import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolff.armormod.client.ClientEventHandler;
 import com.wolff.armormod.client.model.IModelBase;
 import com.wolff.armormod.client.model.ModelRenderer;
 import com.wolff.armormod.client.model.TextureOffset;
 import com.wolff.armormod.common.types.ArmourType;
+import com.wolff.armormod.common.types.InfoType;
 import com.wolff.armormod.util.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -20,12 +19,15 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.wolff.armormod.client.CustomItemRenderer.loadExternalTexture;
 
 public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IModelBase
 {
@@ -44,6 +46,8 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
     private final List<ModelRenderer> boxList = new ArrayList<>();
     private final Map<String, TextureOffset> modelTextureMap = new HashMap<>();
 
+    private ResourceLocation texture;
+
     public ModelCustomArmour()
     {
         super(getRoot());
@@ -53,7 +57,16 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
     {
         if (root == null)
         {
-            root = Minecraft.getInstance().getEntityModels().bakeLayer(ClientEventHandler.CUSTOM_ARMOR);
+            Map<String, ModelPart> children = new HashMap<>();
+            ModelPart emptyPart = new ModelPart(new ArrayList<>(), new HashMap<>());
+            children.put("head", emptyPart);
+            children.put("hat", emptyPart);
+            children.put("body", emptyPart);
+            children.put("right_arm", emptyPart);
+            children.put("left_arm", emptyPart);
+            children.put("right_leg", emptyPart);
+            children.put("left_leg", emptyPart);
+            root = new ModelPart(new ArrayList<>(), children);
         }
         return root;
     }
@@ -179,5 +192,22 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
     {
         MeshDefinition mesh = ModelCustomArmour.createMesh();
         return LayerDefinition.create(mesh, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+    }
+
+    @Override
+    public ResourceLocation getTexture()
+    {
+        if (texture == null && type != null)
+        {
+            loadExternalTexture(type.getTexturePath());
+        }
+        return texture;
+    }
+
+    @Override
+    public void setType(InfoType type)
+    {
+        if (type instanceof ArmourType armourType)
+            this.type = armourType;
     }
 }

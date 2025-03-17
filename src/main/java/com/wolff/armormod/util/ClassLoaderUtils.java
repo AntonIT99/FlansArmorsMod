@@ -12,10 +12,52 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
+import java.util.Map;
 
 public class ClassLoaderUtils
 {
     private ClassLoaderUtils() {}
+
+    private static final Map<String, String> minecraftMethodMappings = Map.ofEntries(
+        Map.entry("func_78784_a", "setTextureOffset"),
+        Map.entry("func_78785_a", "render"),
+        Map.entry("func_78786_a", "addBox"),
+        Map.entry("func_78787_b", "setTextureSize"),
+        Map.entry("func_78788_d", "compileDisplayList"),
+        Map.entry("func_78789_a", "addBox"),
+        Map.entry("func_78790_a", "addBox"),
+        Map.entry("func_78791_b", "renderWithRotation"),
+        Map.entry("func_78792_a", "addChild"),
+        Map.entry("func_78793_a", "setRotationPoint"),
+        Map.entry("func_78794_c", "postRender")
+    );
+
+    private static final Map<String, String> minecraftFieldMappings = Map.ofEntries(
+        Map.entry("field_78782_b", "textureOffsetY"),
+        Map.entry("field_78783_a", "textureOffsetX"),
+        Map.entry("field_78795_f", "rotateAngleX"),
+        Map.entry("field_78796_g", "rotateAngleY"),
+        Map.entry("field_78797_d", "rotationPointY"),
+        Map.entry("field_78798_e", "rotationPointZ"),
+        Map.entry("field_78799_b", "textureHeight"),
+        Map.entry("field_78800_c", "rotationPointX"),
+        Map.entry("field_78801_a", "textureWidth"),
+        Map.entry("field_78802_n", "boxName"),
+        Map.entry("field_78803_o", "textureOffsetX"),
+        Map.entry("field_78804_l", "cubeList"),
+        Map.entry("field_78805_m", "childModels"),
+        Map.entry("field_78806_j", "showModel"),
+        Map.entry("field_78807_k", "isHidden"),
+        Map.entry("field_78808_h", "rotateAngleZ"),
+        Map.entry("field_78809_i", "mirror"),
+        Map.entry("field_78810_s", "baseModel"),
+        Map.entry("field_78811_r", "displayList"),
+        Map.entry("field_78812_q", "compiled"),
+        Map.entry("field_78813_p", "textureOffsetY"),
+        Map.entry("field_82906_o", "offsetX,0"),
+        Map.entry("field_82907_q", "offsetZ,0"),
+        Map.entry("field_82908_p", "offsetY,0")
+    );
 
     /**
      * Loads a compiled Java class (.class file) from a given file path.
@@ -59,7 +101,10 @@ public class ClassLoaderUtils
         ClassWriter classWriter = new ClassWriter(classReader, 0);
 
         // Use a custom ClassVisitor to modify the superclass
-        ReferenceModifierClassVisitor classVisitor = new ReferenceModifierClassVisitor(classWriter, "net/minecraft/client/model/ModelBase", "com/wolff/armormod/client/model/IModelBase");
+        ReferenceModifierClassVisitor classVisitor = new ReferenceModifierClassVisitor(classWriter,
+                "net/minecraft/client/model/ModelBase",
+                "com/wolff/armormod/client/model/IModelBase",
+                minecraftMethodMappings, minecraftFieldMappings);
 
         // Apply the visitor to modify the class
         classReader.accept(classVisitor, 0);
@@ -80,7 +125,7 @@ public class ClassLoaderUtils
         }
     }
 
-    public static byte[] readFileBytesFromJar(Path archivePath, String filePath) throws IOException
+    private static byte[] readFileBytesFromJar(Path archivePath, String filePath) throws IOException
     {
         // Create a FileSystemManager
         FileSystemManager fsManager = VFS.getManager();

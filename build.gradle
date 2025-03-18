@@ -162,9 +162,7 @@ dependencies {
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
-    library 'org.ow2.asm:asm:9.7.1'
-    library 'org.ow2.asm:asm-commons:9.7.1'
-    library 'org.apache.commons:commons-vfs2:2.10.0'
+    implementation 'org.spongepowered:mixin:0.8.5'
 }
 
 shadowJar {

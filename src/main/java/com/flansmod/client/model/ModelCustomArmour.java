@@ -3,12 +3,12 @@ package com.flansmod.client.model;
 import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolff.armormod.client.model.IModelBase;
-import com.wolff.armormod.client.model.ModelRenderer;
-import com.wolff.armormod.client.model.TextureOffset;
-import com.wolff.armormod.common.types.ArmourType;
-import com.wolff.armormod.common.types.InfoType;
-import com.wolff.armormod.util.ReflectionUtils;
+import com.wolffsarmormod.client.model.IModelBase;
+import com.wolffsarmormod.client.model.ModelRenderer;
+import com.wolffsarmormod.client.model.TextureOffset;
+import com.wolffsarmormod.common.types.ArmourType;
+import com.wolffsarmormod.common.types.InfoType;
+import com.wolffsarmormod.util.ReflectionUtils;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.client.model.AgeableListModel;
@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.wolff.armormod.client.CustomItemRenderer.loadExternalTexture;
 
 public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IModelBase
 {
@@ -197,10 +195,11 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
     @Override
     public ResourceLocation getTexture()
     {
-        if (texture == null && type != null)
+        //TODO: Fix this
+        /*if (texture == null && type != null)
         {
-            loadExternalTexture(type.getTexturePath());
-        }
+            loadExternalTexture(type.getTexturePath(), "armor/");
+        }*/
         return texture;
     }
 

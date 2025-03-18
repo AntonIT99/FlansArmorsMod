@@ -1,6 +1,6 @@
 package com.flansmod.client.tmt;
 
-import com.wolff.armormod.ArmorMod;
+import com.wolffsarmormod.ArmorMod;
 import net.minecraftforge.fml.loading.FMLPaths;
 
 import javax.annotation.Nullable;
@@ -38,8 +38,8 @@ public class ModelPool
         }
         catch(Exception e)
         {
-            ArmorMod.LOG.error("A new {} could not be initialized.", modelClass.getName());
-            ArmorMod.LOG.error(e.getMessage());
+            ArmorMod.log.error("A new {} could not be initialized.", modelClass.getName());
+            ArmorMod.log.error(e.getMessage());
             return null;
         }
 
@@ -55,7 +55,7 @@ public class ModelPool
 
         if(modelFile == null || !modelFile.exists())
         {
-            ArmorMod.LOG.warn("The model with the name {} does not exist.", file);
+            ArmorMod.log.warn("The model with the name {} does not exist.", file);
             return null;
         }
 

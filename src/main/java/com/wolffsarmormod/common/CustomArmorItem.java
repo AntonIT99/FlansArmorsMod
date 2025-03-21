@@ -1,7 +1,6 @@
 package com.wolffsarmormod.common;
 
 import com.flansmod.client.model.ModelCustomArmour;
-import com.wolffsarmormod.client.CustomItemRenderer;
 import com.wolffsarmormod.common.types.ArmourType;
 import com.wolffsarmormod.util.ResourceUtils;
 import net.minecraftforge.api.distmarker.Dist;
@@ -10,7 +9,6 @@ import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,8 +22,9 @@ import java.util.function.Consumer;
 
 public class CustomArmorItem extends ArmorItem implements ICustomIconItem
 {
+    private final String name;
+    private final String textureName;
     private final Path iconPath;
-    private final Path texturePath;
     private final ModelCustomArmour model;
 
     private ResourceLocation icon;
@@ -33,8 +32,9 @@ public class CustomArmorItem extends ArmorItem implements ICustomIconItem
     public CustomArmorItem(ArmourType type)
     {
         super(CustomArmorMaterial.CUSTOM, type.getType(), new Item.Properties());
+        name = type.getShortName();
         iconPath = type.getIconPath();
-        texturePath = type.getTexturePath();
+        textureName = type.getTextureFileName();
         model = type.getModel();
     }
 
@@ -54,11 +54,11 @@ public class CustomArmorItem extends ArmorItem implements ICustomIconItem
                 return defaultModel;
             }
 
-            @Override
+            /*@Override
             public BlockEntityWithoutLevelRenderer getCustomRenderer()
             {
                 return CustomItemRenderer.INSTANCE;
-            }
+            }*/
         });
     }
 
@@ -66,7 +66,7 @@ public class CustomArmorItem extends ArmorItem implements ICustomIconItem
     @Override
     public void loadIcon()
     {
-        icon = ResourceUtils.loadExternalTexture(iconPath, "textures/items/");
+        icon = ResourceUtils.loadExternalTexture(iconPath, "item/", name);
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -78,8 +78,8 @@ public class CustomArmorItem extends ArmorItem implements ICustomIconItem
     }
 
     @OnlyIn(Dist.CLIENT)
-    public Path getTexturePath()
+    public String getTextureName()
     {
-        return texturePath;
+        return textureName;
     }
 }

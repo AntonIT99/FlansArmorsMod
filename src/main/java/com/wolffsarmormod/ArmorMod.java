@@ -5,6 +5,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -17,6 +18,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
@@ -25,7 +27,11 @@ import java.util.function.Supplier;
 public class ArmorMod
 {
     public static final String MOD_ID = "wolffsarmormod";
+    public static final String FLANSMOD_ID = "flansmod";
     public static final Logger log = LogUtils.getLogger();
+
+    public static Path flanPath = FMLPaths.GAMEDIR.get().resolve("flan");
+    public static Path fallbackFlanPath = FMLPaths.GAMEDIR.get().resolve("Flan");
 
     public static final ContentManager contentManager = new ContentManager();
     public static final List<RegistryObject<Item>> items = new ArrayList<>();
@@ -45,6 +51,7 @@ public class ArmorMod
         contentManager.findContentInFlanFolder();
         contentManager.loadTypes();
         contentManager.registerItems();
+        contentManager.prepareAssets();
         registerCreativeModeTabs();
 
         MinecraftForge.EVENT_BUS.register(this);

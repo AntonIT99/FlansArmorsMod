@@ -1,9 +1,12 @@
 package com.wolffsarmormod;
 
+import com.google.gson.Gson;
 import com.wolffsarmormod.common.types.EnumType;
 import com.wolffsarmormod.common.types.InfoType;
 import com.wolffsarmormod.common.types.TypeFile;
-import net.minecraftforge.fml.loading.FMLPaths;
+import com.wolffsarmormod.util.ResourceUtils;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
@@ -12,8 +15,11 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +32,7 @@ public class ContentManager
     private Path flanFolder;
     private final List<IContentProvider> contentPacks = new ArrayList<>();
     private final Map<EnumType, ArrayList<TypeFile>> files = new EnumMap<>(EnumType.class);
+    private final Map<IContentProvider, ArrayList<InfoType>> configs = new HashMap<>();
 
     public ContentManager()
     {
@@ -55,14 +62,11 @@ public class ContentManager
 
     private void loadFlanFolder()
     {
-        Path flanPath = FMLPaths.GAMEDIR.get().resolve("flan");
-        Path fallbackFlanPath = FMLPaths.GAMEDIR.get().resolve("Flan");
-
-        if(!Files.exists(flanPath) && !Files.exists(fallbackFlanPath))
+        if(!Files.exists(ArmorMod.flanPath) && !Files.exists(ArmorMod.fallbackFlanPath))
         {
             try
             {
-                Files.createDirectories(flanPath);
+                Files.createDirectories(ArmorMod.flanPath);
             }
             catch (Exception e)
             {
@@ -70,12 +74,12 @@ public class ContentManager
                 return;
             }
         }
-        else if(!Files.exists(flanPath) && Files.exists(fallbackFlanPath))
+        else if(!Files.exists(ArmorMod.flanPath) && Files.exists(ArmorMod.fallbackFlanPath))
         {
-            flanPath = fallbackFlanPath;
+            ArmorMod.flanPath = ArmorMod.fallbackFlanPath;
         }
 
-        flanFolder = flanPath;
+        flanFolder = ArmorMod.flanPath;
     }
 
     private Map<String, Path> loadFoldersAndJarZipFiles(Path rootPath) throws IOException
@@ -88,7 +92,7 @@ public class ContentManager
                 if (path.equals(rootPath))
                     return false;
 
-                if (Files.isDirectory(path) || path.toString().endsWith(".jar") || path.toString().endsWith(".zip"))
+                if (Files.isDirectory(path) || path.toString().toLowerCase().endsWith(".jar") || path.toString().toLowerCase().endsWith(".zip"))
                 {
                     String name = FilenameUtils.getBaseName(path.getFileName().toString());
                     if (!processedNames.contains(name))
@@ -117,7 +121,7 @@ public class ContentManager
 
     private void loadTypes(IContentProvider provider)
     {
-        if (Files.isDirectory(provider.path()))
+        if (provider.isDirectory())
         {
             try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(provider.path(), Files::isDirectory))
             {
@@ -128,7 +132,7 @@ public class ContentManager
                 ArmorMod.log.error("Failed to load types in content pack '{}'", provider.name(), e);
             }
         }
-        else
+        else if (provider.isArchive())
         {
             try (FileSystem fs = FileSystems.newFileSystem(provider.path());
                  DirectoryStream<Path> dirStream = Files.newDirectoryStream(fs.getPath("/"), Files::isDirectory))
@@ -147,7 +151,7 @@ public class ContentManager
         String folderName = folder.getFileName().toString();
         if (EnumType.getFoldersList().contains(folderName))
         {
-            try (DirectoryStream<Path> txtFileStream = Files.newDirectoryStream(folder, p -> Files.isRegularFile(p) && p.toString().endsWith(".txt")))
+            try (DirectoryStream<Path> txtFileStream = Files.newDirectoryStream(folder, p -> Files.isRegularFile(p) && p.toString().toLowerCase().endsWith(".txt")))
             {
                 txtFileStream.forEach(file -> readTypeFile(file, folderName, provider));
             }
@@ -186,26 +190,30 @@ public class ContentManager
                     Class<? extends InfoType> typeClass = type.getTypeClass();
                     InfoType infoType = typeClass.getConstructor().newInstance();
                     infoType.read(typeFile);
-                    if (!infoType.getShortName().isBlank())
+                    if (typeFile.getType().isItemType())
                     {
-                        ArmorMod.registerItem(infoType.getShortName(), () ->
+                        if (!infoType.getShortName().isBlank())
                         {
-                            try
-                            {
-                                return type.getItemClass().getConstructor(typeClass).newInstance(typeClass.cast(infoType));
-                            }
-                            catch (Exception e)
-                            {
-                                ArmorMod.log.error("Failed to instantiate item {}/{}/{}", typeFile.getContentPack().name(), type.getConfigFolderName(), typeFile.getName());
-                                return null;
-                            }
-                        });
-                    }
-                    else
-                    {
-                        ArmorMod.log.error("ShortName not set: {}/{}/{}", typeFile.getContentPack().name(), type.getConfigFolderName(), typeFile.getName());
-                    }
+                            configs.putIfAbsent(typeFile.getContentPack(), new ArrayList<>());
 
+                            ArmorMod.registerItem(infoType.getShortName(), () ->
+                            {
+                                try
+                                {
+                                    return type.getItemClass().getConstructor(typeClass).newInstance(typeClass.cast(infoType));
+                                }
+                                catch (Exception e)
+                                {
+                                    ArmorMod.log.error("Failed to instantiate item {}/{}/{}", typeFile.getContentPack().name(), type.getConfigFolderName(), typeFile.getName());
+                                    return null;
+                                }
+                            });
+                        }
+                        else
+                        {
+                            ArmorMod.log.error("ShortName not set: {}/{}/{}", typeFile.getContentPack().name(), type.getConfigFolderName(), typeFile.getName());
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
@@ -213,6 +221,139 @@ public class ContentManager
                 }
             }
             ArmorMod.log.info("Loaded {}.", type.getDisplayName());
+        }
+    }
+
+    //TODO client side execution
+    @OnlyIn(Dist.CLIENT)
+    public void prepareAssets()
+    {
+        for (IContentProvider provider : contentPacks)
+        {
+            createItemJsonFiles(provider);
+            copyItemIcons(provider);
+            copyArmorTextures(provider);
+            createLocalization();
+        }
+    }
+
+    private List<InfoType> listItems(IContentProvider provider)
+    {
+        return configs.get(provider).stream()
+                .filter(InfoType::isItem)
+                .toList();
+    }
+
+    private void createItemJsonFiles(IContentProvider provider)
+    {
+        if (provider.isDirectory())
+        {
+            Path jsonItemFolderPath = provider.path().resolve("assets").resolve(ArmorMod.FLANSMOD_ID).resolve("models").resolve("item");
+            if (!Files.exists(jsonItemFolderPath))
+            {
+                try
+                {
+                    Files.createDirectories(jsonItemFolderPath);
+                }
+                catch (IOException e)
+                {
+                    ArmorMod.log.error("Could not create {}", jsonItemFolderPath, e);
+                    return;
+                }
+
+                Gson gson = new Gson();
+                for (InfoType config : listItems(provider))
+                {
+                    generateItemJson(config, jsonItemFolderPath, gson);
+                }
+            }
+
+        }
+        //TODO: implement for Archives
+    }
+
+
+    private static void generateItemJson(InfoType config, Path outputFolder, Gson gson)
+    {
+        ResourceUtils.ItemModel model = new ResourceUtils.ItemModel("item/generated", new ResourceUtils.Textures(ArmorMod.FLANSMOD_ID + ":item/" + config.getIconPath()));
+        String jsonContent = gson.toJson(model);
+        Path outputFile = outputFolder.resolve(config.getShortName() + ".json");
+
+        try
+        {
+            Files.write(outputFile, jsonContent.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        }
+        catch (IOException e)
+        {
+            ArmorMod.log.error("Could not create {}", outputFile, e);
+        }
+    }
+
+    private void copyItemIcons(IContentProvider provider)
+    {
+        if (provider.isDirectory())
+        {
+            Path sourcePath = provider.path().resolve("assets").resolve(ArmorMod.FLANSMOD_ID).resolve("textures").resolve("items");
+            Path destPath = provider.path().resolve("assets").resolve(ArmorMod.FLANSMOD_ID).resolve("textures").resolve("item");
+            copyPngFilesAndLowercaseNames(sourcePath, destPath);
+        }
+        //TODO: implement for Archives
+    }
+
+    private void copyArmorTextures(IContentProvider provider)
+    {
+        if (provider.isDirectory())
+        {
+            Path sourcePath = provider.path().resolve("assets").resolve(ArmorMod.FLANSMOD_ID).resolve("armor");
+            Path destPath = provider.path().resolve("assets").resolve(ArmorMod.FLANSMOD_ID).resolve("textures").resolve("models").resolve("armor");
+            copyPngFilesAndLowercaseNames(sourcePath, destPath);
+        }
+        //TODO: implement for Archives
+    }
+
+    private void createLocalization()
+    {
+        //TODO: implement
+    }
+
+    private void copyPngFilesAndLowercaseNames(Path sourcePath, Path destPath)
+    {
+        if (!Files.exists(destPath) && Files.exists(sourcePath))
+        {
+            try
+            {
+                if (!Files.exists(destPath.getParent()))
+                {
+                    Files.createDirectories(destPath.getParent());
+                }
+                Files.createDirectories(destPath);
+            }
+            catch (IOException e)
+            {
+                ArmorMod.log.error("Could not create {}", destPath, e);
+                return;
+            }
+
+            try (Stream<Path> paths = Files.walk(sourcePath))
+            {
+                paths.filter(path -> path.toString().toLowerCase().endsWith(".png"))
+                        .forEach(path ->
+                        {
+                            Path destinationFile = destPath.resolve(sourcePath.relativize(path).toString().toLowerCase());
+                            try
+                            {
+                                Files.copy(path, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+                            }
+                            catch (IOException e)
+                            {
+                                ArmorMod.log.error("Could not create {}", destinationFile, e);
+                            }
+                        });
+            }
+            catch (IOException e)
+            {
+                ArmorMod.log.error("Could not read {}", sourcePath, e);
+            }
         }
     }
 }

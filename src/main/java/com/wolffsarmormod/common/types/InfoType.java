@@ -15,8 +15,8 @@ import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
 
 public abstract class InfoType
 {
-    protected static final String ICONS_RELATIVE_PATH = "assets" + File.separator + "flansmod" + File.separator + "textures" + File.separator + "items";
-    protected static final String TEXTURES_RELATIVE_PATH = "assets" + File.separator + "flansmod";
+    protected static final String ICONS_RELATIVE_PATH = "assets" + File.separator + ArmorMod.FLANSMOD_ID + File.separator + "textures" + File.separator + "items";
+    protected static final String TEXTURES_RELATIVE_PATH = "assets" + File.separator + ArmorMod.FLANSMOD_ID;
     protected static final String MODEL_PACKAGE_NAME = "com.flansmod.client.model.";
 
     protected String contentPack = StringUtils.EMPTY;
@@ -30,6 +30,8 @@ public abstract class InfoType
 
     protected Path texturePath;
     protected Path iconPath;
+
+    protected boolean isItem;
 
     protected IModelBase model;
 
@@ -52,8 +54,8 @@ public abstract class InfoType
     {
         shortName = readValue(split, "ShortName", shortName, file).toLowerCase();
         description = readValues(split, "Description", description, file);
-        icon = readValue(split, "Icon", icon, file);
-        texture = readValue(split, "Texture", texture, file);
+        icon = readValue(split, "Icon", icon, file).toLowerCase();
+        texture = readValue(split, "Texture", texture, file).toLowerCase();
         modelName = readValue(split, "Model", modelName, file);
         modelScale = readValue(split, "ModelScale", modelScale, file);
     }
@@ -77,7 +79,7 @@ public abstract class InfoType
 
             try
             {
-                if (ClassLoaderUtils.loadAndModifyClass(file.getContentPack().path(), modelClassName).getConstructor().newInstance() instanceof IModelBase modelBase)
+                if (ClassLoaderUtils.loadAndModifyClass(file.getContentPack(), modelClassName).getConstructor().newInstance() instanceof IModelBase modelBase)
                 {
                     model = modelBase;
                     model.setType(this);
@@ -121,6 +123,12 @@ public abstract class InfoType
     }
 
     @OnlyIn(Dist.CLIENT)
+    public String getIcon()
+    {
+        return icon;
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public Path getIconPath()
     {
         return iconPath;
@@ -136,5 +144,15 @@ public abstract class InfoType
     public IModelBase getModel()
     {
         return model;
+    }
+
+    public boolean isItem()
+    {
+        return isItem;
+    }
+
+    public void setIsItem(boolean isItem)
+    {
+        this.isItem = isItem;
     }
 }

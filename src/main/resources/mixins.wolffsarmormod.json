@@ -5,7 +5,8 @@
   "mixins": [
   ],
   "client": [
-    "ItemRendererMixin"
+    "ItemRendererMixin",
+    "ModelBakeryMixin"
   ],
   "server": [
   ],

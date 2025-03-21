@@ -16,8 +16,30 @@ public class ResourceUtils
 {
     private ResourceUtils() {}
 
+    public static class ItemModel
+    {
+        String parent;
+        Textures textures;
+
+        public ItemModel (String parent, Textures textures)
+        {
+            this.parent = parent;
+            this.textures = textures;
+        }
+    }
+
+    public static class Textures
+    {
+        String layer0;
+
+        public Textures(String layer0)
+        {
+            this.layer0 = layer0;
+        }
+    }
+
     @Nullable
-    public static ResourceLocation loadExternalTexture(Path path, String resourceLocPath)
+    public static ResourceLocation loadExternalTexture(Path path, String resourceLocPath, String itemName)
     {
         try
         {
@@ -32,9 +54,9 @@ public class ResourceUtils
             NativeImage nativeImage = NativeImage.read(fileInputStream);
             fileInputStream.close();
 
-            String fileName = file.getName().split("\\.")[0].toLowerCase();
+            //String fileName = file.getName().split("\\.")[0].toLowerCase();
             DynamicTexture texture = new DynamicTexture(nativeImage);
-            ResourceLocation location = ResourceLocation.fromNamespaceAndPath(ArmorMod.MOD_ID, resourceLocPath + fileName);
+            ResourceLocation location = ResourceLocation.fromNamespaceAndPath(ArmorMod.MOD_ID, resourceLocPath + itemName);//fileName);
             Minecraft.getInstance().getTextureManager().register(location, texture);
 
             return location;

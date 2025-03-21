@@ -1,5 +1,6 @@
 package com.wolffsarmormod.util;
 
+import com.wolffsarmormod.IContentProvider;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
@@ -87,23 +88,23 @@ public class ClassLoaderUtils
         }
     }
 
-    public static Class<?> loadAndModifyClass(Path parentPath, String className) throws IOException
+    public static Class<?> loadAndModifyClass(IContentProvider contentProvider, String className) throws IOException
     {
         String relativeClassPath = className.replace('.', '/') + ".class";
 
         byte[] classData;
 
-        if (Files.isDirectory(parentPath))
+        if (contentProvider.isDirectory())
         {
-            classData = Files.readAllBytes(parentPath.resolve(relativeClassPath));
+            classData = Files.readAllBytes(contentProvider.path().resolve(relativeClassPath));
         }
-        else if (Files.isRegularFile(parentPath) && (parentPath.endsWith(".jar") || parentPath.endsWith(".zip")))
+        else if (contentProvider.isArchive())
         {
-            classData = readFileBytesFromArchive(parentPath, relativeClassPath);
+            classData = readFileBytesFromArchive(contentProvider.path(), relativeClassPath);
         }
         else
         {
-            throw new IllegalArgumentException(parentPath + " is not an existing directory or JAR/ZIP file.");
+            throw new IllegalArgumentException(contentProvider.path() + " is not an existing directory or JAR/ZIP file.");
         }
 
         ClassReader classReader = new ClassReader(classData);

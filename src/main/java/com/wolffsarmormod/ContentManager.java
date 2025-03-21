@@ -1,6 +1,7 @@
 package com.wolffsarmormod;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.wolffsarmormod.common.types.EnumType;
 import com.wolffsarmormod.common.types.InfoType;
 import com.wolffsarmormod.common.types.TypeFile;
@@ -33,6 +34,7 @@ public class ContentManager
     private final List<IContentProvider> contentPacks = new ArrayList<>();
     private final Map<EnumType, ArrayList<TypeFile>> files = new EnumMap<>(EnumType.class);
     private final Map<IContentProvider, ArrayList<InfoType>> configs = new HashMap<>();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public ContentManager()
     {
@@ -179,7 +181,7 @@ public class ContentManager
         files.get(file.getType()).add(file);
     }
 
-    public void registerItems()
+    public void registerConfigs()
     {
         for (EnumType type : EnumType.values())
         {
@@ -188,31 +190,20 @@ public class ContentManager
                 try
                 {
                     Class<? extends InfoType> typeClass = type.getTypeClass();
-                    InfoType infoType = typeClass.getConstructor().newInstance();
-                    infoType.read(typeFile);
-                    if (typeFile.getType().isItemType())
+                    InfoType config = typeClass.getConstructor().newInstance();
+                    config.read(typeFile);
+                    if (!config.getShortName().isBlank())
                     {
-                        if (!infoType.getShortName().isBlank())
+                        configs.putIfAbsent(typeFile.getContentPack(), new ArrayList<>());
+                        configs.get(typeFile.getContentPack()).add(config);
+                        if (typeFile.getType().isItemType())
                         {
-                            configs.putIfAbsent(typeFile.getContentPack(), new ArrayList<>());
-
-                            ArmorMod.registerItem(infoType.getShortName(), () ->
-                            {
-                                try
-                                {
-                                    return type.getItemClass().getConstructor(typeClass).newInstance(typeClass.cast(infoType));
-                                }
-                                catch (Exception e)
-                                {
-                                    ArmorMod.log.error("Failed to instantiate item {}/{}/{}", typeFile.getContentPack().name(), type.getConfigFolderName(), typeFile.getName());
-                                    return null;
-                                }
-                            });
+                            registerItem(config, typeFile, typeClass);
                         }
-                        else
-                        {
-                            ArmorMod.log.error("ShortName not set: {}/{}/{}", typeFile.getContentPack().name(), type.getConfigFolderName(), typeFile.getName());
-                        }
+                    }
+                    else
+                    {
+                        ArmorMod.log.error("ShortName not set: {}/{}/{}", typeFile.getContentPack().name(), type.getConfigFolderName(), typeFile.getName());
                     }
                 }
                 catch (Exception e)
@@ -222,6 +213,22 @@ public class ContentManager
             }
             ArmorMod.log.info("Loaded {}.", type.getDisplayName());
         }
+    }
+
+    private void registerItem(InfoType config, TypeFile typeFile, Class<? extends InfoType> typeClass)
+    {
+        ArmorMod.registerItem(config.getShortName(), () ->
+        {
+            try
+            {
+                return typeFile.getType().getItemClass().getConstructor(typeClass).newInstance(typeClass.cast(config));
+            }
+            catch (Exception e)
+            {
+                ArmorMod.log.error("Failed to instantiate item {}/{}/{}", typeFile.getContentPack().name(), typeFile.getType().getConfigFolderName(), typeFile.getName());
+                return null;
+            }
+        });
     }
 
     //TODO client side execution
@@ -240,8 +247,8 @@ public class ContentManager
     private List<InfoType> listItems(IContentProvider provider)
     {
         return configs.get(provider).stream()
-                .filter(InfoType::isItem)
-                .toList();
+            .filter(config -> config.getType().isItemType())
+            .toList();
     }
 
     private void createItemJsonFiles(IContentProvider provider)
@@ -261,10 +268,9 @@ public class ContentManager
                     return;
                 }
 
-                Gson gson = new Gson();
                 for (InfoType config : listItems(provider))
                 {
-                    generateItemJson(config, jsonItemFolderPath, gson);
+                    generateItemJson(config, jsonItemFolderPath);
                 }
             }
 
@@ -273,9 +279,9 @@ public class ContentManager
     }
 
 
-    private static void generateItemJson(InfoType config, Path outputFolder, Gson gson)
+    private void generateItemJson(InfoType config, Path outputFolder)
     {
-        ResourceUtils.ItemModel model = new ResourceUtils.ItemModel("item/generated", new ResourceUtils.Textures(ArmorMod.FLANSMOD_ID + ":item/" + config.getIconPath()));
+        ResourceUtils.ItemModel model = new ResourceUtils.ItemModel("item/generated", new ResourceUtils.Textures(ArmorMod.FLANSMOD_ID + ":item/" + config.getIcon()));
         String jsonContent = gson.toJson(model);
         Path outputFile = outputFolder.resolve(config.getShortName() + ".json");
 
@@ -322,10 +328,6 @@ public class ContentManager
         {
             try
             {
-                if (!Files.exists(destPath.getParent()))
-                {
-                    Files.createDirectories(destPath.getParent());
-                }
                 Files.createDirectories(destPath);
             }
             catch (IOException e)

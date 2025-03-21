@@ -35,7 +35,7 @@ public class CustomArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>
     {
         if (stack.getItem() instanceof CustomArmorItem customArmorItem)
         {
-            return ResourceLocation.fromNamespaceAndPath(ArmorMod.MOD_ID, "textures/models/armor/" + customArmorItem.getTextureName());
+            return ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/models/armor/" + customArmorItem.getTextureName());
         }
         return ResourceLocation.fromNamespaceAndPath("minecraft", "textures/missing_texture.png");
     }

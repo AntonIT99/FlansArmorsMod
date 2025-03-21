@@ -1,5 +1,6 @@
 package com.wolffsarmormod.common.types;
 
+import com.flansmod.client.model.ModelCustomArmour;
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.client.model.IModelBase;
 import com.wolffsarmormod.util.ClassLoaderUtils;
@@ -8,7 +9,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
-import java.nio.file.Path;
 
 import static com.wolffsarmormod.util.TypeReaderUtils.readValue;
 import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
@@ -19,6 +19,7 @@ public abstract class InfoType
     protected static final String TEXTURES_RELATIVE_PATH = "assets" + File.separator + ArmorMod.FLANSMOD_ID;
     protected static final String MODEL_PACKAGE_NAME = "com.flansmod.client.model.";
 
+    protected EnumType type;
     protected String contentPack = StringUtils.EMPTY;
     protected String shortName = StringUtils.EMPTY;
     protected String description = StringUtils.EMPTY;
@@ -28,16 +29,12 @@ public abstract class InfoType
     protected String texture = StringUtils.EMPTY;
     protected float modelScale = 1F;
 
-    protected Path texturePath;
-    protected Path iconPath;
-
-    protected boolean isItem;
-
     protected IModelBase model;
 
     public void read(TypeFile file)
     {
         contentPack = file.getContentPack().name();
+        type = file.getType();
 
         for (String line : file.getLines())
         {
@@ -62,9 +59,6 @@ public abstract class InfoType
 
     protected void postRead(TypeFile file)
     {
-        iconPath = file.getContentPack().path().resolve(ICONS_RELATIVE_PATH).resolve(icon + ".png");
-        texturePath = file.getContentPack().path().resolve(TEXTURES_RELATIVE_PATH).resolve(file.getType().getTextureFolderName()).resolve(getTextureFileName());
-
         if (!modelName.isBlank() && !modelName.equalsIgnoreCase("null") && !modelName.equalsIgnoreCase("none"))
         {
             String[] modelNameSplit = modelName.split("\\.");
@@ -79,9 +73,13 @@ public abstract class InfoType
 
             try
             {
-                if (ClassLoaderUtils.loadAndModifyClass(file.getContentPack(), modelClassName).getConstructor().newInstance() instanceof IModelBase modelBase)
+                //TODO: Use default class loader
+                Class<? extends ModelCustomArmour> modelClass = (Class<? extends ModelCustomArmour>) ClassLoaderUtils.loadAndModifyClass(file.getContentPack(), modelClassName);
+                System.out.println("#############TEST " + modelClass.getSuperclass().getName());
+                ModelCustomArmour modelInstance = modelClass.getConstructor().newInstance();
+                if (modelInstance != null)
                 {
-                    model = modelBase;
+                    model = modelInstance;
                     model.setType(this);
                 }
                 else
@@ -129,30 +127,13 @@ public abstract class InfoType
     }
 
     @OnlyIn(Dist.CLIENT)
-    public Path getIconPath()
-    {
-        return iconPath;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public Path getTexturePath()
-    {
-        return texturePath;
-    }
-
-    @OnlyIn(Dist.CLIENT)
     public IModelBase getModel()
     {
         return model;
     }
 
-    public boolean isItem()
+    public EnumType getType()
     {
-        return isItem;
-    }
-
-    public void setIsItem(boolean isItem)
-    {
-        this.isItem = isItem;
+        return type;
     }
 }

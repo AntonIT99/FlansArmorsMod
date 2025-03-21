@@ -19,6 +19,8 @@ public class ClassLoaderUtils
 {
     private ClassLoaderUtils() {}
 
+    public static final CustomClassLoader CLASS_LOADER = new CustomClassLoader();
+
     private static final Map<String, String> minecraftMethodMappings = Map.ofEntries(
         Map.entry("func_78784_a", "setTextureOffset"),
         Map.entry("func_78785_a", "render"),
@@ -119,7 +121,8 @@ public class ClassLoaderUtils
 
         byte[] modifiedClassData = classWriter.toByteArray();
 
-        return new CustomClassLoader().defineClass(className, modifiedClassData);
+        //TODO: Use default class loader and add locations to the classpath
+        return CLASS_LOADER.defineClass(className, modifiedClassData);
     }
 
     // Custom ClassLoader to define classes

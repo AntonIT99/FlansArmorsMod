@@ -11,14 +11,14 @@ import static com.wolffsarmormod.util.TypeReaderUtils.readValue;
 public class ArmourType extends InfoType
 {
     protected String rawType;
-    protected ArmorItem.Type type;
+    protected ArmorItem.Type armorType;
 
     @Override
     protected void readLine(String[] split, TypeFile file)
     {
         super.readLine(split, file);
         rawType = readValue(split, "Type", rawType, file);
-        texture = readValue(split, "ArmourTexture", texture, file);
+        texture = readValue(split, "ArmourTexture", texture, file).toLowerCase();
     }
 
     @Override
@@ -28,32 +28,32 @@ public class ArmourType extends InfoType
         switch (rawType)
         {
             case "Hat", "Helmet":
-                type = ArmorItem.Type.HELMET;
+                armorType = ArmorItem.Type.HELMET;
                 break;
             case "Chest", "Body":
-                type = ArmorItem.Type.CHESTPLATE;
+                armorType = ArmorItem.Type.CHESTPLATE;
                 break;
             case "Legs", "Pants":
-                type = ArmorItem.Type.LEGGINGS;
+                armorType = ArmorItem.Type.LEGGINGS;
                 break;
             case "Shoes", "Boots":
-                type = ArmorItem.Type.BOOTS;
+                armorType = ArmorItem.Type.BOOTS;
                 break;
             default:
                 break;
         }
     }
 
-    public ArmorItem.Type getType()
+    public ArmorItem.Type getArmorType()
     {
-        return type;
+        return armorType;
     }
 
     @OnlyIn(Dist.CLIENT)
     @Override
     public String getTextureFileName()
     {
-        return texture + (type != ArmorItem.Type.LEGGINGS ? "_1" : "_2") + ".png";
+        return texture + (armorType != ArmorItem.Type.LEGGINGS ? "_1" : "_2") + ".png";
     }
 
     @OnlyIn(Dist.CLIENT)

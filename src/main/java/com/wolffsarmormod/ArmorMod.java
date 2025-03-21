@@ -36,7 +36,7 @@ public class ArmorMod
     public static final ContentManager contentManager = new ContentManager();
     public static final List<RegistryObject<Item>> items = new ArrayList<>();
 
-    private static final DeferredRegister<Item> itemRegistry = DeferredRegister.create(ForgeRegistries.ITEMS, ArmorMod.MOD_ID);
+    private static final DeferredRegister<Item> itemRegistry = DeferredRegister.create(ForgeRegistries.ITEMS, ArmorMod.FLANSMOD_ID);
     private static final DeferredRegister<CreativeModeTab> creativeModeTabRegistry = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ArmorMod.MOD_ID);
 
     public ArmorMod(FMLJavaModLoadingContext context)
@@ -50,7 +50,7 @@ public class ArmorMod
 
         contentManager.findContentInFlanFolder();
         contentManager.loadTypes();
-        contentManager.registerItems();
+        contentManager.registerConfigs();
         contentManager.prepareAssets();
         registerCreativeModeTabs();
 

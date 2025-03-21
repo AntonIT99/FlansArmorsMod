@@ -56,7 +56,7 @@ public class ResourceUtils
 
             //String fileName = file.getName().split("\\.")[0].toLowerCase();
             DynamicTexture texture = new DynamicTexture(nativeImage);
-            ResourceLocation location = ResourceLocation.fromNamespaceAndPath(ArmorMod.MOD_ID, resourceLocPath + itemName);//fileName);
+            ResourceLocation location = ResourceLocation.fromNamespaceAndPath(ArmorMod.MOD_ID, resourceLocPath + itemName);
             Minecraft.getInstance().getTextureManager().register(location, texture);
 
             return location;

@@ -15,9 +15,6 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.repository.FolderRepositorySource;
-import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -33,9 +30,6 @@ public class ClientEventHandler
     public static void clientSetup(FMLClientSetupEvent event)
     {
         // Client Setup
-        /*Minecraft minecraft = Minecraft.getInstance();
-        PackRepository packRepository = minecraft.getResourcePackRepository();
-        packRepository.setSelected(List.of("file/FaithfulHDx512_1.20.zip"));*/
     }
 
     @SubscribeEvent
@@ -43,11 +37,11 @@ public class ClientEventHandler
     {
         if (Files.exists(ArmorMod.flanPath))
         {
-            event.addRepositorySource(new FolderRepositorySource(ArmorMod.flanPath, PackType.CLIENT_RESOURCES, PackSource.BUILT_IN));
+            event.addRepositorySource(new ModRepositorySource(ArmorMod.flanPath));
         }
         else if (Files.exists(ArmorMod.fallbackFlanPath))
         {
-            event.addRepositorySource(new FolderRepositorySource(ArmorMod.fallbackFlanPath, PackType.CLIENT_RESOURCES, PackSource.BUILT_IN));
+            event.addRepositorySource(new ModRepositorySource(ArmorMod.fallbackFlanPath));
         }
     }
 

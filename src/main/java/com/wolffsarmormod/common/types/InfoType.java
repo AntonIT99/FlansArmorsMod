@@ -1,6 +1,5 @@
 package com.wolffsarmormod.common.types;
 
-import com.flansmod.client.model.ModelCustomArmour;
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.client.model.IModelBase;
 import com.wolffsarmormod.util.ClassLoaderUtils;
@@ -73,13 +72,9 @@ public abstract class InfoType
 
             try
             {
-                //TODO: Use default class loader
-                Class<? extends ModelCustomArmour> modelClass = (Class<? extends ModelCustomArmour>) ClassLoaderUtils.loadAndModifyClass(file.getContentPack(), modelClassName);
-                System.out.println("#############TEST " + modelClass.getSuperclass().getName());
-                ModelCustomArmour modelInstance = modelClass.getConstructor().newInstance();
-                if (modelInstance != null)
+                if (ClassLoaderUtils.loadAndModifyClass(file.getContentPack(), modelClassName).getConstructor().newInstance() instanceof IModelBase modelBase)
                 {
-                    model = modelInstance;
+                    model = modelBase;
                     model.setType(this);
                 }
                 else

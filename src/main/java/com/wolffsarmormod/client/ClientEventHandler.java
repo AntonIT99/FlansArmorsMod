@@ -45,12 +45,6 @@ public class ClientEventHandler
         }
     }
 
-    /*@SubscribeEvent
-    public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event)
-    {
-        event.registerLayerDefinition(getCustomArmorLayerLocation(), ModelCustomArmour::createLayer);
-    }*/
-
     @SubscribeEvent
     public static void registerArmorLayer(EntityRenderersEvent.AddLayers event)
     {
@@ -81,9 +75,4 @@ public class ClientEventHandler
         }
 
     }
-
-    /*public static ModelLayerLocation getCustomArmorLayerLocation()
-    {
-        return new ModelLayerLocation(new ResourceLocation(ArmorMod.MOD_ID, ""), "main"); //new ResourceLocation(ArmorMod.MOD_ID, "");
-    }*/
 }

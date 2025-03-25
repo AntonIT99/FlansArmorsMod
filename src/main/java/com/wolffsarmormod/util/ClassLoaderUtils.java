@@ -1,6 +1,7 @@
 package com.wolffsarmormod.util;
 
 import com.wolffsarmormod.IContentProvider;
+import com.wolffsarmormod.client.model.IModelBase;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
@@ -19,7 +20,7 @@ public class ClassLoaderUtils
 {
     private ClassLoaderUtils() {}
 
-    public static final CustomClassLoader CLASS_LOADER = new CustomClassLoader();
+    private static final CustomClassLoader classLoader = new CustomClassLoader();
 
     private static final Map<String, String> minecraftMethodMappings = Map.ofEntries(
         Map.entry("func_78784_a", "setTextureOffset"),
@@ -121,13 +122,17 @@ public class ClassLoaderUtils
 
         byte[] modifiedClassData = classWriter.toByteArray();
 
-        //TODO: Use default class loader and add locations to the classpath
-        return CLASS_LOADER.defineClass(className, modifiedClassData);
+        return classLoader.defineClass(className, modifiedClassData);
     }
 
     // Custom ClassLoader to define classes
     private static class CustomClassLoader extends ClassLoader
     {
+        public CustomClassLoader()
+        {
+            super(IModelBase.class.getClassLoader());
+        }
+
         public Class<?> defineClass(String name, byte[] b)
         {
             return super.defineClass(name, b, 0, b.length);

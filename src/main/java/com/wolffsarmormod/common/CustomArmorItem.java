@@ -8,6 +8,7 @@ import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
@@ -18,14 +19,14 @@ import java.util.function.Consumer;
 
 public class CustomArmorItem extends ArmorItem
 {
-    private final String textureName;
     private final ModelCustomArmour model;
+    private final ResourceLocation texture;
 
     public CustomArmorItem(ArmourType type)
     {
         super(CustomArmorMaterial.CUSTOM, type.getArmorType(), new Item.Properties());
-        textureName = type.getTextureFileName();
         model = type.getModel();
+        texture = type.getTexture();
     }
 
     @Override
@@ -43,18 +44,12 @@ public class CustomArmorItem extends ArmorItem
                 }
                 return defaultModel;
             }
-
-            /*@Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer()
-            {
-                return CustomItemRenderer.INSTANCE;
-            }*/
         });
     }
 
     @OnlyIn(Dist.CLIENT)
-    public String getTextureName()
+    public ResourceLocation getTexture()
     {
-        return textureName;
+        return texture;
     }
 }

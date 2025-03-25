@@ -1,11 +1,13 @@
 package com.wolffsarmormod.common.types;
 
+import com.flansmod.client.model.mwtest.ModelExoskeletonHelmet;
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.client.model.IModelBase;
-import com.wolffsarmormod.util.ClassLoaderUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
+
+import net.minecraft.resources.ResourceLocation;
 
 import java.io.File;
 
@@ -25,10 +27,11 @@ public abstract class InfoType
     protected String modelName = StringUtils.EMPTY;
     protected String modelClassName = StringUtils.EMPTY;
     protected String icon = StringUtils.EMPTY;
-    protected String texture = StringUtils.EMPTY;
+    protected String textureName = StringUtils.EMPTY;
     protected float modelScale = 1F;
 
     protected IModelBase model;
+    protected ResourceLocation texture;
 
     public void read(TypeFile file)
     {
@@ -51,7 +54,7 @@ public abstract class InfoType
         shortName = readValue(split, "ShortName", shortName, file).toLowerCase();
         description = readValues(split, "Description", description, file);
         icon = readValue(split, "Icon", icon, file).toLowerCase();
-        texture = readValue(split, "Texture", texture, file).toLowerCase();
+        textureName = readValue(split, "Texture", textureName, file).toLowerCase();
         modelName = readValue(split, "Model", modelName, file);
         modelScale = readValue(split, "ModelScale", modelScale, file);
     }
@@ -72,7 +75,9 @@ public abstract class InfoType
 
             try
             {
-                if (ClassLoaderUtils.loadAndModifyClass(file.getContentPack(), modelClassName).getConstructor().newInstance() instanceof IModelBase modelBase)
+                model = new ModelExoskeletonHelmet();
+                model.setType(this);
+                /*if (ClassLoaderUtils.loadAndModifyClass(file.getContentPack(), modelClassName).getConstructor().newInstance() instanceof IModelBase modelBase)
                 {
                     model = modelBase;
                     model.setType(this);
@@ -80,7 +85,7 @@ public abstract class InfoType
                 else
                 {
                     ArmorMod.log.error("Could not load model class {} from {}: class is not a Model.", modelClassName, file.getContentPack().path());
-                }
+                }*/
             }
             catch (Exception e)
             {
@@ -90,9 +95,13 @@ public abstract class InfoType
     }
 
     @OnlyIn(Dist.CLIENT)
-    protected String getTextureFileName()
+    public ResourceLocation getTexture()
     {
-        return texture + ".png";
+        if (texture == null)
+        {
+            return ResourceLocation.fromNamespaceAndPath("minecraft", "textures/missing_texture.png");
+        }
+        return texture;
     }
 
     public String getContentPack()

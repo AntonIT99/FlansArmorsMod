@@ -192,6 +192,12 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
     }
 
     @Override
+    public void setTexture(ResourceLocation texture)
+    {
+        this.texture = texture;
+    }
+
+    @Override
     public void setType(InfoType type)
     {
         if (type instanceof ArmourType armourType)

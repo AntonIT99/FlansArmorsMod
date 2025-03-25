@@ -2,7 +2,7 @@
 //Copyright (C) 2015 Minecraft-SMP.de
 //This file is for Flan's Flying Mod Version 4.0.x+
 
-package com.flansmod.client.model.mw;
+package com.flansmod.client.model.mwtest;
 
 import com.flansmod.client.model.ModelCustomArmour;
 import com.flansmod.client.tmt.ModelRendererTurbo;

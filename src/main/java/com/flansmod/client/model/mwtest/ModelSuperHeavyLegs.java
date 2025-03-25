@@ -1,4 +1,4 @@
-package com.flansmod.client.model.mw;
+package com.flansmod.client.model.mwtest;
 
 import com.flansmod.client.model.ModelCustomArmour;
 import com.flansmod.client.tmt.ModelRendererTurbo;

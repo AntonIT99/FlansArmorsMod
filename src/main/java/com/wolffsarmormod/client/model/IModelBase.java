@@ -31,6 +31,8 @@ public interface IModelBase
 
     ResourceLocation getTexture();
 
+    void setTexture(ResourceLocation texture);
+
     List<ModelRenderer> getBoxList();
 
     Map<String, TextureOffset> getModelTextureMap();

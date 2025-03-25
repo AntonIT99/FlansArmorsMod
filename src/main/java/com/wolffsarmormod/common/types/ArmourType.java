@@ -1,9 +1,12 @@
 package com.wolffsarmormod.common.types;
 
 import com.flansmod.client.model.ModelCustomArmour;
+import com.wolffsarmormod.ArmorMod;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.lang3.StringUtils;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ArmorItem;
 
 import static com.wolffsarmormod.util.TypeReaderUtils.readValue;
@@ -18,7 +21,7 @@ public class ArmourType extends InfoType
     {
         super.readLine(split, file);
         rawType = readValue(split, "Type", rawType, file);
-        texture = readValue(split, "ArmourTexture", texture, file).toLowerCase();
+        textureName = readValue(split, "ArmourTexture", textureName, file).toLowerCase();
     }
 
     @Override
@@ -42,18 +45,19 @@ public class ArmourType extends InfoType
             default:
                 break;
         }
+        if (StringUtils.isNotBlank(textureName))
+        {
+            texture = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/models/armor/" + textureName + (armorType != ArmorItem.Type.LEGGINGS ? "_1" : "_2") + ".png");
+            if (model != null)
+            {
+                model.setTexture(texture);
+            }
+        }
     }
 
     public ArmorItem.Type getArmorType()
     {
         return armorType;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public String getTextureFileName()
-    {
-        return texture + (armorType != ArmorItem.Type.LEGGINGS ? "_1" : "_2") + ".png";
     }
 
     @OnlyIn(Dist.CLIENT)

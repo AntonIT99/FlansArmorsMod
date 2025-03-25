@@ -1,7 +1,6 @@
 package com.wolffsarmormod.client;
 
 import com.flansmod.client.model.ModelCustomArmour;
-import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.common.CustomArmorItem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -35,7 +34,7 @@ public class CustomArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>
     {
         if (stack.getItem() instanceof CustomArmorItem customArmorItem)
         {
-            return ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/models/armor/" + customArmorItem.getTextureName());
+            return customArmorItem.getTexture();
         }
         return ResourceLocation.fromNamespaceAndPath("minecraft", "textures/missing_texture.png");
     }

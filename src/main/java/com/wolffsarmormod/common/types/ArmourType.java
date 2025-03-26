@@ -2,6 +2,7 @@ package com.wolffsarmormod.common.types;
 
 import com.flansmod.client.model.ModelCustomArmour;
 import com.wolffsarmormod.ArmorMod;
+import com.wolffsarmormod.client.model.armor.DefaultArmor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +29,7 @@ public class ArmourType extends InfoType
     protected void postRead(TypeFile file)
     {
         super.postRead(file);
+
         switch (rawType)
         {
             case "Hat", "Helmet":
@@ -45,13 +47,16 @@ public class ArmourType extends InfoType
             default:
                 break;
         }
+
+        if (model == null)
+        {
+            model = new DefaultArmor(armorType);
+        }
+
         if (StringUtils.isNotBlank(textureName))
         {
             texture = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/models/armor/" + textureName + (armorType != ArmorItem.Type.LEGGINGS ? "_1" : "_2") + ".png");
-            if (model != null)
-            {
-                model.setTexture(texture);
-            }
+            model.setTexture(texture);
         }
     }
 

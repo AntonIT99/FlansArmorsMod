@@ -19,14 +19,20 @@ import java.util.function.Consumer;
 
 public class CustomArmorItem extends ArmorItem
 {
-    private final ModelCustomArmour model;
-    private final ResourceLocation texture;
+    protected final ModelCustomArmour model;
+    protected final ResourceLocation texture;
 
     public CustomArmorItem(ArmourType type)
     {
         super(CustomArmorMaterial.CUSTOM, type.getArmorType(), new Item.Properties());
         model = type.getModel();
         texture = type.getTexture();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public ResourceLocation getTexture()
+    {
+        return texture;
     }
 
     @Override
@@ -45,11 +51,5 @@ public class CustomArmorItem extends ArmorItem
                 return defaultModel;
             }
         });
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public ResourceLocation getTexture()
-    {
-        return texture;
     }
 }

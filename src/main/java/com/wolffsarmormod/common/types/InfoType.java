@@ -1,23 +1,19 @@
 package com.wolffsarmormod.common.types;
 
-import com.flansmod.client.model.mwtest.ModelExoskeletonHelmet;
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.client.model.IModelBase;
+import com.wolffsarmormod.util.ClassLoaderUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
 
 import net.minecraft.resources.ResourceLocation;
 
-import java.io.File;
-
 import static com.wolffsarmormod.util.TypeReaderUtils.readValue;
 import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
 
 public abstract class InfoType
 {
-    protected static final String ICONS_RELATIVE_PATH = "assets" + File.separator + ArmorMod.FLANSMOD_ID + File.separator + "textures" + File.separator + "items";
-    protected static final String TEXTURES_RELATIVE_PATH = "assets" + File.separator + ArmorMod.FLANSMOD_ID;
     protected static final String MODEL_PACKAGE_NAME = "com.flansmod.client.model.";
 
     protected EnumType type;
@@ -75,9 +71,7 @@ public abstract class InfoType
 
             try
             {
-                model = new ModelExoskeletonHelmet();
-                model.setType(this);
-                /*if (ClassLoaderUtils.loadAndModifyClass(file.getContentPack(), modelClassName).getConstructor().newInstance() instanceof IModelBase modelBase)
+                if (ClassLoaderUtils.loadAndModifyClass(file.getContentPack(), modelClassName).getConstructor().newInstance() instanceof IModelBase modelBase)
                 {
                     model = modelBase;
                     model.setType(this);
@@ -85,7 +79,7 @@ public abstract class InfoType
                 else
                 {
                     ArmorMod.log.error("Could not load model class {} from {}: class is not a Model.", modelClassName, file.getContentPack().path());
-                }*/
+                }
             }
             catch (Exception e)
             {
@@ -99,7 +93,7 @@ public abstract class InfoType
     {
         if (texture == null)
         {
-            return ResourceLocation.fromNamespaceAndPath("minecraft", "textures/missing_texture.png");
+            return ResourceLocation.withDefaultNamespace("");
         }
         return texture;
     }

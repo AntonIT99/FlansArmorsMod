@@ -11,6 +11,7 @@ import org.joml.Quaternionf;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -2084,9 +2085,16 @@ public class ModelRendererTurbo extends ModelRenderer
     {
         if (!isVisible()) return;
 
+        ResourceLocation texture = baseModel.getTexture();
+
+        // Enable transparency
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        pVertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.entityTranslucent(texture));
+
         if (glow)
         {
-            pVertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.eyes(baseModel.getTexture()));
+            pVertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.eyes(texture));
             pPackedLight = 15728640;
 
             RenderSystem.disableDepthTest(); // Disable depth write to allow glowing effect to be visible on top of other objects
@@ -2111,6 +2119,8 @@ public class ModelRendererTurbo extends ModelRenderer
             RenderSystem.enableDepthTest(); // Re-enable depth testing after rendering the glow effect
             RenderSystem.defaultBlendFunc();  // Restore the default blend function
         }
+
+        RenderSystem.disableBlend();  // Disable blending after rendering
     }
 
     /**

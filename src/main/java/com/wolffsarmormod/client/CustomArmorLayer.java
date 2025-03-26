@@ -36,6 +36,6 @@ public class CustomArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>
         {
             return customArmorItem.getTexture();
         }
-        return ResourceLocation.fromNamespaceAndPath("minecraft", "textures/missing_texture.png");
+        return super.getArmorResource(entity, stack, slot, type);
     }
 }

@@ -14,10 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -28,8 +24,6 @@ import java.util.Map;
 
 public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IModelBase
 {
-    private static ModelPart root;
-
     protected ArmourType type;
     protected ModelRendererTurbo[] headModel = new ModelRendererTurbo[0];
     protected ModelRendererTurbo[] bodyModel = new ModelRendererTurbo[0];
@@ -47,39 +41,20 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
 
     public ModelCustomArmour()
     {
-        super(getRoot());
+        super(initRoot());
     }
 
-    private static ModelPart getRoot()
+    private static ModelPart initRoot()
     {
-        if (root == null)
-        {
-            Map<String, ModelPart> children = new HashMap<>();
-            ModelPart emptyPart = new ModelPart(new ArrayList<>(), new HashMap<>());
-            children.put("head", emptyPart);
-            children.put("hat", emptyPart);
-            children.put("body", emptyPart);
-            children.put("right_arm", emptyPart);
-            children.put("left_arm", emptyPart);
-            children.put("right_leg", emptyPart);
-            children.put("left_leg", emptyPart);
-            root = new ModelPart(new ArrayList<>(), children);
-        }
-        return root;
-    }
-
-    public static MeshDefinition createMesh()
-    {
-        MeshDefinition meshdefinition = new MeshDefinition();
-        PartDefinition partdefinition = meshdefinition.getRoot();
-        partdefinition.addOrReplaceChild("head", CubeListBuilder.create(), PartPose.ZERO);
-        partdefinition.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
-        partdefinition.addOrReplaceChild("body", CubeListBuilder.create(), PartPose.ZERO);
-        partdefinition.addOrReplaceChild("right_arm", CubeListBuilder.create(), PartPose.ZERO);
-        partdefinition.addOrReplaceChild("left_arm", CubeListBuilder.create(), PartPose.ZERO);
-        partdefinition.addOrReplaceChild("right_leg", CubeListBuilder.create(), PartPose.ZERO);
-        partdefinition.addOrReplaceChild("left_leg", CubeListBuilder.create(), PartPose.ZERO);
-        return meshdefinition;
+        Map<String, ModelPart> children = new HashMap<>();
+        children.put("head", new ModelPart(new ArrayList<>(), new HashMap<>()));
+        children.put("hat", new ModelPart(new ArrayList<>(), new HashMap<>()));
+        children.put("body", new ModelPart(new ArrayList<>(), new HashMap<>()));
+        children.put("right_arm", new ModelPart(new ArrayList<>(), new HashMap<>()));
+        children.put("left_arm", new ModelPart(new ArrayList<>(), new HashMap<>()));
+        children.put("right_leg", new ModelPart(new ArrayList<>(), new HashMap<>()));
+        children.put("left_leg", new ModelPart(new ArrayList<>(), new HashMap<>()));
+        return new ModelPart(new ArrayList<>(), children);
     }
 
     @Override
@@ -91,6 +66,7 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
         float babyHeadScale = ReflectionUtils.getFloatValue("babyHeadScale", AgeableListModel.class, this, 2.0F);
         float babyBodyScale = ReflectionUtils.getFloatValue("babyBodyScale", AgeableListModel.class, this, 2.0F);
         float bodyYOffset = ReflectionUtils.getFloatValue("bodyYOffset", AgeableListModel.class, this, 24.0F);
+        float modelScale = type != null ? type.getModelScale() : 1F;
 
         if (young)
         {
@@ -101,60 +77,60 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
             }
 
             pPoseStack.translate(0.0F, babyYHeadOffset * 0.0625F, babyZHeadOffset * 0.0625F);
-            renderHeadModels(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+            renderHeadModels(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, modelScale);
             pPoseStack.popPose();
             pPoseStack.pushPose();
             float f1 = 1.0F / babyBodyScale;
             pPoseStack.scale(f1, f1, f1);
             pPoseStack.translate(0.0F, bodyYOffset * 0.0625F, 0.0F);
-            renderBodyModels(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+            renderBodyModels(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, modelScale);
             pPoseStack.popPose();
         }
         else
         {
-            renderHeadModels(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
-            renderBodyModels(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+            renderHeadModels(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, modelScale);
+            renderBodyModels(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, modelScale);
         }
     }
 
-    protected void renderHeadModels(PoseStack pPoseStack, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
+    protected void renderHeadModels(PoseStack pPoseStack, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha, float modelScale)
     {
-        render(headModel, head, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
+        render(headModel, head, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, modelScale);
     }
 
-    protected void renderBodyModels(PoseStack pPoseStack, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
+    protected void renderBodyModels(PoseStack pPoseStack, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha, float modelScale)
     {
-        render(bodyModel, body, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
-        render(leftArmModel, leftArm, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
-        render(rightArmModel, rightArm, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
-        render(leftLegModel, leftLeg, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
-        render(rightLegModel, rightLeg, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
+        render(bodyModel, body, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, modelScale);
+        render(leftArmModel, leftArm, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, modelScale);
+        render(rightArmModel, rightArm, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, modelScale);
+        render(leftLegModel, leftLeg, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, modelScale);
+        render(rightLegModel, rightLeg, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, modelScale);
         for (ModelRendererTurbo mod : skirtFrontModel)
         {
-            mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / type.getModelScale();
-            mod.rotationPointY = (leftLeg.y + rightLeg.y) / 2F / type.getModelScale();
-            mod.rotationPointZ = (leftLeg.z + rightLeg.z) / 2F / type.getModelScale();
+            mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / modelScale;
+            mod.rotationPointY = (leftLeg.y + rightLeg.y) / 2F / modelScale;
+            mod.rotationPointZ = (leftLeg.z + rightLeg.z) / 2F / modelScale;
             mod.rotateAngleX = Math.min(leftLeg.xRot, rightLeg.xRot);
             mod.rotateAngleY = leftLeg.yRot;
             mod.rotateAngleZ = leftLeg.zRot;
-            mod.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
+            mod.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, modelScale);
         }
         for (ModelRendererTurbo mod : skirtRearModel)
         {
-            mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / type.getModelScale();
-            mod.rotationPointY = (leftLeg.y + rightLeg.x) / 2F / type.getModelScale();
-            mod.rotationPointZ = (leftLeg.z + rightLeg.z) / 2F / type.getModelScale();
+            mod.rotationPointX = (leftLeg.x + rightLeg.x) / 2F / modelScale;
+            mod.rotationPointY = (leftLeg.y + rightLeg.x) / 2F / modelScale;
+            mod.rotationPointZ = (leftLeg.z + rightLeg.z) / 2F / modelScale;
             mod.rotateAngleX = Math.max(leftLeg.xRot, rightLeg.xRot);
             mod.rotateAngleY = leftLeg.yRot;
             mod.rotateAngleZ = leftLeg.zRot;
-            mod.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, type.getModelScale());
+            mod.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, modelScale);
         }
     }
 
     public void render(ModelRendererTurbo[] models, ModelPart bodyPart, PoseStack pPoseStack, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha, float scale)
     {
         setBodyPart(models, bodyPart, scale);
-        for(ModelRendererTurbo mod : models)
+        for (ModelRendererTurbo mod : models)
         {
             mod.rotateAngleX = bodyPart.xRot;
             mod.rotateAngleY = bodyPart.yRot;
@@ -165,7 +141,7 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
 
     public void setBodyPart(ModelRendererTurbo[] models, ModelPart bodyPart, float scale)
     {
-        for(ModelRendererTurbo mod : models)
+        for (ModelRendererTurbo mod : models)
         {
             mod.rotationPointX = bodyPart.x / scale;
             mod.rotationPointY = bodyPart.y / scale;

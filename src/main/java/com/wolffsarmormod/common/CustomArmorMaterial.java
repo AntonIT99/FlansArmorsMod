@@ -1,5 +1,6 @@
 package com.wolffsarmormod.common;
 
+import com.wolffsarmormod.common.types.ArmourType;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.sounds.SoundEvent;
@@ -11,20 +12,23 @@ import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.function.Supplier;
 
-public enum CustomArmorMaterial implements ArmorMaterial
+public class CustomArmorMaterial implements ArmorMaterial
 {
-    CUSTOM("customarmor", 30, new int[]{2, 5, 6, 2}, 10, SoundEvents.ARMOR_EQUIP_IRON, 0.0F, 0.0F, () -> Ingredient.of(Items.IRON_INGOT));
-
     private final String name;
     private final int durability;
-    private final int[] defense;
+    private final int defense;
     private final int enchantability;
     private final SoundEvent equipSound;
     private final float toughness;
     private final float knockbackResistance;
     private final Supplier<Ingredient> repairMaterial;
 
-    CustomArmorMaterial(String name, int durability, int[] defense, int enchantability, SoundEvent equipSound, float toughness, float knockbackResistance, Supplier<Ingredient> repairMaterial)
+    CustomArmorMaterial(ArmourType type)
+    {
+        this(type.getShortName(), type.getDurability(), (int) Math.max(type.getDamageReductionAmount(), Math.round(type.getDefence() * 25.0F)), type.getEnchantability(), SoundEvents.ARMOR_EQUIP_IRON, type.getToughness(), 0.0F, () -> Ingredient.of(Items.IRON_INGOT));
+    }
+
+    CustomArmorMaterial(String name, int durability, int defense, int enchantability, SoundEvent equipSound, float toughness, float knockbackResistance, Supplier<Ingredient> repairMaterial)
     {
         this.name = name;
         this.durability = durability;
@@ -45,7 +49,7 @@ public enum CustomArmorMaterial implements ArmorMaterial
     @Override
     public int getDefenseForType(@NotNull ArmorItem.Type slot)
     {
-        return defense[slot.getSlot().getIndex()];
+        return defense;
     }
 
     @Override

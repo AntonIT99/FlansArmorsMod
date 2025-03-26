@@ -16,6 +16,12 @@ public class ArmourType extends InfoType
 {
     protected String rawType;
     protected ArmorItem.Type armorType;
+    protected double defence;
+    protected int damageReductionAmount;
+    protected int durability;
+    protected int toughness;
+    protected int enchantability = 10;
+
 
     @Override
     protected void readLine(String[] split, TypeFile file)
@@ -23,6 +29,14 @@ public class ArmourType extends InfoType
         super.readLine(split, file);
         rawType = readValue(split, "Type", rawType, file);
         textureName = readValue(split, "ArmourTexture", textureName, file).toLowerCase();
+        textureName = readValue(split, "ArmorTexture", textureName, file).toLowerCase();
+
+        defence = readValue(split, "DamageReduction", defence, file);
+        defence = readValue(split, "Defence", defence, file);
+        enchantability = readValue(split, "Enchantability", enchantability, file);
+        toughness = readValue(split, "Toughness", toughness, file);
+        durability = readValue(split, "Durability", durability, file);
+        damageReductionAmount = readValue(split, "DamageReductionAmount", damageReductionAmount, file);
     }
 
     @Override
@@ -69,5 +83,33 @@ public class ArmourType extends InfoType
     public ModelCustomArmour getModel()
     {
         return (ModelCustomArmour) model;
+    }
+
+    /**
+     * The amount of damage to absorb. From 0 to 1. Stacks additively between armour pieces
+     */
+    public double getDefence()
+    {
+        return defence;
+    }
+
+    public int getDamageReductionAmount()
+    {
+        return damageReductionAmount;
+    }
+
+    public int getDurability()
+    {
+        return durability;
+    }
+
+    public int getToughness()
+    {
+        return toughness;
+    }
+
+    public int getEnchantability()
+    {
+        return enchantability;
     }
 }

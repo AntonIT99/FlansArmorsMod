@@ -24,7 +24,7 @@ public class CustomArmorItem extends ArmorItem
 
     public CustomArmorItem(ArmourType type)
     {
-        super(CustomArmorMaterial.CUSTOM, type.getArmorType(), new Item.Properties());
+        super(new CustomArmorMaterial(type), type.getArmorType(), new Item.Properties());
         model = type.getModel();
         texture = type.getTexture();
     }

@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public enum EnumType
 {
-    ARMOR("armor", "armorFiles", "armor", ArmourType.class, CustomArmorItem.class, true);
+    ARMOR("armor", "armorFiles", "armor", ArmourType.class, CustomArmorItem.class, true, false);
 
     private final String displayName;
     private final String configFolderName;
@@ -19,8 +19,9 @@ public enum EnumType
     private final Class<? extends InfoType> typeClass;
     private final Class<? extends Item> itemClass;
     private final boolean isItemType;
+    private final boolean isBlockType;
 
-    EnumType(String name, String configFolder, String textureFolder, Class<? extends InfoType> type, Class<? extends Item> item, boolean isItem)
+    EnumType(String name, String configFolder, String textureFolder, Class<? extends InfoType> type, Class<? extends Item> item, boolean isItem, boolean isBlock)
     {
         displayName = name;
         configFolderName = configFolder;
@@ -28,6 +29,7 @@ public enum EnumType
         typeClass = type;
         itemClass = item;
         isItemType = isItem;
+        isBlockType = isBlock;
     }
 
     public String getDisplayName()
@@ -58,6 +60,11 @@ public enum EnumType
     public boolean isItemType()
     {
         return isItemType;
+    }
+
+    public boolean isBlockType()
+    {
+        return isBlockType;
     }
 
     public static List<String> getFoldersList()

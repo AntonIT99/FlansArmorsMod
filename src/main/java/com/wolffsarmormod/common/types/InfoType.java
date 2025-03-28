@@ -18,6 +18,7 @@ public abstract class InfoType
 
     protected EnumType type;
     protected String contentPack = StringUtils.EMPTY;
+    protected String name = StringUtils.EMPTY;
     protected String shortName = StringUtils.EMPTY;
     protected String description = StringUtils.EMPTY;
     protected String modelName = StringUtils.EMPTY;
@@ -47,6 +48,7 @@ public abstract class InfoType
 
     protected void readLine(String[] split, TypeFile file)
     {
+        name = readValues(split, "Name", name, file);
         shortName = readValue(split, "ShortName", shortName, file).toLowerCase();
         description = readValues(split, "Description", description, file);
         icon = readValue(split, "Icon", icon, file).toLowerCase();
@@ -101,6 +103,11 @@ public abstract class InfoType
     public String getContentPack()
     {
         return contentPack;
+    }
+
+    public String getName()
+    {
+        return name;
     }
 
     public String getShortName()

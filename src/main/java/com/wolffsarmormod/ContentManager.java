@@ -11,6 +11,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -231,7 +234,6 @@ public class ContentManager
         });
     }
 
-    //TODO client side execution
     @OnlyIn(Dist.CLIENT)
     public void prepareAssets()
     {
@@ -239,8 +241,8 @@ public class ContentManager
         {
             createItemJsonFiles(provider);
             copyItemIcons(provider);
-            copyArmorTextures(provider);
-            createLocalization();
+            copyTextures(provider);
+            createLocalization(provider);
         }
     }
 
@@ -255,7 +257,7 @@ public class ContentManager
     {
         if (provider.isDirectory())
         {
-            Path jsonItemFolderPath = provider.path().resolve("assets").resolve(ArmorMod.FLANSMOD_ID).resolve("models").resolve("item");
+            Path jsonItemFolderPath = provider.getAssetsPath().resolve("models").resolve("item");
             if (!Files.exists(jsonItemFolderPath))
             {
                 try
@@ -299,27 +301,127 @@ public class ContentManager
     {
         if (provider.isDirectory())
         {
-            Path sourcePath = provider.path().resolve("assets").resolve(ArmorMod.FLANSMOD_ID).resolve("textures").resolve("items");
-            Path destPath = provider.path().resolve("assets").resolve(ArmorMod.FLANSMOD_ID).resolve("textures").resolve("item");
+            Path sourcePath = provider.getAssetsPath().resolve("textures").resolve("items");
+            Path destPath = provider.getAssetsPath().resolve("textures").resolve("item");
             copyPngFilesAndLowercaseNames(sourcePath, destPath);
         }
         //TODO: implement for Archives
     }
 
-    private void copyArmorTextures(IContentProvider provider)
+    private void copyTextures(IContentProvider provider)
     {
         if (provider.isDirectory())
         {
-            Path sourcePath = provider.path().resolve("assets").resolve(ArmorMod.FLANSMOD_ID).resolve("armor");
-            Path destPath = provider.path().resolve("assets").resolve(ArmorMod.FLANSMOD_ID).resolve("textures").resolve("models").resolve("armor");
+            Path sourcePath = provider.getAssetsPath().resolve("armor");
+            Path destPath = provider.getAssetsPath().resolve("textures").resolve("models").resolve("armor");
             copyPngFilesAndLowercaseNames(sourcePath, destPath);
         }
         //TODO: implement for Archives
     }
 
-    private void createLocalization()
+    private void createLocalization(IContentProvider provider)
     {
-        //TODO: implement
+
+        Path langDir = provider.getAssetsPath().resolve("lang");
+        if (!Files.isDirectory(langDir))
+        {
+            try
+            {
+                Files.createDirectories(langDir);
+            }
+            catch (IOException e)
+            {
+                ArmorMod.log.error("Could not create directory for localization {}", langDir, e);
+            }
+        }
+
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(langDir, "*.lang"))
+        {
+            for (Path langFile : stream)
+            {
+                generateLocalizationFile(provider, langFile);
+            }
+        }
+        catch (IOException e)
+        {
+            ArmorMod.log.error("Failed to read localization files in {}", langDir, e);
+        }
+        //TODO: implement for Archives
+    }
+
+    private void generateLocalizationFile(IContentProvider provider, Path langFile)
+    {
+        Map<String, String> translations = readLangFile(langFile);
+        for (InfoType config : configs.get(provider))
+        {
+            translations.putIfAbsent(generateTranslationKey(config.getShortName(), config.getType().isBlockType()), config.getName());
+        }
+
+        String jsonFileName = langFile.getFileName().toString().toLowerCase().replace(".lang", ".json");
+        Path jsonPath = langFile.getParent().resolve(jsonFileName);
+
+        try (Writer writer = Files.newBufferedWriter(jsonPath, StandardCharsets.UTF_8))
+        {
+            gson.toJson(translations, writer);
+        }
+        catch (IOException e)
+        {
+            ArmorMod.log.error("Failed to write to localization file {}", jsonPath, e);
+        }
+    }
+
+    private Map<String, String> readLangFile(Path langFile)
+    {
+        Map<String, String> translations = new LinkedHashMap<>();
+        try
+        {
+            List<String> lines = Files.readAllLines(langFile, StandardCharsets.UTF_8);
+
+            for (String line : lines)
+            {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("#"))
+                    continue;
+
+                int equalsIndex = line.indexOf('=');
+                if (equalsIndex < 0)
+                    continue;
+
+                String key = line.substring(0, equalsIndex).trim();
+                String value = line.substring(equalsIndex + 1).trim();
+
+                // Convert key to new format
+                key = convertTranslationKey(key);
+
+                // Unescape properties-style characters
+                value = value.replace("\\n", "\n").replace("\\\"", "\"");
+
+                translations.put(key, value);
+            }
+        }
+        catch (Exception e)
+        {
+            ArmorMod.log.error("Failed to read localization file {}", langFile, e);
+        }
+        return translations;
+    }
+
+    private static String convertTranslationKey(String legacyKey)
+    {
+        if (legacyKey.startsWith("item.") && legacyKey.endsWith(".name")) {
+            String id = legacyKey.substring(5, legacyKey.length() - 5).toLowerCase();
+            return "item." + ArmorMod.FLANSMOD_ID + "." + id;
+        }
+        if ((legacyKey.startsWith("tile.") || legacyKey.startsWith("block.")) && legacyKey.endsWith(".name")) {
+            String id = legacyKey.substring(legacyKey.indexOf('.') + 1, legacyKey.length() - 5).toLowerCase();
+            return "block." + ArmorMod.FLANSMOD_ID + "." + id;
+        }
+        return legacyKey;
+    }
+
+    private String generateTranslationKey(String itemId, boolean isBlock)
+    {
+        return (isBlock ? "block." : "item.") + ArmorMod.FLANSMOD_ID + "." + itemId;
     }
 
     private void copyPngFilesAndLowercaseNames(Path sourcePath, Path destPath)
@@ -339,18 +441,18 @@ public class ContentManager
             try (Stream<Path> paths = Files.walk(sourcePath))
             {
                 paths.filter(path -> path.toString().toLowerCase().endsWith(".png"))
-                        .forEach(path ->
+                    .forEach(path ->
+                    {
+                        Path destinationFile = destPath.resolve(sourcePath.relativize(path).toString().toLowerCase());
+                        try
                         {
-                            Path destinationFile = destPath.resolve(sourcePath.relativize(path).toString().toLowerCase());
-                            try
-                            {
-                                Files.copy(path, destinationFile, StandardCopyOption.REPLACE_EXISTING);
-                            }
-                            catch (IOException e)
-                            {
-                                ArmorMod.log.error("Could not create {}", destinationFile, e);
-                            }
-                        });
+                            Files.copy(path, destinationFile, StandardCopyOption.REPLACE_EXISTING);
+                        }
+                        catch (IOException e)
+                        {
+                            ArmorMod.log.error("Could not create {}", destinationFile, e);
+                        }
+                    });
             }
             catch (IOException e)
             {

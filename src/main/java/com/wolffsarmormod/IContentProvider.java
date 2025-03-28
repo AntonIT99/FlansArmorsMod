@@ -9,6 +9,11 @@ public interface IContentProvider
 
     Path path();
 
+    default Path getAssetsPath()
+    {
+        return path().resolve("assets").resolve(ArmorMod.FLANSMOD_ID);
+    }
+
     boolean equals(Object obj);
 
     int hashCode();

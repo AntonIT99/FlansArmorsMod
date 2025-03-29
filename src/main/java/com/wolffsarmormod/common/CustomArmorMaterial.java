@@ -25,7 +25,7 @@ public class CustomArmorMaterial implements ArmorMaterial
 
     CustomArmorMaterial(ArmourType type)
     {
-        this(type.getShortName(), type.getDurability(), (int) Math.max(type.getDamageReductionAmount(), Math.round(type.getDefence() * 25.0F)), type.getEnchantability(), SoundEvents.ARMOR_EQUIP_IRON, type.getToughness(), 0.0F, () -> Ingredient.of(Items.IRON_INGOT));
+        this(type.getShortName(), type.getDurability(), (int) Math.max(type.getDamageReductionAmount(), Math.round(type.getDefence() * 20.0F)), type.getEnchantability(), SoundEvents.ARMOR_EQUIP_IRON, type.getToughness(), 0.0F, () -> Ingredient.of(Items.IRON_INGOT));
     }
 
     CustomArmorMaterial(String name, int durability, int defense, int enchantability, SoundEvent equipSound, float toughness, float knockbackResistance, Supplier<Ingredient> repairMaterial)

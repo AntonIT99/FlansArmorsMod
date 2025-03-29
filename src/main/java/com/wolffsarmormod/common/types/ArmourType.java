@@ -21,7 +21,10 @@ public class ArmourType extends InfoType
     protected int durability;
     protected int toughness;
     protected int enchantability = 10;
-
+    protected float moveSpeedModifier = 1F;
+    protected float knockbackModifier = 0.2F;
+    protected float jumpModifier = 1F;
+    public boolean hasDurability = false;
 
     @Override
     protected void readLine(String[] split, TypeFile file)
@@ -37,6 +40,11 @@ public class ArmourType extends InfoType
         toughness = readValue(split, "Toughness", toughness, file);
         durability = readValue(split, "Durability", durability, file);
         damageReductionAmount = readValue(split, "DamageReductionAmount", damageReductionAmount, file);
+        moveSpeedModifier = readValue(split, "MoveSpeedModifier", moveSpeedModifier, file);
+        moveSpeedModifier = readValue(split, "Slowness", moveSpeedModifier, file);
+        jumpModifier = readValue(split, "JumpModifier", jumpModifier, file);
+        knockbackModifier = readValue(split, "KnockbackReduction", knockbackModifier, file);
+        knockbackModifier = readValue(split, "KnockbackModifier", knockbackModifier, file);
     }
 
     @Override
@@ -111,5 +119,20 @@ public class ArmourType extends InfoType
     public int getEnchantability()
     {
         return enchantability;
+    }
+
+    public float getJumpModifier()
+    {
+        return jumpModifier;
+    }
+
+    public float getKnockbackModifier()
+    {
+        return knockbackModifier;
+    }
+
+    public float getMoveSpeedModifier()
+    {
+        return moveSpeedModifier;
     }
 }

@@ -2092,6 +2092,7 @@ public class ModelRendererTurbo extends ModelRenderer
         RenderSystem.defaultBlendFunc();
         pVertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.entityTranslucent(texture));
 
+
         if (glow)
         {
             pVertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.eyes(texture));

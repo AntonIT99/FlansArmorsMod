@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.wolffsarmormod.common.types.EnumType;
 import com.wolffsarmormod.common.types.InfoType;
 import com.wolffsarmormod.common.types.TypeFile;
+import com.wolffsarmormod.util.FileUtils;
 import com.wolffsarmormod.util.ResourceUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -126,28 +127,13 @@ public class ContentManager
 
     private void loadTypes(IContentProvider provider)
     {
-        if (provider.isDirectory())
+        try (DirectoryStream<Path> dirStream = FileUtils.createDirectoryStream(provider, Files::isDirectory))
         {
-            try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(provider.path(), Files::isDirectory))
-            {
-                dirStream.forEach(folder -> readTypeFolder(folder, provider));
-            }
-            catch (IOException e)
-            {
-                ArmorMod.log.error("Failed to load types in content pack '{}'", provider.name(), e);
-            }
+            dirStream.forEach(folder -> readTypeFolder(folder, provider));
         }
-        else if (provider.isArchive())
+        catch (IOException e)
         {
-            try (FileSystem fs = FileSystems.newFileSystem(provider.path());
-                 DirectoryStream<Path> dirStream = Files.newDirectoryStream(fs.getPath("/"), Files::isDirectory))
-            {
-                dirStream.forEach(folder -> readTypeFolder(folder, provider));
-            }
-            catch (IOException e)
-            {
-                ArmorMod.log.error("Failed to load types in content pack '{}'", provider.name(), e);
-            }
+            ArmorMod.log.error("Failed to load types in content pack '{}'", provider.name(), e);
         }
     }
 
@@ -239,47 +225,73 @@ public class ContentManager
     {
         for (IContentProvider provider : contentPacks)
         {
-            createItemJsonFiles(provider);
-            copyItemIcons(provider);
-            copyTextures(provider);
-            createLocalization(provider);
+            boolean archiveExtracted = unpackArchive(provider);
+            if (Files.exists(provider.getAssetsPath()))
+            {
+                createItemJsonFiles(provider);
+                copyItemIcons(provider);
+                copyTextures(provider);
+                createLocalization(provider);
+                createSounds(provider);
+            }
+            if (archiveExtracted)
+            {
+                FileUtils.repackArchive(provider);
+            }
+        }
+    }
+
+    private boolean unpackArchive(IContentProvider provider)
+    {
+        if (provider.isArchive())
+        {
+            try (FileSystem fs = FileSystems.newFileSystem(provider.path()))
+            {
+                if (provider.isJarFile()
+                    || !Files.exists(provider.getAssetsPath(fs).resolve("models").resolve("item"))
+                    || !Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("item"))
+                    || !Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("models").resolve("armor"))
+                    || !Files.exists(provider.getAssetsPath(fs).resolve("lang").resolve("en_us.json")))
+                {
+                    FileUtils.extractArchive(provider.path(), provider.getExtractedPath());
+                    return true;
+                }
+            }
+            catch (IOException e)
+            {
+                ArmorMod.log.error("Failed to read archive for content pack {}", provider.path(), e);
+            }
+        }
+        return false;
+    }
+
+    private void createItemJsonFiles(IContentProvider provider)
+    {
+        Path jsonItemFolderPath = provider.getAssetsPath().resolve("models").resolve("item");
+
+        if (Files.exists(jsonItemFolderPath))
+            return;
+
+        try
+        {
+            Files.createDirectories(jsonItemFolderPath);
+            for (InfoType config : listItems(provider))
+            {
+                generateItemJson(config, jsonItemFolderPath);
+            }
+        }
+        catch (IOException e)
+        {
+            ArmorMod.log.error("Could not create {}", jsonItemFolderPath, e);
         }
     }
 
     private List<InfoType> listItems(IContentProvider provider)
     {
         return configs.get(provider).stream()
-            .filter(config -> config.getType().isItemType())
-            .toList();
+                .filter(config -> config.getType().isItemType())
+                .toList();
     }
-
-    private void createItemJsonFiles(IContentProvider provider)
-    {
-        if (provider.isDirectory())
-        {
-            Path jsonItemFolderPath = provider.getAssetsPath().resolve("models").resolve("item");
-            if (!Files.exists(jsonItemFolderPath))
-            {
-                try
-                {
-                    Files.createDirectories(jsonItemFolderPath);
-                }
-                catch (IOException e)
-                {
-                    ArmorMod.log.error("Could not create {}", jsonItemFolderPath, e);
-                    return;
-                }
-
-                for (InfoType config : listItems(provider))
-                {
-                    generateItemJson(config, jsonItemFolderPath);
-                }
-            }
-
-        }
-        //TODO: implement for Archives
-    }
-
 
     private void generateItemJson(InfoType config, Path outputFolder)
     {
@@ -299,29 +311,20 @@ public class ContentManager
 
     private void copyItemIcons(IContentProvider provider)
     {
-        if (provider.isDirectory())
-        {
-            Path sourcePath = provider.getAssetsPath().resolve("textures").resolve("items");
-            Path destPath = provider.getAssetsPath().resolve("textures").resolve("item");
-            copyPngFilesAndLowercaseNames(sourcePath, destPath);
-        }
-        //TODO: implement for Archives
+        Path sourcePath = provider.getAssetsPath().resolve("textures").resolve("items");
+        Path destPath = provider.getAssetsPath().resolve("textures").resolve("item");
+        copyPngFilesAndLowercaseNames(sourcePath, destPath);
     }
 
     private void copyTextures(IContentProvider provider)
     {
-        if (provider.isDirectory())
-        {
-            Path sourcePath = provider.getAssetsPath().resolve("armor");
-            Path destPath = provider.getAssetsPath().resolve("textures").resolve("models").resolve("armor");
-            copyPngFilesAndLowercaseNames(sourcePath, destPath);
-        }
-        //TODO: implement for Archives
+        Path sourcePath = provider.getAssetsPath().resolve("armor");
+        Path destPath = provider.getAssetsPath().resolve("textures").resolve("models").resolve("armor");
+        copyPngFilesAndLowercaseNames(sourcePath, destPath);
     }
 
     private void createLocalization(IContentProvider provider)
     {
-
         Path langDir = provider.getAssetsPath().resolve("lang");
         if (!Files.isDirectory(langDir))
         {
@@ -346,7 +349,6 @@ public class ContentManager
         {
             ArmorMod.log.error("Failed to read localization files in {}", langDir, e);
         }
-        //TODO: implement for Archives
     }
 
     private void generateLocalizationFile(IContentProvider provider, Path langFile)
@@ -458,6 +460,54 @@ public class ContentManager
             {
                 ArmorMod.log.error("Could not read {}", sourcePath, e);
             }
+        }
+    }
+
+    private void createSounds(IContentProvider provider)
+    {
+        boolean foundUppercaseFileNames = false;
+        Path soundsDir = provider.getAssetsPath().resolve("sounds");
+        Path soundsJsonFile = provider.getAssetsPath().resolve("sounds.json");
+
+        if (Files.isDirectory(soundsDir))
+        {
+            DirectoryStream.Filter<Path> filter = path -> {
+                String fileName = path.getFileName().toString();
+                return fileName.toLowerCase().endsWith(".ogg") && !fileName.equals(fileName.toLowerCase());
+            };
+
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(soundsDir, filter))
+            {
+                for (Path file : stream)
+                {
+                    String lowercaseName = file.getFileName().toString().toLowerCase();
+                    Files.move(file, soundsDir.resolve(lowercaseName + ".tmp"), StandardCopyOption.REPLACE_EXISTING);
+                    Files.move(soundsDir.resolve(lowercaseName + ".tmp"), soundsDir.resolve(lowercaseName), StandardCopyOption.REPLACE_EXISTING);
+                    foundUppercaseFileNames = true;
+                }
+            }
+            catch (IOException e)
+            {
+                ArmorMod.log.error("Could not process {}", soundsDir, e);
+            }
+        }
+
+        if (foundUppercaseFileNames)
+        {
+            modifySoundsJson(soundsJsonFile);
+        }
+    }
+
+    private void modifySoundsJson(Path soundsJsonFile)
+    {
+        try
+        {
+            String content = Files.readString(soundsJsonFile);
+            Files.writeString(soundsJsonFile, content.toLowerCase(), StandardOpenOption.TRUNCATE_EXISTING);
+        }
+        catch (IOException e)
+        {
+            ArmorMod.log.error("Could not process {}", soundsJsonFile, e);
         }
     }
 }

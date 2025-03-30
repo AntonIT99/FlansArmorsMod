@@ -37,20 +37,26 @@ public interface IContentProvider
         return path().resolve("assets").resolve(ArmorMod.FLANSMOD_ID);
     }
 
-    default Path getModelsPath()
+    default Path getModelsPath(String packageName, boolean newPackageFormat)
     {
+        Path relativePath = packageName.isEmpty() ?
+                Path.of("client").resolve("model") :
+                newPackageFormat ?
+                        Path.of(packageName).resolve("client").resolve("model") :
+                        Path.of("client").resolve("model").resolve(packageName);
+
         if (isArchive())
         {
             try (FileSystem fs = FileSystems.newFileSystem(path()))
             {
-                return fs.getPath("/com").resolve(ArmorMod.FLANSMOD_ID).resolve("client").resolve("model");
+                return fs.getPath("/com").resolve(ArmorMod.FLANSMOD_ID).resolve(relativePath);
             }
             catch (IOException e)
             {
                 ArmorMod.log.error("Failed to read archive for content pack {}", path(), e);
             }
         }
-        return path().resolve("com").resolve(ArmorMod.FLANSMOD_ID).resolve("client").resolve("model");
+        return path().resolve("com").resolve(ArmorMod.FLANSMOD_ID).resolve(relativePath);
     }
 
     boolean equals(Object obj);

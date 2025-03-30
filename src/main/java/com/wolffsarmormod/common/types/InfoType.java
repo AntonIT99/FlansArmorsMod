@@ -1,7 +1,6 @@
 package com.wolffsarmormod.common.types;
 
 import com.wolffsarmormod.ArmorMod;
-import com.wolffsarmormod.IContentProvider;
 import com.wolffsarmormod.client.model.IModelBase;
 import com.wolffsarmormod.util.ClassLoaderUtils;
 import com.wolffsarmormod.util.FileUtils;
@@ -11,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import net.minecraft.resources.ResourceLocation;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,8 +20,7 @@ import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
 
 public abstract class InfoType
 {
-    protected static final String MODEL_PACKAGE_NAME = "com." + ArmorMod.FLANSMOD_ID + ".client.model.";
-    protected static final Map<String, IContentProvider> registeredModels = new HashMap<>();
+    protected static final Map<String, Path> registeredModels = new HashMap<>();
 
     protected EnumType type;
     protected String contentPack = StringUtils.EMPTY;
@@ -69,29 +68,41 @@ public abstract class InfoType
         if (!modelName.isBlank() && !modelName.equalsIgnoreCase("null") && !modelName.equalsIgnoreCase("none"))
         {
             String[] modelNameSplit = modelName.split("\\.");
+            String fileName;
+            Path classFile;
+
             if (modelNameSplit.length > 1)
             {
-                modelClassName = MODEL_PACKAGE_NAME + modelNameSplit[0] + ".Model" + modelNameSplit[1];
+                fileName = "Model" + modelNameSplit[1];
+                modelClassName = "com." + ArmorMod.FLANSMOD_ID + ".client.model." + modelNameSplit[0] + "." + fileName;
+                classFile = file.getContentPack().getModelsPath(modelNameSplit[0], false).resolve(fileName + ".class");
+
+                // Handle 1.12.2 package format
+                if (!Files.exists(classFile))
+                {
+                    modelClassName = "com." + ArmorMod.FLANSMOD_ID + "." + modelNameSplit[0] + ".client.model." + fileName;
+                    classFile = file.getContentPack().getModelsPath(modelNameSplit[0], true).resolve(fileName + ".class");
+                }
             }
             else
             {
-                modelClassName = MODEL_PACKAGE_NAME + "Model" + modelName;
+                fileName = "Model" + modelName;
+                modelClassName = "com." + ArmorMod.FLANSMOD_ID + ".client.model.Model" + modelName;
+                classFile = file.getContentPack().getModelsPath("", false).resolve(fileName + ".class");
             }
 
             if (registeredModels.containsKey(modelClassName))
             {
-                Path relativePath = Path.of(MODEL_PACKAGE_NAME, "Model" + modelName + ".class");
-                Path file1 = file.getContentPack().getModelsPath().resolve(relativePath);
-                Path file2 = registeredModels.get(modelClassName).getModelsPath().resolve(relativePath);
-                if (!FileUtils.hasSameFileBytesContent(file1, file2))
+                if (!FileUtils.hasSameFileBytesContent(classFile, registeredModels.get(modelClassName)))
                 {
-                    ArmorMod.log.warn("Duplicate model class name: {} and {}", file1, file2);
+                    ArmorMod.log.warn("Duplicate model class name: {} and {}", classFile, registeredModels.get(modelClassName));
                 }
             }
-            registeredModels.putIfAbsent(modelClassName, file.getContentPack());
+            registeredModels.putIfAbsent(modelClassName, classFile);
 
             try
             {
+                //TODO: read models from 1.12.2 Packs
                 if (ClassLoaderUtils.loadAndModifyClass(file.getContentPack(), modelClassName).getConstructor().newInstance() instanceof IModelBase modelBase)
                 {
                     model = modelBase;

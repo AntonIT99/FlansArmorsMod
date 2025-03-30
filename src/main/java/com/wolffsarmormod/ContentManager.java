@@ -34,10 +34,13 @@ import java.util.stream.Stream;
 
 public class ContentManager
 {
-    private Path flanFolder;
+    public static Path flanFolder;
+
     private final List<IContentProvider> contentPacks = new ArrayList<>();
     private final Map<EnumType, ArrayList<TypeFile>> files = new EnumMap<>(EnumType.class);
     private final Map<IContentProvider, ArrayList<InfoType>> configs = new HashMap<>();
+    private final Map<String, Path> registeredItemShortnames = new HashMap<>();
+    private final Map<String, Path> armorTextures = new HashMap<>();
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public ContentManager()
@@ -157,7 +160,7 @@ public class ContentManager
     {
         try
         {
-            loadTypeFile(new TypeFile(file.getFileName().toString(), EnumType.getType(folderName).orElse(null), provider, Files.readAllLines(file)));
+            loadTypeFile(new TypeFile(file.getFileName().toString(), file, EnumType.getType(folderName).orElse(null), provider, Files.readAllLines(file)));
         }
         catch (IOException e)
         {
@@ -183,6 +186,14 @@ public class ContentManager
                     config.read(typeFile);
                     if (!config.getShortName().isBlank())
                     {
+                        if (type.isItemType())
+                        {
+                            if (registeredItemShortnames.containsKey(config.getShortName()))
+                            {
+                                ArmorMod.log.warn("Trying to register item id {} for {} but id is already registered by {}", config.getShortName(), typeFile.getFullPath(), registeredItemShortnames.get(config.getShortName()));
+                            }
+                            registeredItemShortnames.putIfAbsent(config.getShortName(), typeFile.getFullPath());
+                        }
                         configs.putIfAbsent(typeFile.getContentPack(), new ArrayList<>());
                         configs.get(typeFile.getContentPack()).add(config);
                         if (typeFile.getType().isItemType())
@@ -321,6 +332,25 @@ public class ContentManager
         Path sourcePath = provider.getAssetsPath().resolve("armor");
         Path destPath = provider.getAssetsPath().resolve("textures").resolve("models").resolve("armor");
         copyPngFilesAndLowercaseNames(sourcePath, destPath);
+
+        try (Stream<Path> stream = Files.list(destPath))
+        {
+            stream.filter(p -> p.toString().toLowerCase().endsWith(".png"))
+                .forEach(p ->
+                {
+                    if (armorTextures.containsKey(p.getFileName().toString())
+                            && !FileUtils.hasSameFileBytesContent(p, armorTextures.get(p.getFileName().toString()))
+                            && !FileUtils.isSameImage(p, armorTextures.get(p.getFileName().toString())))
+                    {
+                        ArmorMod.log.warn("Duplicate texture detected: {} and {}", p, armorTextures.get(p.getFileName().toString()));
+                    }
+                    armorTextures.putIfAbsent(p.getFileName().toString(), p);
+                });
+        }
+        catch (IOException e)
+        {
+            ArmorMod.log.error("Could not read {}", destPath, e);
+        }
     }
 
     private void createLocalization(IContentProvider provider)

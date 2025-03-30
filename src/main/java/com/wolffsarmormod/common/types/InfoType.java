@@ -1,20 +1,27 @@
 package com.wolffsarmormod.common.types;
 
 import com.wolffsarmormod.ArmorMod;
+import com.wolffsarmormod.IContentProvider;
 import com.wolffsarmormod.client.model.IModelBase;
 import com.wolffsarmormod.util.ClassLoaderUtils;
+import com.wolffsarmormod.util.FileUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
 
 import net.minecraft.resources.ResourceLocation;
 
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.wolffsarmormod.util.TypeReaderUtils.readValue;
 import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
 
 public abstract class InfoType
 {
-    protected static final String MODEL_PACKAGE_NAME = "com.flansmod.client.model.";
+    protected static final String MODEL_PACKAGE_NAME = "com." + ArmorMod.MOD_ID + ".client.model.";
+    protected static final Map<String, IContentProvider> registeredModels = new HashMap<>();
 
     protected EnumType type;
     protected String contentPack = StringUtils.EMPTY;
@@ -70,6 +77,18 @@ public abstract class InfoType
             {
                 modelClassName = MODEL_PACKAGE_NAME + "Model" + modelName;
             }
+
+            if (registeredModels.containsKey(modelClassName))
+            {
+                Path relativePath = Path.of(MODEL_PACKAGE_NAME, "Model" + modelName + ".class");
+                Path file1 = file.getContentPack().getModelsPath().resolve(relativePath);
+                Path file2 = registeredModels.get(modelClassName).getModelsPath().resolve(relativePath);
+                if (!FileUtils.hasSameFileBytesContent(file1, file2))
+                {
+                    ArmorMod.log.warn("Duplicate model class name: {} and {}", file1, file2);
+                }
+            }
+            registeredModels.putIfAbsent(modelClassName, file.getContentPack());
 
             try
             {

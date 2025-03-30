@@ -5,7 +5,10 @@ import com.wolffsarmormod.IContentProvider;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.DirectoryStream;
@@ -14,6 +17,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,6 +28,58 @@ import java.util.zip.ZipInputStream;
 public class FileUtils
 {
     private FileUtils() {}
+
+    public static boolean hasSameFileBytesContent(Path file1, Path file2)
+    {
+        try
+        {
+            return Arrays.equals(Files.readAllBytes(file1), Files.readAllBytes(file2));
+        }
+        catch (IOException e)
+        {
+            ArmorMod.log.error("Could not compare files {} and {}", file1, file2, e);
+            return false;
+        }
+    }
+
+    public static boolean isSameImage(Path file1, Path file2)
+    {
+        BufferedImage img1 = null;
+        BufferedImage img2 = null;
+
+        try (InputStream in1 = Files.newInputStream(file1); InputStream in2 = Files.newInputStream(file2))
+        {
+            img1 = ImageIO.read(in1);
+            img2 = ImageIO.read(in2);
+        }
+        catch (IOException e)
+        {
+            ArmorMod.log.error("Could not compare images {} and {}", file1, file2, e);
+        }
+
+        if (img1 == null || img2 == null)
+        {
+            return false;
+        }
+
+        if (img1.getWidth() != img2.getWidth() || img1.getHeight() != img2.getHeight())
+        {
+            return false;
+        }
+
+        for (int y = 0; y < img1.getHeight(); y++)
+        {
+            for (int x = 0; x < img1.getWidth(); x++)
+            {
+                if (img1.getRGB(x, y) != img2.getRGB(x, y))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 
     public static DirectoryStream<Path> createDirectoryStream(IContentProvider provider, DirectoryStream.Filter<? super Path> filter) throws IOException
     {

@@ -1,6 +1,7 @@
 package com.wolffsarmormod.client;
 
 import com.wolffsarmormod.ArmorMod;
+import com.wolffsarmormod.ContentManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.event.AddPackFindersEvent;
@@ -35,13 +36,9 @@ public class ClientEventHandler
     @SubscribeEvent
     public static void registerPack(AddPackFindersEvent event)
     {
-        if (Files.exists(ArmorMod.flanPath))
+        if (Files.exists(ContentManager.flanFolder))
         {
-            event.addRepositorySource(new ModRepositorySource(ArmorMod.flanPath));
-        }
-        else if (Files.exists(ArmorMod.fallbackFlanPath))
-        {
-            event.addRepositorySource(new ModRepositorySource(ArmorMod.fallbackFlanPath));
+            event.addRepositorySource(new ModRepositorySource(ContentManager.flanFolder));
         }
     }
 

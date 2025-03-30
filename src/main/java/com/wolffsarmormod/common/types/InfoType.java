@@ -20,7 +20,7 @@ import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
 
 public abstract class InfoType
 {
-    protected static final String MODEL_PACKAGE_NAME = "com." + ArmorMod.MOD_ID + ".client.model.";
+    protected static final String MODEL_PACKAGE_NAME = "com." + ArmorMod.FLANSMOD_ID + ".client.model.";
     protected static final Map<String, IContentProvider> registeredModels = new HashMap<>();
 
     protected EnumType type;

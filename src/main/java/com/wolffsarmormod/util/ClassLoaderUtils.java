@@ -1,5 +1,6 @@
 package com.wolffsarmormod.util;
 
+import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.IContentProvider;
 import com.wolffsarmormod.client.model.IModelBase;
 import org.objectweb.asm.ClassReader;
@@ -139,7 +140,7 @@ public class ClassLoaderUtils
         }
     }
 
-    private static byte[] readFileBytesFromArchive(Path archivePath, String filePath) throws IOException
+    private static byte[] readFileBytesFromArchive(Path archivePath, String filePath)
     {
         try (FileSystem fs = FileSystems.newFileSystem(archivePath))
         {
@@ -149,6 +150,11 @@ public class ClassLoaderUtils
             {
                 return inputStream.readAllBytes();
             }
+        }
+        catch (IOException e)
+        {
+            ArmorMod.log.error("Could not read {} in {}", archivePath, filePath);
+            return new byte[0];
         }
     }
 }

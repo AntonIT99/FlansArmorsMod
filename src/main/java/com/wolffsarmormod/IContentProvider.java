@@ -2,23 +2,24 @@ package com.wolffsarmormod;
 
 import org.apache.commons.io.FilenameUtils;
 
-import java.io.IOException;
+import javax.annotation.Nullable;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 public interface IContentProvider
 {
-    String name();
+    String getName();
 
-    Path path();
+    Path getPath();
+
+    void update(String name, Path path);
 
     default Path getExtractedPath()
     {
         if (isArchive())
         {
-            return path().getParent().resolve(FilenameUtils.getBaseName(name()));
+            return getPath().getParent().resolve(FilenameUtils.getBaseName(getName()));
         }
         throw new IllegalArgumentException("Content Pack is not an Archive");
     }
@@ -34,29 +35,16 @@ public interface IContentProvider
         {
             return (fs != null) ? fs.getPath("/assets").resolve(ArmorMod.FLANSMOD_ID) : getExtractedPath().resolve("assets").resolve(ArmorMod.FLANSMOD_ID);
         }
-        return path().resolve("assets").resolve(ArmorMod.FLANSMOD_ID);
+        return getPath().resolve("assets").resolve(ArmorMod.FLANSMOD_ID);
     }
 
-    default Path getModelsPath(String packageName, boolean newPackageFormat)
+    default Path getModelPath(String modelFullClassName, @Nullable FileSystem fs)
     {
-        Path relativePath = packageName.isEmpty() ?
-                Path.of("client").resolve("model") :
-                newPackageFormat ?
-                        Path.of(packageName).resolve("client").resolve("model") :
-                        Path.of("client").resolve("model").resolve(packageName);
-
-        if (isArchive())
+        if (isArchive() && fs != null)
         {
-            try (FileSystem fs = FileSystems.newFileSystem(path()))
-            {
-                return fs.getPath("/com").resolve(ArmorMod.FLANSMOD_ID).resolve(relativePath);
-            }
-            catch (IOException e)
-            {
-                ArmorMod.log.error("Failed to read archive for content pack {}", path(), e);
-            }
+            return fs.getPath("/" + modelFullClassName.replace(".", "/") + ".class");
         }
-        return path().resolve("com").resolve(ArmorMod.FLANSMOD_ID).resolve(relativePath);
+        return getPath().resolve(modelFullClassName.replace(".", "/") + ".class");
     }
 
     boolean equals(Object obj);
@@ -70,16 +58,16 @@ public interface IContentProvider
 
     default boolean isDirectory()
     {
-        return Files.isDirectory(path());
+        return Files.isDirectory(getPath());
     }
 
     default boolean isJarFile()
     {
-        return path().toString().toLowerCase().endsWith(".jar");
+        return getPath().toString().toLowerCase().endsWith(".jar");
     }
 
     default boolean isZipFile()
     {
-        return path().toString().toLowerCase().endsWith(".zip");
+        return getPath().toString().toLowerCase().endsWith(".zip");
     }
 }

@@ -5,6 +5,7 @@ import com.wolffsarmormod.IContentProvider;
 import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
 
+import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -81,15 +82,48 @@ public class FileUtils
         return true;
     }
 
+    @Nullable
+    public static FileSystem createFileSystem(IContentProvider provider)
+    {
+        if (provider.isArchive())
+        {
+            try
+            {
+                return FileSystems.newFileSystem(provider.getPath());
+            }
+            catch (IOException e)
+            {
+                ArmorMod.log.error("Failed to open {}", provider.getPath(), e);
+            }
+        }
+        return null;
+    }
+
+    public static void closeFileSystem(@Nullable FileSystem fs, IContentProvider provider)
+    {
+        if (fs != null)
+        {
+            try
+            {
+                fs.close();
+            }
+            catch (IOException e)
+            {
+                ArmorMod.log.error("Failed to close {}", provider.getPath().toString(), e);
+            }
+        }
+    }
+
+
     public static DirectoryStream<Path> createDirectoryStream(IContentProvider provider, DirectoryStream.Filter<? super Path> filter) throws IOException
     {
         if (provider.isDirectory())
         {
-            return Files.newDirectoryStream(provider.path(), filter);
+            return Files.newDirectoryStream(provider.getPath(), filter);
         }
         else if (provider.isArchive())
         {
-            FileSystem fs = FileSystems.newFileSystem(provider.path());
+            FileSystem fs = FileSystems.newFileSystem(provider.getPath());
             return new AutoCloseableDirectoryStream(Files.newDirectoryStream(fs.getPath("/"), filter), fs);
         }
         throw new IllegalArgumentException("Content Pack must be either a directory or a ZIP/JAR-archive");
@@ -128,8 +162,8 @@ public class FileUtils
     {
         try
         {
-            Files.deleteIfExists(provider.path());
-            Path archivePath = provider.isJarFile() ? provider.path().getParent().resolve(FilenameUtils.getBaseName(provider.name()) + ".zip") : provider.path();
+            Files.deleteIfExists(provider.getPath());
+            Path archivePath = provider.isJarFile() ? provider.getPath().getParent().resolve(FilenameUtils.getBaseName(provider.getName()) + ".zip") : provider.getPath();
             Files.deleteIfExists(archivePath);
 
             URI uri = URI.create("jar:" + archivePath.toUri());
@@ -161,6 +195,9 @@ public class FileUtils
                     });
                 }
             }
+
+            if (provider.isJarFile())
+                provider.update(FilenameUtils.getBaseName(provider.getName()) + ".zip", archivePath);
 
             deleteRecursively(provider.getExtractedPath());
         }

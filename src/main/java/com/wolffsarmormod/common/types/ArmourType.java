@@ -10,12 +10,15 @@ import org.apache.commons.lang3.StringUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ArmorItem;
 
+import java.util.Optional;
+
 import static com.wolffsarmormod.util.TypeReaderUtils.readValue;
 
 public class ArmourType extends InfoType
 {
-    protected String rawType;
     protected ArmorItem.Type armorType;
+    protected String rawType = StringUtils.EMPTY;;
+    protected String overlayName = StringUtils.EMPTY;
     protected double defence;
     protected int damageReductionAmount;
     protected int durability;
@@ -24,7 +27,15 @@ public class ArmourType extends InfoType
     protected float moveSpeedModifier = 1F;
     protected float knockbackModifier = 0.2F;
     protected float jumpModifier = 1F;
-    public boolean hasDurability = false;
+    protected boolean nightVision;
+    protected boolean invisible;
+    protected boolean smokeProtection;
+    protected boolean negateFallDamage;
+    protected boolean fireResistance;
+    protected boolean waterBreathing;
+    protected boolean onWaterWalking;
+
+    protected ResourceLocation overlay;
 
     @Override
     protected void readLine(String[] split, TypeFile file)
@@ -33,7 +44,6 @@ public class ArmourType extends InfoType
         rawType = readValue(split, "Type", rawType, file);
         textureName = readValue(split, "ArmourTexture", textureName, file).toLowerCase();
         textureName = readValue(split, "ArmorTexture", textureName, file).toLowerCase();
-
         defence = readValue(split, "DamageReduction", defence, file);
         defence = readValue(split, "Defence", defence, file);
         enchantability = readValue(split, "Enchantability", enchantability, file);
@@ -45,6 +55,14 @@ public class ArmourType extends InfoType
         jumpModifier = readValue(split, "JumpModifier", jumpModifier, file);
         knockbackModifier = readValue(split, "KnockbackReduction", knockbackModifier, file);
         knockbackModifier = readValue(split, "KnockbackModifier", knockbackModifier, file);
+        nightVision = readValue(split, "NightVision", nightVision, file);
+        invisible = readValue(split, "Invisible", invisible, file);
+        negateFallDamage = readValue(split, "NegateFallDamage", negateFallDamage, file);
+        fireResistance = readValue(split, "FireResistance", fireResistance, file);
+        waterBreathing = readValue(split, "WaterBreathing", waterBreathing, file);
+        smokeProtection = readValue(split, "SmokeProtection", smokeProtection, file);
+        onWaterWalking = readValue(split, "OnWaterWalking", onWaterWalking, file);
+        overlayName = readValue(split, "Overlay", overlayName, file).toLowerCase();
     }
 
     @Override
@@ -77,20 +95,25 @@ public class ArmourType extends InfoType
 
         if (StringUtils.isNotBlank(textureName))
         {
-            texture = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/models/armor/" + textureName + (armorType != ArmorItem.Type.LEGGINGS ? "_1" : "_2") + ".png");
+            texture = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/armor/" + textureName + (armorType != ArmorItem.Type.LEGGINGS ? "_1" : "_2") + ".png");
             model.setTexture(texture);
         }
-    }
 
-    public ArmorItem.Type getArmorType()
-    {
-        return armorType;
+        if (StringUtils.isNotBlank(overlayName))
+        {
+            overlay = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/gui/" + overlayName + ".png");
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
     public ModelCustomArmour getModel()
     {
         return (ModelCustomArmour) model;
+    }
+
+    public ArmorItem.Type getArmorType()
+    {
+        return armorType;
     }
 
     /**
@@ -111,6 +134,11 @@ public class ArmourType extends InfoType
         return durability;
     }
 
+    public boolean hasDurability()
+    {
+        return durability > 0;
+    }
+
     public int getToughness()
     {
         return toughness;
@@ -121,18 +149,91 @@ public class ArmourType extends InfoType
         return enchantability;
     }
 
+    /**
+     * Modifier for jump
+     */
     public float getJumpModifier()
     {
         return jumpModifier;
     }
 
+    /**
+     * Modifier for knockback
+     */
     public float getKnockbackModifier()
     {
         return knockbackModifier;
     }
 
+    /**
+     * Modifier for move speed
+     */
     public float getMoveSpeedModifier()
     {
         return moveSpeedModifier;
+    }
+
+    /**
+     * If true, then the player gets a night vision buff every couple of seconds
+     */
+    public boolean hasNightVision()
+    {
+        return nightVision;
+    }
+
+    /**
+     * If true, then the player gets a invisiblity buff every couple of seconds
+     */
+    public boolean hasInvisiblility()
+    {
+        return invisible;
+    }
+
+    /**
+     * If true, then smoke effects from grenades will have no effect on players wearing this
+     */
+    public boolean hasSmokeProtection()
+    {
+        return smokeProtection;
+    }
+
+    /**
+     * If ture, the player will not receive fall damage
+     */
+    public boolean hasNegateFallDamage()
+    {
+        return negateFallDamage;
+    }
+
+    /**
+     * The overlay to display when using this helmet. Textures are pulled from the scopes directory
+     */
+    public Optional<ResourceLocation> getOverlay()
+    {
+        return Optional.ofNullable(overlay);
+    }
+
+    /**
+     * If true, the player can walk on water
+     */
+    public boolean hasOnWaterWalking()
+    {
+        return onWaterWalking;
+    }
+
+    /**
+     * If true, the player can breath under water
+     */
+    public boolean hasWaterBreathing()
+    {
+        return waterBreathing;
+    }
+
+    /**
+     * If true, the player will not receive fire damage
+     */
+    public boolean hasFireResistance()
+    {
+        return fireResistance;
     }
 }

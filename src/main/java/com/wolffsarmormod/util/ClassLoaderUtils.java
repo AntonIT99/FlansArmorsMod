@@ -100,15 +100,15 @@ public class ClassLoaderUtils
 
         if (contentProvider.isDirectory())
         {
-            classData = Files.readAllBytes(contentProvider.path().resolve(relativeClassPath));
+            classData = Files.readAllBytes(contentProvider.getPath().resolve(relativeClassPath));
         }
         else if (contentProvider.isArchive())
         {
-            classData = readFileBytesFromArchive(contentProvider.path(), relativeClassPath);
+            classData = readFileBytesFromArchive(contentProvider.getPath(), relativeClassPath);
         }
         else
         {
-            throw new IllegalArgumentException(contentProvider.path() + " is not an existing directory or JAR/ZIP file.");
+            throw new IllegalArgumentException(contentProvider.getPath() + " is not an existing directory or JAR/ZIP file.");
         }
 
         ClassReader classReader = new ClassReader(classData);
@@ -140,7 +140,7 @@ public class ClassLoaderUtils
         }
     }
 
-    private static byte[] readFileBytesFromArchive(Path archivePath, String filePath)
+    private static byte[] readFileBytesFromArchive(Path archivePath, String filePath) throws IOException
     {
         try (FileSystem fs = FileSystems.newFileSystem(archivePath))
         {
@@ -153,8 +153,8 @@ public class ClassLoaderUtils
         }
         catch (IOException e)
         {
-            ArmorMod.log.error("Could not read {} in {}", archivePath, filePath);
-            return new byte[0];
+            ArmorMod.log.error("Could not read {} in {}", filePath, archivePath);
+            throw new IOException(e);
         }
     }
 }

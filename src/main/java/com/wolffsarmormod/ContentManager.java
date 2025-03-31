@@ -40,13 +40,16 @@ public class ContentManager
     private final Map<EnumType, ArrayList<TypeFile>> files = new EnumMap<>(EnumType.class);
     private final Map<IContentProvider, ArrayList<InfoType>> configs = new HashMap<>();
     private final Map<String, Path> registeredItemShortnames = new HashMap<>();
-    private final Map<String, Path> armorTextures = new HashMap<>();
+    private final Map<String, Map<String, IContentProvider>> textures = new HashMap<>();
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public ContentManager()
     {
         for (EnumType type : EnumType.values())
             files.put(type, new ArrayList<>());
+
+        textures.put("armor", new HashMap<>());
+        textures.put("gui", new HashMap<>());
     }
 
     public void findContentInFlanFolder()
@@ -136,7 +139,7 @@ public class ContentManager
         }
         catch (IOException e)
         {
-            ArmorMod.log.error("Failed to load types in content pack '{}'", provider.name(), e);
+            ArmorMod.log.error("Failed to load types in content pack '{}'", provider.getName(), e);
         }
     }
 
@@ -151,7 +154,7 @@ public class ContentManager
             }
             catch (IOException e)
             {
-                ArmorMod.log.error("Failed to read '{}' folder in content pack '{}'", folderName, provider.name());
+                ArmorMod.log.error("Failed to read '{}' folder in content pack '{}'", folderName, provider.getName());
             }
         }
     }
@@ -164,7 +167,7 @@ public class ContentManager
         }
         catch (IOException e)
         {
-            ArmorMod.log.error("Failed to read '{}/{}' in content pack '{}'", folderName, file.getFileName(), provider.name());
+            ArmorMod.log.error("Failed to read '{}/{}' in content pack '{}'", folderName, file.getFileName(), provider.getName());
         }
     }
 
@@ -203,12 +206,12 @@ public class ContentManager
                     }
                     else
                     {
-                        ArmorMod.log.error("ShortName not set: {}/{}/{}", typeFile.getContentPack().name(), type.getConfigFolderName(), typeFile.getName());
+                        ArmorMod.log.error("ShortName not set: {}/{}/{}", typeFile.getContentPack().getName(), type.getConfigFolderName(), typeFile.getName());
                     }
                 }
                 catch (Exception e)
                 {
-                    ArmorMod.log.error("Failed to add {} from '{}': {}", type.getDisplayName(), typeFile.getContentPack().name(), typeFile.getName(), e);
+                    ArmorMod.log.error("Failed to add {} from '{}': {}", type.getDisplayName(), typeFile.getContentPack().getName(), typeFile.getName(), e);
                 }
             }
             ArmorMod.log.info("Loaded {}.", type.getDisplayName());
@@ -225,7 +228,7 @@ public class ContentManager
             }
             catch (Exception e)
             {
-                ArmorMod.log.error("Failed to instantiate item {}/{}/{}", typeFile.getContentPack().name(), typeFile.getType().getConfigFolderName(), typeFile.getName());
+                ArmorMod.log.error("Failed to instantiate item {}/{}/{}", typeFile.getContentPack().getName(), typeFile.getType().getConfigFolderName(), typeFile.getName());
                 return null;
             }
         });
@@ -241,7 +244,8 @@ public class ContentManager
             {
                 createItemJsonFiles(provider);
                 copyItemIcons(provider);
-                copyTextures(provider);
+                copyTextures(provider, "armor");
+                copyTextures(provider, "gui");
                 createLocalization(provider);
                 createSounds(provider);
             }
@@ -256,21 +260,22 @@ public class ContentManager
     {
         if (provider.isArchive())
         {
-            try (FileSystem fs = FileSystems.newFileSystem(provider.path()))
+            try (FileSystem fs = FileSystems.newFileSystem(provider.getPath()))
             {
                 if (provider.isJarFile()
                     || !Files.exists(provider.getAssetsPath(fs).resolve("models").resolve("item"))
                     || !Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("item"))
-                    || !Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("models").resolve("armor"))
+                    || !Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("armor"))
+                    || !Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("gui"))
                     || !Files.exists(provider.getAssetsPath(fs).resolve("lang").resolve("en_us.json")))
                 {
-                    FileUtils.extractArchive(provider.path(), provider.getExtractedPath());
+                    FileUtils.extractArchive(provider.getPath(), provider.getExtractedPath());
                     return true;
                 }
             }
             catch (IOException e)
             {
-                ArmorMod.log.error("Failed to read archive for content pack {}", provider.path(), e);
+                ArmorMod.log.error("Failed to read archive for content pack {}", provider.getPath(), e);
             }
         }
         return false;
@@ -279,21 +284,65 @@ public class ContentManager
     private void createItemJsonFiles(IContentProvider provider)
     {
         Path jsonItemFolderPath = provider.getAssetsPath().resolve("models").resolve("item");
+        Path jsonBlockFolderPath = provider.getAssetsPath().resolve("models").resolve("block");
 
         if (Files.exists(jsonItemFolderPath))
-            return;
+        {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(jsonItemFolderPath, "*.json"))
+            {
+                for (Path jsonFile : stream)
+                {
+                    processJsonItemFile(jsonFile);
+                }
+            }
+            catch (IOException e)
+            {
+                ArmorMod.log.error("Could not open {}", jsonItemFolderPath, e);
+            }
+        }
+        else
+        {
+            try
+            {
+                Files.createDirectories(jsonItemFolderPath);
+                for (InfoType config : listItems(provider))
+                {
+                    generateItemJson(config, jsonItemFolderPath);
+                }
+            }
+            catch (IOException e)
+            {
+                ArmorMod.log.error("Could not create {}", jsonItemFolderPath, e);
+            }
+        }
 
+        if (Files.exists(jsonBlockFolderPath))
+        {
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(jsonBlockFolderPath, "*.json"))
+            {
+                for (Path jsonFile : stream)
+                {
+                    lowercaseFile(jsonFile);
+                }
+            }
+            catch (IOException e)
+            {
+                ArmorMod.log.error("Could not open {}", jsonBlockFolderPath, e);
+            }
+        }
+    }
+
+    private void processJsonItemFile(Path jsonFile)
+    {
         try
         {
-            Files.createDirectories(jsonItemFolderPath);
-            for (InfoType config : listItems(provider))
-            {
-                generateItemJson(config, jsonItemFolderPath);
-            }
+            String content = Files.readString(jsonFile, StandardCharsets.UTF_8);
+            String modified = content.replace("flansmod:items/", "flansmod:item/").toLowerCase();
+            Files.writeString(jsonFile, modified, StandardCharsets.UTF_8);
         }
         catch (IOException e)
         {
-            ArmorMod.log.error("Could not create {}", jsonItemFolderPath, e);
+            ArmorMod.log.error("Failed to process file: {}", jsonFile, e);
         }
     }
 
@@ -327,29 +376,45 @@ public class ContentManager
         copyPngFilesAndLowercaseNames(sourcePath, destPath);
     }
 
-    private void copyTextures(IContentProvider provider)
+    private void copyTextures(IContentProvider provider, String folderName)
     {
-        Path sourcePath = provider.getAssetsPath().resolve("armor");
-        Path destPath = provider.getAssetsPath().resolve("textures").resolve("models").resolve("armor");
+        Path sourcePath = provider.getAssetsPath().resolve(folderName);
+        Path destPath = provider.getAssetsPath().resolve("textures").resolve(folderName);
         copyPngFilesAndLowercaseNames(sourcePath, destPath);
 
         try (Stream<Path> stream = Files.list(destPath))
         {
             stream.filter(p -> p.toString().toLowerCase().endsWith(".png"))
-                .forEach(p ->
-                {
-                    if (armorTextures.containsKey(p.getFileName().toString())
-                            && !FileUtils.hasSameFileBytesContent(p, armorTextures.get(p.getFileName().toString()))
-                            && !FileUtils.isSameImage(p, armorTextures.get(p.getFileName().toString())))
-                    {
-                        ArmorMod.log.warn("Duplicate texture detected: {} and {}", p, armorTextures.get(p.getFileName().toString()));
-                    }
-                    armorTextures.putIfAbsent(p.getFileName().toString(), p);
-                });
+                .forEach(p -> checkForDuplicateTextures(p, provider, folderName));
         }
         catch (IOException e)
         {
             ArmorMod.log.error("Could not read {}", destPath, e);
+        }
+    }
+
+    private void checkForDuplicateTextures(Path texturePath, IContentProvider provider, String folderName)
+    {
+        {
+            String fileName = texturePath.getFileName().toString();
+
+            if (textures.get(folderName).containsKey(fileName))
+            {
+                IContentProvider otherContentPack = textures.get(folderName).get(fileName);
+                FileSystem fs = FileUtils.createFileSystem(otherContentPack);
+                Path otherPath = otherContentPack.getAssetsPath(fs).resolve("textures").resolve(folderName).resolve(fileName);
+
+                if (!FileUtils.hasSameFileBytesContent(texturePath, otherPath) && !FileUtils.isSameImage(texturePath, otherPath))
+                {
+                    ArmorMod.log.warn("Duplicate texture detected: {} and {}", texturePath, otherPath);
+                }
+
+                FileUtils.closeFileSystem(fs, otherContentPack);
+            }
+            else
+            {
+                textures.get(folderName).put(fileName, provider);
+            }
         }
     }
 
@@ -495,7 +560,6 @@ public class ContentManager
 
     private void createSounds(IContentProvider provider)
     {
-        boolean foundUppercaseFileNames = false;
         Path soundsDir = provider.getAssetsPath().resolve("sounds");
         Path soundsJsonFile = provider.getAssetsPath().resolve("sounds.json");
 
@@ -513,7 +577,6 @@ public class ContentManager
                     String lowercaseName = file.getFileName().toString().toLowerCase();
                     Files.move(file, soundsDir.resolve(lowercaseName + ".tmp"), StandardCopyOption.REPLACE_EXISTING);
                     Files.move(soundsDir.resolve(lowercaseName + ".tmp"), soundsDir.resolve(lowercaseName), StandardCopyOption.REPLACE_EXISTING);
-                    foundUppercaseFileNames = true;
                 }
             }
             catch (IOException e)
@@ -522,22 +585,19 @@ public class ContentManager
             }
         }
 
-        if (foundUppercaseFileNames)
-        {
-            modifySoundsJson(soundsJsonFile);
-        }
+        lowercaseFile(soundsJsonFile);
     }
 
-    private void modifySoundsJson(Path soundsJsonFile)
+    private void lowercaseFile(Path file)
     {
         try
         {
-            String content = Files.readString(soundsJsonFile);
-            Files.writeString(soundsJsonFile, content.toLowerCase(), StandardOpenOption.TRUNCATE_EXISTING);
+            String content = Files.readString(file);
+            Files.writeString(file, content.toLowerCase(), StandardOpenOption.TRUNCATE_EXISTING);
         }
         catch (IOException e)
         {
-            ArmorMod.log.error("Could not process {}", soundsJsonFile, e);
+            ArmorMod.log.error("Could not process {}", file, e);
         }
     }
 }

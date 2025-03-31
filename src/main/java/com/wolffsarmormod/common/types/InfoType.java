@@ -1,26 +1,32 @@
 package com.wolffsarmormod.common.types;
 
 import com.wolffsarmormod.ArmorMod;
+import com.wolffsarmormod.IContentProvider;
 import com.wolffsarmormod.client.model.IModelBase;
 import com.wolffsarmormod.util.ClassLoaderUtils;
 import com.wolffsarmormod.util.FileUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import net.minecraft.resources.ResourceLocation;
 
+import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.wolffsarmormod.util.TypeReaderUtils.readValue;
 import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
 
 public abstract class InfoType
 {
-    protected static final Map<String, Path> registeredModels = new HashMap<>();
+    protected static final Map<String, IContentProvider> registeredModels = new HashMap<>();
 
     protected EnumType type;
     protected String contentPack = StringUtils.EMPTY;
@@ -38,7 +44,7 @@ public abstract class InfoType
 
     public void read(TypeFile file)
     {
-        contentPack = file.getContentPack().name();
+        contentPack = FilenameUtils.getBaseName(file.getContentPack().getName());
         type = file.getType();
 
         for (String line : file.getLines())
@@ -68,41 +74,66 @@ public abstract class InfoType
         if (!modelName.isBlank() && !modelName.equalsIgnoreCase("null") && !modelName.equalsIgnoreCase("none"))
         {
             String[] modelNameSplit = modelName.split("\\.");
-            String fileName;
             Path classFile;
+            FileSystem fs = FileUtils.createFileSystem(file.getContentPack());
 
             if (modelNameSplit.length > 1)
             {
-                fileName = "Model" + modelNameSplit[1];
-                modelClassName = "com." + ArmorMod.FLANSMOD_ID + ".client.model." + modelNameSplit[0] + "." + fileName;
-                classFile = file.getContentPack().getModelsPath(modelNameSplit[0], false).resolve(fileName + ".class");
+                modelClassName = "com." + ArmorMod.FLANSMOD_ID + ".client.model." + modelNameSplit[0] + ".Model" + modelNameSplit[1];
+                classFile = file.getContentPack().getModelPath(modelClassName, fs);
 
                 // Handle 1.12.2 package format
                 if (!Files.exists(classFile))
                 {
-                    modelClassName = "com." + ArmorMod.FLANSMOD_ID + "." + modelNameSplit[0] + ".client.model." + fileName;
-                    classFile = file.getContentPack().getModelsPath(modelNameSplit[0], true).resolve(fileName + ".class");
+                    modelClassName = "com." + ArmorMod.FLANSMOD_ID + "." + modelNameSplit[0] + ".client.model.Model" + modelNameSplit[1];
+                    Path redirectFile = (fs != null) ? fs.getPath("redirect.info") : file.getContentPack().getPath().resolve("redirect.info");
+
+                    if (Files.exists(redirectFile))
+                    {
+                        try
+                        {
+                            List<String> lines = Files.readAllLines(redirectFile);
+                            if (lines.size() > 1)
+                            {
+                                if (modelNameSplit[0].equals(lines.get(0)))
+                                {
+                                    modelClassName = lines.get(1) + ".Model" + modelNameSplit[1];
+                                }
+                            }
+                        }
+                        catch (IOException e)
+                        {
+                            ArmorMod.log.error("Could not open {}", redirectFile, e);
+                        }
+                    }
+                    classFile = file.getContentPack().getModelPath(modelClassName, fs);
                 }
             }
             else
             {
-                fileName = "Model" + modelName;
                 modelClassName = "com." + ArmorMod.FLANSMOD_ID + ".client.model.Model" + modelName;
-                classFile = file.getContentPack().getModelsPath("", false).resolve(fileName + ".class");
+                classFile = file.getContentPack().getModelPath(modelClassName, fs);
             }
 
             if (registeredModels.containsKey(modelClassName))
             {
-                if (!FileUtils.hasSameFileBytesContent(classFile, registeredModels.get(modelClassName)))
+                IContentProvider otherContentPack = registeredModels.get(modelClassName);
+                FileSystem otherFs = FileUtils.createFileSystem(otherContentPack);
+                Path otherClassFile = otherContentPack.getModelPath(modelClassName, otherFs);
+
+                if (!FileUtils.hasSameFileBytesContent(classFile, otherClassFile))
                 {
                     ArmorMod.log.warn("Duplicate model class name: {} and {}", classFile, registeredModels.get(modelClassName));
                 }
+
+                FileUtils.closeFileSystem(otherFs, otherContentPack);
             }
-            registeredModels.putIfAbsent(modelClassName, classFile);
+
+            FileUtils.closeFileSystem(fs, file.getContentPack());
+            registeredModels.putIfAbsent(modelClassName, file.getContentPack());
 
             try
             {
-                //TODO: read models from 1.12.2 Packs
                 if (ClassLoaderUtils.loadAndModifyClass(file.getContentPack(), modelClassName).getConstructor().newInstance() instanceof IModelBase modelBase)
                 {
                     model = modelBase;
@@ -110,24 +141,20 @@ public abstract class InfoType
                 }
                 else
                 {
-                    ArmorMod.log.error("Could not load model class {} from {}: class is not a Model.", modelClassName, file.getContentPack().path());
+                    ArmorMod.log.error("Could not load model class {} from {}: class is not a Model.", modelClassName, file.getContentPack().getPath());
                 }
             }
             catch (Exception e)
             {
-                ArmorMod.log.error("Could not load model class {} from {}", modelClassName, file.getContentPack().path(), e);
+                ArmorMod.log.error("Could not load model class {} from {}", modelClassName, file.getContentPack().getPath(), e);
             }
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    public ResourceLocation getTexture()
+    public Optional<ResourceLocation> getTexture()
     {
-        if (texture == null)
-        {
-            return ResourceLocation.withDefaultNamespace("");
-        }
-        return texture;
+        return Optional.ofNullable(texture);
     }
 
     public String getContentPack()

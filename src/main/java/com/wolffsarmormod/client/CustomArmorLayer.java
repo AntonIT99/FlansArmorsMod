@@ -32,9 +32,9 @@ public class CustomArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>
     @NotNull
     public ResourceLocation getArmorResource(@NotNull Entity entity, @NotNull ItemStack stack, @NotNull EquipmentSlot slot, @Nullable String type)
     {
-        if (stack.getItem() instanceof CustomArmorItem customArmorItem)
+        if (stack.getItem() instanceof CustomArmorItem customArmorItem && customArmorItem.getTexture().isPresent())
         {
-            return customArmorItem.getTexture();
+            return customArmorItem.getTexture().get();
         }
         return super.getArmorResource(entity, stack, slot, type);
     }

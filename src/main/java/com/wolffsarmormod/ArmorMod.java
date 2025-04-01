@@ -71,7 +71,7 @@ public class ArmorMod
     public void registerCreativeModeTabs()
     {
         creativeModeTabRegistry.register("custom_tab", () -> CreativeModeTab.builder()
-            .title(Component.translatable("creativetab.custom_tab"))
+            .title(Component.translatable("creativetab." + MOD_ID + ".custom_tab"))
             .icon(() -> new ItemStack(items.get(0).get()))
             .displayItems((parameters, output) -> items.forEach(item -> output.accept(item.get())))
             .withSearchBar()

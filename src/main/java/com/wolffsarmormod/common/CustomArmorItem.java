@@ -32,7 +32,9 @@ import java.util.function.Consumer;
 
 public class CustomArmorItem extends ArmorItem
 {
-    //TODO: make configurable:
+    //TODO: Test Models Transparency + Light
+    //TODO: implement all settings from ArmourType
+    //TODO: make this configurable:
     /*
     public static int breakableArmor = 0;
     public static int defaultArmorDurability = 500;
@@ -119,5 +121,10 @@ public class CustomArmorItem extends ArmorItem
         }
 
         return modifiers;
+    }
+
+    public String getContentPack()
+    {
+        return type.getContentPack();
     }
 }

@@ -13,6 +13,7 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
@@ -226,9 +227,14 @@ public class ContentManager
             {
                 return typeFile.getType().getItemClass().getConstructor(typeClass).newInstance(typeClass.cast(config));
             }
+            catch (InvocationTargetException e)
+            {
+                ArmorMod.log.error("Constructor of {} threw an exception: {}", typeFile.getType().getItemClass(), e.getCause().getMessage(), e.getCause());
+                return null;
+            }
             catch (Exception e)
             {
-                ArmorMod.log.error("Failed to instantiate item {}/{}/{}", typeFile.getContentPack().getName(), typeFile.getType().getConfigFolderName(), typeFile.getName());
+                ArmorMod.log.error("Failed to instantiate item {}/{}/{}", typeFile.getContentPack().getName(), typeFile.getType().getConfigFolderName(), typeFile.getName(), e);
                 return null;
             }
         });

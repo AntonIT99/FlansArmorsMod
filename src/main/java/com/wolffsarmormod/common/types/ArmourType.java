@@ -70,21 +70,23 @@ public class ArmourType extends InfoType
     {
         super.postRead(file);
 
-        switch (rawType)
+        switch (rawType.toLowerCase())
         {
-            case "Hat", "Helmet":
+            case "helmet", "hat", "head":
                 armorType = ArmorItem.Type.HELMET;
                 break;
-            case "Chest", "Body":
+            case "chestplate", "chest", "body":
                 armorType = ArmorItem.Type.CHESTPLATE;
                 break;
-            case "Legs", "Pants":
+            case "leggings", "legs", "pants":
                 armorType = ArmorItem.Type.LEGGINGS;
                 break;
-            case "Shoes", "Boots":
+            case "boots", "shoes", "feet":
                 armorType = ArmorItem.Type.BOOTS;
                 break;
             default:
+                ArmorMod.log.error("Armor Type not recognized! Defaulting to Helmet");
+                armorType = ArmorItem.Type.HELMET;
                 break;
         }
 

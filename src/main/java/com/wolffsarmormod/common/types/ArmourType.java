@@ -136,7 +136,7 @@ public class ArmourType extends InfoType
         return durability;
     }
 
-    public boolean hasDurability()
+    public boolean hasDurability() //TODO: use
     {
         return durability > 0;
     }
@@ -194,7 +194,7 @@ public class ArmourType extends InfoType
     /**
      * If true, then smoke effects from grenades will have no effect on players wearing this
      */
-    public boolean hasSmokeProtection()
+    public boolean hasSmokeProtection() //TODO: implement
     {
         return smokeProtection;
     }

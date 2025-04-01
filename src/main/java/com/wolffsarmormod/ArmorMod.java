@@ -34,6 +34,8 @@ public class ArmorMod
     public static final String FLANSMOD_ID = "flansmod";
     public static final Logger log = LogUtils.getLogger();
 
+    public static long ticker;
+
     public static Path flanPath = FMLPaths.GAMEDIR.get().resolve("flan");
     public static Path fallbackFlanPath = FMLPaths.GAMEDIR.get().resolve("Flan");
 

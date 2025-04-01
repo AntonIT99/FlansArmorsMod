@@ -2,6 +2,7 @@ package com.wolffsarmormod.common;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.client.ModClientConfigs;
 import com.wolffsarmormod.common.types.ArmourType;
 import net.minecraftforge.api.distmarker.Dist;
@@ -13,11 +14,14 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -33,7 +37,6 @@ import java.util.function.Consumer;
 public class CustomArmorItem extends ArmorItem
 {
     //TODO: Test Models Transparency + Light
-    //TODO: implement all settings from ArmourType
     //TODO: make this configurable:
     /*
     public static int breakableArmor = 0;
@@ -41,11 +44,44 @@ public class CustomArmorItem extends ArmorItem
      */
     protected static final UUID[] uuid = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
     protected final ArmourType type;
+    protected long ticker;
 
     public CustomArmorItem(ArmourType type)
     {
         super(new CustomArmorMaterial(type), type.getArmorType(), new Item.Properties());
         this.type = type;
+    }
+
+    @Override
+    public void onInventoryTick(ItemStack stack, Level level, Player player, int slotIndex, int selectedIndex)
+    {
+        if (!level.isClientSide && slotIndex >= 36 && slotIndex <= 39 && player.getInventory().getItem(slotIndex) == stack)
+        {
+            if(type.hasNightVision() && ArmorMod.ticker % 25 == 0)
+                player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 250, 0, true, false));
+            if(type.hasInvisiblility() && ArmorMod.ticker % 25 == 0)
+                player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 250, 0, true, false));
+            if(type.getJumpModifier() > 1.01F && ArmorMod.ticker % 25 == 0)
+                player.addEffect(new MobEffectInstance(MobEffects.JUMP, 250, (int) ((type.getJumpModifier() - 1F) * 2F), true, false));
+            if(type.hasNegateFallDamage())
+                player.fallDistance = 0F;
+            if (type.hasFireResistance() && ArmorMod.ticker % 25 == 0)
+                player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 250, 0, true, false));
+            if (type.hasWaterBreathing() && ArmorMod.ticker % 25 == 0)
+                player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 250, 0, true, false));
+            if (type.hasOnWaterWalking())
+            {
+                if (player.isInWater())
+                {
+                    player.getAbilities().mayfly = true;   // Allow flying
+                }
+                else
+                {
+                    player.getAbilities().flying = false;  // Disable flying
+                }
+                player.onUpdateAbilities();
+            }
+        }
     }
 
     @Override

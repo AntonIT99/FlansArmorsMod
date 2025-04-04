@@ -1,5 +1,6 @@
 package com.wolffsarmormod.common;
 
+import com.flansmod.client.model.ModelCustomArmour;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.wolffsarmormod.ArmorMod;
@@ -128,6 +129,12 @@ public class CustomArmorItem extends ArmorItem
     }
 
     @OnlyIn(Dist.CLIENT)
+    public ModelCustomArmour getModel()
+    {
+        return type.getModel();
+    }
+
+    @OnlyIn(Dist.CLIENT)
     public Optional<ResourceLocation> getTexture()
     {
         return type.getTexture();
@@ -148,17 +155,14 @@ public class CustomArmorItem extends ArmorItem
             @NotNull
             public HumanoidModel<?> getHumanoidArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> defaultModel)
             {
-                if (type.getModel() != null)
-                {
-                    return type.getModel();
-                }
-                return defaultModel;
+                return type.getModel();
             }
         });
     }
 
     @Override
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot pEquipmentSlot) {
+    @NotNull
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(@NotNull EquipmentSlot pEquipmentSlot) {
         Multimap<Attribute, AttributeModifier> modifiers = super.getDefaultAttributeModifiers(pEquipmentSlot);
 
         if (pEquipmentSlot == type.getArmorType().getSlot())

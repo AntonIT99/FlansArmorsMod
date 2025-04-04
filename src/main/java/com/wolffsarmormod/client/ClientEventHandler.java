@@ -10,7 +10,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
@@ -50,7 +49,7 @@ public class ClientEventHandler
             LivingEntityRenderer<?, ?> renderer = event.getSkin(skin);
             if (renderer instanceof PlayerRenderer playerRenderer)
             {
-                playerRenderer.addLayer(new CustomArmorLayer<>(playerRenderer, Minecraft.getInstance().getModelManager()));
+                playerRenderer.addLayer(new CustomArmorLayer<>(playerRenderer));
             }
         }
 
@@ -66,7 +65,7 @@ public class ClientEventHandler
                 {
                     @SuppressWarnings("unchecked")
                     HumanoidMobRenderer<Mob, HumanoidModel<Mob>> humanoidRenderer = (HumanoidMobRenderer<Mob, HumanoidModel<Mob>>) renderer;
-                    humanoidRenderer.addLayer(new CustomArmorLayer<>(humanoidRenderer, Minecraft.getInstance().getModelManager()));
+                    humanoidRenderer.addLayer(new CustomArmorLayer<>(humanoidRenderer));
                 }
             }
         }

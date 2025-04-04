@@ -40,7 +40,7 @@ public class ContentManager
     private final List<IContentProvider> contentPacks = new ArrayList<>();
     private final Map<EnumType, ArrayList<TypeFile>> files = new EnumMap<>(EnumType.class);
     private final Map<IContentProvider, ArrayList<InfoType>> configs = new HashMap<>();
-    private final Map<String, Path> registeredItemShortnames = new HashMap<>();
+    private final Map<String, String> registeredItemShortnames = new HashMap<>();
     private final Map<String, Map<String, IContentProvider>> textures = new HashMap<>();
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -164,7 +164,7 @@ public class ContentManager
     {
         try
         {
-            loadTypeFile(new TypeFile(file.getFileName().toString(), file, EnumType.getType(folderName).orElse(null), provider, Files.readAllLines(file)));
+            loadTypeFile(new TypeFile(file.getFileName().toString(), provider.getPath() + "/" + file, EnumType.getType(folderName).orElse(null), provider, Files.readAllLines(file)));
         }
         catch (IOException e)
         {
@@ -194,7 +194,7 @@ public class ContentManager
                         {
                             if (registeredItemShortnames.containsKey(config.getShortName()))
                             {
-                                ArmorMod.log.warn("Trying to register item id {} for {} but id is already registered by {}", config.getShortName(), typeFile.getFullPath(), registeredItemShortnames.get(config.getShortName()));
+                                ArmorMod.log.warn("Trying to register item id '{}' for {} but id is already registered by {}", config.getShortName(), typeFile.getFullPath(), registeredItemShortnames.get(config.getShortName()));
                             }
                             registeredItemShortnames.putIfAbsent(config.getShortName(), typeFile.getFullPath());
                         }
@@ -300,6 +300,14 @@ public class ContentManager
                 {
                     processJsonItemFile(jsonFile);
                 }
+                for (InfoType config : listItems(provider))
+                {
+                    Path jsonFile = jsonItemFolderPath.resolve(config.getShortName() + ".json");
+                    if (!Files.exists(jsonFile))
+                    {
+                        generateItemJson(config, jsonItemFolderPath);
+                    }
+                }
             }
             catch (IOException e)
             {
@@ -388,14 +396,17 @@ public class ContentManager
         Path destPath = provider.getAssetsPath().resolve("textures").resolve(folderName);
         copyPngFilesAndLowercaseNames(sourcePath, destPath);
 
-        try (Stream<Path> stream = Files.list(destPath))
+        if (Files.exists(destPath))
         {
-            stream.filter(p -> p.toString().toLowerCase().endsWith(".png"))
-                .forEach(p -> checkForDuplicateTextures(p, provider, folderName));
-        }
-        catch (IOException e)
-        {
-            ArmorMod.log.error("Could not read {}", destPath, e);
+            try (Stream<Path> stream = Files.list(destPath))
+            {
+                stream.filter(p -> p.toString().toLowerCase().endsWith(".png"))
+                        .forEach(p -> checkForDuplicateTextures(p, provider, folderName));
+            }
+            catch (IOException e)
+            {
+                ArmorMod.log.error("Could not read {}", destPath, e);
+            }
         }
     }
 
@@ -541,7 +552,7 @@ public class ContentManager
                 return;
             }
 
-            try (Stream<Path> paths = Files.walk(sourcePath))
+            try (Stream<Path> paths = Files.walk(sourcePath, 1))
             {
                 paths.filter(path -> path.toString().toLowerCase().endsWith(".png"))
                     .forEach(path ->
@@ -591,7 +602,8 @@ public class ContentManager
             }
         }
 
-        lowercaseFile(soundsJsonFile);
+        if (Files.exists(soundsJsonFile))
+            lowercaseFile(soundsJsonFile);
     }
 
     private void lowercaseFile(Path file)

@@ -37,13 +37,14 @@ import java.util.function.Consumer;
 public class CustomArmorItem extends ArmorItem
 {
     //TODO: Test Models Transparency + Light
+
     protected static final UUID[] uuid = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
 
     protected final ArmourType type;
 
     public CustomArmorItem(ArmourType type)
     {
-        super(new CustomArmorMaterial(type), type.getArmorType(), new Item.Properties().defaultDurability(ModCommonConfigs.defaultArmorDurability.get()));
+        super(new CustomArmorMaterial(type), type.getArmorType(), new Item.Properties());
         this.type = type;
     }
 
@@ -85,6 +86,16 @@ public class CustomArmorItem extends ArmorItem
         //0 = Non-breakable, 1 = All breakable, 2 = Refer to armor config
         int breakType = ModCommonConfigs.breakableArmor.get();
         return (breakType == 2 && type.hasDurability()) || breakType == 1;
+    }
+
+    @Override
+    public int getMaxDamage(ItemStack stack)
+    {
+        if (ModCommonConfigs.breakableArmor.get() == 1)
+        {
+            return ModCommonConfigs.defaultArmorDurability.get();
+        }
+        return super.getMaxDamage(stack);
     }
 
     @Override

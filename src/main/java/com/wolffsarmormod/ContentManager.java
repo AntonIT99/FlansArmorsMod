@@ -245,7 +245,7 @@ public class ContentManager
     {
         for (IContentProvider provider : contentPacks)
         {
-            ArmorMod.log.info("Preparing assets of content pack {}.", provider.getName());
+            ArmorMod.log.info("Preparing assets for content pack {}.", provider.getName());
             boolean archiveExtracted = unpackArchive(provider);
             if (Files.exists(provider.getAssetsPath()))
             {
@@ -260,7 +260,7 @@ public class ContentManager
             {
                 FileUtils.repackArchive(provider);
             }
-            ArmorMod.log.info("Assets prepared for content pack {}.", provider.getName());
+            ArmorMod.log.info("Finished preparing assets for content pack {}.", provider.getName());
         }
     }
 

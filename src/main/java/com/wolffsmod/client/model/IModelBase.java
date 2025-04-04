@@ -1,4 +1,4 @@
-package com.wolffsarmormod.client.model;
+package com.wolffsmod.client.model;
 
 import com.wolffsarmormod.common.types.InfoType;
 

@@ -1,6 +1,6 @@
 package com.flansmod.client.tmt;
 
-import com.wolffsarmormod.client.model.ModelRenderer;
+import com.wolffsmod.client.model.ModelRenderer;
 
 import net.minecraft.world.phys.Vec3;
 

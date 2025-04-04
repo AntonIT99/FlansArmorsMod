@@ -4,9 +4,9 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsarmormod.client.model.IModelBase;
-import com.wolffsarmormod.client.model.ModelRenderer;
-import com.wolffsarmormod.client.model.TexturedQuad;
+import com.wolffsmod.client.model.IModelBase;
+import com.wolffsmod.client.model.ModelRenderer;
+import com.wolffsmod.client.model.TexturedQuad;
 import org.joml.Quaternionf;
 
 import net.minecraft.client.Minecraft;

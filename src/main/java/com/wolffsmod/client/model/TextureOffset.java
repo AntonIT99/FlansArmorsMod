@@ -1,4 +1,4 @@
-package com.wolffsarmormod.client.model;
+package com.wolffsmod.client.model;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

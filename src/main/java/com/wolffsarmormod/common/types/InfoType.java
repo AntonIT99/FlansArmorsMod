@@ -2,9 +2,9 @@ package com.wolffsarmormod.common.types;
 
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.IContentProvider;
-import com.wolffsarmormod.client.model.IModelBase;
 import com.wolffsarmormod.util.ClassLoaderUtils;
 import com.wolffsarmormod.util.FileUtils;
+import com.wolffsmod.client.model.IModelBase;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.io.FilenameUtils;

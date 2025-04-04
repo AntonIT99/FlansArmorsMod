@@ -1,4 +1,4 @@
-package com.wolffsarmormod.client.model;
+package com.wolffsmod.client.model;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;

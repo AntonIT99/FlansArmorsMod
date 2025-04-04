@@ -36,8 +36,6 @@ import java.util.function.Consumer;
 
 public class CustomArmorItem extends ArmorItem
 {
-    //TODO: Test Models Transparency + Light
-
     protected static final UUID[] uuid = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
 
     protected final ArmourType type;

@@ -1,6 +1,5 @@
 package com.flansmod.client.tmt;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -10,6 +9,7 @@ import com.wolffsmod.client.model.TexturedQuad;
 import org.joml.Quaternionf;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
@@ -2087,41 +2087,31 @@ public class ModelRendererTurbo extends ModelRenderer
 
         ResourceLocation texture = baseModel.getTexture();
 
-        // Enable transparency
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        pVertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.entityTranslucent(texture));
+        RenderSystem.depthMask(false);
+        RenderSystem.enableDepthTest();
 
+        int light = glow ? LightTexture.FULL_BRIGHT : pPackedLight;
 
-        if (glow)
-        {
-            pVertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(RenderType.eyes(texture));
-            pPackedLight = 15728640;
-
-            RenderSystem.disableDepthTest(); // Disable depth write to allow glowing effect to be visible on top of other objects
-            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);  // Additive blending for glow effect
-        }
+        RenderType renderType = RenderType.entityTranslucent(texture);
+        pVertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(renderType);
 
         pPoseStack.pushPose();
         pPoseStack.translate(offsetX, offsetY, offsetZ);
         translateAndRotate(pPoseStack, scale, rotateOrderZYX);
-        compile(pPoseStack.last(), pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+        compile(pPoseStack.last(), pVertexConsumer, light, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
 
         for (ModelRenderer childModel : childModels)
         {
-            childModel.render(pPoseStack, pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale);
+            childModel.render(pPoseStack, pVertexConsumer, light, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale);
         }
 
         pPoseStack.translate(-offsetX, -offsetY, -offsetZ);
         pPoseStack.popPose();
 
-        if (glow)
-        {
-            RenderSystem.enableDepthTest(); // Re-enable depth testing after rendering the glow effect
-            RenderSystem.defaultBlendFunc();  // Restore the default blend function
-        }
-
-        RenderSystem.disableBlend();  // Disable blending after rendering
+        RenderSystem.depthMask(true);
+        RenderSystem.disableBlend();
     }
 
     /**

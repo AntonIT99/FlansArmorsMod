@@ -107,11 +107,14 @@ public class CustomArmorItem extends ArmorItem
             tooltipComponents.add(Component.literal(type.getContentPack()).withStyle(ChatFormatting.GRAY));
 
         for (String line : type.getDescription().split("_"))
-            tooltipComponents.add(Component.literal(line));
+        {
+            if (!line.isBlank())
+                tooltipComponents.add(Component.literal(line));
+        }
 
         if (Math.abs(type.getJumpModifier() - 1F) > 0.01F)
             tooltipComponents.add(Component.literal("+" + (int)((type.getJumpModifier() - 1F) * 100F) + "% Jump Height").withStyle(ChatFormatting.AQUA));
-        // Implement Smoke Protection with Flan's grenades
+        // TODO: Implement Smoke Protection with Flan's grenades
         //if(type.hasSmokeProtection())
         //    tooltipComponents.add(Component.literal("+Smoke Protection").withStyle(ChatFormatting.DARK_GREEN));
         if (type.hasNightVision())

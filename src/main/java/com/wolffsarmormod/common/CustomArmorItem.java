@@ -37,18 +37,13 @@ import java.util.function.Consumer;
 public class CustomArmorItem extends ArmorItem
 {
     //TODO: Test Models Transparency + Light
-    //TODO: make this configurable:
-    /*
-    public static int breakableArmor = 0;
-    public static int defaultArmorDurability = 500;
-     */
     protected static final UUID[] uuid = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
+
     protected final ArmourType type;
-    protected long ticker;
 
     public CustomArmorItem(ArmourType type)
     {
-        super(new CustomArmorMaterial(type), type.getArmorType(), new Item.Properties());
+        super(new CustomArmorMaterial(type), type.getArmorType(), new Item.Properties().defaultDurability(ModCommonConfigs.defaultArmorDurability.get()));
         this.type = type;
     }
 
@@ -85,29 +80,38 @@ public class CustomArmorItem extends ArmorItem
     }
 
     @Override
+    public boolean isDamageable(ItemStack stack)
+    {
+        //0 = Non-breakable, 1 = All breakable, 2 = Refer to armor config
+        int breakType = ModCommonConfigs.breakableArmor.get();
+        return (breakType == 2 && type.hasDurability()) || breakType == 1;
+    }
+
+    @Override
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag isAdvanced)
     {
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
 
-        if(ModClientConfigs.showPackNameInItemDescriptions.get() && !type.getContentPack().isBlank())
+        if (ModClientConfigs.showPackNameInItemDescriptions.get() && !type.getContentPack().isBlank())
             tooltipComponents.add(Component.literal(type.getContentPack()).withStyle(ChatFormatting.GRAY));
 
         for (String line : type.getDescription().split("_"))
             tooltipComponents.add(Component.literal(line));
 
-        if(Math.abs(type.getJumpModifier() - 1F) > 0.01F)
+        if (Math.abs(type.getJumpModifier() - 1F) > 0.01F)
             tooltipComponents.add(Component.literal("+" + (int)((type.getJumpModifier() - 1F) * 100F) + "% Jump Height").withStyle(ChatFormatting.AQUA));
-        if(type.hasSmokeProtection())
-            tooltipComponents.add(Component.literal("+Smoke Protection").withStyle(ChatFormatting.DARK_GREEN));
-        if(type.hasNightVision())
+        // Implement Smoke Protection with Flan's grenades
+        //if(type.hasSmokeProtection())
+        //    tooltipComponents.add(Component.literal("+Smoke Protection").withStyle(ChatFormatting.DARK_GREEN));
+        if (type.hasNightVision())
             tooltipComponents.add(Component.literal("+Night Vision").withStyle(ChatFormatting.DARK_GREEN));
-        if(type.hasInvisiblility())
+        if (type.hasInvisiblility())
             tooltipComponents.add(Component.literal("+Invisibility").withStyle(ChatFormatting.DARK_GREEN));
-        if(type.hasNegateFallDamage())
+        if (type.hasNegateFallDamage())
             tooltipComponents.add(Component.literal("+Negates Fall Damage").withStyle(ChatFormatting.DARK_GREEN));
-        if(type.hasFireResistance())
+        if (type.hasFireResistance())
             tooltipComponents.add(Component.literal("+Fire Resistance").withStyle(ChatFormatting.DARK_GREEN));
-        if(type.hasWaterBreathing())
+        if (type.hasWaterBreathing())
             tooltipComponents.add(Component.literal("+Water Breathing").withStyle(ChatFormatting.DARK_GREEN));
     }
 

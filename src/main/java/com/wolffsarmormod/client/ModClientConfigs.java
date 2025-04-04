@@ -7,7 +7,6 @@ public class ModClientConfigs
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
     public static final ForgeConfigSpec CONFIG;
 
-    // Example config values
     public static final ForgeConfigSpec.BooleanValue showPackNameInItemDescriptions;
 
     static {

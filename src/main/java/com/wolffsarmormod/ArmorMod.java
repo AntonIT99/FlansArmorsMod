@@ -2,6 +2,7 @@ package com.wolffsarmormod;
 
 import com.mojang.logging.LogUtils;
 import com.wolffsarmormod.client.ModClientConfigs;
+import com.wolffsarmormod.common.ModCommonConfigs;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -50,6 +51,7 @@ public class ArmorMod
         Mixins.addConfiguration("mixins." + MOD_ID + ".json");
 
         IEventBus eventBus = context.getModEventBus();
+        context.registerConfig(ModConfig.Type.COMMON, ModCommonConfigs.CONFIG);
         context.registerConfig(ModConfig.Type.CLIENT, ModClientConfigs.CONFIG);
 
         itemRegistry.register(eventBus);

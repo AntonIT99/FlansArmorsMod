@@ -2087,12 +2087,15 @@ public class ModelRendererTurbo extends ModelRenderer
 
         ResourceLocation texture = baseModel.getTexture();
 
+        if (glow)
+        {
+            pPackedLight = LightTexture.FULL_BRIGHT;
+        }
+
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.depthMask(false);
         RenderSystem.enableDepthTest();
-
-        int light = glow ? LightTexture.FULL_BRIGHT : pPackedLight;
 
         RenderType renderType = RenderType.entityTranslucent(texture);
         pVertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(renderType);
@@ -2100,11 +2103,11 @@ public class ModelRendererTurbo extends ModelRenderer
         pPoseStack.pushPose();
         pPoseStack.translate(offsetX, offsetY, offsetZ);
         translateAndRotate(pPoseStack, scale, rotateOrderZYX);
-        compile(pPoseStack.last(), pVertexConsumer, light, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+        compile(pPoseStack.last(), pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
 
         for (ModelRenderer childModel : childModels)
         {
-            childModel.render(pPoseStack, pVertexConsumer, light, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale);
+            childModel.render(pPoseStack, pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale);
         }
 
         pPoseStack.translate(-offsetX, -offsetY, -offsetZ);

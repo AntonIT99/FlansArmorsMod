@@ -22,6 +22,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
@@ -50,7 +51,9 @@ public class CustomArmorItem extends ArmorItem
     @Override
     public void onInventoryTick(ItemStack stack, Level level, Player player, int slotIndex, int selectedIndex)
     {
-        if (!level.isClientSide && slotIndex >= 36 && slotIndex <= 39 && player.getInventory().getItem(slotIndex) == stack)
+        super.onInventoryTick(stack, level, player, slotIndex, selectedIndex);
+
+        if (!level.isClientSide && isArmorSlot(slotIndex, player.getInventory()))
         {
             if(type.hasNightVision() && ArmorMod.ticker % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 250, 0, true, false));
@@ -79,6 +82,11 @@ public class CustomArmorItem extends ArmorItem
         }
     }
 
+    protected boolean isArmorSlot(int slotIndex, Inventory inv)
+    {
+        return (slotIndex >= inv.items.size()) && (slotIndex - inv.items.size() < inv.armor.size());
+    }
+
     @Override
     public boolean isDamageable(ItemStack stack)
     {
@@ -102,8 +110,8 @@ public class CustomArmorItem extends ArmorItem
     {
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
 
-        if (ModClientConfigs.showPackNameInItemDescriptions.get() && !type.getContentPack().isBlank())
-            tooltipComponents.add(Component.literal(type.getContentPack()).withStyle(ChatFormatting.GRAY));
+        if (ModClientConfigs.showPackNameInItemDescriptions.get() && !getContentPack().isBlank())
+            tooltipComponents.add(Component.literal(getContentPack()).withStyle(ChatFormatting.GRAY));
 
         for (String line : type.getDescription().split("_"))
         {
@@ -126,24 +134,6 @@ public class CustomArmorItem extends ArmorItem
             tooltipComponents.add(Component.literal("+Fire Resistance").withStyle(ChatFormatting.DARK_GREEN));
         if (type.hasWaterBreathing())
             tooltipComponents.add(Component.literal("+Water Breathing").withStyle(ChatFormatting.DARK_GREEN));
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public ModelCustomArmour getModel()
-    {
-        return type.getModel();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public Optional<ResourceLocation> getTexture()
-    {
-        return type.getTexture();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    public Optional<ResourceLocation> getOverlay()
-    {
-        return type.getOverlay();
     }
 
     @Override
@@ -177,6 +167,24 @@ public class CustomArmorItem extends ArmorItem
         }
 
         return modifiers;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public ModelCustomArmour getModel()
+    {
+        return type.getModel();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Optional<ResourceLocation> getTexture()
+    {
+        return type.getTexture();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public Optional<ResourceLocation> getOverlay()
+    {
+        return type.getOverlay();
     }
 
     public String getContentPack()

@@ -39,8 +39,11 @@ public class OverlayEventHandler
 
         for (EquipmentSlot slot : Arrays.stream(EquipmentSlot.values()).filter(EquipmentSlot::isArmor).toList())
         {
-            if (player.getItemBySlot(slot).getItem() instanceof CustomArmorItem armorItem && armorItem.getOverlay().isPresent())
+            if (player.getItemBySlot(slot).getItem() instanceof CustomArmorItem armorItem)
             {
+                if (armorItem.getOverlay().isEmpty())
+                    continue;
+
                 ResourceLocation overlayTexture = armorItem.getOverlay().get();
 
                 RenderSystem.disableDepthTest();

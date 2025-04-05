@@ -17,9 +17,9 @@ license="MIT"
 # The modid of the mod
 modId="wolffsarmormod" #mandatory
 # The version number of the mod
-version="1.0.0" #mandatory
+version="1.0-beta" #mandatory
 # A display name for the mod
-displayName="Armor Mod" #mandatory
+displayName="Wolff's Armor Mod" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification https://docs.minecraftforge.net/en/latest/misc/updatechecker/
 #updateJSONURL="https://change.me.example.invalid/updates.json" #optional
 # A URL for the "homepage" for this mod, displayed in the mod UI
@@ -39,9 +39,9 @@ authors="Wolff" #optional
 #displayTest="MATCH_VERSION" # MATCH_VERSION is the default if nothing is specified (#optional)
 
 # The description text for the mod (multi line!) (#mandatory)
-description='''Flan's Armors'''
+description='''This Mod adds armors from content packs designed for legacy Flan's Mod'''
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
-[[dependencies.armormod]] #optional
+[[dependencies.wolffsarmormod]] #optional
     # the modid of the dependency
     modId="forge" #mandatory
     # Does this dependency have to exist - if not, ordering below must be specified
@@ -55,7 +55,7 @@ description='''Flan's Armors'''
     # Side this dependency is applied on - BOTH, CLIENT, or SERVER
     side="BOTH"
 # Here's another dependency
-[[dependencies.armormod]]
+[[dependencies.wolffsarmormod]]
     modId="minecraft"
     mandatory=true
     # This version range declares a minimum of the current minecraft version up to but not including the next major version

@@ -61,12 +61,20 @@ public class CustomArmorItem extends ArmorItem
                 player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 250, 0, true, false));
             if(type.getJumpModifier() > 1.01F && ArmorMod.ticker % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.JUMP, 250, (int) ((type.getJumpModifier() - 1F) * 2F), true, false));
-            if(type.hasNegateFallDamage())
-                player.fallDistance = 0F;
             if (type.hasFireResistance() && ArmorMod.ticker % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 250, 0, true, false));
             if (type.hasWaterBreathing() && ArmorMod.ticker % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 250, 0, true, false));
+            if (type.hasHunger() && ArmorMod.ticker % 25 == 0)
+                player.addEffect(new MobEffectInstance(MobEffects.HUNGER, 250, 0, true, false));
+            if (type.hasRegeneration() && ArmorMod.ticker % 25 == 0)
+                player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 250, 0, true, false));
+            if (!type.getEffects().isEmpty() && ArmorMod.ticker % 25 == 0)
+            {
+                type.getEffects().forEach((effect, amplifier) -> player.addEffect(new MobEffectInstance(effect, 250, amplifier, true, false)));
+            }
+            if(type.hasNegateFallDamage())
+                player.fallDistance = 0F;
             if (type.hasOnWaterWalking())
             {
                 if (player.isInWater())

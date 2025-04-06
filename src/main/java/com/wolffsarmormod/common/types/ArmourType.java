@@ -9,16 +9,21 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.commons.lang3.StringUtils;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.ArmorItem;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static com.wolffsarmormod.util.TypeReaderUtils.readValue;
+import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
 
 public class ArmourType extends InfoType
 {
     protected ArmorItem.Type armorType;
-    protected String rawType = StringUtils.EMPTY;;
+    protected String rawType = StringUtils.EMPTY;
     protected String overlayName = StringUtils.EMPTY;
     protected double defence;
     protected int damageReductionAmount;
@@ -35,6 +40,9 @@ public class ArmourType extends InfoType
     protected boolean fireResistance;
     protected boolean waterBreathing;
     protected boolean onWaterWalking;
+    protected boolean hunger;
+    protected boolean regeneration;
+    protected Map<MobEffect, Integer> effects = new HashMap<>();
 
     protected ResourceLocation overlay;
 
@@ -45,6 +53,7 @@ public class ArmourType extends InfoType
         rawType = readValue(split, "Type", rawType, file);
         textureName = readValue(split, "ArmourTexture", textureName, file).toLowerCase();
         textureName = readValue(split, "ArmorTexture", textureName, file).toLowerCase();
+        overlayName = readValue(split, "Overlay", overlayName, file).toLowerCase();
         defence = readValue(split, "DamageReduction", defence, file);
         defence = readValue(split, "Defence", defence, file);
         enchantability = readValue(split, "Enchantability", enchantability, file);
@@ -58,12 +67,38 @@ public class ArmourType extends InfoType
         knockbackModifier = readValue(split, "KnockbackModifier", knockbackModifier, file);
         nightVision = readValue(split, "NightVision", nightVision, file);
         invisible = readValue(split, "Invisible", invisible, file);
+        invisible = readValue(split, "playermodel", invisible, file);
         negateFallDamage = readValue(split, "NegateFallDamage", negateFallDamage, file);
         fireResistance = readValue(split, "FireResistance", fireResistance, file);
         waterBreathing = readValue(split, "WaterBreathing", waterBreathing, file);
+        waterBreathing = readValue(split, "submarine", waterBreathing, file);
         smokeProtection = readValue(split, "SmokeProtection", smokeProtection, file);
         onWaterWalking = readValue(split, "OnWaterWalking", onWaterWalking, file);
-        overlayName = readValue(split, "Overlay", overlayName, file).toLowerCase();
+        hunger = readValue(split, "hunger", hunger, file);
+        regeneration = readValue(split, "regenerate", regeneration, file);
+
+        List<String> effectValues = readValues(split, "AddEffect", file);
+        if (!effectValues.isEmpty())
+        {
+            try
+            {
+                int effectId = Integer.parseInt(effectValues.get(0));
+                int amplifier = (effectValues.size() > 1) ? Integer.parseInt(effectValues.get(1)) : 0;
+                MobEffect effect = MobEffect.byId(effectId);
+                if (effect != null)
+                {
+                    effects.put(effect, amplifier);
+                }
+                else
+                {
+                    ArmorMod.log.error("Could not read line {}: Potion ID {} does not exist", String.join(StringUtils.SPACE, split), effectId);
+                }
+            }
+            catch (NumberFormatException e)
+            {
+                ArmorMod.log.error("Could not read line {}", String.join(StringUtils.SPACE, split), e);
+            }
+        }
     }
 
     @Override
@@ -156,7 +191,7 @@ public class ArmourType extends InfoType
     }
 
     /**
-     * Modifier for jump
+     * Modifier for jump (jump boost effect every couple of seconds)
      */
     public float getJumpModifier()
     {
@@ -241,5 +276,29 @@ public class ArmourType extends InfoType
     public boolean hasFireResistance()
     {
         return fireResistance;
+    }
+
+    /**
+     * If true, then the player gets a hunger de-buff every couple of seconds
+     */
+    public boolean hasHunger()
+    {
+        return hunger;
+    }
+
+    /**
+     * If true, then the player gets a regeneration buff every couple of seconds
+     */
+    public boolean hasRegeneration()
+    {
+        return regeneration;
+    }
+
+    /**
+     * Map of effects and effect Amplifiers
+     */
+    public Map<MobEffect, Integer> getEffects()
+    {
+        return effects;
     }
 }

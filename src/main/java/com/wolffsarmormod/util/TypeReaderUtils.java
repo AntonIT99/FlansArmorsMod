@@ -2,8 +2,11 @@ package com.wolffsarmormod.util;
 
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.common.types.TypeFile;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class TypeReaderUtils
 {
@@ -31,7 +34,7 @@ public class TypeReaderUtils
         {
             if (split.length > 1)
             {
-                currentValue = String.join(" ", Arrays.copyOfRange(split, 1, split.length));
+                currentValue = String.join(StringUtils.SPACE, Arrays.copyOfRange(split, 1, split.length));
             }
             else
             {
@@ -39,6 +42,22 @@ public class TypeReaderUtils
             }
         }
         return currentValue;
+    }
+
+    public static List<String> readValues(String[] split, String key, TypeFile file)
+    {
+        if (keyMatches(split, key))
+        {
+            if (split.length > 1)
+            {
+                return Arrays.stream(Arrays.copyOfRange(split, 1, split.length)).toList();
+            }
+            else
+            {
+                logError(incorrectFormat(key, "<values separated by whitespaces>"), file);
+            }
+        }
+        return Collections.emptyList();
     }
 
     public static int readValue(String[] split, String key, int currentValue, TypeFile file)

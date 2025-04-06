@@ -68,3 +68,7 @@ description='''This Mod adds armors from content packs designed for legacy Flan'
 # stop your mod loading on the server for example.
 #[features.${mod_id}]
 #openGLVersion="[3.2,)"
+
+mixins = [
+    "wolffsarmormod.mixins.json"
+]

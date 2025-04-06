@@ -48,7 +48,7 @@ public class ArmorMod
 
     public ArmorMod(FMLJavaModLoadingContext context)
     {
-        Mixins.addConfiguration("mixins." + MOD_ID + ".json");
+        Mixins.addConfiguration(MOD_ID + ".mixins.json");
 
         IEventBus eventBus = context.getModEventBus();
         context.registerConfig(ModConfig.Type.COMMON, ModCommonConfigs.CONFIG);

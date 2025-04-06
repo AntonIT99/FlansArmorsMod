@@ -55,11 +55,11 @@ public class CustomArmorItem extends ArmorItem
 
         if (!level.isClientSide && isArmorSlot(slotIndex, player.getInventory()))
         {
-            if(type.hasNightVision() && ArmorMod.ticker % 25 == 0)
+            if (type.hasNightVision() && ArmorMod.ticker % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 250, 0, true, false));
-            if(type.hasInvisiblility() && ArmorMod.ticker % 25 == 0)
+            if (type.hasInvisiblility() && ArmorMod.ticker % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 250, 0, true, false));
-            if(type.getJumpModifier() > 1.01F && ArmorMod.ticker % 25 == 0)
+            if (type.getJumpModifier() > 1.01F && ArmorMod.ticker % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.JUMP, 250, (int) ((type.getJumpModifier() - 1F) * 2F), true, false));
             if (type.hasFireResistance() && ArmorMod.ticker % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 250, 0, true, false));
@@ -73,7 +73,7 @@ public class CustomArmorItem extends ArmorItem
             {
                 type.getEffects().forEach((effect, amplifier) -> player.addEffect(new MobEffectInstance(effect, 250, amplifier, true, false)));
             }
-            if(type.hasNegateFallDamage())
+            if (type.hasNegateFallDamage())
                 player.fallDistance = 0F;
             if (type.hasOnWaterWalking())
             {

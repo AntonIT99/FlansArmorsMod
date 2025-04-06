@@ -4,6 +4,7 @@ plugins {
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'org.spongepowered.mixin' version '0.7.+'
     id 'com.github.johnrengelman.shadow' version '7.1.2'
 }
 
@@ -142,6 +143,13 @@ repositories {
     // }
 }
 
+mixin {
+    add sourceSets.main, "wolffsarmormod.refmap.json"
+    config "wolffsarmormod.mixins.json"
+    debug.verbose = true
+    debug.export = true
+}
+
 dependencies {
     // Specify the version of Minecraft to use.
     // Any artifact can be supplied so long as it has a "userdev" classifier artifact and is a compatible patcher artifact.
@@ -164,7 +172,8 @@ dependencies {
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
-    implementation 'org.spongepowered:mixin:0.8.7'
+    implementation 'org.spongepowered:mixin:0.8.6'
+    annotationProcessor 'org.spongepowered:mixin:0.8.6:processor'
 }
 
 shadowJar {
@@ -230,6 +239,11 @@ publishing {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+    options.compilerArgs += [
+            "-AreobfSrg=true",
+            "-Amixin.defaultObfuscationEnv=searge",
+            "-Amixin.refmap=wolffsarmormod.refmap.json"
+    ]
 }
 
 idea {

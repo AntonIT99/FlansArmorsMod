@@ -2,10 +2,10 @@ package com.flansmod.client.tmt;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import net.minecraft.resources.ResourceLocation;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import net.minecraft.resources.ResourceLocation;
 
 public class TextureGroup
 {
@@ -32,11 +32,11 @@ public class TextureGroup
     {
         if(!texture.isEmpty())
         {
-            RenderSystem.setShaderTexture(0, new ResourceLocation("", texture));
+            RenderSystem.setShaderTexture(0, ResourceLocation.fromNamespaceAndPath("", texture));
         }
         else if(defaultTexture > -1)
         {
-            RenderSystem.setShaderTexture(0, new ResourceLocation("", ""));
+            RenderSystem.setShaderTexture(0, ResourceLocation.fromNamespaceAndPath("", ""));
         }
     }
 }

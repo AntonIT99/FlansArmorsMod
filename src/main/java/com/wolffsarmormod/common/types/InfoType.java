@@ -7,6 +7,7 @@ import com.wolffsarmormod.util.FileUtils;
 import com.wolffsmod.client.model.IModelBase;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -70,6 +71,13 @@ public abstract class InfoType
     }
 
     protected void postRead(TypeFile file)
+    {
+        if (FMLEnvironment.dist == Dist.CLIENT)
+            loadModel(file);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    protected void loadModel(TypeFile file)
     {
         if (!modelName.isBlank() && !modelName.equalsIgnoreCase("null") && !modelName.equalsIgnoreCase("none"))
         {

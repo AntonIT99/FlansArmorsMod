@@ -5,6 +5,7 @@ import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.client.model.armor.DefaultArmor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.commons.lang3.StringUtils;
 
 import net.minecraft.resources.ResourceLocation;
@@ -90,20 +91,23 @@ public class ArmourType extends InfoType
                 break;
         }
 
-        if (model == null)
+        if (FMLEnvironment.dist == Dist.CLIENT)
         {
-            model = new DefaultArmor(armorType);
-        }
+            if (model == null)
+            {
+                model = new DefaultArmor(armorType);
+            }
 
-        if (StringUtils.isNotBlank(textureName))
-        {
-            texture = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/armor/" + textureName + (armorType != ArmorItem.Type.LEGGINGS ? "_1" : "_2") + ".png");
-            model.setTexture(texture);
-        }
+            if (StringUtils.isNotBlank(textureName))
+            {
+                texture = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/armor/" + textureName + (armorType != ArmorItem.Type.LEGGINGS ? "_1" : "_2") + ".png");
+                model.setTexture(texture);
+            }
 
-        if (StringUtils.isNotBlank(overlayName))
-        {
-            overlay = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/gui/" + overlayName + ".png");
+            if (StringUtils.isNotBlank(overlayName))
+            {
+                overlay = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/gui/" + overlayName + ".png");
+            }
         }
     }
 
@@ -224,7 +228,7 @@ public class ArmourType extends InfoType
     }
 
     /**
-     * If true, the player can breath under water
+     * If true, the player can breathe underwater
      */
     public boolean hasWaterBreathing()
     {

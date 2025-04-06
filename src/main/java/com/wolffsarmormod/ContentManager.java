@@ -241,11 +241,11 @@ public class ContentManager
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void prepareAssets()
+    public void preloadAssets()
     {
         for (IContentProvider provider : contentPacks)
         {
-            ArmorMod.log.info("Preparing assets for content pack {}.", provider.getName());
+            long startTime = System.currentTimeMillis();
             boolean archiveExtracted = unpackArchive(provider);
             if (Files.exists(provider.getAssetsPath()))
             {
@@ -260,7 +260,8 @@ public class ContentManager
             {
                 FileUtils.repackArchive(provider);
             }
-            ArmorMod.log.info("Finished preparing assets for content pack {}.", provider.getName());
+            long endTime = System.currentTimeMillis();
+            ArmorMod.log.info("Preloaded assets for content pack {} in {} ms.", provider.getName(), String.format("%,d", endTime - startTime));
         }
     }
 
@@ -272,9 +273,9 @@ public class ContentManager
             {
                 if (provider.isJarFile()
                     || !Files.exists(provider.getAssetsPath(fs).resolve("models").resolve("item"))
-                    || !Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("item"))
-                    || !Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("armor"))
-                    || !Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("gui"))
+                    || (!Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("item")) && Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("items")))
+                    || (!Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("armor")) && Files.exists(provider.getAssetsPath(fs).resolve("armor")))
+                    || (!Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("gui")) && Files.exists(provider.getAssetsPath(fs).resolve("gui")))
                     || !Files.exists(provider.getAssetsPath(fs).resolve("lang").resolve("en_us.json")))
                 {
                     FileUtils.extractArchive(provider.getPath(), provider.getExtractedPath());
@@ -425,7 +426,7 @@ public class ContentManager
 
                 if (!FileUtils.hasSameFileBytesContent(texturePath, otherPath) && !FileUtils.isSameImage(texturePath, otherPath))
                 {
-                    ArmorMod.log.warn("Duplicate texture detected: {} and {}", texturePath, otherPath);
+                    ArmorMod.log.warn("Duplicate texture detected: {} and {}//{}", texturePath, otherContentPack.getPath(), otherPath);
                 }
 
                 FileUtils.closeFileSystem(fs, otherContentPack);

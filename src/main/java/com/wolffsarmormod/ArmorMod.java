@@ -62,7 +62,7 @@ public class ArmorMod
         contentManager.registerConfigs();
         registerCreativeModeTabs();
 
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> contentManager::prepareAssets);
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> contentManager::preloadAssets);
 
         MinecraftForge.EVENT_BUS.register(this);
     }

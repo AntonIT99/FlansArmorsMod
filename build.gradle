@@ -173,9 +173,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
-    // Uncomment to generate refmap
-    //implementation 'org.spongepowered:mixin:0.8.6'
-    //annotationProcessor 'org.spongepowered:mixin:0.8.6:processor'
+    annotationProcessor 'org.spongepowered:mixin:0.8.6:processor'
 }
 
 shadowJar {

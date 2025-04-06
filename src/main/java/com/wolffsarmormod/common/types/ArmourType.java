@@ -86,7 +86,7 @@ public class ArmourType extends InfoType
                 armorType = ArmorItem.Type.BOOTS;
                 break;
             default:
-                ArmorMod.log.error("Armor Type not recognized! Defaulting to Helmet");
+                ArmorMod.log.error("Armor Type '{}' not recognized! Defaulting to Helmet", rawType);
                 armorType = ArmorItem.Type.HELMET;
                 break;
         }

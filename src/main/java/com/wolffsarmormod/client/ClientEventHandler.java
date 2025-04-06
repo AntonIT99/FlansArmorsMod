@@ -10,14 +10,12 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Mob;
 
 import java.nio.file.Files;
 
@@ -41,6 +39,7 @@ public class ClientEventHandler
         }
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @SubscribeEvent
     public static void registerArmorLayer(EntityRenderersEvent.AddLayers event)
     {
@@ -57,15 +56,13 @@ public class ClientEventHandler
         {
             if (LivingEntity.class.isAssignableFrom(entityType.getBaseClass()))
             {
-                @SuppressWarnings("unchecked")
+
                 EntityType<? extends LivingEntity> livingEntityType = (EntityType<? extends LivingEntity>) entityType;
                 EntityRenderer<? extends LivingEntity> renderer = event.getRenderer(livingEntityType);
 
-                if (renderer instanceof HumanoidMobRenderer<?, ?>)
+                if (renderer instanceof LivingEntityRenderer<?, ?> livingEntityRenderer)
                 {
-                    @SuppressWarnings("unchecked")
-                    HumanoidMobRenderer<Mob, HumanoidModel<Mob>> humanoidRenderer = (HumanoidMobRenderer<Mob, HumanoidModel<Mob>>) renderer;
-                    humanoidRenderer.addLayer(new CustomArmorLayer<>(humanoidRenderer));
+                    livingEntityRenderer.addLayer(new CustomArmorLayer<>((RenderLayerParent) livingEntityRenderer));
                 }
             }
         }

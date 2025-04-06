@@ -10,12 +10,12 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 
 import java.nio.file.Files;
 
@@ -54,16 +54,22 @@ public class ClientEventHandler
 
         for (EntityType<?> entityType : ForgeRegistries.ENTITY_TYPES.getValues())
         {
-            if (LivingEntity.class.isAssignableFrom(entityType.getBaseClass()))
+            try
             {
+                EntityRenderer<?> renderer = event.getRenderer((EntityType)entityType);
 
-                EntityType<? extends LivingEntity> livingEntityType = (EntityType<? extends LivingEntity>) entityType;
-                EntityRenderer<? extends LivingEntity> renderer = event.getRenderer(livingEntityType);
-
-                if (renderer instanceof LivingEntityRenderer<?, ?> livingEntityRenderer)
+                if (renderer instanceof LivingEntityRenderer<?, ?> livingEntityRenderer && livingEntityRenderer.getModel() instanceof HumanoidModel)
                 {
                     livingEntityRenderer.addLayer(new CustomArmorLayer<>((RenderLayerParent) livingEntityRenderer));
                 }
+            }
+            catch (ClassCastException e)
+            {
+                // Ignoring (Entity is not a LivingEntity)
+            }
+            catch (Exception e)
+            {
+                ArmorMod.log.error("Could not add armor layer to {}", entityType.getDescriptionId(), e);
             }
         }
     }

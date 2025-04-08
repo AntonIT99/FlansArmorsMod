@@ -9,10 +9,13 @@ public class ContentPack implements IContentProvider
     private String name;
     private Path path;
 
+    private final int hashCode;
+
     public ContentPack(String name, Path path)
     {
         this.name = name;
         this.path = path;
+        hashCode = Objects.hashCode(path);
     }
 
     public void update(String name, Path path)
@@ -38,7 +41,7 @@ public class ContentPack implements IContentProvider
     {
         if (obj instanceof IContentProvider provider)
         {
-            return path.equals(provider.getPath());
+            return hashCode == provider.hashCode();
         }
         return false;
     }
@@ -46,7 +49,7 @@ public class ContentPack implements IContentProvider
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(path);
+        return hashCode;
     }
 
     @Override

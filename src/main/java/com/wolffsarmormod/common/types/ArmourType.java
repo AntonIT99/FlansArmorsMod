@@ -124,9 +124,7 @@ public class ArmourType extends InfoType
 
         if (FMLEnvironment.dist == Dist.CLIENT)
         {
-            ContentManager.armorTextureReferences.putIfAbsent(contentPack, new HashMap<>());
             ContentManager.armorTextureReferences.get(contentPack).putIfAbsent(textureName, new DynamicReference(textureName));
-            ContentManager.guiTextureReferences.putIfAbsent(contentPack, new HashMap<>());
             ContentManager.guiTextureReferences.get(contentPack).putIfAbsent(overlayName, new DynamicReference(overlayName));
         }
     }
@@ -135,6 +133,7 @@ public class ArmourType extends InfoType
     @Override
     public DynamicReference getTexture()
     {
+        //TODO fix NullPointerException
         return ContentManager.armorTextureReferences.get(contentPack).get(textureName);
     }
 

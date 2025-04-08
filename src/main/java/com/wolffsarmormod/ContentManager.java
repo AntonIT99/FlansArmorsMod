@@ -149,6 +149,11 @@ public class ContentManager
 
     private void loadTypes(IContentProvider provider)
     {
+        armorTextureReferences.putIfAbsent(provider, new HashMap<>());
+        guiTextureReferences.putIfAbsent(provider, new HashMap<>());
+        shortnameReferences.putIfAbsent(provider, new HashMap<>());
+        duplicateShortnamesAliases.putIfAbsent(provider, new HashMap<>());
+
         try (DirectoryStream<Path> dirStream = FileUtils.createDirectoryStream(provider))
         {
             dirStream.forEach(path ->
@@ -225,9 +230,8 @@ public class ContentManager
                             String shortName = findValidShortName(config.getShortName());
                             if (!shortName.equals(config.getShortName()))
                             {
-                                ArmorMod.log.warn("Trying to register item id '{}' for {} but id is already registered by {}", config.getShortName(), typeFile.getFullPath(), registeredItemShortnamesAndPaths.get(shortName));
+                                ArmorMod.log.warn("Trying to register item id '{}' for {} but id is already registered by {}", config.getShortName(), typeFile.getFullPath(), registeredItemShortnamesAndPaths.get(config.getShortName()));
                                 ArmorMod.log.warn("Creating shortname alias '{}' for {}", shortName, typeFile.getFullPath());
-                                duplicateShortnamesAliases.putIfAbsent(contentPack, new HashMap<>());
                                 duplicateShortnamesAliases.get(contentPack).put(config.getShortName(), shortName);
                             }
                             registeredItemShortnamesAndPaths.put(shortName, typeFile.getFullPath());
@@ -244,7 +248,7 @@ public class ContentManager
                 }
                 catch (Exception e)
                 {
-                    ArmorMod.log.error("Failed to add {} from '{}': {}", type.getDisplayName(), contentPack.getName(), typeFile.getName(), e);
+                    ArmorMod.log.error("Failed to add {}/{} from '{}'", type.getDisplayName(), typeFile.getName(), contentPack.getName(), e);
                 }
             }
             ArmorMod.log.info("Loaded {}.", type.getDisplayName());
@@ -256,7 +260,7 @@ public class ContentManager
         String alias = originalShortname;
         for (int i = 2; registeredItemShortnamesAndPaths.containsKey(alias); i++)
             alias = originalShortname + "_" + i;
-        return originalShortname;
+        return alias;
     }
 
     private void registerItem(String shortName, InfoType config, TypeFile typeFile, Class<? extends InfoType> typeClass)
@@ -365,10 +369,11 @@ public class ContentManager
 
                 if (!FileUtils.hasSameFileBytesContent(texturePath, otherPath) && !FileUtils.isSameImage(texturePath, otherPath))
                 {
-                    String aliasName = findValidTextureName(fileName, duplicateTexturesAliases);
+                    String aliasName = findValidTextureName(fileName, textures.get(folderName));
                     ArmorMod.log.warn("Duplicate texture detected: {}/{} in {} and {}", folderName, fileName, provider.getName(), otherFile.contentPack().getName());
                     ArmorMod.log.warn("Creating texture name alias '{}' for {}/{} in {}", aliasName, folderName, fileName, provider.getName());
                     duplicateTexturesAliases.put(fileName, aliasName);
+                    textures.get(folderName).put(aliasName, new TextureFile(texturePath.getFileName().toString(), provider));
                 }
 
                 FileUtils.closeFileSystem(fs, otherFile.contentPack());
@@ -380,10 +385,10 @@ public class ContentManager
         }
     }
 
-    private String findValidTextureName(String originalName, Map<String, String> duplicateTexturesAliases)
+    private String findValidTextureName(String originalName, Map<String, TextureFile> textures)
     {
         String alias = originalName;
-        for (int i = 2; duplicateTexturesAliases.containsKey(alias); i++)
+        for (int i = 2; textures.containsKey(alias); i++)
             alias = originalName + "_" + i;
         return alias;
     }
@@ -786,7 +791,6 @@ public class ContentManager
 
     public static void storeOrUpdateReference(String key, String value, IContentProvider provider, Map<IContentProvider, Map<String, DynamicReference>> references)
     {
-        references.putIfAbsent(provider, new HashMap<>());
         if (references.get(provider).containsKey(key))
         {
             references.get(provider).get(key).update(value);

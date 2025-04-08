@@ -5,10 +5,15 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.client.ModClientConfigs;
+import com.wolffsarmormod.client.model.armor.DefaultArmor;
 import com.wolffsarmormod.common.types.ArmourType;
+import com.wolffsarmormod.util.ClassLoaderUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.fml.loading.FMLEnvironment;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.ChatFormatting;
@@ -41,11 +46,60 @@ public class CustomArmorItem extends ArmorItem
     protected static final UUID[] uuid = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
 
     protected final ArmourType type;
+    protected ModelCustomArmour model;
+    protected ResourceLocation texture;
+    protected ResourceLocation overlay;
 
     public CustomArmorItem(ArmourType type)
     {
         super(new CustomArmorMaterial(type), type.getArmorType(), new Item.Properties());
         this.type = type;
+
+        if (FMLEnvironment.dist == Dist.CLIENT)
+            clientSideInit();
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    protected void clientSideInit()
+    {
+        loadModel();
+
+        if (StringUtils.isNotBlank(type.getTexture().get()))
+        {
+            texture = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/armor/" + type.getTexture().get() + (type.getArmorType() != ArmorItem.Type.LEGGINGS ? "_1" : "_2") + ".png");
+            model.setTexture(texture);
+        }
+
+        if (StringUtils.isNotBlank(type.getOverlay().get()))
+        {
+            overlay = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/gui/" + type.getOverlay().get() + ".png");
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    protected void loadModel()
+    {
+        try
+        {
+            if (ClassLoaderUtils.loadAndModifyClass(type.getContentPack(), type.getModelClass()).getConstructor().newInstance() instanceof ModelCustomArmour modelCustomArmour)
+            {
+                model = modelCustomArmour;
+                model.setType(type);
+            }
+            else
+            {
+                ArmorMod.log.error("Could not load model class {} from {}: class is not a Model.", type.getModelClass(), type.getContentPack().getPath());
+            }
+        }
+        catch (Exception e)
+        {
+            ArmorMod.log.error("Could not load model class {} from {}", type.getModelClass(), type.getContentPack().getPath(), e);
+        }
+
+        if (model == null)
+        {
+            model = new DefaultArmor(type.getArmorType());
+        }
     }
 
     @Override
@@ -153,7 +207,7 @@ public class CustomArmorItem extends ArmorItem
             @NotNull
             public HumanoidModel<?> getHumanoidArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> defaultModel)
             {
-                return type.getModel();
+                return model;
             }
         });
     }
@@ -177,26 +231,26 @@ public class CustomArmorItem extends ArmorItem
         return modifiers;
     }
 
+    public String getContentPack()
+    {
+        return FilenameUtils.getBaseName(type.getContentPack().getName());
+    }
+
     @OnlyIn(Dist.CLIENT)
     public ModelCustomArmour getModel()
     {
-        return type.getModel();
+        return model;
     }
 
     @OnlyIn(Dist.CLIENT)
     public Optional<ResourceLocation> getTexture()
     {
-        return type.getTexture();
+        return Optional.ofNullable(texture);
     }
 
     @OnlyIn(Dist.CLIENT)
     public Optional<ResourceLocation> getOverlay()
     {
-        return type.getOverlay();
-    }
-
-    public String getContentPack()
-    {
-        return type.getContentPack();
+        return Optional.ofNullable(overlay);
     }
 }

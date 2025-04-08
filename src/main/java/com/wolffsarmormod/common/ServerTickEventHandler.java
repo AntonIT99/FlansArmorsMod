@@ -9,7 +9,8 @@ import net.minecraftforge.fml.common.Mod;
 public class ServerTickEventHandler
 {
     @SubscribeEvent
-    public static void onServerTick(TickEvent.ServerTickEvent event) {
+    public static void onServerTick(TickEvent.ServerTickEvent event)
+    {
         if (event.phase == TickEvent.Phase.END)
         {
             ArmorMod.ticker++;

@@ -115,16 +115,16 @@ public class FileUtils
     }
 
 
-    public static DirectoryStream<Path> createDirectoryStream(IContentProvider provider, DirectoryStream.Filter<? super Path> filter) throws IOException
+    public static DirectoryStream<Path> createDirectoryStream(IContentProvider provider) throws IOException
     {
         if (provider.isDirectory())
         {
-            return Files.newDirectoryStream(provider.getPath(), filter);
+            return Files.newDirectoryStream(provider.getPath());
         }
         else if (provider.isArchive())
         {
             FileSystem fs = FileSystems.newFileSystem(provider.getPath());
-            return new AutoCloseableDirectoryStream(Files.newDirectoryStream(fs.getPath("/"), filter), fs);
+            return new AutoCloseableDirectoryStream(Files.newDirectoryStream(fs.getPath("/")), fs);
         }
         throw new IllegalArgumentException("Content Pack must be either a directory or a ZIP/JAR-archive");
     }

@@ -11,21 +11,19 @@ import java.util.Optional;
 
 public enum EnumType
 {
-    ARMOR("armor", "armorFiles", "armor", ArmourType.class, CustomArmorItem.class, true, false);
+    ARMOR("armor", "armorFiles", ArmourType.class, CustomArmorItem.class, true, false);
 
     private final String displayName;
     private final String configFolderName;
-    private final String textureFolderName;
     private final Class<? extends InfoType> typeClass;
     private final Class<? extends Item> itemClass;
     private final boolean isItemType;
     private final boolean isBlockType;
 
-    EnumType(String name, String configFolder, String textureFolder, Class<? extends InfoType> type, Class<? extends Item> item, boolean isItem, boolean isBlock)
+    EnumType(String name, String configFolder, Class<? extends InfoType> type, Class<? extends Item> item, boolean isItem, boolean isBlock)
     {
         displayName = name;
         configFolderName = configFolder;
-        textureFolderName = textureFolder;
         typeClass = type;
         itemClass = item;
         isItemType = isItem;
@@ -35,11 +33,6 @@ public enum EnumType
     public String getDisplayName()
     {
         return displayName;
-    }
-
-    public String getTextureFolderName()
-    {
-        return textureFolderName;
     }
 
     public String getConfigFolderName()

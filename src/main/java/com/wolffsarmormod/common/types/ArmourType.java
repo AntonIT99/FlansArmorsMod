@@ -1,21 +1,19 @@
 package com.wolffsarmormod.common.types;
 
-import com.flansmod.client.model.ModelCustomArmour;
 import com.wolffsarmormod.ArmorMod;
-import com.wolffsarmormod.client.model.armor.DefaultArmor;
+import com.wolffsarmormod.ContentManager;
+import com.wolffsarmormod.util.DynamicReference;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.commons.lang3.StringUtils;
 
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.ArmorItem;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.wolffsarmormod.util.TypeReaderUtils.readValue;
 import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
@@ -43,8 +41,6 @@ public class ArmourType extends InfoType
     protected boolean hunger;
     protected boolean regeneration;
     protected Map<MobEffect, Integer> effects = new HashMap<>();
-
-    protected ResourceLocation overlay;
 
     @Override
     protected void readLine(String[] split, TypeFile file)
@@ -128,28 +124,27 @@ public class ArmourType extends InfoType
 
         if (FMLEnvironment.dist == Dist.CLIENT)
         {
-            if (model == null)
-            {
-                model = new DefaultArmor(armorType);
-            }
-
-            if (StringUtils.isNotBlank(textureName))
-            {
-                texture = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/armor/" + textureName + (armorType != ArmorItem.Type.LEGGINGS ? "_1" : "_2") + ".png");
-                model.setTexture(texture);
-            }
-
-            if (StringUtils.isNotBlank(overlayName))
-            {
-                overlay = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/gui/" + overlayName + ".png");
-            }
+            ContentManager.armorTextureReferences.putIfAbsent(contentPack, new HashMap<>());
+            ContentManager.armorTextureReferences.get(contentPack).putIfAbsent(textureName, new DynamicReference(textureName));
+            ContentManager.guiTextureReferences.putIfAbsent(contentPack, new HashMap<>());
+            ContentManager.guiTextureReferences.get(contentPack).putIfAbsent(overlayName, new DynamicReference(overlayName));
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    public ModelCustomArmour getModel()
+    @Override
+    public DynamicReference getTexture()
     {
-        return (ModelCustomArmour) model;
+        return ContentManager.armorTextureReferences.get(contentPack).get(textureName);
+    }
+
+    /**
+     * The overlay to display when using this helmet. Textures are pulled from the scopes directory
+     */
+    @OnlyIn(Dist.CLIENT)
+    public DynamicReference getOverlay()
+    {
+        return ContentManager.guiTextureReferences.get(contentPack).get(overlayName);
     }
 
     public ArmorItem.Type getArmorType()
@@ -244,14 +239,6 @@ public class ArmourType extends InfoType
     public boolean hasNegateFallDamage()
     {
         return negateFallDamage;
-    }
-
-    /**
-     * The overlay to display when using this helmet. Textures are pulled from the scopes directory
-     */
-    public Optional<ResourceLocation> getOverlay()
-    {
-        return Optional.ofNullable(overlay);
     }
 
     /**

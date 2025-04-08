@@ -2,16 +2,12 @@ package com.wolffsarmormod.common.types;
 
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.IContentProvider;
-import com.wolffsarmormod.util.ClassLoaderUtils;
+import com.wolffsarmormod.util.DynamicReference;
 import com.wolffsarmormod.util.FileUtils;
-import com.wolffsmod.client.model.IModelBase;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-
-import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -20,7 +16,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.wolffsarmormod.util.TypeReaderUtils.readValue;
 import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
@@ -30,7 +25,7 @@ public abstract class InfoType
     protected static final Map<String, IContentProvider> registeredModels = new HashMap<>();
 
     protected EnumType type;
-    protected String contentPack = StringUtils.EMPTY;
+    protected IContentProvider contentPack;
     protected String name = StringUtils.EMPTY;
     protected String shortName = StringUtils.EMPTY;
     protected String description = StringUtils.EMPTY;
@@ -40,12 +35,9 @@ public abstract class InfoType
     protected String textureName = StringUtils.EMPTY;
     protected float modelScale = 1F;
 
-    protected IModelBase model;
-    protected ResourceLocation texture;
-
     public void read(TypeFile file)
     {
-        contentPack = FilenameUtils.getBaseName(file.getContentPack().getName());
+        contentPack = file.getContentPack();
         type = file.getType();
 
         for (String line : file.getLines())
@@ -73,11 +65,11 @@ public abstract class InfoType
     protected void postRead(TypeFile file)
     {
         if (FMLEnvironment.dist == Dist.CLIENT)
-            loadModel(file);
+            findModelClass(file);
     }
 
     @OnlyIn(Dist.CLIENT)
-    protected void loadModel(TypeFile file)
+    protected void findModelClass(TypeFile file)
     {
         if (!modelName.isBlank() && !modelName.equalsIgnoreCase("null") && !modelName.equalsIgnoreCase("none"))
         {
@@ -139,33 +131,13 @@ public abstract class InfoType
 
             FileUtils.closeFileSystem(fs, file.getContentPack());
             registeredModels.putIfAbsent(modelClassName, file.getContentPack());
-
-            try
-            {
-                if (ClassLoaderUtils.loadAndModifyClass(file.getContentPack(), modelClassName).getConstructor().newInstance() instanceof IModelBase modelBase)
-                {
-                    model = modelBase;
-                    model.setType(this);
-                }
-                else
-                {
-                    ArmorMod.log.error("Could not load model class {} from {}: class is not a Model.", modelClassName, file.getContentPack().getPath());
-                }
-            }
-            catch (Exception e)
-            {
-                ArmorMod.log.error("Could not load model class {} from {}", modelClassName, file.getContentPack().getPath(), e);
-            }
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    public Optional<ResourceLocation> getTexture()
-    {
-        return Optional.ofNullable(texture);
-    }
+    abstract public DynamicReference getTexture();
 
-    public String getContentPack()
+    public IContentProvider getContentPack()
     {
         return contentPack;
     }
@@ -197,9 +169,9 @@ public abstract class InfoType
     }
 
     @OnlyIn(Dist.CLIENT)
-    public IModelBase getModel()
+    public String getModelClass()
     {
-        return model;
+        return modelClassName;
     }
 
     public EnumType getType()

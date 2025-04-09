@@ -57,7 +57,6 @@ public class ArmorMod
 
         contentManager.findContentInFlanFolder();
         contentManager.readContentPacks();
-        contentManager.registerConfigs();
         registerCreativeModeTabs();
 
         MinecraftForge.EVENT_BUS.register(this);

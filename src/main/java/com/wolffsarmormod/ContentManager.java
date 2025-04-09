@@ -25,7 +25,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -53,7 +52,7 @@ public class ContentManager
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     private final List<IContentProvider> contentPacks = new ArrayList<>();
-    private final Map<EnumType, ArrayList<TypeFile>> files = new EnumMap<>(EnumType.class);
+    private final Map<IContentProvider, ArrayList<TypeFile>> files = new HashMap<>();
     private final Map<IContentProvider, ArrayList<InfoType>> configs = new HashMap<>();
 
     // Keep track of registered items and loaded textures
@@ -64,9 +63,6 @@ public class ContentManager
 
     public ContentManager()
     {
-        for (EnumType type : EnumType.values())
-            files.put(type, new ArrayList<>());
-
         textures.put("armor", new HashMap<>());
         textures.put("gui", new HashMap<>());
     }
@@ -97,13 +93,17 @@ public class ContentManager
         {
             long startTime = System.currentTimeMillis();
 
+            files.putIfAbsent(provider, new ArrayList<>());
             configs.putIfAbsent(provider, new ArrayList<>());
+
             armorTextureReferences.putIfAbsent(provider, new HashMap<>());
             guiTextureReferences.putIfAbsent(provider, new HashMap<>());
             shortnameReferences.putIfAbsent(provider, new HashMap<>());
-            readFiles(provider);
 
-            if (FMLEnvironment.dist != Dist.CLIENT)
+            readFiles(provider);
+            registerConfigs(provider);
+
+            if (FMLEnvironment.dist == Dist.CLIENT)
             {
                 findDuplicateTextures(provider);
             }
@@ -243,7 +243,7 @@ public class ContentManager
     {
         try
         {
-            loadTypeFile(new TypeFile(file.getFileName().toString(), EnumType.getType(folderName).orElse(null), provider, Files.readAllLines(file)));
+            files.get(provider).add(new TypeFile(file.getFileName().toString(), EnumType.getType(folderName).orElse(null), provider, Files.readAllLines(file)));
         }
         catch (IOException e)
         {
@@ -251,43 +251,34 @@ public class ContentManager
         }
     }
 
-    private void loadTypeFile(TypeFile file)
+    private void registerConfigs(IContentProvider contentPack)
     {
-        files.get(file.getType()).add(file);
-    }
-
-    public void registerConfigs()
-    {
-        for (EnumType type : EnumType.values())
+        for (TypeFile typeFile : files.get(contentPack))
         {
-            for (TypeFile typeFile : files.get(type))
+            try
             {
-                IContentProvider contentPack = typeFile.getContentPack();
-                try
+                Class<? extends InfoType> typeClass = typeFile.getType().getTypeClass();
+                InfoType config = typeClass.getConstructor().newInstance();
+                config.read(typeFile);
+                if (!config.getShortName().isBlank())
                 {
-                    Class<? extends InfoType> typeClass = type.getTypeClass();
-                    InfoType config = typeClass.getConstructor().newInstance();
-                    config.read(typeFile);
-                    if (!config.getShortName().isBlank())
+                    if (typeFile.getType().isItemType())
                     {
-                        if (type.isItemType())
-                        {
-                            String shortName = findValidShortName(config.getShortName(), contentPack, typeFile);
-                            registerItem(shortName, config, typeFile, typeClass);
-                        }
-                        configs.get(typeFile.getContentPack()).add(config);
+                        String shortName = findValidShortName(config.getShortName(), contentPack, typeFile);
+                        DynamicReference.storeOrUpdate(config.getShortName(), shortName, shortnameReferences.get(contentPack));
+                        registerItem(shortName, config, typeFile, typeClass);
                     }
-                    else
-                    {
-                        ArmorMod.log.error("ShortName not set: {}", typeFile);
-                    }
+                    configs.get(typeFile.getContentPack()).add(config);
                 }
-                catch (Exception e)
+                else
                 {
-                    ArmorMod.log.error("Failed to add {}", typeFile, e);
+                    ArmorMod.log.error("ShortName not set: {}", typeFile);
                 }
             }
-            ArmorMod.log.info("Loaded {}.", type.getDisplayName());
+            catch (Exception e)
+            {
+                ArmorMod.log.error("Failed to add {}", typeFile, e);
+            }
         }
     }
 
@@ -307,7 +298,6 @@ public class ContentManager
             shortname = newShortname;
         }
 
-        DynamicReference.storeOrUpdate(originalShortname, shortname, shortnameReferences.get(provider));
         return shortname;
     }
 
@@ -361,28 +351,27 @@ public class ContentManager
 
     private void checkForDuplicateTextures(Path texturePath, IContentProvider provider, String folderName, Map<String, DynamicReference> aliasMapping)
     {
+        String fileName = FilenameUtils.getBaseName(texturePath.getFileName().toString()).toLowerCase();
+        DynamicReference.storeOrUpdate(fileName, fileName, aliasMapping);
+
+        if (textures.get(folderName).containsKey(fileName))
         {
-            String fileName = FilenameUtils.getBaseName(texturePath.getFileName().toString()).toLowerCase();
+            TextureFile otherFile = textures.get(folderName).get(fileName);
+            FileSystem fs = FileUtils.createFileSystem(otherFile.contentPack());
+            Path otherPath = otherFile.contentPack().getAssetsPath(fs).resolve(folderName).resolve(otherFile.name());
 
-            if (textures.get(folderName).containsKey(fileName))
+            if (!FileUtils.hasSameFileBytesContent(texturePath, otherPath) && !FileUtils.isSameImage(texturePath, otherPath))
             {
-                TextureFile otherFile = textures.get(folderName).get(fileName);
-                FileSystem fs = FileUtils.createFileSystem(otherFile.contentPack());
-                Path otherPath = otherFile.contentPack().getAssetsPath(fs).resolve(folderName).resolve(otherFile.name());
-
-                if (!FileUtils.hasSameFileBytesContent(texturePath, otherPath) && !FileUtils.isSameImage(texturePath, otherPath))
-                {
-                    String aliasName = findValidTextureName(fileName, folderName, provider.getName(), otherFile.contentPack().getName(), aliasMapping);
-                    DynamicReference.storeOrUpdate(fileName, aliasName, aliasMapping);
-                    textures.get(folderName).put(aliasName, new TextureFile(texturePath.getFileName().toString(), provider));
-                }
-
-                FileUtils.closeFileSystem(fs, otherFile.contentPack());
+                String aliasName = findValidTextureName(fileName, folderName, provider.getName(), otherFile.contentPack().getName(), aliasMapping);
+                DynamicReference.storeOrUpdate(fileName, aliasName, aliasMapping);
+                textures.get(folderName).put(aliasName, new TextureFile(texturePath.getFileName().toString(), provider));
             }
-            else
-            {
-                textures.get(folderName).put(fileName, new TextureFile(texturePath.getFileName().toString(), provider));
-            }
+
+            FileUtils.closeFileSystem(fs, otherFile.contentPack());
+        }
+        else
+        {
+            textures.get(folderName).put(fileName, new TextureFile(texturePath.getFileName().toString(), provider));
         }
     }
 

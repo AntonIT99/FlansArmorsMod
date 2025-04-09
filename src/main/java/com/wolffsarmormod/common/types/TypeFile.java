@@ -8,15 +8,13 @@ import java.util.List;
 public class TypeFile
 {
     private final String name;
-    private final String fullPath;
     private final EnumType type;
     private final IContentProvider contentPack;
     private final List<String> lines = new ArrayList<>();
 
-    public TypeFile(String name, String fullPath, EnumType type, IContentProvider contentPack, List<String> lines)
+    public TypeFile(String name, EnumType type, IContentProvider contentPack, List<String> lines)
     {
         this.name = name;
-        this.fullPath = fullPath;
         this.type = type;
         this.contentPack = contentPack;
         this.lines.addAll(lines);
@@ -25,11 +23,6 @@ public class TypeFile
     public String getName()
     {
         return name;
-    }
-
-    public String getFullPath()
-    {
-        return fullPath;
     }
 
     public EnumType getType()
@@ -45,5 +38,10 @@ public class TypeFile
     public List<String> getLines()
     {
         return lines;
+    }
+
+    public String toString()
+    {
+        return type.getConfigFolderName() + "/" + getName() + " [" + contentPack.getName() + "]";
     }
 }

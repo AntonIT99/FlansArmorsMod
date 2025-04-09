@@ -79,21 +79,24 @@ public class CustomArmorItem extends ArmorItem
     @OnlyIn(Dist.CLIENT)
     protected void loadModel()
     {
-        try
+        if (!type.getModelClass().isBlank())
         {
-            if (ClassLoaderUtils.loadAndModifyClass(type.getContentPack(), type.getModelClass()).getConstructor().newInstance() instanceof ModelCustomArmour modelCustomArmour)
+            try
             {
-                model = modelCustomArmour;
-                model.setType(type);
+                if (ClassLoaderUtils.loadAndModifyClass(type.getContentPack(), type.getModelClass()).getConstructor().newInstance() instanceof ModelCustomArmour modelCustomArmour)
+                {
+                    model = modelCustomArmour;
+                    model.setType(type);
+                }
+                else
+                {
+                    ArmorMod.log.error("Could not load model class {} from {}: class is not a Model.", type.getModelClass(), type.getContentPack().getPath());
+                }
             }
-            else
+            catch (Exception e)
             {
-                ArmorMod.log.error("Could not load model class {} from {}: class is not a Model.", type.getModelClass(), type.getContentPack().getPath());
+                ArmorMod.log.error("Could not load model class {} from {}", type.getModelClass(), type.getContentPack().getPath(), e);
             }
-        }
-        catch (Exception e)
-        {
-            ArmorMod.log.error("Could not load model class {} from {}", type.getModelClass(), type.getContentPack().getPath(), e);
         }
 
         if (model == null)

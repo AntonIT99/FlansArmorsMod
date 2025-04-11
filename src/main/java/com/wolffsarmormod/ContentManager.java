@@ -639,13 +639,18 @@ public class ContentManager
         for (InfoType config : configs.get(provider))
         {
             String shortName = config.getShortName();
-            if (shortnameReferences.get(provider).containsKey(shortName))
+            if (shortnameReferences.get(provider).containsKey(shortName) && !shortName.equals(shortnameReferences.get(provider).get(shortName).get()))
             {
                 shortName = shortnameReferences.get(provider).get(shortName).get();
-                translations.remove(generateTranslationKey(config.getShortName(), config.getType().isBlockType()));
+                String keyToAdd = generateTranslationKey(shortName, config.getType().isBlockType());
+                String keyToRemove = generateTranslationKey(config.getShortName(), config.getType().isBlockType());
+                translations.putIfAbsent(keyToAdd, config.getName());
+                translations.remove(keyToRemove);
 
             }
-            translations.putIfAbsent(generateTranslationKey(shortName, config.getType().isBlockType()), config.getName());
+            else {
+                translations.putIfAbsent(generateTranslationKey(shortName, config.getType().isBlockType()), config.getName());
+            }
         }
 
         String jsonFileName = langFile.getFileName().toString().toLowerCase().replace(".lang", ".json");

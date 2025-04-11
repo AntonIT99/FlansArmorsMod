@@ -105,6 +105,7 @@ public class ContentManager
 
             if (FMLEnvironment.dist == Dist.CLIENT)
             {
+
                 findDuplicateTextures(provider);
             }
 
@@ -208,11 +209,22 @@ public class ContentManager
                 {
                     readTypeFolder(path, provider);
                 }
-                else if (Files.isRegularFile(path) && path.getFileName().toString().equals(shortnamesAliasFile))
+                else if (Files.isRegularFile(path))
                 {
-                    try (AliasFileManager fileManager = new AliasFileManager(path.getFileName().toString(), provider))
+                    if (path.getFileName().toString().equals(shortnamesAliasFile))
                     {
-                        fileManager.readFile().forEach((originalShortname, aliasShortname) -> DynamicReference.storeOrUpdate(originalShortname, aliasShortname, shortnameReferences.get(provider)));
+                        readAliasMappingFile(path.getFileName().toString(), provider, shortnameReferences);
+                    }
+                    if (FMLEnvironment.dist == Dist.CLIENT)
+                    {
+                        if (path.getFileName().toString().equals(armorTexturesAliasFile))
+                        {
+                            readAliasMappingFile(path.getFileName().toString(), provider, armorTextureReferences);
+                        }
+                        if (path.getFileName().toString().equals(guiTexturesAliasFile))
+                        {
+                            readAliasMappingFile(path.getFileName().toString(), provider, guiTextureReferences);
+                        }
                     }
                 }
             });
@@ -220,6 +232,14 @@ public class ContentManager
         catch (IOException e)
         {
             ArmorMod.log.error("Failed to load types in content pack '{}'", provider.getName(), e);
+        }
+    }
+
+    private static void readAliasMappingFile(String fileName, IContentProvider provider, Map<IContentProvider, Map<String, DynamicReference>> references)
+    {
+        try (AliasFileManager fileManager = new AliasFileManager(fileName, provider))
+        {
+            fileManager.readFile().forEach((originalShortname, aliasShortname) -> DynamicReference.storeOrUpdate(originalShortname, aliasShortname, references.get(provider)));
         }
     }
 
@@ -352,27 +372,23 @@ public class ContentManager
     private void checkForDuplicateTextures(Path texturePath, IContentProvider provider, String folderName, Map<String, DynamicReference> aliasMapping)
     {
         String fileName = FilenameUtils.getBaseName(texturePath.getFileName().toString()).toLowerCase();
-        DynamicReference.storeOrUpdate(fileName, fileName, aliasMapping);
+        String aliasName = fileName;
 
-        if (textures.get(folderName).containsKey(fileName))
+        if (textures.get(folderName).containsKey(aliasName))
         {
             TextureFile otherFile = textures.get(folderName).get(fileName);
             FileSystem fs = FileUtils.createFileSystem(otherFile.contentPack());
             Path otherPath = otherFile.contentPack().getAssetsPath(fs).resolve(folderName).resolve(otherFile.name());
-
             if (!FileUtils.hasSameFileBytesContent(texturePath, otherPath) && !FileUtils.isSameImage(texturePath, otherPath))
             {
-                String aliasName = findValidTextureName(fileName, folderName, provider.getName(), otherFile.contentPack().getName(), aliasMapping);
-                DynamicReference.storeOrUpdate(fileName, aliasName, aliasMapping);
-                textures.get(folderName).put(aliasName, new TextureFile(texturePath.getFileName().toString(), provider));
-            }
+                aliasName = findValidTextureName(fileName, folderName, provider.getName(), otherFile.contentPack().getName(), aliasMapping);
 
+            }
             FileUtils.closeFileSystem(fs, otherFile.contentPack());
         }
-        else
-        {
-            textures.get(folderName).put(fileName, new TextureFile(texturePath.getFileName().toString(), provider));
-        }
+
+        DynamicReference.storeOrUpdate(fileName, aliasName, aliasMapping);
+        textures.get(folderName).put(aliasName, new TextureFile(texturePath.getFileName().toString(), provider));
     }
 
     private String findValidTextureName(String originalName, String folderName, String thisContentPackName, String otherContentPackName, Map<String, DynamicReference> aliasMapping)

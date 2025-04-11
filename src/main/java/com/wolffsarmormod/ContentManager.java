@@ -120,6 +120,7 @@ public class ContentManager
 
             if (archiveExtracted || !provider.isArchive())
             {
+                createMcMeta(provider);
                 writeToAliasMappingFile(shortnamesAliasFile, provider,DynamicReference.getAliasMapping(shortnameReferences.get(provider)));
             }
 
@@ -801,6 +802,29 @@ public class ContentManager
         catch (IOException e)
         {
             ArmorMod.log.error("Could not process {}", file, e);
+        }
+    }
+
+    private void createMcMeta(IContentProvider provider) {
+        Path mcMetaFile = (provider.isArchive() ? provider.getExtractedPath() : provider.getPath()).resolve("pack.mcmeta");
+        if (Files.notExists(mcMetaFile))
+        {
+            try
+            {
+                Files.createFile(mcMetaFile);
+                String content = String.format("""
+                    {
+                        "pack": {
+                            "pack_format": 15,
+                            "description": "%s"
+                        }
+                    }""", FilenameUtils.getBaseName(provider.getName()));
+                Files.writeString(mcMetaFile, content);
+            }
+            catch (IOException e)
+            {
+                ArmorMod.log.error("Failed to create {}", mcMetaFile, e);
+            }
         }
     }
 }

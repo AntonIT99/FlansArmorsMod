@@ -123,7 +123,7 @@ public abstract class InfoType
 
                 if (!FileUtils.hasSameFileBytesContent(classFile, otherClassFile))
                 {
-                    ArmorMod.log.warn("Duplicate model class name {} in {} and {}", classFile, file.getContentPack().getName(), otherContentPack.getName());
+                    ArmorMod.log.warn("Duplicate model class name {} in [{}] and [{}]", classFile, file.getContentPack().getName(), otherContentPack.getName());
                 }
 
                 FileUtils.closeFileSystem(otherFs, otherContentPack);

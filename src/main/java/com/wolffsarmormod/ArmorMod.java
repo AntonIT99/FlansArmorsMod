@@ -1,8 +1,8 @@
 package com.wolffsarmormod;
 
 import com.mojang.logging.LogUtils;
-import com.wolffsarmormod.client.ModClientConfigs;
-import com.wolffsarmormod.common.ModCommonConfigs;
+import com.wolffsarmormod.config.ModClientConfigs;
+import com.wolffsarmormod.config.ModCommonConfigs;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;

@@ -1,4 +1,4 @@
-package com.wolffsarmormod.common;
+package com.wolffsarmormod.client.event;
 
 import com.wolffsarmormod.ArmorMod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

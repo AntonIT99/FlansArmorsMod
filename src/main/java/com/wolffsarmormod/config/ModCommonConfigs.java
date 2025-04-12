@@ -1,4 +1,4 @@
-package com.wolffsarmormod.common;
+package com.wolffsarmormod.config;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 

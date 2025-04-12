@@ -1,4 +1,4 @@
-package com.wolffsarmormod.client.event;
+package com.wolffsarmormod.event;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wolffsarmormod.ArmorMod;

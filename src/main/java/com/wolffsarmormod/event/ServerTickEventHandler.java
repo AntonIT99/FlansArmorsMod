@@ -1,4 +1,4 @@
-package com.wolffsarmormod.common;
+package com.wolffsarmormod.event;
 
 import com.wolffsarmormod.ArmorMod;
 import net.minecraftforge.event.TickEvent;

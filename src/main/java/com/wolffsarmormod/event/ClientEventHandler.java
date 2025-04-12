@@ -1,9 +1,8 @@
-package com.wolffsarmormod.client.event;
+package com.wolffsarmormod.event;
 
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.ContentManager;
 import com.wolffsarmormod.client.CustomArmorLayer;
-import com.wolffsarmormod.client.ModRepositorySource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.event.AddPackFindersEvent;

@@ -1,4 +1,4 @@
-package com.wolffsarmormod.client;
+package com.wolffsarmormod.event;
 
 import com.wolffsarmormod.ArmorMod;
 import org.apache.commons.io.FilenameUtils;

@@ -30,11 +30,15 @@ public class FileUtils
 {
     private FileUtils() {}
 
-    public static boolean hasSameFileBytesContent(Path file1, Path file2)
+    public static boolean filesHaveDifferentBytesContent(Path file1, Path file2)
     {
+        if (!Files.exists(file1) || !Files.exists(file2))
+        {
+            return false;
+        }
         try
         {
-            return Arrays.equals(Files.readAllBytes(file1), Files.readAllBytes(file2));
+            return !Arrays.equals(Files.readAllBytes(file1), Files.readAllBytes(file2));
         }
         catch (IOException e)
         {

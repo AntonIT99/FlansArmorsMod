@@ -133,7 +133,6 @@ public class ArmourType extends InfoType
     @Override
     public DynamicReference getTexture()
     {
-        //TODO fix NullPointerException
         return ContentManager.armorTextureReferences.get(contentPack).get(textureName);
     }
 

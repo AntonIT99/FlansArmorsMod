@@ -44,6 +44,7 @@ public class ContentManager
     public static final Map<IContentProvider, Map<String, DynamicReference>> shortnameReferences = new HashMap<>();
     public static final Map<IContentProvider, Map<String, DynamicReference>> armorTextureReferences = new HashMap<>();
     public static final Map<IContentProvider, Map<String, DynamicReference>> guiTextureReferences = new HashMap<>();
+    public static final Map<IContentProvider, Map<String, DynamicReference>> modelReferences = new HashMap<>();
 
     private static final String shortnamesAliasFile = "id_alias.json";
     private static final String armorTexturesAliasFile = "armor_textures_alias.json";
@@ -99,13 +100,13 @@ public class ContentManager
             armorTextureReferences.putIfAbsent(provider, new HashMap<>());
             guiTextureReferences.putIfAbsent(provider, new HashMap<>());
             shortnameReferences.putIfAbsent(provider, new HashMap<>());
+            modelReferences.putIfAbsent(provider, new HashMap<>());
 
             readFiles(provider);
             registerConfigs(provider);
 
             if (FMLEnvironment.dist == Dist.CLIENT)
             {
-
                 findDuplicateTextures(provider);
             }
 
@@ -373,17 +374,18 @@ public class ContentManager
     private void checkForDuplicateTextures(Path texturePath, IContentProvider provider, String folderName, Map<String, DynamicReference> aliasMapping)
     {
         String fileName = FilenameUtils.getBaseName(texturePath.getFileName().toString()).toLowerCase();
+        if (folderName.equals("armor"))
+            fileName = getArmorTextureBaseName(fileName);
         String aliasName = fileName;
 
-        if (textures.get(folderName).containsKey(aliasName))
+        if (isTextureNameAlreadyRegistered(fileName, folderName, provider))
         {
             TextureFile otherFile = textures.get(folderName).get(fileName);
             FileSystem fs = FileUtils.createFileSystem(otherFile.contentPack());
             Path otherPath = otherFile.contentPack().getAssetsPath(fs).resolve(folderName).resolve(otherFile.name());
-            if (!FileUtils.hasSameFileBytesContent(texturePath, otherPath) && !FileUtils.isSameImage(texturePath, otherPath))
+            if (FileUtils.filesHaveDifferentBytesContent(texturePath, otherPath) && !FileUtils.isSameImage(texturePath, otherPath))
             {
-                aliasName = findValidTextureName(fileName, folderName, provider.getName(), otherFile.contentPack().getName(), aliasMapping);
-
+                aliasName = findValidTextureName(fileName, folderName, provider, otherFile.contentPack(), aliasMapping);
             }
             FileUtils.closeFileSystem(fs, otherFile.contentPack());
         }
@@ -392,23 +394,31 @@ public class ContentManager
         textures.get(folderName).put(aliasName, new TextureFile(texturePath.getFileName().toString(), provider));
     }
 
-    private String findValidTextureName(String originalName, String folderName, String thisContentPackName, String otherContentPackName, Map<String, DynamicReference> aliasMapping)
+    private String getArmorTextureBaseName(String fileBaseName)
+    {
+        if (fileBaseName.endsWith("_1") || fileBaseName.endsWith("_2")) {
+            return fileBaseName.substring(0, fileBaseName.length() - 2);
+        }
+        return fileBaseName;
+    }
+
+    private String findValidTextureName(String originalName, String folderName, IContentProvider thisContentPack, IContentProvider otherContentPack, Map<String, DynamicReference> aliasMapping)
     {
         String name = originalName;
 
-        if (textures.get(folderName).containsKey(name) && aliasMapping.containsKey(name))
+        if (isTextureNameAlreadyRegistered(name, folderName, thisContentPack) && aliasMapping.containsKey(name))
         {
             name = aliasMapping.get(name).get();
         }
 
         String newName = name;
-        for (int i = 2; textures.get(folderName).containsKey(newName); i++)
+        for (int i = 2; isTextureNameAlreadyRegistered(newName, folderName, thisContentPack); i++)
             newName = originalName + "_" + i;
 
         if (!name.equals(newName))
         {
             name = newName;
-            ArmorMod.log.warn("Duplicate texture detected: '{}/{}' in [{}] and [{}]. Creating texture alias '{}' in [{}]", folderName, originalName, thisContentPackName, otherContentPackName, name, thisContentPackName);
+            ArmorMod.log.warn("Duplicate texture detected: '{}/{}' in [{}] and [{}]. Creating texture alias '{}' in [{}]", folderName, originalName, thisContentPack.getName(), otherContentPack.getName(), name, thisContentPack.getName());
         }
 
         return name;
@@ -469,9 +479,11 @@ public class ContentManager
     {
         Path jsonItemFolderPath = provider.getAssetsPath().resolve("models").resolve("item");
         Path jsonBlockFolderPath = provider.getAssetsPath().resolve("models").resolve("block");
+        Path jsonBlockstatesFolderPath = provider.getAssetsPath().resolve("blockstates");
 
         convertExistingJsonFiles(jsonItemFolderPath);
         convertExistingJsonFiles(jsonBlockFolderPath);
+        convertExistingJsonFiles(jsonBlockstatesFolderPath);
 
         if (!Files.exists(jsonItemFolderPath))
         {
@@ -583,20 +595,44 @@ public class ContentManager
         {
             try (Stream<Path> stream = Files.list(folder))
             {
-                stream.filter(file -> file.toString().toLowerCase().endsWith(".png") && aliasMapping.containsKey(FilenameUtils.getBaseName(file.getFileName().toString())))
-                        .forEach(file ->
+                stream.filter(file ->
+                    {
+                        String baseFileName = FilenameUtils.getBaseName(file.getFileName().toString());
+                        if (folder.getFileName().toString().equals("armor"))
                         {
-                            String aliasName = aliasMapping.get(FilenameUtils.getBaseName(file.getFileName().toString())).get();
-                            Path destFile = file.getParent().resolve(aliasName + ".png");
-                            try
+                            baseFileName = getArmorTextureBaseName(baseFileName);
+                        }
+                        return file.toString().toLowerCase().endsWith(".png") && aliasMapping.containsKey(baseFileName);
+                    })
+                    .forEach(file ->
+                    {
+                        String baseFileName = FilenameUtils.getBaseName(file.getFileName().toString());
+                        if (folder.getFileName().toString().equals("armor"))
+                        {
+                            baseFileName = getArmorTextureBaseName(baseFileName);
+                        }
+                        String newFileName = aliasMapping.get(baseFileName).get();
+                        if (folder.getFileName().toString().equals("armor"))
+                        {
+                            if (file.getFileName().toString().endsWith("_1.png"))
                             {
-                                Files.move(file, destFile, StandardCopyOption.REPLACE_EXISTING);
+                                newFileName += "_1";
                             }
-                            catch (IOException e)
+                            else if (file.getFileName().toString().endsWith("_2.png"))
                             {
-                                ArmorMod.log.error("Could not create {}", file, e);
+                                newFileName += "_2";
                             }
-                        });
+                        }
+                        Path destFile = file.getParent().resolve(newFileName + ".png");
+                        try
+                        {
+                            Files.move(file, destFile, StandardCopyOption.REPLACE_EXISTING);
+                        }
+                        catch (IOException e)
+                        {
+                            ArmorMod.log.error("Could not create {}", file, e);
+                        }
+                    });
             }
             catch (IOException e)
             {
@@ -725,17 +761,19 @@ public class ContentManager
     {
         if (Files.exists(sourcePath))
         {
-            if (!Files.exists(destPath))
+            if (Files.exists(destPath))
             {
-                try
-                {
-                    Files.createDirectories(destPath);
-                }
-                catch (IOException e)
-                {
-                    ArmorMod.log.error("Could not create {}", destPath, e);
-                    return;
-                }
+                FileUtils.deleteRecursively(destPath);
+            }
+
+            try
+            {
+                Files.createDirectories(destPath);
+            }
+            catch (IOException e)
+            {
+                ArmorMod.log.error("Could not create {}", destPath, e);
+                return;
             }
 
             try (Stream<Path> paths = Files.walk(sourcePath, 1))
@@ -826,5 +864,10 @@ public class ContentManager
                 ArmorMod.log.error("Failed to create {}", mcMetaFile, e);
             }
         }
+    }
+
+    private boolean isTextureNameAlreadyRegistered(String name, String folderName, IContentProvider provider)
+    {
+        return textures.get(folderName).containsKey(name) && !textures.get(folderName).get(name).contentPack().equals(provider);
     }
 }

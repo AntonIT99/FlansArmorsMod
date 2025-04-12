@@ -1,6 +1,7 @@
 package com.wolffsarmormod.common.types;
 
 import com.wolffsarmormod.ArmorMod;
+import com.wolffsarmormod.ContentManager;
 import com.wolffsarmormod.IContentProvider;
 import com.wolffsarmormod.util.DynamicReference;
 import com.wolffsarmormod.util.FileUtils;
@@ -65,28 +66,28 @@ public abstract class InfoType
     protected void postRead(TypeFile file)
     {
         if (FMLEnvironment.dist == Dist.CLIENT)
-            findModelClass(file);
+            findModelClass();
     }
 
     @OnlyIn(Dist.CLIENT)
-    protected void findModelClass(TypeFile file)
+    protected void findModelClass()
     {
         if (!modelName.isBlank() && !modelName.equalsIgnoreCase("null") && !modelName.equalsIgnoreCase("none"))
         {
             String[] modelNameSplit = modelName.split("\\.");
             Path classFile;
-            FileSystem fs = FileUtils.createFileSystem(file.getContentPack());
+            FileSystem fs = FileUtils.createFileSystem(contentPack);
 
             if (modelNameSplit.length > 1)
             {
                 modelClassName = "com." + ArmorMod.FLANSMOD_ID + ".client.model." + modelNameSplit[0] + ".Model" + modelNameSplit[1];
-                classFile = file.getContentPack().getModelPath(modelClassName, fs);
+                classFile = contentPack.getModelPath(modelClassName, fs);
 
                 // Handle 1.12.2 package format
                 if (!Files.exists(classFile))
                 {
                     modelClassName = "com." + ArmorMod.FLANSMOD_ID + "." + modelNameSplit[0] + ".client.model.Model" + modelNameSplit[1];
-                    Path redirectFile = (fs != null) ? fs.getPath("redirect.info") : file.getContentPack().getPath().resolve("redirect.info");
+                    Path redirectFile = (fs != null) ? fs.getPath("redirect.info") : contentPack.getPath().resolve("redirect.info");
 
                     if (Files.exists(redirectFile))
                     {
@@ -106,32 +107,50 @@ public abstract class InfoType
                             ArmorMod.log.error("Could not open {}", redirectFile, e);
                         }
                     }
-                    classFile = file.getContentPack().getModelPath(modelClassName, fs);
+                    classFile = contentPack.getModelPath(modelClassName, fs);
                 }
             }
             else
             {
                 modelClassName = "com." + ArmorMod.FLANSMOD_ID + ".client.model.Model" + modelName;
-                classFile = file.getContentPack().getModelPath(modelClassName, fs);
+                classFile = contentPack.getModelPath(modelClassName, fs);
             }
+
+            String actualClassName = modelClassName;
 
             if (registeredModels.containsKey(modelClassName))
             {
                 IContentProvider otherContentPack = registeredModels.get(modelClassName);
-                FileSystem otherFs = FileUtils.createFileSystem(otherContentPack);
-                Path otherClassFile = otherContentPack.getModelPath(modelClassName, otherFs);
-
-                if (!FileUtils.hasSameFileBytesContent(classFile, otherClassFile))
+                if (!contentPack.equals(otherContentPack))
                 {
-                    ArmorMod.log.warn("Duplicate model class name {} in [{}] and [{}]", classFile, file.getContentPack().getName(), otherContentPack.getName());
-                }
+                    FileSystem otherFs = FileUtils.createFileSystem(otherContentPack);
+                    Path otherClassFile = otherContentPack.getModelPath(modelClassName, otherFs);
 
-                FileUtils.closeFileSystem(otherFs, otherContentPack);
+                    if (FileUtils.filesHaveDifferentBytesContent(classFile, otherClassFile))
+                    {
+                        actualClassName = findValidClassName(modelClassName);
+                        ArmorMod.log.info("Duplicate model class name {} in [{}] and [{}]. Renaming class to {} for [{}]", classFile, contentPack.getName(), otherContentPack.getName(), actualClassName, contentPack.getName());
+                    }
+
+                    FileUtils.closeFileSystem(otherFs, otherContentPack);
+                }
             }
 
-            FileUtils.closeFileSystem(fs, file.getContentPack());
-            registeredModels.putIfAbsent(modelClassName, file.getContentPack());
+            registeredModels.put(actualClassName, contentPack);
+            DynamicReference.storeOrUpdate(modelClassName, actualClassName, ContentManager.modelReferences.get(contentPack));
+
+            FileUtils.closeFileSystem(fs, contentPack);
         }
+    }
+
+    protected String findValidClassName(String className)
+    {
+        String newClassName = className;
+        for (int i = 2; registeredModels.containsKey(newClassName); i++)
+        {
+            newClassName = className + "_" + i;
+        }
+        return newClassName;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -172,6 +191,12 @@ public abstract class InfoType
     public String getModelClass()
     {
         return modelClassName;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public DynamicReference getActualModelClass()
+    {
+        return ContentManager.modelReferences.get(contentPack).get(modelClassName);
     }
 
     public EnumType getType()

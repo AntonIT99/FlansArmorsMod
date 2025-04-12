@@ -83,7 +83,7 @@ public class CustomArmorItem extends ArmorItem
         {
             try
             {
-                if (ClassLoaderUtils.loadAndModifyClass(type.getContentPack(), type.getModelClass()).getConstructor().newInstance() instanceof ModelCustomArmour modelCustomArmour)
+                if (ClassLoaderUtils.loadAndModifyClass(type.getContentPack(), type.getModelClass(), type.getActualModelClass().get()).getConstructor().newInstance() instanceof ModelCustomArmour modelCustomArmour)
                 {
                     model = modelCustomArmour;
                     model.setType(type);
@@ -187,7 +187,7 @@ public class CustomArmorItem extends ArmorItem
         if (Math.abs(type.getJumpModifier() - 1F) > 0.01F)
             tooltipComponents.add(Component.literal("+" + (int)((type.getJumpModifier() - 1F) * 100F) + "% Jump Height").withStyle(ChatFormatting.AQUA));
         // TODO: Implement Smoke Protection with Flan's grenades
-        //if(type.hasSmokeProtection())
+        //if (type.hasSmokeProtection())
         //    tooltipComponents.add(Component.literal("+Smoke Protection").withStyle(ChatFormatting.DARK_GREEN));
         if (type.hasNightVision())
             tooltipComponents.add(Component.literal("+Night Vision").withStyle(ChatFormatting.DARK_GREEN));

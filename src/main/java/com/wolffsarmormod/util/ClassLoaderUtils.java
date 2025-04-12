@@ -6,6 +6,7 @@ import com.wolffsmod.client.model.IModelBase;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -92,13 +93,13 @@ public class ClassLoaderUtils
         }
     }
 
-    public static Class<?> loadAndModifyClass(IContentProvider contentProvider, String className) throws IOException
+    public static Class<?> loadAndModifyClass(IContentProvider contentProvider, String fileClassName, String actualClassName) throws IOException
     {
-        Class<?> loadedClass = classLoader.findClass(className);
+        Class<?> loadedClass = classLoader.findClass(actualClassName);
         if (loadedClass != null)
             return loadedClass;
 
-        String relativeClassPath = className.replace('.', '/') + ".class";
+        String relativeClassPath = fileClassName.replace('.', '/') + ".class";
 
         byte[] classData;
 
@@ -115,19 +116,23 @@ public class ClassLoaderUtils
             throw new IllegalArgumentException(contentProvider.getPath() + " is not an existing directory or JAR/ZIP file.");
         }
 
+        return classLoader.defineClass(actualClassName, getModifiedClassData(classData, fileClassName.equals(actualClassName) ? null : actualClassName));
+    }
+
+    private static byte[] getModifiedClassData(byte[] classData, @Nullable String newClassName)
+    {
         ClassReader classReader = new ClassReader(classData);
         ClassWriter classWriter = new ClassWriter(classReader, 0);
 
-        ReferenceModifierClassVisitor classVisitor = new ReferenceModifierClassVisitor(classWriter,
+        ReferenceModifierClassVisitor classVisitor = new ReferenceModifierClassVisitor(
+                classWriter, (newClassName != null) ? newClassName.replace(".", "/") : null,
                 "net/minecraft/client/model/ModelBase",
                 "com/wolffsmod/client/model/IModelBase",
                 minecraftMethodMappings, minecraftFieldMappings);
 
         classReader.accept(classVisitor, 0);
 
-        byte[] modifiedClassData = classWriter.toByteArray();
-
-        return classLoader.defineClass(className, modifiedClassData);
+        return classWriter.toByteArray();
     }
 
     // Custom ClassLoader to define classes

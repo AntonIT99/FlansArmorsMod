@@ -464,6 +464,7 @@ public class ContentManager
             || (!Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("item")) && Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("items")))
             || (!Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("armor")) && Files.exists(provider.getAssetsPath(fs).resolve("armor")))
             || (!Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("gui")) && Files.exists(provider.getAssetsPath(fs).resolve("gui")))
+            || !Files.exists(provider.getAssetsPath(fs).resolve("lang"))
             || !Files.exists(provider.getAssetsPath(fs).resolve("lang").resolve("en_us.json"));
 
         FileUtils.closeFileSystem(fs, provider);

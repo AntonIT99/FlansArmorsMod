@@ -2,7 +2,7 @@ package com.wolffsarmormod.event;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wolffsarmormod.ArmorMod;
-import com.wolffsarmormod.common.CustomArmorItem;
+import com.wolffsarmormod.common.item.CustomArmorItem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;

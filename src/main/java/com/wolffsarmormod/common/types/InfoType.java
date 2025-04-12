@@ -5,6 +5,9 @@ import com.wolffsarmormod.ContentManager;
 import com.wolffsarmormod.IContentProvider;
 import com.wolffsarmormod.util.DynamicReference;
 import com.wolffsarmormod.util.FileUtils;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -21,19 +24,26 @@ import java.util.Map;
 import static com.wolffsarmormod.util.TypeReaderUtils.readValue;
 import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class InfoType
 {
     protected static final Map<String, IContentProvider> registeredModels = new HashMap<>();
 
+    @Getter
     protected EnumType type;
+    @Getter
     protected IContentProvider contentPack;
+    @Getter
     protected String name = StringUtils.EMPTY;
+    @Getter
     protected String shortName = StringUtils.EMPTY;
+    @Getter
     protected String description = StringUtils.EMPTY;
     protected String modelName = StringUtils.EMPTY;
     protected String modelClassName = StringUtils.EMPTY;
     protected String icon = StringUtils.EMPTY;
     protected String textureName = StringUtils.EMPTY;
+    @Getter
     protected float modelScale = 1F;
 
     public void read(TypeFile file)
@@ -94,12 +104,9 @@ public abstract class InfoType
                         try
                         {
                             List<String> lines = Files.readAllLines(redirectFile);
-                            if (lines.size() > 1)
+                            if (lines.size() > 1 && modelNameSplit[0].equals(lines.get(0)))
                             {
-                                if (modelNameSplit[0].equals(lines.get(0)))
-                                {
-                                    modelClassName = lines.get(1) + ".Model" + modelNameSplit[1];
-                                }
+                                modelClassName = lines.get(1) + ".Model" + modelNameSplit[1];
                             }
                         }
                         catch (IOException e)
@@ -118,25 +125,22 @@ public abstract class InfoType
 
             String actualClassName = modelClassName;
 
-            if (registeredModels.containsKey(modelClassName))
+            if (registeredModels.containsKey(modelClassName) && !contentPack.equals(registeredModels.get(modelClassName)))
             {
                 IContentProvider otherContentPack = registeredModels.get(modelClassName);
-                if (!contentPack.equals(otherContentPack))
+                FileSystem otherFs = FileUtils.createFileSystem(otherContentPack);
+                Path otherClassFile = otherContentPack.getModelPath(modelClassName, otherFs);
+
+                if (FileUtils.filesHaveDifferentBytesContent(classFile, otherClassFile))
                 {
-                    FileSystem otherFs = FileUtils.createFileSystem(otherContentPack);
-                    Path otherClassFile = otherContentPack.getModelPath(modelClassName, otherFs);
-
-                    if (FileUtils.filesHaveDifferentBytesContent(classFile, otherClassFile))
-                    {
-                        actualClassName = findValidClassName(modelClassName);
-                        ArmorMod.log.info("Duplicate model class name {} in [{}] and [{}]. Renaming class to {} for [{}]", classFile, contentPack.getName(), otherContentPack.getName(), actualClassName, contentPack.getName());
-                    }
-
-                    FileUtils.closeFileSystem(otherFs, otherContentPack);
+                    actualClassName = findValidClassName(modelClassName);
+                    ArmorMod.log.info("Duplicate model class name {} renamed at runtime to {} in [{}] to avoid a conflict with [{}].", modelClassName, actualClassName, contentPack.getName(), otherContentPack.getName());
                 }
+
+                FileUtils.closeFileSystem(otherFs, otherContentPack);
             }
 
-            registeredModels.put(actualClassName, contentPack);
+            registeredModels.putIfAbsent(actualClassName, contentPack);
             DynamicReference.storeOrUpdate(modelClassName, actualClassName, ContentManager.modelReferences.get(contentPack));
 
             FileUtils.closeFileSystem(fs, contentPack);
@@ -151,34 +155,6 @@ public abstract class InfoType
             newClassName = className + "_" + i;
         }
         return newClassName;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    abstract public DynamicReference getTexture();
-
-    public IContentProvider getContentPack()
-    {
-        return contentPack;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public String getShortName()
-    {
-        return shortName;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public float getModelScale()
-    {
-        return modelScale;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -197,10 +173,5 @@ public abstract class InfoType
     public DynamicReference getActualModelClass()
     {
         return ContentManager.modelReferences.get(contentPack).get(modelClassName);
-    }
-
-    public EnumType getType()
-    {
-        return type;
     }
 }

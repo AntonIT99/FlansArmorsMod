@@ -2,6 +2,7 @@ package com.wolffsarmormod;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.wolffsarmormod.common.item.ItemFactory;
 import com.wolffsarmormod.common.types.EnumType;
 import com.wolffsarmormod.common.types.InfoType;
 import com.wolffsarmormod.common.types.TypeFile;
@@ -16,7 +17,6 @@ import org.apache.commons.io.FilenameUtils;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
@@ -326,20 +326,15 @@ public class ContentManager
     private void registerItem(String shortName, InfoType config, TypeFile typeFile, Class<? extends InfoType> typeClass)
     {
         registeredItems.put(shortName, typeFile.toString());
-        ArmorMod.registerItem(shortName, () ->
+        ArmorMod.registerItem(shortName, config.getType(), () ->
         {
             try
             {
-                return typeFile.getType().getItemClass().getConstructor(typeClass).newInstance(typeClass.cast(config));
-            }
-            catch (InvocationTargetException e)
-            {
-                ArmorMod.log.error("Constructor of {} threw an exception: {}", typeFile.getType().getItemClass(), e.getCause().getMessage(), e.getCause());
-                return null;
+                return ItemFactory.createItem(config);
             }
             catch (Exception e)
             {
-                ArmorMod.log.error("Failed to instantiate item {}", typeFile, e);
+                ArmorMod.log.error("Failed to instantiate {} item {} [{}] in [{}]", config.getType().getDisplayName(), config.getShortName(), typeFile.getName(), config.getContentPack().getName(), e);
                 return null;
             }
         });
@@ -546,7 +541,8 @@ public class ContentManager
 
     private void generateItemJson(InfoType config, Path outputFolder, IContentProvider provider)
     {
-        ResourceUtils.ItemModel model = new ResourceUtils.ItemModel("item/generated", new ResourceUtils.Textures(ArmorMod.FLANSMOD_ID + ":item/" + config.getIcon()));
+        ResourceUtils.ItemModel model = ResourceUtils.ItemModel.create(config);
+
         String jsonContent = gson.toJson(model);
         String shortName = config.getShortName();
 

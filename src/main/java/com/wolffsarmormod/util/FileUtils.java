@@ -113,7 +113,7 @@ public class FileUtils
             }
             catch (IOException e)
             {
-                ArmorMod.log.error("Failed to close {}", provider.getPath().toString(), e);
+                ArmorMod.log.error("Failed to close {}", provider.getPath(), e);
             }
         }
     }

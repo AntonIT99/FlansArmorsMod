@@ -1,4 +1,4 @@
-package com.wolffsarmormod.common;
+package com.wolffsarmormod.common.item;
 
 import com.wolffsarmormod.common.types.ArmourType;
 import org.jetbrains.annotations.NotNull;

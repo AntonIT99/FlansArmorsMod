@@ -1,6 +1,7 @@
 package com.wolffsarmormod;
 
 import com.mojang.logging.LogUtils;
+import com.wolffsarmormod.common.types.EnumType;
 import com.wolffsarmormod.config.ModClientConfigs;
 import com.wolffsarmormod.config.ModCommonConfigs;
 import net.minecraftforge.common.MinecraftForge;
@@ -23,7 +24,11 @@ import net.minecraft.world.item.ItemStack;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 
 @Mod(ArmorMod.MOD_ID)
@@ -39,7 +44,7 @@ public class ArmorMod
     public static Path fallbackFlanPath = FMLPaths.GAMEDIR.get().resolve("Flan");
 
     public static final ContentManager contentManager = new ContentManager();
-    public static final List<RegistryObject<Item>> items = new ArrayList<>();
+    public static final Map<EnumType, List<RegistryObject<Item>>> items = new HashMap<>();
 
     private static final DeferredRegister<Item> itemRegistry = DeferredRegister.create(ForgeRegistries.ITEMS, ArmorMod.FLANSMOD_ID);
     private static final DeferredRegister<CreativeModeTab> creativeModeTabRegistry = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ArmorMod.MOD_ID);
@@ -52,6 +57,7 @@ public class ArmorMod
         context.registerConfig(ModConfig.Type.COMMON, ModCommonConfigs.CONFIG);
         context.registerConfig(ModConfig.Type.CLIENT, ModClientConfigs.CONFIG);
 
+        Arrays.stream(EnumType.values()).forEach(type -> items.put(type, new ArrayList<>()));
         itemRegistry.register(eventBus);
         creativeModeTabRegistry.register(eventBus);
 
@@ -62,18 +68,23 @@ public class ArmorMod
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    public static void registerItem(String itemName, Supplier<? extends Item> initItem)
+    private void registerCreativeModeTabs()
     {
-        items.add(itemRegistry.register(itemName, initItem));
+        registerCreativeTab("armors", items.get(EnumType.ARMOR));
+        registerCreativeTab("guns", items.get(EnumType.GUN));
     }
 
-    public void registerCreativeModeTabs()
+    private void registerCreativeTab(String name, List<RegistryObject<Item>> itemsForTab) {
+        creativeModeTabRegistry.register(name, () -> CreativeModeTab.builder()
+                .title(Component.translatable("creativetab." + MOD_ID + "." + name))
+                .icon(() -> new ItemStack(itemsForTab.get(ThreadLocalRandom.current().nextInt(0, items.size())).get()))
+                .displayItems((parameters, output) -> itemsForTab.forEach(item -> output.accept(item.get())))
+                .withSearchBar()
+                .build());
+    }
+
+    public static void registerItem(String itemName, EnumType type, Supplier<? extends Item> initItem)
     {
-        creativeModeTabRegistry.register("custom_tab", () -> CreativeModeTab.builder()
-            .title(Component.translatable("creativetab." + MOD_ID + ".custom_tab"))
-            .icon(() -> new ItemStack(items.get(0).get()))
-            .displayItems((parameters, output) -> items.forEach(item -> output.accept(item.get())))
-            .withSearchBar()
-            .build());
+        items.get(type).add(itemRegistry.register(itemName, initItem));
     }
 }

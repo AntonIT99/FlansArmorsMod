@@ -1,4 +1,4 @@
-package com.wolffsarmormod.common;
+package com.wolffsarmormod.common.item;
 
 import com.flansmod.client.model.ModelCustomArmour;
 import com.google.common.collect.ImmutableMultimap;
@@ -6,14 +6,13 @@ import com.google.common.collect.Multimap;
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.client.model.armor.DefaultArmor;
 import com.wolffsarmormod.common.types.ArmourType;
-import com.wolffsarmormod.config.ModClientConfigs;
 import com.wolffsarmormod.config.ModCommonConfigs;
 import com.wolffsarmormod.util.ClassLoaderUtils;
+import lombok.Getter;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,19 +41,20 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class CustomArmorItem extends ArmorItem
+public class CustomArmorItem extends ArmorItem implements IConfigurableItem<ArmourType>
 {
     protected static final UUID[] uuid = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
 
-    protected final ArmourType type;
+    @Getter
+    protected final ArmourType configType;
     protected ModelCustomArmour model;
     protected ResourceLocation texture;
     protected ResourceLocation overlay;
 
-    public CustomArmorItem(ArmourType type)
+    public CustomArmorItem(ArmourType configType)
     {
-        super(new CustomArmorMaterial(type), type.getArmorType(), new Item.Properties());
-        this.type = type;
+        super(new CustomArmorMaterial(configType), configType.getArmorType(), new Item.Properties());
+        this.configType = configType;
 
         if (FMLEnvironment.dist == Dist.CLIENT)
             clientSideInit();
@@ -65,44 +65,44 @@ public class CustomArmorItem extends ArmorItem
     {
         loadModel();
 
-        if (StringUtils.isNotBlank(type.getTexture().get()))
+        if (StringUtils.isNotBlank(configType.getTexture().get()))
         {
-            texture = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/armor/" + type.getTexture().get() + (type.getArmorType() != ArmorItem.Type.LEGGINGS ? "_1" : "_2") + ".png");
+            texture = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/armor/" + configType.getTexture().get() + (configType.getArmorType() != ArmorItem.Type.LEGGINGS ? "_1" : "_2") + ".png");
             model.setTexture(texture);
         }
 
-        if (StringUtils.isNotBlank(type.getOverlay().get()))
+        if (StringUtils.isNotBlank(configType.getOverlay().get()))
         {
-            overlay = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/gui/" + type.getOverlay().get() + ".png");
+            overlay = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/gui/" + configType.getOverlay().get() + ".png");
         }
     }
 
     @OnlyIn(Dist.CLIENT)
     protected void loadModel()
     {
-        if (!type.getModelClass().isBlank())
+        if (!configType.getModelClass().isBlank())
         {
             try
             {
-                if (ClassLoaderUtils.loadAndModifyClass(type.getContentPack(), type.getModelClass(), type.getActualModelClass().get()).getConstructor().newInstance() instanceof ModelCustomArmour modelCustomArmour)
+                if (ClassLoaderUtils.loadAndModifyClass(configType.getContentPack(), configType.getModelClass(), configType.getActualModelClass().get()).getConstructor().newInstance() instanceof ModelCustomArmour modelCustomArmour)
                 {
                     model = modelCustomArmour;
-                    model.setType(type);
+                    model.setType(configType);
                 }
                 else
                 {
-                    ArmorMod.log.error("Could not load model class {} from {}: class is not a Model.", type.getModelClass(), type.getContentPack().getPath());
+                    ArmorMod.log.error("Could not load model class {} from {}: class is not a Model.", configType.getModelClass(), configType.getContentPack().getPath());
                 }
             }
             catch (Exception e)
             {
-                ArmorMod.log.error("Could not load model class {} from {}", type.getModelClass(), type.getContentPack().getPath(), e);
+                ArmorMod.log.error("Could not load model class {} from {}", configType.getModelClass(), configType.getContentPack().getPath(), e);
             }
         }
 
         if (model == null)
         {
-            model = new DefaultArmor(type.getArmorType());
+            model = new DefaultArmor(configType.getArmorType());
         }
     }
 
@@ -113,27 +113,27 @@ public class CustomArmorItem extends ArmorItem
 
         if (!level.isClientSide && isArmorSlot(slotIndex, player.getInventory()))
         {
-            if (type.hasNightVision() && ArmorMod.ticker % 25 == 0)
+            if (configType.hasNightVision() && ArmorMod.ticker % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 250, 0, true, false));
-            if (type.hasInvisiblility() && ArmorMod.ticker % 25 == 0)
+            if (configType.hasInvisiblility() && ArmorMod.ticker % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 250, 0, true, false));
-            if (type.getJumpModifier() > 1.01F && ArmorMod.ticker % 25 == 0)
-                player.addEffect(new MobEffectInstance(MobEffects.JUMP, 250, (int) ((type.getJumpModifier() - 1F) * 2F), true, false));
-            if (type.hasFireResistance() && ArmorMod.ticker % 25 == 0)
+            if (configType.getJumpModifier() > 1.01F && ArmorMod.ticker % 25 == 0)
+                player.addEffect(new MobEffectInstance(MobEffects.JUMP, 250, (int) ((configType.getJumpModifier() - 1F) * 2F), true, false));
+            if (configType.hasFireResistance() && ArmorMod.ticker % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 250, 0, true, false));
-            if (type.hasWaterBreathing() && ArmorMod.ticker % 25 == 0)
+            if (configType.hasWaterBreathing() && ArmorMod.ticker % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 250, 0, true, false));
-            if (type.hasHunger() && ArmorMod.ticker % 25 == 0)
+            if (configType.hasHunger() && ArmorMod.ticker % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.HUNGER, 250, 0, true, false));
-            if (type.hasRegeneration() && ArmorMod.ticker % 25 == 0)
+            if (configType.hasRegeneration() && ArmorMod.ticker % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 250, 0, true, false));
-            if (!type.getEffects().isEmpty() && ArmorMod.ticker % 25 == 0)
+            if (!configType.getEffects().isEmpty() && ArmorMod.ticker % 25 == 0)
             {
-                type.getEffects().forEach((effect, amplifier) -> player.addEffect(new MobEffectInstance(effect, 250, amplifier, true, false)));
+                configType.getEffects().forEach((effect, amplifier) -> player.addEffect(new MobEffectInstance(effect, 250, amplifier, true, false)));
             }
-            if (type.hasNegateFallDamage())
+            if (configType.hasNegateFallDamage())
                 player.fallDistance = 0F;
-            if (type.hasOnWaterWalking())
+            if (configType.hasOnWaterWalking())
             {
                 if (player.isInWater())
                 {
@@ -158,7 +158,7 @@ public class CustomArmorItem extends ArmorItem
     {
         //0 = Non-breakable, 1 = All breakable, 2 = Refer to armor config
         int breakType = ModCommonConfigs.breakableArmor.get();
-        return (breakType == 2 && type.hasDurability()) || breakType == 1;
+        return (breakType == 2 && configType.hasDurability()) || breakType == 1;
     }
 
     @Override
@@ -175,30 +175,22 @@ public class CustomArmorItem extends ArmorItem
     public void appendHoverText(@NotNull ItemStack stack, @Nullable Level level, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag isAdvanced)
     {
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
+        appendHoverText(tooltipComponents);
 
-        if (ModClientConfigs.showPackNameInItemDescriptions.get() && !getContentPack().isBlank())
-            tooltipComponents.add(Component.literal(getContentPack()).withStyle(ChatFormatting.GRAY));
-
-        for (String line : type.getDescription().split("_"))
-        {
-            if (!line.isBlank())
-                tooltipComponents.add(Component.literal(line));
-        }
-
-        if (Math.abs(type.getJumpModifier() - 1F) > 0.01F)
-            tooltipComponents.add(Component.literal("+" + (int)((type.getJumpModifier() - 1F) * 100F) + "% Jump Height").withStyle(ChatFormatting.AQUA));
+        if (Math.abs(configType.getJumpModifier() - 1F) > 0.01F)
+            tooltipComponents.add(Component.literal("+" + (int)((configType.getJumpModifier() - 1F) * 100F) + "% Jump Height").withStyle(ChatFormatting.AQUA));
         // TODO: Implement Smoke Protection with Flan's grenades
         //if (type.hasSmokeProtection())
         //    tooltipComponents.add(Component.literal("+Smoke Protection").withStyle(ChatFormatting.DARK_GREEN));
-        if (type.hasNightVision())
+        if (configType.hasNightVision())
             tooltipComponents.add(Component.literal("+Night Vision").withStyle(ChatFormatting.DARK_GREEN));
-        if (type.hasInvisiblility())
+        if (configType.hasInvisiblility())
             tooltipComponents.add(Component.literal("+Invisibility").withStyle(ChatFormatting.DARK_GREEN));
-        if (type.hasNegateFallDamage())
+        if (configType.hasNegateFallDamage())
             tooltipComponents.add(Component.literal("+Negates Fall Damage").withStyle(ChatFormatting.DARK_GREEN));
-        if (type.hasFireResistance())
+        if (configType.hasFireResistance())
             tooltipComponents.add(Component.literal("+Fire Resistance").withStyle(ChatFormatting.DARK_GREEN));
-        if (type.hasWaterBreathing())
+        if (configType.hasWaterBreathing())
             tooltipComponents.add(Component.literal("+Water Breathing").withStyle(ChatFormatting.DARK_GREEN));
     }
 
@@ -221,23 +213,18 @@ public class CustomArmorItem extends ArmorItem
     public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(@NotNull EquipmentSlot pEquipmentSlot) {
         Multimap<Attribute, AttributeModifier> modifiers = super.getDefaultAttributeModifiers(pEquipmentSlot);
 
-        if (pEquipmentSlot == type.getArmorType().getSlot())
+        if (pEquipmentSlot == configType.getArmorType().getSlot())
         {
             ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
             builder.putAll(modifiers);
             builder.put(Attributes.MOVEMENT_SPEED,
-                    new AttributeModifier(uuid[type.getArmorType().getSlot().getIndex()], "Movement Speed", type.getMoveSpeedModifier() - 1F, AttributeModifier.Operation.MULTIPLY_TOTAL));
+                    new AttributeModifier(uuid[configType.getArmorType().getSlot().getIndex()], "Movement Speed", configType.getMoveSpeedModifier() - 1F, AttributeModifier.Operation.MULTIPLY_TOTAL));
             builder.put(Attributes.KNOCKBACK_RESISTANCE,
-                    new AttributeModifier(uuid[type.getArmorType().getSlot().getIndex()], "Knockback Resistance", type.getKnockbackModifier(), AttributeModifier.Operation.ADDITION));
+                    new AttributeModifier(uuid[configType.getArmorType().getSlot().getIndex()], "Knockback Resistance", configType.getKnockbackModifier(), AttributeModifier.Operation.ADDITION));
             return builder.build();
         }
 
         return modifiers;
-    }
-
-    public String getContentPack()
-    {
-        return FilenameUtils.getBaseName(type.getContentPack().getName());
     }
 
     @OnlyIn(Dist.CLIENT)

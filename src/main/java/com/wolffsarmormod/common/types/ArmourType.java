@@ -3,6 +3,8 @@ package com.wolffsarmormod.common.types;
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.ContentManager;
 import com.wolffsarmormod.util.DynamicReference;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -18,18 +20,32 @@ import java.util.Map;
 import static com.wolffsarmormod.util.TypeReaderUtils.readValue;
 import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
 
+@NoArgsConstructor
 public class ArmourType extends InfoType
 {
-    protected ArmorItem.Type armorType;
     protected String rawType = StringUtils.EMPTY;
     protected String overlayName = StringUtils.EMPTY;
+    @Getter
+    protected ArmorItem.Type armorType;
+    /** The amount of damage to absorb. From 0 to 1. Stacks additively between armour pieces */
+    @Getter
     protected double defence;
+    @Getter
     protected int damageReductionAmount;
+    @Getter
     protected int durability;
+    @Getter
     protected int toughness;
+    @Getter
     protected int enchantability = 10;
+    /** Modifier for move speed */
+    @Getter
     protected float moveSpeedModifier = 1F;
+    /** Modifier for knockback */
+    @Getter
     protected float knockbackModifier = 0.2F;
+    /** Modifier for jump (jump boost effect every couple of seconds) */
+    @Getter
     protected float jumpModifier = 1F;
     protected boolean nightVision;
     protected boolean invisible;
@@ -40,6 +56,8 @@ public class ArmourType extends InfoType
     protected boolean onWaterWalking;
     protected boolean hunger;
     protected boolean regeneration;
+    /** Map of effects and effect Amplifiers */
+    @Getter
     protected Map<MobEffect, Integer> effects = new HashMap<>();
 
     @Override
@@ -130,7 +148,6 @@ public class ArmourType extends InfoType
     }
 
     @OnlyIn(Dist.CLIENT)
-    @Override
     public DynamicReference getTexture()
     {
         return ContentManager.armorTextureReferences.get(contentPack).get(textureName);
@@ -145,66 +162,9 @@ public class ArmourType extends InfoType
         return ContentManager.guiTextureReferences.get(contentPack).get(overlayName);
     }
 
-    public ArmorItem.Type getArmorType()
-    {
-        return armorType;
-    }
-
-    /**
-     * The amount of damage to absorb. From 0 to 1. Stacks additively between armour pieces
-     */
-    public double getDefence()
-    {
-        return defence;
-    }
-
-    public int getDamageReductionAmount()
-    {
-        return damageReductionAmount;
-    }
-
-    public int getDurability()
-    {
-        return durability;
-    }
-
     public boolean hasDurability()
     {
         return durability > 0;
-    }
-
-    public int getToughness()
-    {
-        return toughness;
-    }
-
-    public int getEnchantability()
-    {
-        return enchantability;
-    }
-
-    /**
-     * Modifier for jump (jump boost effect every couple of seconds)
-     */
-    public float getJumpModifier()
-    {
-        return jumpModifier;
-    }
-
-    /**
-     * Modifier for knockback
-     */
-    public float getKnockbackModifier()
-    {
-        return knockbackModifier;
-    }
-
-    /**
-     * Modifier for move speed
-     */
-    public float getMoveSpeedModifier()
-    {
-        return moveSpeedModifier;
     }
 
     /**
@@ -277,13 +237,5 @@ public class ArmourType extends InfoType
     public boolean hasRegeneration()
     {
         return regeneration;
-    }
-
-    /**
-     * Map of effects and effect Amplifiers
-     */
-    public Map<MobEffect, Integer> getEffects()
-    {
-        return effects;
     }
 }

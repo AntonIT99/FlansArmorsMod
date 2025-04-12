@@ -2,7 +2,7 @@ package com.wolffsarmormod.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsarmormod.common.CustomArmorItem;
+import com.wolffsarmormod.common.item.CustomArmorItem;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;

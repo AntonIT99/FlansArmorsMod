@@ -486,7 +486,7 @@ public class ContentManager
         try (AliasFileManager fileManager = new AliasFileManager(fileName, provider))
         {
             Optional<Map<String, String>> mapping = fileManager.readFile();
-            return mapping.isEmpty() || mapping.get().equals(aliasMapping);
+            return mapping.isEmpty() || !mapping.get().equals(aliasMapping);
         }
     }
 

@@ -71,7 +71,7 @@ public interface IModelItem<T extends InfoType, M extends IFlanModel<T>> extends
                 }
                 catch (Exception | NoClassDefFoundError | ClassFormatError e)
                 {
-                    ArmorMod.log.error("Could not load model class {} for {} item {} from {}", className, configType.getType().getDisplayName(), configType.getShortName(), contentPack.getName());
+                    ArmorMod.log.error("Could not load model class {} for {}", className, configType);
                     LogUtils.logWithoutStacktrace(e);
                 }
             }

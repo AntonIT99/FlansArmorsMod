@@ -46,4 +46,10 @@ public enum EnumType
     {
         return Arrays.stream(EnumType.values()).filter(type -> StringUtils.equals(type.getConfigFolderName(), folderName)).findFirst();
     }
+
+    @Override
+    public String toString()
+    {
+        return displayName;
+    }
 }

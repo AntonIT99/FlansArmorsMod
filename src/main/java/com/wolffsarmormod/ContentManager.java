@@ -9,6 +9,7 @@ import com.wolffsarmormod.common.types.TypeFile;
 import com.wolffsarmormod.util.AliasFileManager;
 import com.wolffsarmormod.util.DynamicReference;
 import com.wolffsarmormod.util.FileUtils;
+import com.wolffsarmormod.util.LogUtils;
 import com.wolffsarmormod.util.ResourceUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -333,7 +334,8 @@ public class ContentManager
             }
             catch (Exception e)
             {
-                ArmorMod.log.error("Failed to add {}", typeFile, e);
+                ArmorMod.log.error("Failed to add {}", typeFile);
+                LogUtils.logWithoutStacktrace(e);
             }
         }
     }
@@ -370,7 +372,8 @@ public class ContentManager
             }
             catch (Exception e)
             {
-                ArmorMod.log.error("Failed to instantiate {} item {} [{}] in [{}]", config.getType().getDisplayName(), config.getShortName(), typeFile.getName(), config.getContentPack().getName(), e);
+                ArmorMod.log.error("Failed to instantiate {}", config);
+                LogUtils.logWithoutStacktrace(e);
                 return null;
             }
         });

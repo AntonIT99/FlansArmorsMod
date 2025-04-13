@@ -27,6 +27,8 @@ import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
 public abstract class InfoType
 {
     @Getter
+    protected String fileName;
+    @Getter
     protected EnumType type;
     @Getter
     protected IContentProvider contentPack;
@@ -46,6 +48,7 @@ public abstract class InfoType
 
     public void read(TypeFile file)
     {
+        fileName = file.getName();
         contentPack = file.getContentPack();
         type = file.getType();
 
@@ -223,5 +226,11 @@ public abstract class InfoType
             return ContentManager.getGuiTextureReferences().get(contentPack).get(overlayName);
         }
         return null;
+    }
+
+    @Override
+    public String toString()
+    {
+        return String.format("%s item '%s' [%s] in [%s]", type, shortName, fileName, contentPack.getName());
     }
 }

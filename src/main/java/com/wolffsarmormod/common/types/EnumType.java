@@ -1,5 +1,6 @@
 package com.wolffsarmormod.common.types;
 
+import com.wolffsarmormod.ContentManager;
 import com.wolffsarmormod.common.item.CustomArmorItem;
 import com.wolffsarmormod.common.item.GunItem;
 import com.wolffsarmormod.common.item.IConfigurableItem;
@@ -14,8 +15,8 @@ import java.util.Optional;
 @Getter
 public enum EnumType
 {
-    ARMOR("armor", "armorFiles", "armor", ArmorType.class, CustomArmorItem.class, false),
-    GUN("gun", "guns", "skins", GunType.class, GunItem.class, false);
+    ARMOR("armor", "armorFiles", ContentManager.TEXTURES_ARMOR_FOLDER, ArmorType.class, CustomArmorItem.class, false),
+    GUN("gun", "guns", ContentManager.TEXTURES_SKINS_FOLDER, GunType.class, GunItem.class, false);
 
     private final String displayName;
     private final String configFolderName;

@@ -10,6 +10,7 @@ import com.wolffsarmormod.util.AliasFileManager;
 import com.wolffsarmormod.util.DynamicReference;
 import com.wolffsarmormod.util.FileUtils;
 import com.wolffsarmormod.util.ResourceUtils;
+import lombok.Getter;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.commons.io.FilenameUtils;
@@ -36,37 +37,55 @@ import java.util.stream.Stream;
 
 public class ContentManager
 {
-    public static Path flanFolder;
+    public static final ContentManager INSTANCE = new ContentManager();
+
+    public static final String TEXTURES_ARMOR_FOLDER = "armor";
+    public static final String TEXTURES_GUI_FOLDER = "gui";
+    public static final String TEXTURES_SKINS_FOLDER = "skins";
+
+    @Getter
+    private static Path flanFolder;
 
     // Mappings which allow to use aliases for duplicate short names and texture names (also contain unmodified references)
     // The idea behind dynamic references is to allow references to shortnames and textures to change
     // even after configs are registered (as long as item classes have not been instantiated yet)
-    public static final Map<IContentProvider, Map<String, DynamicReference>> shortnameReferences = new HashMap<>();
-    public static final Map<IContentProvider, Map<String, DynamicReference>> armorTextureReferences = new HashMap<>();
-    public static final Map<IContentProvider, Map<String, DynamicReference>> guiTextureReferences = new HashMap<>();
-    public static final Map<IContentProvider, Map<String, DynamicReference>> skinsTextureReferences = new HashMap<>();
-    public static final Map<IContentProvider, Map<String, DynamicReference>> modelReferences = new HashMap<>();
+    @Getter
+    private static final Map<IContentProvider, Map<String, DynamicReference>> shortnameReferences = new HashMap<>();
+    @Getter
+    private static final Map<IContentProvider, Map<String, DynamicReference>> armorTextureReferences = new HashMap<>();
+    @Getter
+    private static final Map<IContentProvider, Map<String, DynamicReference>> guiTextureReferences = new HashMap<>();
+    @Getter
+    private static final Map<IContentProvider, Map<String, DynamicReference>> skinsTextureReferences = new HashMap<>();
+    @Getter
+    private static final Map<IContentProvider, Map<String, DynamicReference>> modelReferences = new HashMap<>();
 
-    private static final String shortnamesAliasFile = "id_alias.json";
-    private static final String armorTexturesAliasFile = "armor_textures_alias.json";
-    private static final String guiTexturesAliasFile = "gui_textures_alias.json";
+    private static final String ID_ALIAS_FILE = "id_alias.json";
+    private static final String ARMOR_TEXTURES_ALIAS_FILE = "armor_textures_alias.json";
+    private static final String GUI_TEXTURES_ALIAS_FILE = "gui_textures_alias.json";
+
+    private static final List<IContentProvider> contentPacks = new ArrayList<>();
+    private static final Map<IContentProvider, ArrayList<TypeFile>> files = new HashMap<>();
+    private static final Map<IContentProvider, ArrayList<InfoType>> configs = new HashMap<>();
+
+    // Keep track of registered items and loaded textures and models
+    /** &lt; shortname, config file string representation &gt; */
+    private static final Map<String, String> registeredItems = new HashMap<>();
+    /** &lt; folder name, &lt;lowercase name, texture file &gt;&gt; */
+    private static final Map<String, Map<String, TextureFile>> textures = new HashMap<>();
+    /** &lt; model class name, &lt; contentPack &gt;&gt; */
+    @Getter
+    private static final Map<String, IContentProvider> registeredModels = new HashMap<>();
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    private final List<IContentProvider> contentPacks = new ArrayList<>();
-    private final Map<IContentProvider, ArrayList<TypeFile>> files = new HashMap<>();
-    private final Map<IContentProvider, ArrayList<InfoType>> configs = new HashMap<>();
-
-    // Keep track of registered items and loaded textures
-    private final Map<String, String> registeredItems = new HashMap<>(); // <shortname, config file name>
-    private final Map<String, Map<String, TextureFile>> textures = new HashMap<>(); // <folder name, <lowercase name, texture file>>
-
     private record TextureFile(String name, IContentProvider contentPack) {}
 
-    public ContentManager()
+    private ContentManager()
     {
-        textures.put("armor", new HashMap<>());
-        textures.put("gui", new HashMap<>());
+        textures.put(TEXTURES_ARMOR_FOLDER, new HashMap<>());
+        textures.put(TEXTURES_GUI_FOLDER, new HashMap<>());
+        textures.put(TEXTURES_SKINS_FOLDER, new HashMap<>());
     }
 
     public void findContentInFlanFolder()
@@ -123,19 +142,20 @@ public class ContentManager
             if (archiveExtracted || !provider.isArchive())
             {
                 createMcMeta(provider);
-                writeToAliasMappingFile(shortnamesAliasFile, provider,DynamicReference.getAliasMapping(shortnameReferences.get(provider)));
+                writeToAliasMappingFile(ID_ALIAS_FILE, provider,DynamicReference.getAliasMapping(shortnameReferences.get(provider)));
             }
 
             // preLoadAssets -> archive extracted
             if (preLoadAssets)
             {
-                writeToAliasMappingFile(armorTexturesAliasFile, provider, DynamicReference.getAliasMapping(armorTextureReferences.get(provider)));
-                writeToAliasMappingFile(guiTexturesAliasFile, provider, DynamicReference.getAliasMapping(guiTextureReferences.get(provider)));
+                writeToAliasMappingFile(ARMOR_TEXTURES_ALIAS_FILE, provider, DynamicReference.getAliasMapping(armorTextureReferences.get(provider)));
+                writeToAliasMappingFile(GUI_TEXTURES_ALIAS_FILE, provider, DynamicReference.getAliasMapping(guiTextureReferences.get(provider)));
                 createItemJsonFiles(provider);
                 createLocalization(provider);
                 copyItemIcons(provider);
-                copyTextures(provider, "armor", armorTextureReferences.get(provider));
-                copyTextures(provider, "gui", guiTextureReferences.get(provider));
+                copyTextures(provider, TEXTURES_ARMOR_FOLDER, armorTextureReferences.get(provider));
+                copyTextures(provider, TEXTURES_GUI_FOLDER, guiTextureReferences.get(provider));
+                copyTextures(provider, TEXTURES_SKINS_FOLDER, guiTextureReferences.get(provider));
                 createSounds(provider);
             }
 
@@ -145,11 +165,12 @@ public class ContentManager
             }
 
             long endTime = System.currentTimeMillis();
-            ArmorMod.log.info("Loaded content pack {} in {} ms.", provider.getName(), String.format("%,d", endTime - startTime));
+            String loadingTimeMs = String.format("%,d", endTime - startTime);
+            ArmorMod.log.info("Loaded content pack {} in {} ms.", provider.getName(), loadingTimeMs);
         }
     }
 
-    private void loadFlanFolder()
+    private static void loadFlanFolder()
     {
         if (!Files.exists(ArmorMod.flanPath) && !Files.exists(ArmorMod.fallbackFlanPath))
         {
@@ -214,17 +235,17 @@ public class ContentManager
                 }
                 else if (Files.isRegularFile(path))
                 {
-                    if (path.getFileName().toString().equals(shortnamesAliasFile))
+                    if (path.getFileName().toString().equals(ID_ALIAS_FILE))
                     {
                         readAliasMappingFile(path.getFileName().toString(), provider, shortnameReferences);
                     }
                     if (FMLEnvironment.dist == Dist.CLIENT)
                     {
-                        if (path.getFileName().toString().equals(armorTexturesAliasFile))
+                        if (path.getFileName().toString().equals(ARMOR_TEXTURES_ALIAS_FILE))
                         {
                             readAliasMappingFile(path.getFileName().toString(), provider, armorTextureReferences);
                         }
-                        if (path.getFileName().toString().equals(guiTexturesAliasFile))
+                        if (path.getFileName().toString().equals(GUI_TEXTURES_ALIAS_FILE))
                         {
                             readAliasMappingFile(path.getFileName().toString(), provider, guiTextureReferences);
                         }
@@ -289,7 +310,7 @@ public class ContentManager
                     {
                         String shortName = findValidShortName(config.getShortName(), contentPack, typeFile);
                         DynamicReference.storeOrUpdate(config.getShortName(), shortName, shortnameReferences.get(contentPack));
-                        registerItem(shortName, config, typeFile, typeClass);
+                        registerItem(shortName, config, typeFile);
                     }
                     configs.get(typeFile.getContentPack()).add(config);
                 }
@@ -305,7 +326,7 @@ public class ContentManager
         }
     }
 
-    private String findValidShortName(String originalShortname, IContentProvider provider, TypeFile typeFile)
+    private String findValidShortName(String originalShortname, IContentProvider provider, TypeFile file)
     {
         String shortname = originalShortname;
         if (registeredItems.containsKey(originalShortname) && shortnameReferences.get(provider).containsKey(originalShortname)) {
@@ -316,15 +337,17 @@ public class ContentManager
         for (int i = 2; registeredItems.containsKey(newShortname); i++)
             newShortname = originalShortname + "_" + i;
 
-        if (!shortname.equals(newShortname)) {
-            ArmorMod.log.warn("Detected conflict for item id '{}': {} and {}. Creating id alias '{}' in [{}]", originalShortname, typeFile, registeredItems.get(originalShortname), newShortname, provider.getName());
+        if (!shortname.equals(newShortname))
+        {
+            String otherFile = registeredItems.get(originalShortname);
+            ArmorMod.log.warn("Detected conflict for item id '{}': {} and {}. Creating id alias '{}' in [{}]", originalShortname, file, otherFile, newShortname, provider.getName());
             shortname = newShortname;
         }
 
         return shortname;
     }
 
-    private void registerItem(String shortName, InfoType config, TypeFile typeFile, Class<? extends InfoType> typeClass)
+    private void registerItem(String shortName, InfoType config, TypeFile typeFile)
     {
         registeredItems.put(shortName, typeFile.toString());
         ArmorMod.registerItem(shortName, config.getType(), () ->
@@ -344,8 +367,9 @@ public class ContentManager
     private void findDuplicateTextures(IContentProvider provider)
     {
         FileSystem fs = FileUtils.createFileSystem(provider);
-        findDuplicateTexturesInFolder("armor", provider, fs, armorTextureReferences.get(provider));
-        findDuplicateTexturesInFolder("gui", provider, fs, guiTextureReferences.get(provider));
+        findDuplicateTexturesInFolder(TEXTURES_ARMOR_FOLDER, provider, fs, armorTextureReferences.get(provider));
+        findDuplicateTexturesInFolder(TEXTURES_GUI_FOLDER, provider, fs, guiTextureReferences.get(provider));
+        findDuplicateTexturesInFolder(TEXTURES_SKINS_FOLDER, provider, fs, guiTextureReferences.get(provider));
         FileUtils.closeFileSystem(fs, provider);
     }
 
@@ -370,7 +394,7 @@ public class ContentManager
     private void checkForDuplicateTextures(Path texturePath, IContentProvider provider, String folderName, Map<String, DynamicReference> aliasMapping)
     {
         String fileName = FilenameUtils.getBaseName(texturePath.getFileName().toString()).toLowerCase();
-        if (folderName.equals("armor"))
+        if (folderName.equals(TEXTURES_ARMOR_FOLDER))
             fileName = getArmorTextureBaseName(fileName);
         String aliasName = fileName;
 
@@ -448,8 +472,8 @@ public class ContentManager
             return false;
 
         if (provider.isJarFile() // JAR File means it's the first time we load the pack
-            || shouldUpdateAliasMappingFile(armorTexturesAliasFile, provider, DynamicReference.getAliasMapping(armorTextureReferences.get(provider)))
-            || shouldUpdateAliasMappingFile(guiTexturesAliasFile, provider, DynamicReference.getAliasMapping(guiTextureReferences.get(provider))))
+            || shouldUpdateAliasMappingFile(ARMOR_TEXTURES_ALIAS_FILE, provider, DynamicReference.getAliasMapping(armorTextureReferences.get(provider)))
+            || shouldUpdateAliasMappingFile(GUI_TEXTURES_ALIAS_FILE, provider, DynamicReference.getAliasMapping(guiTextureReferences.get(provider))))
         {
             return true;
         }
@@ -458,8 +482,9 @@ public class ContentManager
 
         boolean missingAssets = !Files.exists(provider.getAssetsPath(fs).resolve("models").resolve("item"))
             || (!Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("item")) && Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("items")))
-            || (!Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("armor")) && Files.exists(provider.getAssetsPath(fs).resolve("armor")))
-            || (!Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve("gui")) && Files.exists(provider.getAssetsPath(fs).resolve("gui")))
+            || (!Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve(TEXTURES_ARMOR_FOLDER)) && Files.exists(provider.getAssetsPath(fs).resolve(TEXTURES_ARMOR_FOLDER)))
+            || (!Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve(TEXTURES_GUI_FOLDER)) && Files.exists(provider.getAssetsPath(fs).resolve(TEXTURES_GUI_FOLDER)))
+            || (!Files.exists(provider.getAssetsPath(fs).resolve("textures").resolve(TEXTURES_SKINS_FOLDER)) && Files.exists(provider.getAssetsPath(fs).resolve(TEXTURES_SKINS_FOLDER)))
             || !Files.exists(provider.getAssetsPath(fs).resolve("lang"))
             || !Files.exists(provider.getAssetsPath(fs).resolve("lang").resolve("en_us.json"));
 
@@ -469,7 +494,7 @@ public class ContentManager
 
     private boolean shouldUnpackArchive(IContentProvider provider, boolean preLoadAssets)
     {
-        return provider.isArchive() && (preLoadAssets || shouldUpdateAliasMappingFile(shortnamesAliasFile, provider, DynamicReference.getAliasMapping(shortnameReferences.get(provider))));
+        return provider.isArchive() && (preLoadAssets || shouldUpdateAliasMappingFile(ID_ALIAS_FILE, provider, DynamicReference.getAliasMapping(shortnameReferences.get(provider))));
     }
 
     private void createItemJsonFiles(IContentProvider provider)
@@ -596,7 +621,7 @@ public class ContentManager
                 stream.filter(file ->
                     {
                         String baseFileName = FilenameUtils.getBaseName(file.getFileName().toString());
-                        if (folder.getFileName().toString().equals("armor"))
+                        if (folder.getFileName().toString().equals(TEXTURES_ARMOR_FOLDER))
                         {
                             baseFileName = getArmorTextureBaseName(baseFileName);
                         }
@@ -605,12 +630,12 @@ public class ContentManager
                     .forEach(file ->
                     {
                         String baseFileName = FilenameUtils.getBaseName(file.getFileName().toString());
-                        if (folder.getFileName().toString().equals("armor"))
+                        if (folder.getFileName().toString().equals(TEXTURES_ARMOR_FOLDER))
                         {
                             baseFileName = getArmorTextureBaseName(baseFileName);
                         }
                         String newFileName = aliasMapping.get(baseFileName).get();
-                        if (folder.getFileName().toString().equals("armor"))
+                        if (folder.getFileName().toString().equals(TEXTURES_ARMOR_FOLDER))
                         {
                             if (file.getFileName().toString().endsWith("_1.png"))
                             {
@@ -711,15 +736,11 @@ public class ContentManager
             for (String line : lines)
             {
                 line = line.trim();
-                if (line.isEmpty() || line.startsWith("#"))
+                if (line.isEmpty() || line.startsWith("#") || line.indexOf('=') < 0)
                     continue;
 
-                int equalsIndex = line.indexOf('=');
-                if (equalsIndex < 0)
-                    continue;
-
-                String key = line.substring(0, equalsIndex).trim();
-                String value = line.substring(equalsIndex + 1).trim();
+                String key = line.substring(0, line.indexOf('=')).trim();
+                String value = line.substring(line.indexOf('=') + 1).trim();
 
                 // Convert key to new format
                 key = convertTranslationKey(key);

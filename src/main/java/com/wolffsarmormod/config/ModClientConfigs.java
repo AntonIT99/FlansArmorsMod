@@ -1,7 +1,10 @@
 package com.wolffsarmormod.config;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraftforge.common.ForgeConfigSpec;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ModClientConfigs
 {
     public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();

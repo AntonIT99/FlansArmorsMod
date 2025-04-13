@@ -18,9 +18,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.wolffsarmormod.util.TypeReaderUtils.readValue;
 import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
@@ -28,8 +26,6 @@ import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class InfoType
 {
-    protected static final Map<String, IContentProvider> registeredModels = new HashMap<>();
-
     @Getter
     protected EnumType type;
     @Getter
@@ -126,34 +122,51 @@ public abstract class InfoType
                 classFile = contentPack.getModelPath(modelClassName, fs);
             }
 
-            String actualClassName = modelClassName;
-
-            if (registeredModels.containsKey(modelClassName) && !contentPack.equals(registeredModels.get(modelClassName)))
+            if (!modelClassAlreadyRegisteredForContentPack(modelClassName, contentPack))
             {
-                IContentProvider otherContentPack = registeredModels.get(modelClassName);
-                FileSystem otherFs = FileUtils.createFileSystem(otherContentPack);
-                Path otherClassFile = otherContentPack.getModelPath(modelClassName, otherFs);
-
-                if (FileUtils.filesHaveDifferentBytesContent(classFile, otherClassFile))
+                String actualClassName = modelClassName;
+                if (hasModelConflict(actualClassName, contentPack))
                 {
-                    actualClassName = findValidClassName(modelClassName);
-                    ArmorMod.log.info("Duplicate model class name {} renamed at runtime to {} in [{}] to avoid a conflict with [{}].", modelClassName, actualClassName, contentPack.getName(), otherContentPack.getName());
+                    IContentProvider otherContentPack = ContentManager.getRegisteredModels().get(modelClassName);
+                    FileSystem otherFs = FileUtils.createFileSystem(otherContentPack);
+                    Path otherClassFile = otherContentPack.getModelPath(modelClassName, otherFs);
+
+                    if (FileUtils.filesHaveDifferentBytesContent(classFile, otherClassFile))
+                    {
+                        actualClassName = findNewValidClassName(modelClassName);
+                        ArmorMod.log.info("Duplicate model class name {} renamed at runtime to {} in [{}] to avoid a conflict with [{}].", modelClassName, actualClassName, contentPack.getName(), otherContentPack.getName());
+                    }
+
+                    FileUtils.closeFileSystem(otherFs, otherContentPack);
                 }
 
-                FileUtils.closeFileSystem(otherFs, otherContentPack);
+                ContentManager.getRegisteredModels().putIfAbsent(actualClassName, contentPack);
+                DynamicReference.storeOrUpdate(modelClassName, actualClassName, ContentManager.getModelReferences().get(contentPack));
             }
-
-            registeredModels.putIfAbsent(actualClassName, contentPack);
-            DynamicReference.storeOrUpdate(modelClassName, actualClassName, ContentManager.modelReferences.get(contentPack));
 
             FileUtils.closeFileSystem(fs, contentPack);
         }
     }
 
-    protected String findValidClassName(String className)
+    protected static boolean modelClassAlreadyRegisteredForContentPack(String modelClassName, IContentProvider contentPack) {
+        if (ContentManager.getModelReferences().get(contentPack).containsKey(modelClassName))
+        {
+            String actualClassName = ContentManager.getModelReferences().get(contentPack).get(modelClassName).get();
+            return ContentManager.getRegisteredModels().containsKey(actualClassName)
+                    && ContentManager.getRegisteredModels().get(actualClassName).equals(contentPack);
+        }
+        return false;
+    }
+
+    protected static boolean hasModelConflict(String modelClassName, IContentProvider contentPack)
+    {
+        return ContentManager.getRegisteredModels().containsKey(modelClassName) && !contentPack.equals(ContentManager.getRegisteredModels().get(modelClassName));
+    }
+
+    protected String findNewValidClassName(String className)
     {
         String newClassName = className;
-        for (int i = 2; registeredModels.containsKey(newClassName); i++)
+        for (int i = 2; ContentManager.getRegisteredModels().containsKey(modelClassName); i++)
         {
             newClassName = className + "_" + i;
         }
@@ -178,7 +191,7 @@ public abstract class InfoType
     {
         if (!modelClassName.isBlank())
         {
-            return ContentManager.modelReferences.get(contentPack).get(modelClassName);
+            return ContentManager.getModelReferences().get(contentPack).get(modelClassName);
         }
         return null;
     }
@@ -189,7 +202,7 @@ public abstract class InfoType
     {
         if (!textureName.isBlank())
         {
-            return ContentManager.skinsTextureReferences.get(contentPack).get(textureName);
+            return ContentManager.getSkinsTextureReferences().get(contentPack).get(textureName);
         }
         return null;
     }
@@ -200,7 +213,7 @@ public abstract class InfoType
     {
         if (!overlayName.isBlank())
         {
-            return ContentManager.guiTextureReferences.get(contentPack).get(overlayName);
+            return ContentManager.getGuiTextureReferences().get(contentPack).get(overlayName);
         }
         return null;
     }

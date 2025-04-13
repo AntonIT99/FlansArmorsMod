@@ -25,7 +25,7 @@ import net.minecraft.world.item.ItemStack;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -38,14 +38,10 @@ public class ArmorMod
     public static final String FLANSMOD_ID = "flansmod";
     public static final Logger log = LogUtils.getLogger();
 
-    public static long ticker;
-
     public static Path flanPath = FMLPaths.GAMEDIR.get().resolve("flan");
     public static Path fallbackFlanPath = FMLPaths.GAMEDIR.get().resolve("Flan");
 
-    public static final ContentManager contentManager = new ContentManager();
-    public static final Map<EnumType, List<RegistryObject<Item>>> items = new HashMap<>();
-
+    private static final Map<EnumType, List<RegistryObject<Item>>> items = new EnumMap(EnumType.class);
     private static final DeferredRegister<Item> itemRegistry = DeferredRegister.create(ForgeRegistries.ITEMS, ArmorMod.FLANSMOD_ID);
     private static final DeferredRegister<CreativeModeTab> creativeModeTabRegistry = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ArmorMod.MOD_ID);
 
@@ -61,8 +57,8 @@ public class ArmorMod
         itemRegistry.register(eventBus);
         creativeModeTabRegistry.register(eventBus);
 
-        contentManager.findContentInFlanFolder();
-        contentManager.readContentPacks();
+        ContentManager.INSTANCE.findContentInFlanFolder();
+        ContentManager.INSTANCE.readContentPacks();
         registerCreativeModeTabs();
 
         MinecraftForge.EVENT_BUS.register(this);

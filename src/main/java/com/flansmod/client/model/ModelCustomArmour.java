@@ -5,12 +5,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolffsarmormod.client.model.armor.IFlanModel;
 import com.wolffsarmormod.common.types.ArmorType;
-import com.wolffsarmormod.util.ReflectionUtils;
 import com.wolffsmod.client.model.ModelRenderer;
 import com.wolffsmod.client.model.TextureOffset;
 import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.client.model.AgeableListModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.resources.ResourceLocation;
@@ -60,12 +58,21 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IF
     @Override
     public void renderToBuffer(@NotNull PoseStack pPoseStack, @NotNull VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
     {
+        /* Accessibility can no longer be modified by Reflections
         boolean scaleHead = ReflectionUtils.getBooleanValue("scaleHead", AgeableListModel.class, this, true);
         float babyYHeadOffset = ReflectionUtils.getFloatValue("babyYHeadOffset", AgeableListModel.class, this, 16.0F);
         float babyZHeadOffset = ReflectionUtils.getFloatValue("babyZHeadOffset", AgeableListModel.class, this, 0.0F);
         float babyHeadScale = ReflectionUtils.getFloatValue("babyHeadScale", AgeableListModel.class, this, 2.0F);
         float babyBodyScale = ReflectionUtils.getFloatValue("babyBodyScale", AgeableListModel.class, this, 2.0F);
         float bodyYOffset = ReflectionUtils.getFloatValue("bodyYOffset", AgeableListModel.class, this, 24.0F);
+        */
+
+        boolean scaleHead = true;
+        float babyYHeadOffset = 16.0F;
+        float babyZHeadOffset = 0.0F;
+        float babyHeadScale = 2.0F;
+        float babyBodyScale = 2.0F;
+        float bodyYOffset = 24.0F;
         float modelScale = type != null ? type.getModelScale() : 1F;
 
         if (young)

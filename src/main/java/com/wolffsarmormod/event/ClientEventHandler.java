@@ -3,6 +3,8 @@ package com.wolffsarmormod.event;
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.ContentManager;
 import com.wolffsarmormod.client.CustomArmorLayer;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.event.AddPackFindersEvent;
@@ -20,11 +22,10 @@ import net.minecraft.world.entity.EntityType;
 
 import java.nio.file.Files;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Mod.EventBusSubscriber(modid = ArmorMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class ClientEventHandler
 {
-    private ClientEventHandler() {}
-
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event)
     {
@@ -34,9 +35,9 @@ public class ClientEventHandler
     @SubscribeEvent
     public static void registerPack(AddPackFindersEvent event)
     {
-        if (Files.exists(ContentManager.flanFolder))
+        if (Files.exists(ContentManager.getFlanFolder()))
         {
-            event.addRepositorySource(new ModRepositorySource(ContentManager.flanFolder));
+            event.addRepositorySource(new ModRepositorySource(ContentManager.getFlanFolder()));
         }
     }
 

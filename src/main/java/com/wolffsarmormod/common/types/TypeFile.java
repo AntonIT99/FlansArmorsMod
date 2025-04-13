@@ -1,10 +1,12 @@
 package com.wolffsarmormod.common.types;
 
 import com.wolffsarmormod.IContentProvider;
+import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
 public class TypeFile
 {
     private final String name;
@@ -18,26 +20,6 @@ public class TypeFile
         this.type = type;
         this.contentPack = contentPack;
         this.lines.addAll(lines);
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-
-    public EnumType getType()
-    {
-        return type;
-    }
-
-    public IContentProvider getContentPack()
-    {
-        return contentPack;
-    }
-
-    public List<String> getLines()
-    {
-        return lines;
     }
 
     public String toString()

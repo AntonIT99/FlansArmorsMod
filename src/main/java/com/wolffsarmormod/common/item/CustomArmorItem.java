@@ -3,10 +3,10 @@ package com.wolffsarmormod.common.item;
 import com.flansmod.client.model.ModelCustomArmour;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.client.model.armor.DefaultArmor;
 import com.wolffsarmormod.common.types.ArmorType;
 import com.wolffsarmormod.config.ModCommonConfigs;
+import com.wolffsarmormod.event.ServerTickEventHandler;
 import lombok.Getter;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -73,21 +73,21 @@ public class CustomArmorItem extends ArmorItem implements IModelItem<ArmorType, 
 
         if (!level.isClientSide && isArmorSlot(slotIndex, player.getInventory()))
         {
-            if (configType.hasNightVision() && ArmorMod.ticker % 25 == 0)
+            if (configType.hasNightVision() && ServerTickEventHandler.getTicker() % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 250, 0, true, false));
-            if (configType.hasInvisiblility() && ArmorMod.ticker % 25 == 0)
+            if (configType.hasInvisiblility() && ServerTickEventHandler.getTicker() % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 250, 0, true, false));
-            if (configType.getJumpModifier() > 1.01F && ArmorMod.ticker % 25 == 0)
+            if (configType.getJumpModifier() > 1.01F && ServerTickEventHandler.getTicker() % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.JUMP, 250, (int) ((configType.getJumpModifier() - 1F) * 2F), true, false));
-            if (configType.hasFireResistance() && ArmorMod.ticker % 25 == 0)
+            if (configType.hasFireResistance() && ServerTickEventHandler.getTicker() % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 250, 0, true, false));
-            if (configType.hasWaterBreathing() && ArmorMod.ticker % 25 == 0)
+            if (configType.hasWaterBreathing() && ServerTickEventHandler.getTicker() % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.WATER_BREATHING, 250, 0, true, false));
-            if (configType.hasHunger() && ArmorMod.ticker % 25 == 0)
+            if (configType.hasHunger() && ServerTickEventHandler.getTicker() % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.HUNGER, 250, 0, true, false));
-            if (configType.hasRegeneration() && ArmorMod.ticker % 25 == 0)
+            if (configType.hasRegeneration() && ServerTickEventHandler.getTicker() % 25 == 0)
                 player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 250, 0, true, false));
-            if (!configType.getEffects().isEmpty() && ArmorMod.ticker % 25 == 0)
+            if (!configType.getEffects().isEmpty() && ServerTickEventHandler.getTicker() % 25 == 0)
             {
                 configType.getEffects().forEach((effect, amplifier) -> player.addEffect(new MobEffectInstance(effect, 250, amplifier, true, false)));
             }

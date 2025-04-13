@@ -140,7 +140,7 @@ public class ReferenceModifierClassVisitor extends ClassVisitor
 
         @Override
         public void visitLdcInsn(Object value) {
-            if (value instanceof Type && ((Type) value).getInternalName().equals(originalClassName) && newClassName != null)
+            if (value instanceof Type type && type.getInternalName().equals(originalClassName) && newClassName != null)
             {
                 super.visitLdcInsn(Type.getObjectType(newClassName));
             }

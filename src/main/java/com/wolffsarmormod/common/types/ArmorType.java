@@ -93,6 +93,7 @@ public class ArmorType extends InfoType
         List<String> effectValues = readValues(split, "AddEffect", file);
         if (!effectValues.isEmpty())
         {
+            String line = String.join(StringUtils.SPACE, split);
             try
             {
                 int effectId = Integer.parseInt(effectValues.get(0));
@@ -104,12 +105,12 @@ public class ArmorType extends InfoType
                 }
                 else
                 {
-                    ArmorMod.log.error("Could not read line {}: Potion ID {} does not exist", String.join(StringUtils.SPACE, split), effectId);
+                    ArmorMod.log.error("Could not read line {}: Potion ID {} does not exist", line, effectId);
                 }
             }
             catch (NumberFormatException e)
             {
-                ArmorMod.log.error("Could not read line {}", String.join(StringUtils.SPACE, split), e);
+                ArmorMod.log.error("Could not read line {}", line, e);
             }
         }
     }
@@ -141,8 +142,8 @@ public class ArmorType extends InfoType
 
         if (FMLEnvironment.dist == Dist.CLIENT)
         {
-            ContentManager.armorTextureReferences.get(contentPack).putIfAbsent(textureName, new DynamicReference(textureName));
-            ContentManager.guiTextureReferences.get(contentPack).putIfAbsent(overlayName, new DynamicReference(overlayName));
+            ContentManager.getArmorTextureReferences().get(contentPack).putIfAbsent(textureName, new DynamicReference(textureName));
+            ContentManager.getGuiTextureReferences().get(contentPack).putIfAbsent(overlayName, new DynamicReference(overlayName));
         }
     }
 
@@ -153,7 +154,7 @@ public class ArmorType extends InfoType
     {
         if (!textureName.isBlank())
         {
-            return ContentManager.armorTextureReferences.get(contentPack).get(textureName);
+            return ContentManager.getArmorTextureReferences().get(contentPack).get(textureName);
         }
         return null;
     }

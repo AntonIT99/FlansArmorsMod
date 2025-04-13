@@ -148,6 +148,7 @@ public class ClassLoaderUtils
             return super.defineClass(name, b, 0, b.length);
         }
 
+        @Override
         public Class<?> findClass(String name)
         {
             return super.findLoadedClass(name);

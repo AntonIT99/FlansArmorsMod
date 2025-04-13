@@ -3,6 +3,8 @@ package com.wolffsarmormod.event;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.common.item.CustomArmorItem;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
 import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
@@ -20,6 +22,7 @@ import net.minecraft.world.entity.player.Player;
 import java.util.Arrays;
 import java.util.Optional;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Mod.EventBusSubscriber(modid = ArmorMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class OverlayEventHandler
 {

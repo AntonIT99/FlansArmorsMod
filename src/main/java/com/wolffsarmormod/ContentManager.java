@@ -311,7 +311,6 @@ public class ContentManager
     {
         for (TypeFile typeFile : files.get(contentPack))
         {
-            ArmorMod.log.info(typeFile.getName());
             try
             {
                 Class<? extends InfoType> typeClass = typeFile.getType().getTypeClass();

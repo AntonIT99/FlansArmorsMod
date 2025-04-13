@@ -18,6 +18,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 @Mod.EventBusSubscriber(modid = ArmorMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class OverlayEventHandler
@@ -41,10 +42,9 @@ public class OverlayEventHandler
         {
             if (player.getItemBySlot(slot).getItem() instanceof CustomArmorItem armorItem)
             {
-                if (armorItem.getOverlay().isEmpty())
+                Optional<ResourceLocation> overlayTexture = armorItem.getOverlay();
+                if (overlayTexture.isEmpty())
                     continue;
-
-                ResourceLocation overlayTexture = armorItem.getOverlay().get();
 
                 RenderSystem.disableDepthTest();
                 RenderSystem.depthMask(false);
@@ -53,9 +53,9 @@ public class OverlayEventHandler
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 RenderSystem.disableCull();
                 RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                RenderSystem.setShaderTexture(0, overlayTexture);
+                RenderSystem.setShaderTexture(0, overlayTexture.get());
 
-                guiGraphics.blit(overlayTexture, 0, 0, 0, 0, screenWidth, screenHeight, screenWidth, screenHeight);
+                guiGraphics.blit(overlayTexture.get(), 0, 0, 0, 0, screenWidth, screenHeight, screenWidth, screenHeight);
 
                 RenderSystem.depthMask(true);
                 RenderSystem.enableDepthTest();

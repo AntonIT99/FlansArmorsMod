@@ -44,6 +44,7 @@ public class ContentManager
     public static final Map<IContentProvider, Map<String, DynamicReference>> shortnameReferences = new HashMap<>();
     public static final Map<IContentProvider, Map<String, DynamicReference>> armorTextureReferences = new HashMap<>();
     public static final Map<IContentProvider, Map<String, DynamicReference>> guiTextureReferences = new HashMap<>();
+    public static final Map<IContentProvider, Map<String, DynamicReference>> skinsTextureReferences = new HashMap<>();
     public static final Map<IContentProvider, Map<String, DynamicReference>> modelReferences = new HashMap<>();
 
     private static final String shortnamesAliasFile = "id_alias.json";

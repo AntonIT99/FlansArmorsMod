@@ -1,12 +1,17 @@
 package com.flansmod.client.model;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.wolffsarmormod.common.types.InfoType;
-import com.wolffsmod.client.model.IModelBase;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.wolffsarmormod.client.model.armor.IFlanModel;
+import com.wolffsarmormod.common.types.GunType;
 import com.wolffsmod.client.model.ModelRenderer;
 import com.wolffsmod.client.model.TextureOffset;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
+import net.minecraft.client.model.Model;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
@@ -14,9 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ModelGun implements IModelBase
+public class ModelGun extends Model implements IFlanModel<GunType>
 {
-    protected InfoType type; //TODO change this
+    protected GunType type;
 
     // Static models with no animation
     protected ModelRendererTurbo[] gunModel = new ModelRendererTurbo[0];
@@ -76,7 +81,7 @@ public class ModelGun implements IModelBase
 
     public ModelGun()
     {
-
+        super(RenderType::entityTranslucent);
     }
 
     /**
@@ -199,8 +204,14 @@ public class ModelGun implements IModelBase
     }
 
     @Override
-    public void setType(InfoType type)
+    public void setType(GunType type)
     {
         this.type = type;
+    }
+
+    @Override
+    public void renderToBuffer(@NotNull PoseStack pPoseStack, @NotNull VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
+    {
+        //TODO
     }
 }

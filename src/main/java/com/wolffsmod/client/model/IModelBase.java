@@ -1,6 +1,7 @@
 package com.wolffsmod.client.model;
 
-import com.wolffsarmormod.common.types.InfoType;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.resources.ResourceLocation;
 
@@ -27,8 +28,6 @@ public interface IModelBase
         return getModelTextureMap().get(partName);
     }
 
-    void setType(InfoType type);
-
     ResourceLocation getTexture();
 
     void setTexture(ResourceLocation texture);
@@ -36,4 +35,6 @@ public interface IModelBase
     List<ModelRenderer> getBoxList();
 
     Map<String, TextureOffset> getModelTextureMap();
+
+    void renderToBuffer(PoseStack poseStack, VertexConsumer buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha);
 }

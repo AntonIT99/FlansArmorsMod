@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.item.ArmorItem;
 
+import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,12 +22,11 @@ import static com.wolffsarmormod.util.TypeReaderUtils.readValue;
 import static com.wolffsarmormod.util.TypeReaderUtils.readValues;
 
 @NoArgsConstructor
-public class ArmourType extends InfoType
+public class ArmorType extends InfoType
 {
-    protected String rawType = StringUtils.EMPTY;
-    protected String overlayName = StringUtils.EMPTY;
+    protected String rawArmorItemType = StringUtils.EMPTY;
     @Getter
-    protected ArmorItem.Type armorType;
+    protected ArmorItem.Type armorItemType;
     /** The amount of damage to absorb. From 0 to 1. Stacks additively between armour pieces */
     @Getter
     protected double defence;
@@ -64,10 +64,9 @@ public class ArmourType extends InfoType
     protected void readLine(String[] split, TypeFile file)
     {
         super.readLine(split, file);
-        rawType = readValue(split, "Type", rawType, file);
+        rawArmorItemType = readValue(split, "Type", rawArmorItemType, file);
         textureName = readValue(split, "ArmourTexture", textureName, file).toLowerCase();
         textureName = readValue(split, "ArmorTexture", textureName, file).toLowerCase();
-        overlayName = readValue(split, "Overlay", overlayName, file).toLowerCase();
         defence = readValue(split, "DamageReduction", defence, file);
         defence = readValue(split, "Defence", defence, file);
         enchantability = readValue(split, "Enchantability", enchantability, file);
@@ -120,23 +119,23 @@ public class ArmourType extends InfoType
     {
         super.postRead(file);
 
-        switch (rawType.toLowerCase())
+        switch (rawArmorItemType.toLowerCase())
         {
             case "helmet", "hat", "head":
-                armorType = ArmorItem.Type.HELMET;
+                armorItemType = ArmorItem.Type.HELMET;
                 break;
             case "chestplate", "chest", "body":
-                armorType = ArmorItem.Type.CHESTPLATE;
+                armorItemType = ArmorItem.Type.CHESTPLATE;
                 break;
             case "leggings", "legs", "pants":
-                armorType = ArmorItem.Type.LEGGINGS;
+                armorItemType = ArmorItem.Type.LEGGINGS;
                 break;
             case "boots", "shoes", "feet":
-                armorType = ArmorItem.Type.BOOTS;
+                armorItemType = ArmorItem.Type.BOOTS;
                 break;
             default:
-                ArmorMod.log.error("Armor Type '{}' not recognized! Defaulting to Helmet", rawType);
-                armorType = ArmorItem.Type.HELMET;
+                ArmorMod.log.error("Armor Type '{}' not recognized! Defaulting to Helmet", rawArmorItemType);
+                armorItemType = ArmorItem.Type.HELMET;
                 break;
         }
 
@@ -147,19 +146,16 @@ public class ArmourType extends InfoType
         }
     }
 
+    @Nullable
     @OnlyIn(Dist.CLIENT)
+    @Override
     public DynamicReference getTexture()
     {
-        return ContentManager.armorTextureReferences.get(contentPack).get(textureName);
-    }
-
-    /**
-     * The overlay to display when using this helmet. Textures are pulled from the scopes directory
-     */
-    @OnlyIn(Dist.CLIENT)
-    public DynamicReference getOverlay()
-    {
-        return ContentManager.guiTextureReferences.get(contentPack).get(overlayName);
+        if (!textureName.isBlank())
+        {
+            return ContentManager.armorTextureReferences.get(contentPack).get(textureName);
+        }
+        return null;
     }
 
     public boolean hasDurability()

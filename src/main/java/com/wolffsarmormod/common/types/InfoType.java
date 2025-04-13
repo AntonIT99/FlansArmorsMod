@@ -13,6 +13,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -43,6 +44,7 @@ public abstract class InfoType
     protected String modelClassName = StringUtils.EMPTY;
     protected String icon = StringUtils.EMPTY;
     protected String textureName = StringUtils.EMPTY;
+    protected String overlayName = StringUtils.EMPTY;
     @Getter
     protected float modelScale = 1F;
 
@@ -69,6 +71,7 @@ public abstract class InfoType
         description = readValues(split, "Description", description, file);
         icon = readValue(split, "Icon", icon, file).toLowerCase();
         textureName = readValue(split, "Texture", textureName, file).toLowerCase();
+        overlayName = readValue(split, "Overlay", overlayName, file).toLowerCase();
         modelName = readValue(split, "Model", modelName, file);
         modelScale = readValue(split, "ModelScale", modelScale, file);
     }
@@ -169,9 +172,36 @@ public abstract class InfoType
         return modelClassName;
     }
 
+    @Nullable
     @OnlyIn(Dist.CLIENT)
     public DynamicReference getActualModelClass()
     {
-        return ContentManager.modelReferences.get(contentPack).get(modelClassName);
+        if (!modelClassName.isBlank())
+        {
+            return ContentManager.modelReferences.get(contentPack).get(modelClassName);
+        }
+        return null;
+    }
+
+    @Nullable
+    @OnlyIn(Dist.CLIENT)
+    public DynamicReference getTexture()
+    {
+        if (!textureName.isBlank())
+        {
+            return ContentManager.skinsTextureReferences.get(contentPack).get(textureName);
+        }
+        return null;
+    }
+
+    @Nullable
+    @OnlyIn(Dist.CLIENT)
+    public DynamicReference getOverlay()
+    {
+        if (!overlayName.isBlank())
+        {
+            return ContentManager.guiTextureReferences.get(contentPack).get(overlayName);
+        }
+        return null;
     }
 }

@@ -3,10 +3,9 @@ package com.flansmod.client.model;
 import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsarmormod.common.types.ArmourType;
-import com.wolffsarmormod.common.types.InfoType;
+import com.wolffsarmormod.client.model.armor.IFlanModel;
+import com.wolffsarmormod.common.types.ArmorType;
 import com.wolffsarmormod.util.ReflectionUtils;
-import com.wolffsmod.client.model.IModelBase;
 import com.wolffsmod.client.model.ModelRenderer;
 import com.wolffsmod.client.model.TextureOffset;
 import org.jetbrains.annotations.NotNull;
@@ -22,9 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IModelBase
+public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IFlanModel<ArmorType>
 {
-    protected ArmourType type;
+    protected ArmorType type;
+
     protected ModelRendererTurbo[] headModel = new ModelRendererTurbo[0];
     protected ModelRendererTurbo[] bodyModel = new ModelRendererTurbo[0];
     protected ModelRendererTurbo[] leftArmModel = new ModelRendererTurbo[0];
@@ -174,9 +174,8 @@ public class ModelCustomArmour extends HumanoidModel<LivingEntity> implements IM
     }
 
     @Override
-    public void setType(InfoType type)
+    public void setType(ArmorType type)
     {
-        if (type instanceof ArmourType armourType)
-            this.type = armourType;
+        this.type = type;
     }
 }

@@ -5,15 +5,13 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.client.model.armor.DefaultArmor;
-import com.wolffsarmormod.common.types.ArmourType;
+import com.wolffsarmormod.common.types.ArmorType;
 import com.wolffsarmormod.config.ModCommonConfigs;
-import com.wolffsarmormod.util.ClassLoaderUtils;
 import lombok.Getter;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.fml.loading.FMLEnvironment;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.ChatFormatting;
@@ -41,19 +39,19 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class CustomArmorItem extends ArmorItem implements IConfigurableItem<ArmourType>
+public class CustomArmorItem extends ArmorItem implements IModelItem<ArmorType, ModelCustomArmour>, IOverlayItem<ArmorType>
 {
     protected static final UUID[] uuid = new UUID[] { UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID() };
 
     @Getter
-    protected final ArmourType configType;
+    protected final ArmorType configType;
     protected ModelCustomArmour model;
     protected ResourceLocation texture;
     protected ResourceLocation overlay;
 
-    public CustomArmorItem(ArmourType configType)
+    public CustomArmorItem(ArmorType configType)
     {
-        super(new CustomArmorMaterial(configType), configType.getArmorType(), new Item.Properties());
+        super(new CustomArmorMaterial(configType), configType.getArmorItemType(), new Item.Properties());
         this.configType = configType;
 
         if (FMLEnvironment.dist == Dist.CLIENT)
@@ -61,49 +59,11 @@ public class CustomArmorItem extends ArmorItem implements IConfigurableItem<Armo
     }
 
     @OnlyIn(Dist.CLIENT)
-    protected void clientSideInit()
+    public void clientSideInit()
     {
-        loadModel();
-
-        if (StringUtils.isNotBlank(configType.getTexture().get()))
-        {
-            texture = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/armor/" + configType.getTexture().get() + (configType.getArmorType() != ArmorItem.Type.LEGGINGS ? "_1" : "_2") + ".png");
-            model.setTexture(texture);
-        }
-
-        if (StringUtils.isNotBlank(configType.getOverlay().get()))
-        {
-            overlay = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, "textures/gui/" + configType.getOverlay().get() + ".png");
-        }
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    protected void loadModel()
-    {
-        if (!configType.getModelClass().isBlank())
-        {
-            try
-            {
-                if (ClassLoaderUtils.loadAndModifyClass(configType.getContentPack(), configType.getModelClass(), configType.getActualModelClass().get()).getConstructor().newInstance() instanceof ModelCustomArmour modelCustomArmour)
-                {
-                    model = modelCustomArmour;
-                    model.setType(configType);
-                }
-                else
-                {
-                    ArmorMod.log.error("Could not load model class {} from {}: class is not a Model.", configType.getModelClass(), configType.getContentPack().getPath());
-                }
-            }
-            catch (Exception e)
-            {
-                ArmorMod.log.error("Could not load model class {} from {}", configType.getModelClass(), configType.getContentPack().getPath(), e);
-            }
-        }
-
-        if (model == null)
-        {
-            model = new DefaultArmor(configType.getArmorType());
-        }
+        loadModel(new DefaultArmor(configType.getArmorItemType()));
+        loadTexture();
+        loadOverlay();
     }
 
     @Override
@@ -213,14 +173,14 @@ public class CustomArmorItem extends ArmorItem implements IConfigurableItem<Armo
     public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(@NotNull EquipmentSlot pEquipmentSlot) {
         Multimap<Attribute, AttributeModifier> modifiers = super.getDefaultAttributeModifiers(pEquipmentSlot);
 
-        if (pEquipmentSlot == configType.getArmorType().getSlot())
+        if (pEquipmentSlot == configType.getArmorItemType().getSlot())
         {
             ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
             builder.putAll(modifiers);
             builder.put(Attributes.MOVEMENT_SPEED,
-                    new AttributeModifier(uuid[configType.getArmorType().getSlot().getIndex()], "Movement Speed", configType.getMoveSpeedModifier() - 1F, AttributeModifier.Operation.MULTIPLY_TOTAL));
+                    new AttributeModifier(uuid[configType.getArmorItemType().getSlot().getIndex()], "Movement Speed", configType.getMoveSpeedModifier() - 1F, AttributeModifier.Operation.MULTIPLY_TOTAL));
             builder.put(Attributes.KNOCKBACK_RESISTANCE,
-                    new AttributeModifier(uuid[configType.getArmorType().getSlot().getIndex()], "Knockback Resistance", configType.getKnockbackModifier(), AttributeModifier.Operation.ADDITION));
+                    new AttributeModifier(uuid[configType.getArmorItemType().getSlot().getIndex()], "Knockback Resistance", configType.getKnockbackModifier(), AttributeModifier.Operation.ADDITION));
             return builder.build();
         }
 
@@ -228,20 +188,56 @@ public class CustomArmorItem extends ArmorItem implements IConfigurableItem<Armo
     }
 
     @OnlyIn(Dist.CLIENT)
+    @Override
+    public String getTexturePath(String textureName)
+    {
+        return "textures/" + configType.getType().getTextureFolderName() + "/" + textureName + (configType.getArmorItemType() != ArmorItem.Type.LEGGINGS ? "_1" : "_2") + ".png";
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public ResourceLocation getTexture()
+    {
+        return texture;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void setTexture(ResourceLocation texture)
+    {
+        this.texture = texture;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
     public ModelCustomArmour getModel()
     {
         return model;
     }
 
     @OnlyIn(Dist.CLIENT)
-    public Optional<ResourceLocation> getTexture()
+    @Override
+    public void setModel(ModelCustomArmour model)
     {
-        return Optional.ofNullable(texture);
+        this.model = model;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public boolean useCustomItemRendering()
+    {
+        return false;
     }
 
     @OnlyIn(Dist.CLIENT)
     public Optional<ResourceLocation> getOverlay()
     {
         return Optional.ofNullable(overlay);
+    }
+
+    @Override
+    public void setOverlay(ResourceLocation overlay)
+    {
+        this.overlay = overlay;
     }
 }

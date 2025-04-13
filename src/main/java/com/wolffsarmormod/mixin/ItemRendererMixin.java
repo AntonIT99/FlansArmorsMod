@@ -1,14 +1,17 @@
 package com.wolffsarmormod.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.wolffsarmormod.common.item.GunItem;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.wolffsarmormod.common.item.IModelItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -19,12 +22,13 @@ public class ItemRendererMixin
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
     private void onRender(ItemStack stack, ItemDisplayContext transformType, boolean leftHanded, PoseStack poseStack, MultiBufferSource buffer, int light, int overlay, BakedModel model, CallbackInfo ci)
     {
-        if (stack.getItem() instanceof GunItem && (transformType == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
-            || transformType == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
-            || transformType == ItemDisplayContext.THIRD_PERSON_LEFT_HAND
-            || transformType == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND))
-        {
+        if (transformType == ItemDisplayContext.NONE || transformType==ItemDisplayContext.GUI || transformType==ItemDisplayContext.HEAD)
+            return;
 
+        if (stack.getItem() instanceof IModelItem<?, ?> item && item.useCustomItemRendering())
+        {
+            VertexConsumer vertexconsumer = buffer.getBuffer(RenderType.entityTranslucent(item.getTexture()));
+            item.getModel().renderToBuffer(poseStack, vertexconsumer, light, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
             ci.cancel();
         }
     }

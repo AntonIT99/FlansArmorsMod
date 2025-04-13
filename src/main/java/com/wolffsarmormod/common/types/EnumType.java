@@ -11,28 +11,25 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+@Getter
 public enum EnumType
 {
-    ARMOR("armor", "armorFiles", ArmourType.class, CustomArmorItem.class, false),
-    GUN("gun", "guns", GunType.class, GunItem.class, false);
+    ARMOR("armor", "armorFiles", "armor", ArmorType.class, CustomArmorItem.class, false),
+    GUN("gun", "guns", "skins", GunType.class, GunItem.class, false);
 
-    @Getter
     private final String displayName;
-    @Getter
     private final String configFolderName;
-    @Getter
+    private final String textureFolderName;
     private final Class<? extends InfoType> typeClass;
-    @Getter
     private final Class<? extends IConfigurableItem<?>> itemClass;
-    @Getter
     private final boolean itemType;
-    @Getter
     private final boolean blockType;
 
-    EnumType(String name, String configFolder, Class<? extends InfoType> type, @Nullable Class<? extends IConfigurableItem<?>> item, boolean isBlock)
+    EnumType(String name, String configFolder, String textureFolder, Class<? extends InfoType> type, @Nullable Class<? extends IConfigurableItem<?>> item, boolean isBlock)
     {
         displayName = name;
         configFolderName = configFolder;
+        textureFolderName = textureFolder;
         typeClass = type;
         itemClass = item;
         itemType = (item != null);

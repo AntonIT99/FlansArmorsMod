@@ -1,6 +1,6 @@
 package com.wolffsarmormod.common.item;
 
-import com.wolffsarmormod.common.types.ArmourType;
+import com.wolffsarmormod.common.types.ArmorType;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.sounds.SoundEvent;
@@ -23,7 +23,7 @@ public class CustomArmorMaterial implements ArmorMaterial
     private final float knockbackResistance;
     private final Supplier<Ingredient> repairMaterial;
 
-    CustomArmorMaterial(ArmourType type)
+    CustomArmorMaterial(ArmorType type)
     {
         this(type.getShortName(), type.getDurability(), (int) Math.max(type.getDamageReductionAmount(), Math.round(type.getDefence() * 20.0F)), type.getEnchantability(), SoundEvents.ARMOR_EQUIP_IRON, type.getToughness(), 0.0F, () -> Ingredient.of(Items.IRON_INGOT));
     }

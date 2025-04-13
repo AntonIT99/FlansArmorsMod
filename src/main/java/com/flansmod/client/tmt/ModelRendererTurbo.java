@@ -2098,16 +2098,16 @@ public class ModelRendererTurbo extends ModelRenderer
         RenderSystem.enableDepthTest();
 
         RenderType renderType = RenderType.entityTranslucent(texture);
-        pVertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(renderType);
+        VertexConsumer vertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(renderType);
 
         pPoseStack.pushPose();
         pPoseStack.translate(offsetX, offsetY, offsetZ);
         translateAndRotate(pPoseStack, scale, rotateOrderZYX);
-        compile(pPoseStack.last(), pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
+        compile(pPoseStack.last(), vertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha);
 
         for (ModelRenderer childModel : childModels)
         {
-            childModel.render(pPoseStack, pVertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale);
+            childModel.render(pPoseStack, vertexConsumer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale);
         }
 
         pPoseStack.translate(-offsetX, -offsetY, -offsetZ);

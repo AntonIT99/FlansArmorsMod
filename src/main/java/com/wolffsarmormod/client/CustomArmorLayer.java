@@ -43,10 +43,10 @@ public class CustomArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>
         ItemStack itemStack = pLivingEntity.getItemBySlot(pSlot);
         Item item = itemStack.getItem();
 
-        if (item instanceof CustomArmorItem armorItem && armorItem.getTexture().isPresent() && armorItem.getEquipmentSlot() == pSlot)
+        if (item instanceof CustomArmorItem armorItem && armorItem.getEquipmentSlot() == pSlot)
         {
             getParentModel().copyPropertiesTo((HumanoidModel<T>) armorItem.getModel());
-            renderModel(pPoseStack, pBuffer, pPackedLight, armorItem.getModel(), armorItem.getTexture().get());
+            renderModel(pPoseStack, pBuffer, pPackedLight, armorItem.getModel(), armorItem.getTexture());
         }
     }
 

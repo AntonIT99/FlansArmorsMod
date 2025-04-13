@@ -6,6 +6,7 @@ import com.wolffsarmormod.client.model.IFlanModel;
 import com.wolffsarmormod.common.types.InfoType;
 import com.wolffsarmormod.util.ClassLoaderUtils;
 import com.wolffsarmormod.util.DynamicReference;
+import com.wolffsarmormod.util.LogUtils;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -66,16 +67,18 @@ public interface IModelItem<T extends InfoType, M extends IFlanModel<T>> extends
                     @SuppressWarnings("unchecked")
                     M model = (M) ClassLoaderUtils.loadAndModifyClass(contentPack, className, actualClassName.get()).getConstructor().newInstance();
                     model.setType(configType);
+                    setModel(model);
                 }
-                catch (Exception e)
+                catch (Exception | NoClassDefFoundError | ClassFormatError e)
                 {
-                    ArmorMod.log.error("{} item {}: Could not load model class {} from {}", configType.getType().getDisplayName(), configType.getShortName(), className, contentPack.getName(), e);
+                    ArmorMod.log.error("Could not load model class {} for {} item {} from {}", className, configType.getType().getDisplayName(), configType.getShortName(), contentPack.getName());
+                    LogUtils.logWithoutStacktrace(e);
                 }
             }
-
         }
-        if (getModel() == null)
+        if (getModel() == null && defaultModel != null)
         {
+            defaultModel.setType(configType);
             setModel(defaultModel);
         }
     }

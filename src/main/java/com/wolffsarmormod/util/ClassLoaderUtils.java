@@ -93,7 +93,7 @@ public class ClassLoaderUtils
         }
     }
 
-    public static Class<?> loadAndModifyClass(IContentProvider contentProvider, String fileClassName, String actualClassName) throws IOException
+    public static Class<?> loadAndModifyClass(IContentProvider contentProvider, String fileClassName, String actualClassName) throws IOException, NoClassDefFoundError, ClassFormatError
     {
         Class<?> loadedClass = classLoader.findClass(actualClassName);
         if (loadedClass != null)
@@ -143,7 +143,7 @@ public class ClassLoaderUtils
             super(IModelBase.class.getClassLoader());
         }
 
-        public Class<?> defineClass(String name, byte[] b)
+        public Class<?> defineClass(String name, byte[] b) throws ClassFormatError, NoClassDefFoundError
         {
             return super.defineClass(name, b, 0, b.length);
         }

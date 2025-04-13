@@ -18,6 +18,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -67,11 +68,6 @@ public class ContentManager
     private static final Map<IContentProvider, Map<String, DynamicReference>> skinsTextureReferences = new HashMap<>();
     @Getter
     private static final Map<IContentProvider, Map<String, DynamicReference>> modelReferences = new HashMap<>();
-
-    /** Sometimes id conflicts can happen between items of the same content pack.
-     * In that case content pack mappings can not be used. This should be a rare issue. */
-    @Getter
-    private static final Map<IContentProvider, Map<String, Set<String>>> equivalentShortnamesInSameContentPack = new HashMap<>();
 
     private static final String ID_ALIAS_FILE = "id_alias.json";
     private static final String ARMOR_TEXTURES_ALIAS_FILE = "armor_textures_alias.json";
@@ -136,7 +132,6 @@ public class ContentManager
             guiTextureReferences.putIfAbsent(provider, new HashMap<>());
             skinsTextureReferences.putIfAbsent(provider, new HashMap<>());
             modelReferences.putIfAbsent(provider, new HashMap<>());
-            equivalentShortnamesInSameContentPack.putIfAbsent(provider, new HashMap<>());
 
             readFiles(provider);
             registerConfigs(provider);
@@ -325,14 +320,23 @@ public class ContentManager
                 Class<? extends InfoType> typeClass = typeFile.getType().getTypeClass();
                 InfoType config = typeClass.getConstructor().newInstance();
                 config.read(typeFile);
-                if (!config.getShortName().isBlank())
+                String shortName = config.getShortName();
+                boolean isItem = typeFile.getType().isItemType();
+                if (!shortName.isBlank())
                 {
-                    if (typeFile.getType().isItemType())
+                    if (isItem)
                     {
-                        String shortName = findNewValidShortName(config.getShortName(), contentPack, typeFile);
-                        registerItem(shortName, config, typeFile);
+                        shortName = findNewValidShortName(shortName, contentPack, typeFile);
+                        if (!shortName.isBlank())
+                        {
+                            registerItem(shortName, config, typeFile);
+                            configs.get(contentPack).add(config);
+                        }
                     }
-                    configs.get(typeFile.getContentPack()).add(config);
+                    else
+                    {
+                        configs.get(contentPack).add(config);
+                    }
                 }
                 else
                 {
@@ -363,13 +367,11 @@ public class ContentManager
         {
             String otherFile = registeredItems.get(originalShortname);
 
-            // Conflict is in same content pack -> Don't update the mapping
+            // Conflict is in same content pack -> Ignore file
             if (provider.getName().equals(TypeFile.getContentPackName(otherFile)))
             {
-                equivalentShortnamesInSameContentPack.get(provider).putIfAbsent(shortname, new HashSet<>());
-                equivalentShortnamesInSameContentPack.get(provider).get(shortname).add(newShortname);
-                ArmorMod.log.info("Detected conflict for item id '{}' in same content pack: {} and {}. Renaming {} to '{}' at runtime.", originalShortname, file, otherFile, file.getName(), newShortname);
-                return newShortname;
+                ArmorMod.log.warn("Detected conflict for item id '{}' in same content pack: {} and {}. Ignoring {}", originalShortname, file, otherFile, file.getName());
+                return StringUtils.EMPTY;
             }
 
             ArmorMod.log.warn("Detected conflict for item id '{}': {} and {}. Creating id alias '{}' in [{}]", originalShortname, file, otherFile, newShortname, provider.getName());

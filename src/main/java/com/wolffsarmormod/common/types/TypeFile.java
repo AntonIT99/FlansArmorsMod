@@ -26,4 +26,9 @@ public class TypeFile
     {
         return type.getConfigFolderName() + "/" + getName() + " [" + contentPack.getName() + "]";
     }
+
+    public static String getContentPackName(String toStringValue)
+    {
+        return toStringValue.split("\\[")[1].split("\\]")[0];
+    }
 }

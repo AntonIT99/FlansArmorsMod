@@ -1,12 +1,15 @@
 package com.wolffsarmormod;
 
 import com.google.common.base.Objects;
+import lombok.Getter;
 
 import java.nio.file.Path;
 
 public class ContentPack implements IContentProvider
 {
+    @Getter
     private String name;
+    @Getter
     private Path path;
 
     private final int hashCode;
@@ -18,22 +21,11 @@ public class ContentPack implements IContentProvider
         hashCode = Objects.hashCode(path);
     }
 
+    @Override
     public void update(String name, Path path)
     {
         this.name = name;
         this.path = path;
-    }
-
-    @Override
-    public String getName()
-    {
-        return name;
-    }
-
-    @Override
-    public Path getPath()
-    {
-        return path;
     }
 
     @Override

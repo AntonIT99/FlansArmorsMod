@@ -35,6 +35,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -67,10 +68,15 @@ public class ContentManager
     @Getter
     private static final Map<IContentProvider, Map<String, DynamicReference>> modelReferences = new HashMap<>();
 
+    /** Sometimes id conflicts can happen between items of the same content pack.
+     * In that case content pack mappings can not be used. This should be a rare issue. */
+    @Getter
+    private static final Map<IContentProvider, Map<String, Set<String>>> equivalentShortnamesInSameContentPack = new HashMap<>();
+
     private static final String ID_ALIAS_FILE = "id_alias.json";
     private static final String ARMOR_TEXTURES_ALIAS_FILE = "armor_textures_alias.json";
     private static final String GUI_TEXTURES_ALIAS_FILE = "gui_textures_alias.json";
-    private static final String SKINS_TEXTURES_ALIAS_FILE = "gui_textures_alias.json";
+    private static final String SKINS_TEXTURES_ALIAS_FILE = "skins_textures_alias.json";
 
     private static final List<IContentProvider> contentPacks = new ArrayList<>();
     private static final Map<IContentProvider, ArrayList<TypeFile>> files = new HashMap<>();
@@ -130,6 +136,7 @@ public class ContentManager
             guiTextureReferences.putIfAbsent(provider, new HashMap<>());
             skinsTextureReferences.putIfAbsent(provider, new HashMap<>());
             modelReferences.putIfAbsent(provider, new HashMap<>());
+            equivalentShortnamesInSameContentPack.putIfAbsent(provider, new HashMap<>());
 
             readFiles(provider);
             registerConfigs(provider);
@@ -276,7 +283,8 @@ public class ContentManager
     {
         try (AliasFileManager fileManager = new AliasFileManager(fileName, provider))
         {
-            fileManager.readFile().forEach((originalShortname, aliasShortname) -> DynamicReference.storeOrUpdate(originalShortname, aliasShortname, references.get(provider)));
+            fileManager.readFile().ifPresent(map ->
+                    map.forEach((originalShortname, aliasShortname) -> DynamicReference.storeOrUpdate(originalShortname, aliasShortname, references.get(provider))));
         }
     }
 
@@ -321,8 +329,7 @@ public class ContentManager
                 {
                     if (typeFile.getType().isItemType())
                     {
-                        String shortName = findValidShortName(config.getShortName(), contentPack, typeFile);
-                        DynamicReference.storeOrUpdate(config.getShortName(), shortName, shortnameReferences.get(contentPack));
+                        String shortName = findNewValidShortName(config.getShortName(), contentPack, typeFile);
                         registerItem(shortName, config, typeFile);
                     }
                     configs.get(typeFile.getContentPack()).add(config);
@@ -340,10 +347,11 @@ public class ContentManager
         }
     }
 
-    private String findValidShortName(String originalShortname, IContentProvider provider, TypeFile file)
+    private String findNewValidShortName(String originalShortname, IContentProvider provider, TypeFile file)
     {
         String shortname = originalShortname;
-        if (registeredItems.containsKey(originalShortname) && shortnameReferences.get(provider).containsKey(originalShortname)) {
+        if (registeredItems.containsKey(originalShortname) && shortnameReferences.get(provider).containsKey(originalShortname))
+        {
             shortname = shortnameReferences.get(provider).get(originalShortname).get();
         }
 
@@ -354,10 +362,21 @@ public class ContentManager
         if (!shortname.equals(newShortname))
         {
             String otherFile = registeredItems.get(originalShortname);
+
+            // Conflict is in same content pack -> Don't update the mapping
+            if (provider.getName().equals(TypeFile.getContentPackName(otherFile)))
+            {
+                equivalentShortnamesInSameContentPack.get(provider).putIfAbsent(shortname, new HashSet<>());
+                equivalentShortnamesInSameContentPack.get(provider).get(shortname).add(newShortname);
+                ArmorMod.log.info("Detected conflict for item id '{}' in same content pack: {} and {}. Renaming {} to '{}' at runtime.", originalShortname, file, otherFile, file.getName(), newShortname);
+                return newShortname;
+            }
+
             ArmorMod.log.warn("Detected conflict for item id '{}': {} and {}. Creating id alias '{}' in [{}]", originalShortname, file, otherFile, newShortname, provider.getName());
             shortname = newShortname;
         }
 
+        DynamicReference.storeOrUpdate(originalShortname, shortname, shortnameReferences.get(provider));
         return shortname;
     }
 
@@ -466,7 +485,8 @@ public class ContentManager
 
         try (AliasFileManager fileManager = new AliasFileManager(fileName, provider))
         {
-            return !fileManager.readFile().equals(aliasMapping);
+            Optional<Map<String, String>> mapping = fileManager.readFile();
+            return mapping.isEmpty() || mapping.get().equals(aliasMapping);
         }
     }
 
@@ -487,6 +507,7 @@ public class ContentManager
             return false;
 
         if (provider.isJarFile() // JAR File means it's the first time we load the pack
+            || shouldUpdateAliasMappingFile(ID_ALIAS_FILE, provider, DynamicReference.getAliasMapping(shortnameReferences.get(provider)))
             || shouldUpdateAliasMappingFile(ARMOR_TEXTURES_ALIAS_FILE, provider, DynamicReference.getAliasMapping(armorTextureReferences.get(provider)))
             || shouldUpdateAliasMappingFile(GUI_TEXTURES_ALIAS_FILE, provider, DynamicReference.getAliasMapping(guiTextureReferences.get(provider)))
             || shouldUpdateAliasMappingFile(SKINS_TEXTURES_ALIAS_FILE, provider, DynamicReference.getAliasMapping(skinsTextureReferences.get(provider))))

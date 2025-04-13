@@ -10,8 +10,8 @@ import java.lang.reflect.Type;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 public class AliasFileManager implements AutoCloseable
 {
@@ -28,24 +28,24 @@ public class AliasFileManager implements AutoCloseable
         this.provider = provider;
     }
 
-    public Map<String, String> readFile()
+    public Optional<Map<String, String>> readFile()
     {
         fs = FileUtils.createFileSystem(provider);
         Path file = (fs != null) ? fs.getPath("/" + fileName) : provider.getPath().resolve(fileName);
 
         if (!Files.exists(file))
         {
-            return Collections.emptyMap();
+            return Optional.empty();
         }
 
         try
         {
-            return gson.fromJson(Files.readString(file), type);
+            return Optional.of(gson.fromJson(Files.readString(file), type));
         }
         catch (Exception e)
         {
             ArmorMod.log.error("Error reading {} in {}", file.getFileName(), provider.getPath(), e);
-            return Collections.emptyMap();
+            return Optional.empty();
         }
     }
 

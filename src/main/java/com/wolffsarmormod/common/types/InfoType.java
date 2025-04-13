@@ -54,13 +54,13 @@ public abstract class InfoType
             if (line.startsWith("//"))
                 continue;
 
-            readLine(line.split(StringUtils.SPACE), file);
+            readLine(line, line.split(StringUtils.SPACE), file);
         }
 
-        postRead(file);
+        postRead();
     }
 
-    protected void readLine(String[] split, TypeFile file)
+    protected void readLine(String line, String[] split, TypeFile file)
     {
         name = readValues(split, "Name", name, file);
         shortName = readValue(split, "ShortName", shortName, file).toLowerCase();
@@ -72,10 +72,17 @@ public abstract class InfoType
         modelScale = readValue(split, "ModelScale", modelScale, file);
     }
 
-    protected void postRead(TypeFile file)
+    protected void postRead()
     {
         if (FMLEnvironment.dist == Dist.CLIENT)
+        {
             findModelClass();
+            if (!textureName.isBlank())
+                ContentManager.getSkinsTextureReferences().get(contentPack).putIfAbsent(textureName, new DynamicReference(textureName));
+            if (!overlayName.isBlank())
+                ContentManager.getGuiTextureReferences().get(contentPack).putIfAbsent(overlayName, new DynamicReference(overlayName));
+        }
+
     }
 
     @OnlyIn(Dist.CLIENT)

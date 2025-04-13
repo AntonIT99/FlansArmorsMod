@@ -63,6 +63,7 @@ public class ContentManager
     private static final String ID_ALIAS_FILE = "id_alias.json";
     private static final String ARMOR_TEXTURES_ALIAS_FILE = "armor_textures_alias.json";
     private static final String GUI_TEXTURES_ALIAS_FILE = "gui_textures_alias.json";
+    private static final String SKINS_TEXTURES_ALIAS_FILE = "gui_textures_alias.json";
 
     private static final List<IContentProvider> contentPacks = new ArrayList<>();
     private static final Map<IContentProvider, ArrayList<TypeFile>> files = new HashMap<>();
@@ -150,12 +151,13 @@ public class ContentManager
             {
                 writeToAliasMappingFile(ARMOR_TEXTURES_ALIAS_FILE, provider, DynamicReference.getAliasMapping(armorTextureReferences.get(provider)));
                 writeToAliasMappingFile(GUI_TEXTURES_ALIAS_FILE, provider, DynamicReference.getAliasMapping(guiTextureReferences.get(provider)));
+                writeToAliasMappingFile(SKINS_TEXTURES_ALIAS_FILE, provider, DynamicReference.getAliasMapping(skinsTextureReferences.get(provider)));
                 createItemJsonFiles(provider);
                 createLocalization(provider);
                 copyItemIcons(provider);
                 copyTextures(provider, TEXTURES_ARMOR_FOLDER, armorTextureReferences.get(provider));
                 copyTextures(provider, TEXTURES_GUI_FOLDER, guiTextureReferences.get(provider));
-                copyTextures(provider, TEXTURES_SKINS_FOLDER, guiTextureReferences.get(provider));
+                copyTextures(provider, TEXTURES_SKINS_FOLDER, skinsTextureReferences.get(provider));
                 createSounds(provider);
             }
 
@@ -248,6 +250,10 @@ public class ContentManager
                         if (path.getFileName().toString().equals(GUI_TEXTURES_ALIAS_FILE))
                         {
                             readAliasMappingFile(path.getFileName().toString(), provider, guiTextureReferences);
+                        }
+                        if (path.getFileName().toString().equals(SKINS_TEXTURES_ALIAS_FILE))
+                        {
+                            readAliasMappingFile(path.getFileName().toString(), provider, skinsTextureReferences);
                         }
                     }
                 }
@@ -369,7 +375,7 @@ public class ContentManager
         FileSystem fs = FileUtils.createFileSystem(provider);
         findDuplicateTexturesInFolder(TEXTURES_ARMOR_FOLDER, provider, fs, armorTextureReferences.get(provider));
         findDuplicateTexturesInFolder(TEXTURES_GUI_FOLDER, provider, fs, guiTextureReferences.get(provider));
-        findDuplicateTexturesInFolder(TEXTURES_SKINS_FOLDER, provider, fs, guiTextureReferences.get(provider));
+        findDuplicateTexturesInFolder(TEXTURES_SKINS_FOLDER, provider, fs, skinsTextureReferences.get(provider));
         FileUtils.closeFileSystem(fs, provider);
     }
 
@@ -473,7 +479,8 @@ public class ContentManager
 
         if (provider.isJarFile() // JAR File means it's the first time we load the pack
             || shouldUpdateAliasMappingFile(ARMOR_TEXTURES_ALIAS_FILE, provider, DynamicReference.getAliasMapping(armorTextureReferences.get(provider)))
-            || shouldUpdateAliasMappingFile(GUI_TEXTURES_ALIAS_FILE, provider, DynamicReference.getAliasMapping(guiTextureReferences.get(provider))))
+            || shouldUpdateAliasMappingFile(GUI_TEXTURES_ALIAS_FILE, provider, DynamicReference.getAliasMapping(guiTextureReferences.get(provider)))
+            || shouldUpdateAliasMappingFile(SKINS_TEXTURES_ALIAS_FILE, provider, DynamicReference.getAliasMapping(skinsTextureReferences.get(provider))))
         {
             return true;
         }

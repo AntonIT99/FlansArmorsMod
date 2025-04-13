@@ -3,6 +3,7 @@ package com.wolffsarmormod.common.item;
 import com.flansmod.client.model.ModelGun;
 import com.wolffsarmormod.common.types.GunType;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +22,14 @@ import java.util.Optional;
 @Getter
 public class GunItem extends Item implements IModelItem<GunType, ModelGun>, IOverlayItem<GunType>
 {
+    @Getter
     protected final GunType configType;
+    @Getter @Setter
+    protected ModelGun model;
+    @Getter @Setter
+    protected ResourceLocation texture;
+    @Setter
+    protected ResourceLocation overlay;
 
     public GunItem(GunType configType)
     {
@@ -42,37 +50,8 @@ public class GunItem extends Item implements IModelItem<GunType, ModelGun>, IOve
     @Override
     public void clientSideInit()
     {
-
-    }
-
-    @Override
-    public String getTexturePath(String textureName)
-    {
-        return "";
-    }
-
-    @Override
-    public ResourceLocation getTexture()
-    {
-        return null;
-    }
-
-    @Override
-    public void setTexture(ResourceLocation texture)
-    {
-
-    }
-
-    @Override
-    public ModelGun getModel()
-    {
-        return null;
-    }
-
-    @Override
-    public void setModel(ModelGun model)
-    {
-
+        loadModelAndTexture(null);
+        loadOverlay();
     }
 
     @Override
@@ -84,12 +63,6 @@ public class GunItem extends Item implements IModelItem<GunType, ModelGun>, IOve
     @Override
     public Optional<ResourceLocation> getOverlay()
     {
-        return Optional.empty();
-    }
-
-    @Override
-    public void setOverlay(ResourceLocation overlay)
-    {
-
+        return Optional.ofNullable(overlay);
     }
 }

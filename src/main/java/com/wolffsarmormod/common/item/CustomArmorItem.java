@@ -8,6 +8,7 @@ import com.wolffsarmormod.common.types.ArmorType;
 import com.wolffsarmormod.config.ModCommonConfigs;
 import com.wolffsarmormod.event.ServerTickEventHandler;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
@@ -45,8 +46,11 @@ public class CustomArmorItem extends ArmorItem implements IModelItem<ArmorType, 
 
     @Getter
     protected final ArmorType configType;
+    @Getter @Setter
     protected ModelCustomArmour model;
+    @Getter @Setter
     protected ResourceLocation texture;
+    @Setter
     protected ResourceLocation overlay;
 
     public CustomArmorItem(ArmorType configType)
@@ -61,8 +65,7 @@ public class CustomArmorItem extends ArmorItem implements IModelItem<ArmorType, 
     @OnlyIn(Dist.CLIENT)
     public void clientSideInit()
     {
-        loadModel(new DefaultArmor(configType.getArmorItemType()));
-        loadTexture();
+        loadModelAndTexture(new DefaultArmor(configType.getArmorItemType()));
         loadOverlay();
     }
 
@@ -196,48 +199,15 @@ public class CustomArmorItem extends ArmorItem implements IModelItem<ArmorType, 
 
     @OnlyIn(Dist.CLIENT)
     @Override
-    public ResourceLocation getTexture()
-    {
-        return texture;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public void setTexture(ResourceLocation texture)
-    {
-        this.texture = texture;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public ModelCustomArmour getModel()
-    {
-        return model;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
-    public void setModel(ModelCustomArmour model)
-    {
-        this.model = model;
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    @Override
     public boolean useCustomItemRendering()
     {
         return false;
     }
 
     @OnlyIn(Dist.CLIENT)
+    @Override
     public Optional<ResourceLocation> getOverlay()
     {
         return Optional.ofNullable(overlay);
-    }
-
-    @Override
-    public void setOverlay(ResourceLocation overlay)
-    {
-        this.overlay = overlay;
     }
 }

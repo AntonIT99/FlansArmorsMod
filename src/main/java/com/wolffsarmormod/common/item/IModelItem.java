@@ -22,7 +22,10 @@ public interface IModelItem<T extends InfoType, M extends IFlanModel<T>> extends
     void clientSideInit();
 
     @OnlyIn(Dist.CLIENT)
-    String getTexturePath(String textureName);
+    default String getTexturePath(String textureName)
+    {
+        return "textures/" + getConfigType().getType().getTextureFolderName() + "/" + textureName + ".png";
+    }
 
     @OnlyIn(Dist.CLIENT)
     ResourceLocation getTexture();
@@ -30,6 +33,7 @@ public interface IModelItem<T extends InfoType, M extends IFlanModel<T>> extends
     @OnlyIn(Dist.CLIENT)
     void setTexture(ResourceLocation texture);
 
+    @Nullable
     @OnlyIn(Dist.CLIENT)
     M getModel();
 
@@ -38,6 +42,13 @@ public interface IModelItem<T extends InfoType, M extends IFlanModel<T>> extends
 
     @OnlyIn(Dist.CLIENT)
     boolean useCustomItemRendering();
+
+    @OnlyIn(Dist.CLIENT)
+    default void loadModelAndTexture(@Nullable M defaultModel)
+    {
+        loadModel(defaultModel);
+        loadTexture();
+    }
 
     @OnlyIn(Dist.CLIENT)
     default void loadModel(@Nullable M defaultModel)
@@ -74,17 +85,9 @@ public interface IModelItem<T extends InfoType, M extends IFlanModel<T>> extends
     {
         T configType = getConfigType();
         DynamicReference texture = configType.getTexture();
-        if (texture != null)
-        {
-            ResourceLocation textureRes = ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, getTexturePath(texture.get()));
-            setTexture(textureRes);
+        ResourceLocation textureRes = (texture != null) ? ResourceLocation.fromNamespaceAndPath(ArmorMod.FLANSMOD_ID, getTexturePath(texture.get())) : TextureManager.INTENTIONAL_MISSING_TEXTURE;
+        setTexture(textureRes);
+        if (getModel() != null)
             getModel().setTexture(textureRes);
-        }
-        else
-        {
-            setTexture(TextureManager.INTENTIONAL_MISSING_TEXTURE);
-            getModel().setTexture(TextureManager.INTENTIONAL_MISSING_TEXTURE);
-        }
-
     }
 }

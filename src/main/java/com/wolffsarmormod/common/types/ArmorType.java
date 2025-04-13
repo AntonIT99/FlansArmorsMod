@@ -3,6 +3,7 @@ package com.wolffsarmormod.common.types;
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.ContentManager;
 import com.wolffsarmormod.util.DynamicReference;
+import com.wolffsarmormod.util.TypeReaderUtils;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.minecraftforge.api.distmarker.Dist;
@@ -61,9 +62,9 @@ public class ArmorType extends InfoType
     protected Map<MobEffect, Integer> effects = new HashMap<>();
 
     @Override
-    protected void readLine(String[] split, TypeFile file)
+    protected void readLine(String line, String[] split, TypeFile file)
     {
-        super.readLine(split, file);
+        super.readLine(line, split, file);
         rawArmorItemType = readValue(split, "Type", rawArmorItemType, file);
         textureName = readValue(split, "ArmourTexture", textureName, file).toLowerCase();
         textureName = readValue(split, "ArmorTexture", textureName, file).toLowerCase();
@@ -89,11 +90,13 @@ public class ArmorType extends InfoType
         onWaterWalking = readValue(split, "OnWaterWalking", onWaterWalking, file);
         hunger = readValue(split, "hunger", hunger, file);
         regeneration = readValue(split, "regenerate", regeneration, file);
+        addEffects(readValues(split, "AddEffect", file), line, file);
+    }
 
-        List<String> effectValues = readValues(split, "AddEffect", file);
+    protected void addEffects(List<String> effectValues, String line, TypeFile file)
+    {
         if (!effectValues.isEmpty())
         {
-            String line = String.join(StringUtils.SPACE, split);
             try
             {
                 int effectId = Integer.parseInt(effectValues.get(0));
@@ -105,21 +108,19 @@ public class ArmorType extends InfoType
                 }
                 else
                 {
-                    ArmorMod.log.error("Could not read line {}: Potion ID {} does not exist", line, effectId);
+                    TypeReaderUtils.logError(String.format("Potion ID %s does not exist in '%s'", effectId, line), file);
                 }
             }
             catch (NumberFormatException e)
             {
-                ArmorMod.log.error("Could not read line {}", line, e);
+                TypeReaderUtils.logError(String.format("NumberFormatException in '%s'", line), file);
             }
         }
     }
 
     @Override
-    protected void postRead(TypeFile file)
+    protected void postRead()
     {
-        super.postRead(file);
-
         switch (rawArmorItemType.toLowerCase())
         {
             case "helmet", "hat", "head":
@@ -142,8 +143,11 @@ public class ArmorType extends InfoType
 
         if (FMLEnvironment.dist == Dist.CLIENT)
         {
-            ContentManager.getArmorTextureReferences().get(contentPack).putIfAbsent(textureName, new DynamicReference(textureName));
-            ContentManager.getGuiTextureReferences().get(contentPack).putIfAbsent(overlayName, new DynamicReference(overlayName));
+            findModelClass();
+            if (!textureName.isBlank())
+                ContentManager.getArmorTextureReferences().get(contentPack).putIfAbsent(textureName, new DynamicReference(textureName));
+            if (!overlayName.isBlank())
+                ContentManager.getGuiTextureReferences().get(contentPack).putIfAbsent(overlayName, new DynamicReference(overlayName));
         }
     }
 

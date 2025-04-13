@@ -108,6 +108,7 @@ public class ModelGun extends Model implements IFlanModel<GunType>
         flip(revolver2BarrelModel);
         flip(breakActionModel);
         flip(altbreakActionModel);
+        flip(leverActionModel);
         flip(hammerModel);
         flip(althammerModel);
         flip(bulletCounterModel);
@@ -149,6 +150,7 @@ public class ModelGun extends Model implements IFlanModel<GunType>
         translate(revolver2BarrelModel, x, y, z);
         translate(breakActionModel, x, y, z);
         translate(altbreakActionModel, x, y, z);
+        translate(leverActionModel, x, y, z);
         translate(hammerModel, x, y, z);
         translate(althammerModel, x, y, z);
         translate(bulletCounterModel, x, y, z);

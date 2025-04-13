@@ -3,7 +3,7 @@ package com.flansmod.client.model;
 import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsarmormod.client.model.armor.IFlanModel;
+import com.wolffsarmormod.client.model.IFlanModel;
 import com.wolffsarmormod.common.types.GunType;
 import com.wolffsmod.client.model.ModelRenderer;
 import com.wolffsmod.client.model.TextureOffset;
@@ -214,6 +214,21 @@ public class ModelGun extends Model implements IFlanModel<GunType>
     @Override
     public void renderToBuffer(@NotNull PoseStack pPoseStack, @NotNull VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha)
     {
-        //TODO
+        float modelScale = type != null ? type.getModelScale() : 1F;
+        // TODO
+        renderGun(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, modelScale);
+    }
+
+    public void renderGun(PoseStack pPoseStack, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha, float scale)
+    {
+        render(gunModel, pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale);
+    }
+
+    public void render(ModelRendererTurbo[] models, PoseStack pPoseStack, VertexConsumer pBuffer, int pPackedLight, int pPackedOverlay, float pRed, float pGreen, float pBlue, float pAlpha, float scale)
+    {
+        for (ModelRendererTurbo mod : models)
+        {
+            mod.render(pPoseStack, pBuffer, pPackedLight, pPackedOverlay, pRed, pGreen, pBlue, pAlpha, scale);
+        }
     }
 }

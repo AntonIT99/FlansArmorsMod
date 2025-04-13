@@ -2,7 +2,7 @@ package com.wolffsarmormod.common.item;
 
 import com.wolffsarmormod.ArmorMod;
 import com.wolffsarmormod.IContentProvider;
-import com.wolffsarmormod.client.model.armor.IFlanModel;
+import com.wolffsarmormod.client.model.IFlanModel;
 import com.wolffsarmormod.common.types.InfoType;
 import com.wolffsarmormod.util.ClassLoaderUtils;
 import com.wolffsarmormod.util.DynamicReference;
@@ -54,11 +54,11 @@ public interface IModelItem<T extends InfoType, M extends IFlanModel<T>> extends
     default void loadModel(@Nullable M defaultModel)
     {
         T configType = getConfigType();
-        String className = configType.getModelClass();
+        String className = configType.getModelClassName();
         if (!className.isBlank())
         {
             IContentProvider contentPack = configType.getContentPack();
-            DynamicReference actualClassName = configType.getActualModelClass();
+            DynamicReference actualClassName = configType.getActualModelClassName();
             if (actualClassName != null)
             {
                 try

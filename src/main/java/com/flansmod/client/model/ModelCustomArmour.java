@@ -3,7 +3,7 @@ package com.flansmod.client.model;
 import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsarmormod.client.model.armor.IFlanModel;
+import com.wolffsarmormod.client.model.IFlanModel;
 import com.wolffsarmormod.common.types.ArmorType;
 import com.wolffsmod.client.model.ModelRenderer;
 import com.wolffsmod.client.model.TextureOffset;

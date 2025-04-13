@@ -10,9 +10,12 @@ import com.wolffsarmormod.util.AliasFileManager;
 import com.wolffsarmormod.util.DynamicReference;
 import com.wolffsarmormod.util.FileUtils;
 import com.wolffsarmormod.util.ResourceUtils;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.commons.io.FilenameUtils;
 
 import javax.annotation.Nullable;
@@ -35,6 +38,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ContentManager
 {
     public static final ContentManager INSTANCE = new ContentManager();
@@ -45,6 +49,8 @@ public class ContentManager
 
     @Getter
     private static Path flanFolder;
+    private static final Path defaultFlanPath = FMLPaths.GAMEDIR.get().resolve("flan");
+    private static final Path fallbackFlanPath = FMLPaths.GAMEDIR.get().resolve("Flan");
 
     // Mappings which allow to use aliases for duplicate short names and texture names (also contain unmodified references)
     // The idea behind dynamic references is to allow references to shortnames and textures to change
@@ -82,7 +88,7 @@ public class ContentManager
 
     private record TextureFile(String name, IContentProvider contentPack) {}
 
-    private ContentManager()
+    static
     {
         textures.put(TEXTURES_ARMOR_FOLDER, new HashMap<>());
         textures.put(TEXTURES_GUI_FOLDER, new HashMap<>());
@@ -118,9 +124,10 @@ public class ContentManager
             files.putIfAbsent(provider, new ArrayList<>());
             configs.putIfAbsent(provider, new ArrayList<>());
 
+            shortnameReferences.putIfAbsent(provider, new HashMap<>());
             armorTextureReferences.putIfAbsent(provider, new HashMap<>());
             guiTextureReferences.putIfAbsent(provider, new HashMap<>());
-            shortnameReferences.putIfAbsent(provider, new HashMap<>());
+            skinsTextureReferences.putIfAbsent(provider, new HashMap<>());
             modelReferences.putIfAbsent(provider, new HashMap<>());
 
             readFiles(provider);
@@ -174,24 +181,23 @@ public class ContentManager
 
     private static void loadFlanFolder()
     {
-        if (!Files.exists(ArmorMod.flanPath) && !Files.exists(ArmorMod.fallbackFlanPath))
+        if (!Files.exists(defaultFlanPath) && Files.exists(fallbackFlanPath))
+        {
+            flanFolder = fallbackFlanPath;
+        }
+        else
         {
             try
             {
-                Files.createDirectories(ArmorMod.flanPath);
+                Files.createDirectories(defaultFlanPath);
             }
             catch (Exception e)
             {
                 ArmorMod.log.error("Failed to create the flan directory.", e);
                 return;
             }
+            flanFolder = defaultFlanPath;
         }
-        else if (!Files.exists(ArmorMod.flanPath) && Files.exists(ArmorMod.fallbackFlanPath))
-        {
-            ArmorMod.flanPath = ArmorMod.fallbackFlanPath;
-        }
-
-        flanFolder = ArmorMod.flanPath;
     }
 
     private Map<String, Path> loadFoldersAndJarZipFiles(Path rootPath) throws IOException
@@ -305,6 +311,7 @@ public class ContentManager
     {
         for (TypeFile typeFile : files.get(contentPack))
         {
+            ArmorMod.log.info(typeFile.getName());
             try
             {
                 Class<? extends InfoType> typeClass = typeFile.getType().getTypeClass();

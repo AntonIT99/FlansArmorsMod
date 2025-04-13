@@ -132,7 +132,7 @@ public abstract class InfoType
             if (!modelClassAlreadyRegisteredForContentPack(modelClassName, contentPack))
             {
                 String actualClassName = modelClassName;
-                if (hasModelConflict(actualClassName, contentPack))
+                if (hasModelConflictWithOtherContentPack(actualClassName, contentPack))
                 {
                     IContentProvider otherContentPack = ContentManager.getRegisteredModels().get(modelClassName);
                     FileSystem otherFs = FileUtils.createFileSystem(otherContentPack);
@@ -165,7 +165,7 @@ public abstract class InfoType
         return false;
     }
 
-    protected static boolean hasModelConflict(String modelClassName, IContentProvider contentPack)
+    protected static boolean hasModelConflictWithOtherContentPack(String modelClassName, IContentProvider contentPack)
     {
         return ContentManager.getRegisteredModels().containsKey(modelClassName) && !contentPack.equals(ContentManager.getRegisteredModels().get(modelClassName));
     }
@@ -173,7 +173,7 @@ public abstract class InfoType
     protected String findNewValidClassName(String className)
     {
         String newClassName = className;
-        for (int i = 2; ContentManager.getRegisteredModels().containsKey(modelClassName); i++)
+        for (int i = 2; ContentManager.getRegisteredModels().containsKey(newClassName); i++)
         {
             newClassName = className + "_" + i;
         }
@@ -187,14 +187,14 @@ public abstract class InfoType
     }
 
     @OnlyIn(Dist.CLIENT)
-    public String getModelClass()
+    public String getModelClassName()
     {
         return modelClassName;
     }
 
     @Nullable
     @OnlyIn(Dist.CLIENT)
-    public DynamicReference getActualModelClass()
+    public DynamicReference getActualModelClassName()
     {
         if (!modelClassName.isBlank())
         {

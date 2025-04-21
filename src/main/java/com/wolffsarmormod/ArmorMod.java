@@ -66,6 +66,8 @@ public class ArmorMod
     }
 
     private void registerCreativeTab(String name, List<RegistryObject<Item>> itemsForTab) {
+        if (itemsForTab.isEmpty()) return;
+
         creativeModeTabRegistry.register(name, () -> CreativeModeTab.builder()
                 .title(Component.translatable("creativetab." + MOD_ID + "." + name))
                 .icon(() -> new ItemStack(itemsForTab.get(ThreadLocalRandom.current().nextInt(0, items.size())).get()))

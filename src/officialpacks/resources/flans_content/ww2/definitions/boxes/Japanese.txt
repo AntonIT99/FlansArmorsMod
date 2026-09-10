@@ -3,7 +3,6 @@ ShortName japanese
 TopTexture boxTop
 SideTexture japanesebox
 BottomTexture boxBottom
-GunBoxID 153
 Recipe I ingotIron W dyePowder.15 R dyePowder.1
 III
 WRW

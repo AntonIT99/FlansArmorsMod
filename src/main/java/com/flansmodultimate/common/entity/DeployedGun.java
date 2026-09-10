@@ -661,7 +661,9 @@ public class DeployedGun extends Entity implements IEntityAdditionalSpawnData, I
 
         ammo = newAmmo.copy();
         setHasAmmo(true);
-        setReloadTimer(configType.getReloadTime());
+        float reloadFactor = ammo.getItem() instanceof ShootableItem shootableItem
+            ? shootableItem.getConfigType().getReloadTimeMultiplier() : 1F;
+        setReloadTimer(Math.round(configType.getReloadTime() * reloadFactor));
         String reloadSound = configType.getReloadSound(null);
 
         // Play reload sound

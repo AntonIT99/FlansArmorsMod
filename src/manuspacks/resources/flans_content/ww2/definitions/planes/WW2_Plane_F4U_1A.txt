@@ -33,7 +33,6 @@ Drag 1.0
 
 
 //Wheels
-NumWheels 3
 WheelPosition 0 30 -8 -36
 WheelPosition 1 30 -8 36
 WheelPosition 2 -94 13 0
@@ -45,7 +44,7 @@ WheelSpringStrength 0.125
 
 //Ammo
 AllowAllAmmo False
-WW2_Missle_USAHVAR
+AddAmmo WW2_Missle_USAHVAR
 
 
 //Weapons

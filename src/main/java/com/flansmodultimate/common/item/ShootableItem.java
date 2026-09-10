@@ -226,6 +226,20 @@ public abstract class ShootableItem extends Item
         if (configType.getNumBullets() > 1)
             tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.SHOT), String.valueOf(configType.getNumBullets())));
 
+        // What loading this round does to the weapon, read the same way as an
+        // attachment's modifiers so the two are directly comparable.
+        if (configType.getDamageMultiplier() != 1F)
+            tooltipComponents.add(IFlanItem.modifierLine(Component.translatable(TooltipKeys.DAMAGE), configType.getDamageMultiplier(), false));
+
+        if (configType.getSpreadMultiplier() != 1F)
+            tooltipComponents.add(IFlanItem.modifierLine(Component.translatable(TooltipKeys.BULLET_SPREAD), configType.getSpreadMultiplier(), true));
+
+        if (configType.getRecoilMultiplier() != 1F)
+            tooltipComponents.add(IFlanItem.modifierLine(Component.translatable(TooltipKeys.RECOIL), configType.getRecoilMultiplier(), true));
+
+        if (configType.getReloadTimeMultiplier() != 1F)
+            tooltipComponents.add(IFlanItem.modifierLine(Component.translatable(TooltipKeys.RELOAD_TIME), configType.getReloadTimeMultiplier(), true));
+
         if (configType.useKineticDamageSystem())
         {
             if (configType instanceof BulletType bulletType)

@@ -69,7 +69,7 @@ AddRecipeParts frontLeftWheel 2 Part_Wheel_APC
 AddRecipeParts frontRightWheel 2 Part_Wheel_APC
 AddRecipeParts backLeftWheel 2 Part_Wheel_APC
 AddRecipeParts backRightWheel 2 Part_Wheel_APC
-Dye colours are "black", "red", "green", "brown", "blue", "purple", "cyan", "silver", "gray", "pink", "lime", "yellow", "lightBlue", "magenta", "orange", "white"
+//Dye colours are "black", "red", "green", "brown", "blue", "purple", "cyan", "silver", "gray", "pink", "lime", "yellow", "lightBlue", "magenta", "orange", "white"
 AddDye 10 green
 //Health and collision
 SetupPart turret 250 -17 32 -13 33 14 26

@@ -12,6 +12,7 @@ import com.flansmodultimate.common.guns.RemovedAmmo;
 import com.flansmodultimate.common.guns.ShootingHelper;
 import com.flansmodultimate.common.item.AttachmentItem;
 import com.flansmodultimate.common.item.GunItem;
+import com.flansmodultimate.common.item.ShootableItem;
 import com.flansmodultimate.config.CommonConfigSnapshot;
 import com.flansmodultimate.config.ModCommonConfig;
 import com.flansmodultimate.util.ResourceUtils;
@@ -76,7 +77,10 @@ public class GunType extends PaintableType implements IScope, IAmmoGroupUser, IA
      */
     protected float decreaseRecoilPitch;
     /**
-     * DEPRECATED DO NOT USE. Divisor for yaw recoil when crouching.
+     * DEPRECATED DO NOT USE. Divisor for yaw recoil when crouching, so 2 halves
+     * it. Zero means the gun did not author one and
+     * {@link #recoilSneakingMultiplierYaw} applies instead; a gun stating both
+     * keeps this one, as {@link #decreaseRecoilPitch} does for pitch.
      */
     protected float decreaseRecoilYaw;
 
@@ -276,6 +280,7 @@ public class GunType extends PaintableType implements IScope, IAmmoGroupUser, IA
      */
     @Getter
     protected boolean usableByPlayers = true;
+    @Getter
     protected boolean usableByMechas = true;
     /**
      * If false, then attachments wil not be listed in item GUI
@@ -930,7 +935,12 @@ public class GunType extends PaintableType implements IScope, IAmmoGroupUser, IA
 
         defaultSpread = bulletSpread;
         recoilYaw /= 10F;
-        decreaseRecoilYaw = (decreaseRecoilYaw > 0F) ? decreaseRecoilYaw : 0.5F;
+        // Zero means "not authored", which is what hands crouching over to
+        // RecoilSneakingMultiplierYaw. A divisor of zero or less cannot decrease
+        // anything - it would divide by zero or flip the recoil - so it is
+        // discarded rather than honoured.
+        if (decreaseRecoilYaw < 0F || !Float.isFinite(decreaseRecoilYaw))
+            decreaseRecoilYaw = 0F;
 
         if (lockOnToDriveables)
         {
@@ -1123,6 +1133,36 @@ public class GunType extends PaintableType implements IScope, IAmmoGroupUser, IA
     public float getZoomAugment()
     {
         return zoomAugment;
+    }
+
+    /**
+     * The ammunition currently chambered in this gun, or null when it is empty or
+     * not a gun item. Guns holding several magazines report the first loaded one,
+     * which is also the one they fire next.
+     *
+     * <p>Used for the stats a round modifies while it merely sits in the weapon -
+     * recoil and reload time - rather than at the moment it leaves the barrel.</p>
+     */
+    @Nullable
+    public ShootableType getLoadedAmmo(@Nullable ItemStack gunStack)
+    {
+        if (gunStack == null || !(gunStack.getItem() instanceof GunItem gunItem))
+            return null;
+        for (int slot = 0; slot < getNumAmmoItemsInGun(gunStack); slot++)
+        {
+            ItemStack ammoStack = gunItem.getAmmoItemStack(gunStack, slot);
+            if (ammoStack != null && ammoStack.getItem() instanceof ShootableItem shootableItem
+                && ShootableItem.hasRoundsLeft(ammoStack))
+                return shootableItem.getConfigType();
+        }
+        return null;
+    }
+
+    /** The recoil factor of the chambered round, or 1 when the gun is empty. */
+    private float loadedRecoilMultiplier(@Nullable ItemStack gunStack)
+    {
+        ShootableType ammo = getLoadedAmmo(gunStack);
+        return ammo == null ? 1F : ammo.getRecoilMultiplier();
     }
 
     /**
@@ -1369,9 +1409,11 @@ public class GunType extends PaintableType implements IScope, IAmmoGroupUser, IA
     public float getDamageForDisplay(ShootableType type, ItemStack gunStack, @Nullable Class<? extends Entity> entityClass)
     {
         if (type.useKineticDamageSystem())
+            // Kinetic rounds take their damage from mass and velocity alone, so
+            // neither the weapon's Damage nor the round's DamageMultiplier applies.
             return ShootingHelper.getKineticDamage(type.getMass(), getBulletSpeed(gunStack));
         else
-            return type.getDamage().getDamageAgainstEntityClass(entityClass) * getDamage(gunStack);
+            return type.getDamage().getDamageAgainstEntityClass(entityClass) * getDamage(gunStack) * type.getDamageMultiplier();
     }
 
     /**
@@ -1455,6 +1497,8 @@ public class GunType extends PaintableType implements IScope, IAmmoGroupUser, IA
         for (AttachmentType attachment : getCurrentAttachments(stack))
             stackRecoil *= attachment.recoilMultiplier;
 
+        stackRecoil *= loadedRecoilMultiplier(stack);
+
         switch (enumMovement) {
             case SNEAKING:
                 if (decreaseRecoilPitch != 0) {
@@ -1479,6 +1523,26 @@ public class GunType extends PaintableType implements IScope, IAmmoGroupUser, IA
     }
 
     /**
+     * Yaw recoil while crouched.
+     *
+     * <p>{@code DecreaseRecoilYaw} is a divisor, matching its name and the pitch
+     * side's {@code DecreaseRecoil}: a gun stating 2 fires with half its yaw
+     * recoil while crouched. It has priority over
+     * {@code RecoilSneakingMultiplierYaw}, exactly as {@code DecreaseRecoil} has
+     * over {@code RecoilSneakingMultiplier}, and a gun that states neither takes
+     * the multiplier's default.</p>
+     *
+     * <p>Anything other than a positive divisor means no legacy value was
+     * authored, so the modern multiplier applies. This is the whole fix: the
+     * divisor used to be tested for being negative, which the parser had already
+     * made impossible, so every authored {@code DecreaseRecoilYaw} was ignored.</p>
+     */
+    static float sneakingYawRecoil(float recoilYaw, float decreaseRecoilYaw, float sneakingMultiplierYaw)
+    {
+        return decreaseRecoilYaw > 0F ? recoilYaw / decreaseRecoilYaw : recoilYaw * sneakingMultiplierYaw;
+    }
+
+    /**
      * Get the yaw recoil of a specific gun, taking into account attachments, randomess and sneak/sprint
      */
     public float getRecoilYaw(ItemStack stack, EnumMovement enumMovement)
@@ -1488,19 +1552,19 @@ public class GunType extends PaintableType implements IScope, IAmmoGroupUser, IA
         for (AttachmentType attachment : getCurrentAttachments(stack))
             stackRecoilYaw *= attachment.recoilMultiplier;
 
+        stackRecoilYaw *= loadedRecoilMultiplier(stack);
+
         switch (enumMovement) {
             case SNEAKING:
-                if (decreaseRecoilYaw < 0) {
-                    stackRecoilYaw /= decreaseRecoilYaw;
-                } else {
-                    stackRecoilYaw *= recoilSneakingMultiplierYaw;
-                }
+                stackRecoilYaw = sneakingYawRecoil(stackRecoilYaw, decreaseRecoilYaw, recoilSneakingMultiplierYaw);
                 break;
             case SPRINTING:
                 stackRecoilYaw *= recoilSprintingMultiplierYaw;
                 break;
             case WALKING:
                 stackRecoilYaw *= recoilWalkingMultiplierYaw;
+                break;
+            case NONE:
                 break;
         }
 
@@ -1514,6 +1578,8 @@ public class GunType extends PaintableType implements IScope, IAmmoGroupUser, IA
         for (AttachmentType attachment : getCurrentAttachments(stack))
             stackRecoil *= attachment.recoilMultiplier;
 
+        stackRecoil *= loadedRecoilMultiplier(stack);
+
         return stackRecoil * ModCommonConfig.get().gunRecoilModifier();
     }
 
@@ -1523,6 +1589,8 @@ public class GunType extends PaintableType implements IScope, IAmmoGroupUser, IA
 
         for (AttachmentType attachment : getCurrentAttachments(stack))
             stackRecoilYaw *= attachment.recoilMultiplier;
+
+        stackRecoilYaw *= loadedRecoilMultiplier(stack);
 
         return stackRecoilYaw * ModCommonConfig.get().gunRecoilModifier();
     }
@@ -1577,6 +1645,10 @@ public class GunType extends PaintableType implements IScope, IAmmoGroupUser, IA
 
         for (AttachmentType attachment : getCurrentAttachments(stack))
             stackReloadTime *= attachment.reloadTimeMultiplier;
+
+        ShootableType loadedAmmo = getLoadedAmmo(stack);
+        if (loadedAmmo != null)
+            stackReloadTime *= loadedAmmo.getReloadTimeMultiplier();
 
         return stackReloadTime;
     }
@@ -1822,6 +1894,8 @@ public class GunType extends PaintableType implements IScope, IAmmoGroupUser, IA
 
         for (AttachmentType attachment : getCurrentAttachments(stack))
             stackRecoil.applyModifier(attachment.recoilMultiplier);
+
+        stackRecoil.applyModifier(loadedRecoilMultiplier(stack));
 
         return stackRecoil;
     }

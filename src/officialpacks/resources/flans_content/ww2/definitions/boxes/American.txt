@@ -3,7 +3,6 @@ ShortName american
 TopTexture boxTop
 SideTexture americanbox
 BottomTexture boxBottom
-GunBoxID 152
 Recipe I ingotIron B dyePowder.4 R dyePowder.1
 III
 BRR

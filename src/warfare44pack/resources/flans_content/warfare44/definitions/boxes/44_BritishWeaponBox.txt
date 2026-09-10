@@ -3,7 +3,6 @@ ShortName 44_BritishWeaponBox
 TopTexture 44_WeaponBoxTop
 SideTexture 44_BritishWeaponBox
 BottomTexture 44_WeaponBoxBottom
-GunBoxID 150
 Recipe I ingotIron L log F 44_BritishFlag
 LLL
 IFI
@@ -23,7 +22,6 @@ ItemTextColor FFFFFF
 //The names of the items / blocks are those in the code, with some exceptions such as ingotIron (ingotingotIron) and gunpowder (sulphur)
 //And with parts from this mod, they are the shortName of the item
 //Guns cannot yet have multiple ammo types in the same slot. For now, just list them under two seperate guns that are the same
-NumGuns 20
 
 //
 SetPage Bolt-Rifles

@@ -41,4 +41,3 @@ ReloadSoundRange 5
 GunSoundRange 400
 
 //Server Stuff
-GunCategory 6

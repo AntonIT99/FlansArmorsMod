@@ -3,7 +3,6 @@ ShortName russian
 TopTexture boxTop
 SideTexture russianbox
 BottomTexture boxBottom
-GunBoxID 154
 Recipe I ingotIron Y dyePowder.11 R dyePowder.1
 III
 YRR

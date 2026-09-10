@@ -54,7 +54,6 @@ ReloadSoundRange 5
 GunSoundRange 400
 OneHanded True
 //Server Stuff
-GunCategory 6
 
 //Muzzle Flashes
 FlashModel W44.W44MuzzleFlash

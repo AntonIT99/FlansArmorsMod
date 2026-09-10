@@ -4,6 +4,8 @@ import com.flansmod.common.vector.Vector3f;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Optional;
+
 import static com.flansmodultimate.util.TypeReaderUtils.*;
 
 @Getter
@@ -279,8 +281,13 @@ public class GunAnimationConfig
         translateGun = readVector("animTranslateGun", file);
         rotateClipVertical = readFloat("animRotateClipVertical", file);
         stagedrotateClipVertical = readFloat("animStagedRotateClipVertical", file);
-        rotateClipVertical = readFloat("animRotateClipHorizontal", file);
-        stagedrotateClipVertical = readFloat("animStagedRotateClipHorizontal", file);
+        // As in 1.7.10, the Horizontal keys are aliases that also land on the
+        // vertical clip rotation, and only when they are actually authored.
+        // Reading them unconditionally would wipe out the Vertical keys above.
+        rotateClipVertical = Optional.ofNullable(readFloat("animRotateClipHorizontal", file))
+            .orElse(rotateClipVertical);
+        stagedrotateClipVertical = Optional.ofNullable(readFloat("animStagedRotateClipHorizontal", file))
+            .orElse(stagedrotateClipVertical);
         tiltClip = readFloat("animTiltClip", file);
         stagedtiltClip = readFloat("animStagedTiltClip", file);
         translateClip = readVector("animTranslateClip", file);

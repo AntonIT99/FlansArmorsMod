@@ -1347,8 +1347,11 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         driveableData.setInventoryChanged(false);
         if (!ammunitionChanged)
             return;
-        setPrimaryShootDelay(Math.max(primaryShootDelay, Math.max(0, configType.getReloadTimePrimary())));
-        setSecondaryShootDelay(Math.max(secondaryShootDelay, Math.max(0, configType.getReloadTimeSecondary())));
+        // A driveable reloads its whole weapon inventory in one go, so the
+        // slowest round now aboard sets how long the crew is held up.
+        float reloadFactor = loadedReloadTimeMultiplier();
+        setPrimaryShootDelay(Math.max(primaryShootDelay, Math.max(0, Math.round(configType.getReloadTimePrimary() * reloadFactor))));
+        setSecondaryShootDelay(Math.max(secondaryShootDelay, Math.max(0, Math.round(configType.getReloadTimeSecondary() * reloadFactor))));
         String sound = StringUtils.firstNonBlank(configType.getShootReloadSound(), configType.getReloadSoundPrimary(), configType.getReloadSoundSecondary());
         if (StringUtils.isNotBlank(sound))
             PacketPlaySound.sendSoundPacket(this, 96D, sound, false);
@@ -1366,6 +1369,22 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         secondaryShootDelay = Math.max(0, delay);
         if (!level().isClientSide)
             entityData.set(DATA_SECONDARY_RELOAD_TICKS, secondaryShootDelay);
+    }
+
+    /** The heaviest {@code ReloadTimeMultiplier} among the rounds currently in the weapon inventory. */
+    private float loadedReloadTimeMultiplier()
+    {
+        if (driveableData == null)
+            return 1F;
+        float factor = 1F;
+        int end = Math.min(driveableData.getCargoInventoryStart(), driveableData.getContainerSize());
+        for (int slot = 0; slot < end; slot++)
+        {
+            ItemStack stack = driveableData.getItem(slot);
+            if (stack.getItem() instanceof ShootableItem shootableItem)
+                factor = Math.max(factor, shootableItem.getConfigType().getReloadTimeMultiplier());
+        }
+        return factor;
     }
 
     protected int weaponInventoryFingerprint()

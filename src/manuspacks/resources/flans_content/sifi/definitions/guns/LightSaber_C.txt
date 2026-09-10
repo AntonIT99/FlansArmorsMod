@@ -40,6 +40,4 @@ AllowGripAttachments false
 NumGenericAttachmentSlots 1
 ModelScale 0.11
 MeleeDamage 20
-HasLight True
-MeleeOnly True
 OneHanded true

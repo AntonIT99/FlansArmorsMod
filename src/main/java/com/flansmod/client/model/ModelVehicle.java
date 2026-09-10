@@ -16,8 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.List;
-
 /** Extensible, pass-aware model base for legacy ground vehicles. */
 @SuppressWarnings({"unused", "java:S1104"})
 public class ModelVehicle extends ModelDriveable
@@ -246,9 +244,9 @@ public class ModelVehicle extends ModelDriveable
         if (driveableType instanceof VehicleType vehicleType)
         {
             ensureTrackPaths(vehicleType);
-            renderFancyTrackPath(vehicleType, leftTrackPath, 0F, poseStack, vertexConsumer,
+            renderFancyTrackPath(vehicleType, leftTrackPath, 0F, null, poseStack, vertexConsumer,
                 packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
-            renderFancyTrackPath(vehicleType, rightTrackPath, 0F, poseStack, vertexConsumer,
+            renderFancyTrackPath(vehicleType, rightTrackPath, 0F, null, poseStack, vertexConsumer,
                 packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
         }
     }
@@ -443,11 +441,16 @@ public class ModelVehicle extends ModelDriveable
                                    float red, float green, float blue, float alpha, float scale, EnumRenderPass renderPass)
     {
         ensureTrackPaths(type);
+        // A live vehicle carries eased per-link angles that FixTrackLink steers;
+        // without them the links fall back to the static pose.
+        TrackLinkAnimation links = state.trackLinks() != null && state.trackLinks().isActive() ? state.trackLinks() : null;
         if (driveable.isPartIntact(EnumDriveablePart.LEFT_TRACK))
-            renderFancyTrackPath(type, leftTrackPath, state.leftTrackProgress() * leftTrackPath.length, poseStack, vertexConsumer,
+            renderFancyTrackPath(type, leftTrackPath, state.leftTrackProgress() * leftTrackPath.length(),
+                links == null ? null : links.angles(true), poseStack, vertexConsumer,
                 packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
         if (driveable.isPartIntact(EnumDriveablePart.RIGHT_TRACK))
-            renderFancyTrackPath(type, rightTrackPath, state.rightTrackProgress() * rightTrackPath.length, poseStack, vertexConsumer,
+            renderFancyTrackPath(type, rightTrackPath, state.rightTrackProgress() * rightTrackPath.length(),
+                links == null ? null : links.angles(false), poseStack, vertexConsumer,
                 packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
     }
 
@@ -461,29 +464,28 @@ public class ModelVehicle extends ModelDriveable
         }
     }
 
-    private void renderFancyTrackPath(DriveableType type, TrackPath path, float movement,
+    private void renderFancyTrackPath(DriveableType type, TrackPath path, float movement, @Nullable float[] linkAngles,
                                       PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay,
                                       float red, float green, float blue, float alpha, float scale, EnumRenderPass renderPass)
     {
         float spacing = type.getTrackLinkLength();
-        if (fancyTrackModel == null || fancyTrackModel.length == 0 || path.length <= 0F || spacing <= 0F)
+        if (fancyTrackModel == null || fancyTrackModel.length == 0 || path.isEmpty() || spacing <= 0F)
             return;
 
-        int linkCount = Mth.clamp(Math.round(path.length / spacing), 1, 512);
-        float normalizedMovement = movement - Mth.floor(movement / path.length) * path.length;
+        int linkCount = Mth.clamp(Math.round(path.length() / spacing), 1, 512);
+        float normalizedMovement = path.wrap(movement);
         for (int link = 0; link < linkCount; link++)
         {
-            float distance = normalizedMovement + 0.01F + spacing * link;
-            distance -= Mth.floor(distance / path.length) * path.length;
+            float distance = path.wrap(normalizedMovement + 0.01F + spacing * link);
             int segment = path.segmentAt(distance);
-            int previous = segment == 0 ? path.x.length - 1 : segment - 1;
-            float segmentStart = segment == 0 ? 0F : path.cumulative[segment - 1];
-            float segmentLength = path.cumulative[segment] - segmentStart;
-            float progress = segmentLength <= 0F ? 0F : (distance - segmentStart) / segmentLength;
-            float x = Mth.lerp(progress, path.x[previous], path.x[segment]);
-            float y = Mth.lerp(progress, path.y[previous], path.y[segment]);
-            float z = Mth.lerp(progress, path.z[previous], path.z[segment]);
-            float rotation = (float) Math.toDegrees(Math.atan2(path.y[previous] - y, path.x[previous] - x));
+            int previous = path.previousOf(segment);
+            float progress = path.progressAlongSegment(distance, segment);
+            float x = Mth.lerp(progress, path.pointX(previous), path.pointX(segment));
+            float y = Mth.lerp(progress, path.pointY(previous), path.pointY(segment));
+            float z = Mth.lerp(progress, path.pointZ(previous), path.pointZ(segment));
+            float rotation = linkAngles != null && link < linkAngles.length
+                ? (float) Math.toDegrees(linkAngles[link])
+                : (float) Math.toDegrees(Math.atan2(path.pointY(previous) - y, path.pointX(previous) - x));
 
             poseStack.pushPose();
             poseStack.translate(x * MODEL_SCALE, y * MODEL_SCALE, z * MODEL_SCALE);
@@ -491,69 +493,6 @@ public class ModelVehicle extends ModelDriveable
             renderPart(fancyTrackModel, poseStack, vertexConsumer, packedLight, packedOverlay,
                 red, green, blue, alpha, scale, renderPass);
             poseStack.popPose();
-        }
-    }
-
-    private static final class TrackPath
-    {
-        private static final TrackPath EMPTY = new TrackPath(new float[0], new float[0], new float[0], new float[0], 0F);
-
-        private final float[] x;
-        private final float[] y;
-        private final float[] z;
-        private final float[] cumulative;
-        private final float length;
-
-        private TrackPath(float[] x, float[] y, float[] z, float[] cumulative, float length)
-        {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.cumulative = cumulative;
-            this.length = length;
-        }
-
-        private static TrackPath create(List<Vector3f> points)
-        {
-            if (points == null || points.size() < 2)
-                return EMPTY;
-            int count = points.size();
-            float[] x = new float[count];
-            float[] y = new float[count];
-            float[] z = new float[count];
-            float[] cumulative = new float[count];
-            float length = 0F;
-            for (int i = 0; i < count; i++)
-            {
-                Vector3f point = points.get(i);
-                x[i] = point == null ? 0F : point.x;
-                y[i] = point == null ? 0F : point.y;
-                z[i] = point == null ? 0F : point.z;
-            }
-            for (int i = 0; i < count; i++)
-            {
-                int previous = i == 0 ? count - 1 : i - 1;
-                float dx = x[i] - x[previous];
-                float dy = y[i] - y[previous];
-                length += Mth.sqrt(dx * dx + dy * dy);
-                cumulative[i] = length;
-            }
-            return length > 0F ? new TrackPath(x, y, z, cumulative, length) : EMPTY;
-        }
-
-        private int segmentAt(float distance)
-        {
-            int low = 0;
-            int high = cumulative.length - 1;
-            while (low < high)
-            {
-                int middle = (low + high) >>> 1;
-                if (cumulative[middle] < distance)
-                    low = middle + 1;
-                else
-                    high = middle;
-            }
-            return low;
         }
     }
 

@@ -32,75 +32,14 @@ Those delegates hoist their key names into `static final String` constants (e.g.
 
 Each of the following is accepted by a target parser and assigned to a field that is **never read anywhere in `../src`** (main, test, or any of the five bundled pack source sets). Field name and Lombok accessors (`getX`/`isX`/`setX`) were all searched; total identifier occurrences are the declaration plus the assignment only.
 
-#### InfoType
-
-- **`CanDrop`** — `GHOST_PARSED`. Parsed at `common/types/InfoType.java:191` (`canDrop = readValue("CanDrop", canDrop, file);`) into `protected boolean canDrop` (`InfoType.java:101`, documented "If this is set to false, then this item cannot be dropped"). The field carries no `@Getter`, and a corpus-wide search for `canDrop`, `isCanDrop`, `getCanDrop` returns only those two lines — the only other `canDrop` token in the repo is `BlockState.canDropFromExplosion` in `common/FlanExplosion.java:221`, an unrelated vanilla call. No drop-suppression consumer exists in item, loot-table, or entity code, so setting `CanDrop False` in any definition has no effect. Because it lives on the base class this affects every one of the 25 type classes.
-
 #### DriveableType
 
 - **`ExitSoundLength`** — `GHOST_PARSED`. `exitSoundLength = readSoundLength("ExitSoundLength", exitSoundLength, file);` (`common/types/DriveableType.java:710`) into `protected int exitSoundLength = 50` (`:197`). No reader; the paired `exitSound` string is consumed, the length is not.
 - **`OnRadar`** — `GHOST_PARSED`. `onRadar = readValue("OnRadar", onRadar, file);` (`DriveableType.java:697`) into `protected boolean onRadar` (`:186`). The target has no radar subsystem at all: apart from `EnumDriveablePart`'s unrelated part name, `DriveableType.java` is the only file in `../src/main/java` that mentions "Radar".
 
-#### GunType
-
-- **`UsableByMechas`** — `GHOST_PARSED`. `usableByMechas = readValue("UsableByMechas", usableByMechas, file);` (`common/types/GunType.java:761`) into `protected boolean usableByMechas = true` (`:279`). Never read; mecha weapon eligibility in `common/driveables/MechaPhysics.java` and `common/entity/Mecha.java` does not consult it. Content actively sets it — e.g. `src/warfare44pack/resources/flans_content/warfare44/definitions/guns/44_20mmCannon.txt:29` sets `UsableByMechas false`.
-
-#### PlaneType
-
-- **`SpinWithoutTail`** — `GHOST_PARSED`. `spinWithoutTail = readValue("SpinWithoutTail", spinWithoutTail, file);` (`common/types/PlaneType.java:147`) into `protected boolean spinWithoutTail` (`:34`). The tail-loss handling in `common/driveables/LegacyPlanePhysics.java` / `AircraftPerformancePhysics.java` never queries it.
-
-#### LoadoutPool
-
-- **`AddRewardBox`** — `GHOST_PARSED`. `rewardBoxIds = readValuesInLines("AddRewardBox", file, 1)…` (`common/types/LoadoutPool.java:96`) into `private List<String> rewardBoxIds = List.of()` (`:49`). `RewardBox` types are registered independently through `EnumType.REWARD_BOX`; nothing resolves the ids collected here, so the pool→box association is parsed and discarded.
-
-#### Team
-
-- **`AllowedForRoundsGenerator`** — `GHOST_PARSED`. `allowedForRoundsGenerator = readValue("AllowedForRoundsGenerator", allowedForRoundsGenerator, file);` (`common/types/Team.java:68`) into `private boolean allowedForRoundsGenerator` (`:41`). The round generator in `common/teams/TeamsManager.java` does not filter on it.
-
-*Investigated and cleared (not ghosts):* `DriverPart`/`core`, `DriverGun`/`PilotGun`, `Mode`, `AlternatePrimary`/`AlternateSecondary`, the whole `ShootDelay*`/`RoundsPerMin*` alias family, `CasingModel`, `FlashEffectsLevel`, `AllowNumBulletsByBulletType`, `HipFireWhileSprinting`, `LockOnToDriveables`, `MeleeDamageDriveableModifier`, `TargetDriveables`, and `ArmorPoints`/`DamageReductionAmount` — each reaches a real consumer (a local variable feeding a constructor, an alias collapsing onto a live field, or a getter used by entity/item/render code). `ArmorType.readArmorPoints` and `ArmorType.readEnchantability` are dead *internal flags*, but the parameters they shadow (`ArmorPoints`, `Enchantability`) do reach live fields, so the parameters themselves are `ACTIVE`.
-
 ### GHOST_UNPARSED — key occurs in target `.txt` definitions with no parser
 
 These names appear as the leading token of a definition line in the target's own bundled content packs, but no parser for the owning type accepts them. Grouped by owning type; the `.txt` path is one representative occurrence.
-
-#### All types
-
-- **`ItemID`** — `GHOST_UNPARSED`. Legacy 1.7.10 numeric item id, present across `AAGunType`, `ArmorType`, `BulletType`, `GrenadeType`, `GunType`, `MechaType`, `PartType`, `PlaneType`, `ToolType`, `VehicleType` definitions (e.g. `src/wolffstarwarspack/resources/flans_content/wolffstarwars/definitions/guns/DC-15A.txt:10` → `ItemID 31201`). The string `"ItemID"` does not occur anywhere in `../src/main/java`; the target registers items by shortname. Deliberate drop, listed for completeness.
-
-#### AttachmentType
-
-- **`ReloadTimeMultiplier`** — `GHOST_UNPARSED`. `src/warfare44pack/.../attachments/44_AASight.txt:14`. `AttachmentType` parses `SecondaryReloadTime` and `RunCrouchTimeMultiplier` but has no reload-time multiplier key; the literal is absent from target Java.
-- **`sensitivityMultiplier`** — `GHOST_UNPARSED`. `src/warfare44pack/.../attachments/44_OpticalSight.txt:25`.
-
-#### BulletType
-
-All of the following are `GrenadeType`-only parameters copy-pasted into bullet definitions (chiefly `../src/officialpacks/resources/flans_content/modernwarfare/definitions/bullets/LMGGroup/Pr3OSCAmmo.txt`). `BulletType` and `GrenadeType` are sibling subclasses of `ShootableType` in the target, and these keys are parsed only in `common/types/GrenadeType.java`, so a bullet definition silently drops them: **`CanThrow`** (`:20`), **`DetonateWhenShot`** (`:39`), **`MeleeDamage`** (`:50`), **`PenetratesBlocks`** (`:31`), **`Remote`** (`:40`), **`SmokeTime`** (`:16`), **`SpinWhenThrown`** (`:18`), **`Sticky`** (`:33`), **`ThrowDelay`** (`:21`).
-
-Similarly, **`DamageMultiplier`** (`:51`), **`RecoilMultiplier`** (`:53`), **`SpreadMultiplier`** (`:52`) and **`ReloadTimeMultiplier`** (`:55`) are parsed only by `AttachmentType`; **`ExplodeParticleType`** (`src/officialpacks/.../bullets/UniqueAmmos/ColdWarE2Ammo.txt:25`) and **`DescriptionBomb`** (`src/manuspacks/.../bullets/BombUSSRFAB100.txt:39`) have no parser in any target class.
-
-#### GrenadeType
-
-- **`ExplodeParticleType`** — `GHOST_UNPARSED`. `src/warfare44pack/.../grenades/44_M8Smoke.txt:15`.
-- **`explosionDamageVsDriveable`** — `GHOST_UNPARSED`. `src/wolffstarwarspack/.../grenades/ThermalDetonator Class A.txt:45`, written in Java syntax (`explosionDamageVsDriveable = 500F`), so even a matching parser would receive `=` as the value.
-
-#### GunBoxType
-
-- **`GunBoxID`**, **`NumGuns`** — both `GHOST_UNPARSED`. `src/warfare44pack/.../boxes/44_AmericanWeaponBox.txt:6` and `:26`. The target derives page/gun counts from `AddGun`/`AddAmmo` lines, and neither literal exists in Java.
-
-#### GunType
-
-- **`DamageVsVehicles`** (`src/officialpacks/.../zombie/definitions/guns/DoubleBarrelledShotgun.txt:22`) and **`HasLight`** (`src/manuspacks/.../sifi/definitions/guns/LightSaber_A.txt:44`) — `GHOST_UNPARSED`. Both are parsed in `common/types/ShootableType.java` (`:308`, `:320`), but `GunType extends InfoType`, not `ShootableType`, so a gun definition never reaches those parsers.
-- **`DeployableModel`** — `GHOST_UNPARSED`. `src/wolffstarwarspack/.../guns/DC-15A.txt:32`. The target's key is `DeployedModel` (`GunType.java`), and `DeployableModel` is not accepted as an alias.
-- **`GunCategory`** (`src/warfare44pack/.../guns/44_30Cal.txt:56`), **`MeleeOnly`** (`src/manuspacks/.../guns/LightSaber_A.txt:45`), **`MeleeWeapon`** (`src/officialpacks/.../zombie/definitions/guns/BaseballBat.txt:26`) — `GHOST_UNPARSED`, no target parser or alias.
-- **`Allowg43relAttachments`** — `GHOST_UNPARSED`. `src/officialpacks/.../ww2/definitions/guns/G43.txt:38`; a content-side typo for `AllowBarrelAttachments`.
-
-#### PlayerClass
-
-- **`Body`** — `GHOST_UNPARSED`. `src/officialpacks/.../classes/SWATCloaker.txt:8` (`Body blackSweater`). `PlayerClass` accepts `Hat`/`Helmet`, `Chest`, `Legs`, `Shoes` but not `Body`, so that slot is dropped.
-
-#### ToolType
-
-- **`StackSize`** — `GHOST_UNPARSED`. `src/warfare44pack/.../tools/44_Bandage.txt:11`. `StackSize` is parsed by `PartType` (`:80`) and `ShootableType` (`:273`); `ToolType extends InfoType` and has no such key.
 
 #### PlaneType / VehicleType (legacy 1.7.10 driveable keys)
 
@@ -110,7 +49,6 @@ None of these literals occur anywhere in target Java:
 |---|---|---|
 | `Bounciness` | PlaneType, VehicleType | `src/manuspacks/.../planes/DropshipMk3_A_Desert.txt:32` |
 | `MomentOfInertia` | PlaneType, VehicleType | `src/warfare44pack/.../vehicles/44_GMCTruck.txt:22` |
-| `NumWheels` | PlaneType, VehicleType | `src/warfare44pack/.../planes/44_A6M5Zero.txt:33` |
 | `ClutchSteer` | VehicleType | `src/warfare44pack/.../vehicles/44_Marder2.txt:17` |
 | `FlipLinkFix` | VehicleType | `src/warfare44pack/.../vehicles/44_ChiHa.txt:343` |
 | `FloatOnLand` | VehicleType | `src/warfare44pack/.../vehicles/44_M4A1Sherman.txt:308` |
@@ -118,7 +56,6 @@ None of these literals occur anywhere in target Java:
 | `RecoilDistance` | VehicleType | `src/warfare44pack/.../vehicles/44_Wespe.txt:265` |
 | `SoundsPlaceTimePrimary` | VehicleType | `src/warfare44pack/.../vehicles/44_GMCTruck.txt:60` |
 | `TurretRotationSpeed` | VehicleType | `src/officialpacks/.../ww2/definitions/vehicles/B1.txt:50` |
-| `backRightWheel`, `frontRightWheel` | VehicleType | `src/warfare44pack/.../vehicles/44_Puma.txt:102`, `:104` |
 
 Note `Bounciness` *is* parsed by `ShootableType` (`:319`) and consulted by `GrenadeType` (`:148`), but not by `DriveableType` or its subclasses.
 
@@ -526,22 +463,9 @@ Evidence: parsed by the reference's line dispatcher, e.g. `if (split[0].equals("
 
 | Type | Parameter | Status | Confidence |
 |---|---|---|---|
-| `InfoType` (all types) | `CanDrop` | GHOST_PARSED | HIGH |
 | `DriveableType` | `ExitSoundLength` | GHOST_PARSED | HIGH |
 | `DriveableType` | `OnRadar` | GHOST_PARSED | HIGH |
-| `GunType` | `UsableByMechas` | GHOST_PARSED | HIGH |
-| `PlaneType` | `SpinWithoutTail` | GHOST_PARSED | HIGH |
-| `LoadoutPool` | `AddRewardBox` | GHOST_PARSED | HIGH |
-| `Team` | `AllowedForRoundsGenerator` | GHOST_PARSED | HIGH |
-| all types | `ItemID` | GHOST_UNPARSED | HIGH |
-| `AttachmentType` | `ReloadTimeMultiplier`, `sensitivityMultiplier` | GHOST_UNPARSED | HIGH |
-| `BulletType` | `CanThrow`, `DamageMultiplier`, `DescriptionBomb`, `DetonateWhenShot`, `ExplodeParticleType`, `MeleeDamage`, `PenetratesBlocks`, `RecoilMultiplier`, `ReloadTimeMultiplier`, `Remote`, `SmokeTime`, `SpinWhenThrown`, `SpreadMultiplier`, `Sticky`, `ThrowDelay` | GHOST_UNPARSED | HIGH |
-| `GrenadeType` | `ExplodeParticleType`, `explosionDamageVsDriveable` | GHOST_UNPARSED | HIGH |
-| `GunBoxType` | `GunBoxID`, `NumGuns` | GHOST_UNPARSED | HIGH |
-| `GunType` | `Allowg43relAttachments`, `DamageVsVehicles`, `DeployableModel`, `GunCategory`, `HasLight`, `MeleeOnly`, `MeleeWeapon` | GHOST_UNPARSED | HIGH |
 | `PlaneType` | `Bounciness`, `MomentOfInertia`, `NumWheels` | GHOST_UNPARSED | HIGH |
-| `PlayerClass` | `Body` | GHOST_UNPARSED | HIGH |
-| `ToolType` | `StackSize` | GHOST_UNPARSED | HIGH |
 | `VehicleType` | `Bounciness`, `ClutchSteer`, `FlipLinkFix`, `FloatOnLand`, `HasSmoke`, `MomentOfInertia`, `NumWheels`, `RecoilDistance`, `SoundsPlaceTimePrimary`, `TurretRotationSpeed`, `backRightWheel`, `frontRightWheel` | GHOST_UNPARSED | HIGH |
 
 **Totals — target: 7 `GHOST_PARSED`, 41 `GHOST_UNPARSED` (distinct type/key pairs), 5 `UNCERTAIN` areas.**

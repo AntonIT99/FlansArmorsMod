@@ -24,9 +24,7 @@ Mode FullAuto
 Scope None
 Deployable false
 BulletSpeed 10
-add these lines: usableByMechas false
 UsableByMechas false
 UsableByPlayers false
-usableByPlayers false
 
 Description 20mm Auto Cannon - Vehicle Part

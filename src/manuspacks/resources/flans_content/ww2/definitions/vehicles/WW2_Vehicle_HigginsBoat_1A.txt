@@ -32,7 +32,6 @@ MaxNegativeThrottle 0.2
 Drag 1
 
 //Wheels
-NumWheels 4
 WheelPosition 0 -143 -8 -40
 WheelPosition 1 -143 -8 40
 WheelPosition 2 105 -8 40

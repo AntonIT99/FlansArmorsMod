@@ -5,6 +5,7 @@ import com.flansmod.client.model.ModelDriveable;
 import com.flansmod.client.model.ModelGun;
 import com.flansmod.client.model.ModelMecha;
 import com.flansmod.client.model.ModelMechaTool;
+import com.flansmod.client.model.TrackLinkAnimation;
 import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.flansmodultimate.client.ModClient;
 import com.flansmodultimate.client.debug.DebugHelper;
@@ -135,7 +136,8 @@ public class DriveableRenderer<T extends Driveable> extends FlanEntityRenderer<T
             leftTrackProgress, rightTrackProgress, legSwing, legYaw,
             history.wingTransform, history.wingWheelTransform, history.bodyWheelTransform,
             history.tailWheelTransform, history.doorTransform, history.door2Transform,
-            history.legAnimation, driveable.getInputMask(), driveable.getDriveableMode(), driveable.isVarFlare()
+            history.legAnimation, driveable.getInputMask(), driveable.getDriveableMode(), driveable.isVarFlare(),
+            history.trackLinks
         );
 
         ResourceLocation texture = getTextureLocation(driveable);
@@ -424,6 +426,7 @@ public class DriveableRenderer<T extends Driveable> extends FlanEntityRenderer<T
         private final ModelDriveable.AnimatedTransform doorTransform = new ModelDriveable.AnimatedTransform();
         private final ModelDriveable.AnimatedTransform door2Transform = new ModelDriveable.AnimatedTransform();
         private final ModelDriveable.LegAnimation legAnimation = new ModelDriveable.LegAnimation();
+        private final TrackLinkAnimation trackLinks = new TrackLinkAnimation();
         private final GunAnimations leftGunAnimations = new GunAnimations();
         private final GunAnimations rightGunAnimations = new GunAnimations();
         private GunItem leftGunItem;
@@ -468,6 +471,8 @@ public class DriveableRenderer<T extends Driveable> extends FlanEntityRenderer<T
                 {
                     leftTrack = previousLeftTrack = vehicle.getLeftTrackProgress();
                     rightTrack = previousRightTrack = vehicle.getRightTrackProgress();
+                    if (type instanceof VehicleType vehicleType)
+                        trackLinks.advance(vehicle, vehicleType, 1);
                 }
                 if (driveable instanceof Mecha mecha)
                 {
@@ -503,6 +508,8 @@ public class DriveableRenderer<T extends Driveable> extends FlanEntityRenderer<T
             {
                 leftTrack = vehicle.getLeftTrackProgress();
                 rightTrack = vehicle.getRightTrackProgress();
+                if (type instanceof VehicleType vehicleType)
+                    trackLinks.advance(vehicle, vehicleType, elapsed);
             }
             if (driveable instanceof Mecha mecha)
             {

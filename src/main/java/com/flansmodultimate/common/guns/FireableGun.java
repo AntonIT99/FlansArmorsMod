@@ -4,6 +4,7 @@ import com.flansmodultimate.common.enchantments.EnchantmentModule;
 import com.flansmodultimate.common.types.EnumMovement;
 import com.flansmodultimate.common.types.GunType;
 import com.flansmodultimate.common.types.InfoType;
+import com.flansmodultimate.common.types.ShootableType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -66,6 +67,22 @@ public class FireableGun
         this.bulletSpeed = bulletSpeed;
         this.bulletSpeedMultiplier = bulletSpeedMultiplier > 0F ? bulletSpeedMultiplier : 1F;
         this.spreadPattern = spreadPattern;
+    }
+
+    /**
+     * Folds in what the loaded ammunition does to this weapon's own numbers, so a
+     * gun, an AA gun and a vehicle mount all shoot the round the same way.
+     *
+     * <p>Call this once, while composing a shot and before the {@link FiredShot} is
+     * built: the resolved values are what a projectile carries in its save data, so
+     * applying it twice would compound on reload.</p>
+     */
+    public void applyAmmunition(@Nullable ShootableType ammunition)
+    {
+        if (ammunition == null)
+            return;
+        damage *= ammunition.getDamageMultiplier();
+        spread *= ammunition.getSpreadMultiplier();
     }
 
     public void multiplySpread(float multiplier)

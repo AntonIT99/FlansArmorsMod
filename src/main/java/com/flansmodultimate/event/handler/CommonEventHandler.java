@@ -19,6 +19,7 @@ import com.flansmodultimate.common.entity.Seat;
 import com.flansmodultimate.common.entity.Shootable;
 import com.flansmodultimate.common.item.CustomArmorItem;
 import com.flansmodultimate.common.item.GunItem;
+import com.flansmodultimate.common.item.IFlanItem;
 import com.flansmodultimate.common.types.AttachmentType;
 import com.flansmodultimate.common.types.InfoType;
 import com.flansmodultimate.common.types.Team;
@@ -33,8 +34,10 @@ import lombok.NoArgsConstructor;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -252,6 +255,27 @@ public final class CommonEventHandler
             if (!type.canPlayerPickup(FlansMod.teamsManager, player, event.getItem().getItem()))
                 event.setCanceled(true);
         });
+    }
+
+    /** Items whose type declares {@code CanDrop False} cannot be tossed out of the inventory. */
+    @SubscribeEvent
+    public static void onItemToss(ItemTossEvent event)
+    {
+        if (!canDrop(event.getEntity().getItem()))
+            event.setCanceled(true);
+    }
+
+    /** Items whose type declares {@code CanDrop False} are removed from the player's death drops. */
+    @SubscribeEvent
+    public static void onPlayerDrops(LivingDropsEvent event)
+    {
+        if (event.getEntity() instanceof Player)
+            event.getDrops().removeIf(item -> !canDrop(item.getItem()));
+    }
+
+    private static boolean canDrop(ItemStack stack)
+    {
+        return !(stack.getItem() instanceof IFlanItem<?> flanItem) || flanItem.getConfigType().isCanDrop();
     }
 
     @SubscribeEvent

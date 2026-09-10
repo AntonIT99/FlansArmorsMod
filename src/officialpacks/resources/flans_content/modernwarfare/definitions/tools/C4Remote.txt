@@ -9,4 +9,3 @@ ExplosiveRemote true
 HealAmount 0
 ToolLife 0
 DestroyOnEmpty true
-StackSize 1

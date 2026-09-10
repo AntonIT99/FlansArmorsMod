@@ -266,8 +266,8 @@ public final class DriveableData implements Container
             if (mechaSlot < 0 || mechaSlot >= EnumMechaSlotType.values().length)
                 return false;
             EnumMechaSlotType slotType = EnumMechaSlotType.values()[mechaSlot];
-            if ((slotType == EnumMechaSlotType.LEFT_TOOL || slotType == EnumMechaSlotType.RIGHT_TOOL) && stack.getItem() instanceof GunItem)
-                return true;
+            if ((slotType == EnumMechaSlotType.LEFT_TOOL || slotType == EnumMechaSlotType.RIGHT_TOOL) && stack.getItem() instanceof GunItem gunItem)
+                return gunItem.getConfigType().isUsableByMechas();
             if ((slotType == EnumMechaSlotType.LEFT_ARM || slotType == EnumMechaSlotType.RIGHT_ARM) && stack.getItem() instanceof BulletItem)
                 return true;
             return stack.getItem() instanceof MechaAddonItem addon && slotType.accepts(addon.getConfigType().getMechaItemType());

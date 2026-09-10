@@ -27,7 +27,6 @@ RollRightSpeed 1
 //Drag 1.0 is standard. Modify to make the plane / heli more or less sluggish
 Drag 1.0
 //Wheels
-NumWheels 3
 WheelPosition 0 80 -16 -52
 WheelPosition 1 80 -16 52
 WheelPosition 2 -92 0 0

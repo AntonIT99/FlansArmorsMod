@@ -3,7 +3,6 @@ ShortName nerf
 TopTexture NerfBoxTop
 SideTexture NerfBoxSide
 BottomTexture NerfBoxSide
-GunBoxID 156
 Recipe P nerfPlastic
 PPP
 PPP

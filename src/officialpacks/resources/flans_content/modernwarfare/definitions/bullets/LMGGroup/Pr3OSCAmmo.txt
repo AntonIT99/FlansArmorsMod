@@ -13,14 +13,7 @@ TrailParticles false
 //TrailParticleType <particleType>
 ExplodeParticles 4
 //ExplodeParticleType <particleType>
-SmokeTime 0
 //SmokeParticleType <particleType>
-SpinWhenThrown true
-////Throwing
-CanThrow False
-ThrowDelay 10
-//ThrowSound <sound>
-//DropItemOnThrow <itemID.damage>
 ////Physics
 DetonateOnImpact true
 Bounciness 10.0
@@ -28,16 +21,12 @@ HitEntityDamage 45
 ThrowSpeed 3.0
 FallSpeed 1.0
 BreaksGlass true
-PenetratesBlocks false
 HitBoxSize 0.5
-Sticky false
 //BounceSound <sound>
 ////Detonation conditions
 VehicleProximityTrigger -1.0
 LivingProximityTrigger -1.0
 Fuse 90
-DetonateWhenShot false
-Remote false
 //DespawnTime 0
 PrimeDelay 0
 ////Detonation
@@ -47,7 +36,6 @@ ExplosionBreaksBlocks false
 //DropItemOnDetonate <itemID.damage>
 //Detonate Sound <sound>
 ////Misc
-MeleeDamage 4
 DamageMultiplier 2.0
 SpreadMultiplier 1.0
 RecoilMultiplier 4.0

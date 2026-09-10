@@ -15,9 +15,10 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolffsmod.api.client.model.ModelBase;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 
@@ -83,14 +84,16 @@ public class ModelDriveable extends ModelBase implements IFlanTypeModel<Driveabl
         LegAnimation legAnimation,
         int inputMask,
         int mode,
-        boolean flareActive)
+        boolean flareActive,
+        /** Live per-link track angles, or null for static poses such as inventory renders. */
+        @Nullable TrackLinkAnimation trackLinks)
     {
         public static final RenderState ITEM = new RenderState(
             0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F, 0F,
             1F, 0F, 0F, 0F, 0F, 0F, 0F,
             AnimatedTransform.ZERO, AnimatedTransform.ZERO, AnimatedTransform.ZERO,
             AnimatedTransform.ZERO, AnimatedTransform.ZERO, AnimatedTransform.ZERO,
-            LegAnimation.ZERO, 0, 0, false
+            LegAnimation.ZERO, 0, 0, false, null
         );
     }
 

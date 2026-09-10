@@ -3,7 +3,6 @@ ShortName 44_CraftingBox
 TopTexture 44_CraftingBoxTop
 SideTexture 44_CraftingBoxSide
 BottomTexture 44_CraftingBoxBottom
-GunBoxID 131
 Recipe I ingotIron B blockIron C workbench S stone
 ICI
 SSS
@@ -23,7 +22,6 @@ ItemTextColor FFFFFF
 //The names of the items / blocks are those in the code, with some exceptions such as ingotIron (ingotingotIron) and gunpowder (sulphur)
 //And with parts from this mod, they are the shortName of the item
 //Guns cannot yet have multiple ammo types in the same slot. For now, just list them under two seperate guns that are the same
-NumGuns 64
 
 //
 SetPage Flags

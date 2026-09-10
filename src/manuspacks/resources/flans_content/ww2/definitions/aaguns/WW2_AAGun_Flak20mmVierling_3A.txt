@@ -14,7 +14,7 @@ Icon Icon_WW2_AAGun_Flak20mmVierling_3A
 
 
 //Recipe
-B SMP_Part_Misc_Barrel_AAGun M SMP_Part_Mat_Block_Steel L SMP_Part_Misc_Seat_Car P SMP_Part_Misc_Part_Mechanical A SMP_Part_Mat_Armor_Steel
+Recipe B SMP_Part_Misc_Barrel_AAGun M SMP_Part_Mat_Block_Steel L SMP_Part_Misc_Seat_Car P SMP_Part_Misc_Part_Mechanical A SMP_Part_Mat_Armor_Steel
   B
 LPA
 MAM

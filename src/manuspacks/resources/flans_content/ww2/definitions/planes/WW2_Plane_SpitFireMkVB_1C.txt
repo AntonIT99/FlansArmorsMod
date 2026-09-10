@@ -33,7 +33,6 @@ Drag 1.0
 
 
 //Wheels
-NumWheels 3
 WheelPosition 0 17 -8 -21
 WheelPosition 1 17 -8 21
 WheelPosition 2 -112 20 0

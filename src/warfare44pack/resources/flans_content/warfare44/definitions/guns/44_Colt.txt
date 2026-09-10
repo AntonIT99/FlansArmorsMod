@@ -56,7 +56,6 @@ ReloadSoundRange 5
 GunSoundRange 400
 OneHanded True
 //Server Stuff
-GunCategory 6
 
 //Bullet Casing
 CasingModel W44.W44BulletCasing

@@ -779,6 +779,7 @@ public class AAGun extends Entity implements IEntityAdditionalSpawnData, IFlanEn
         // lets the ammunition's MuzzleVelocity win.
         FireableGun fireableGun = new FireableGun(type, type.getDamage(), type.getBulletSpread(),
             BulletType.DEFAULT_BULLET_SPEED, type.getSpreadPattern());
+        fireableGun.applyAmmunition(bulletType);
         FiredShot firedShot = new FiredShot(fireableGun, bulletType, this, attacker, ShootableItem.getRoundsFired(ammoStack));
 
         Vec3 shootingDir = getShootingDirection();
@@ -787,7 +788,7 @@ public class AAGun extends Entity implements IEntityAdditionalSpawnData, IFlanEn
         ShootingHelper.fireGun(level, firedShot, type.getNumBullets(), barrelOrigin, shootingDir, () -> damageAmmo(slot));
 
         shootDelay = type.getShootDelay();
-        barrelRecoil[barrel] = type.getRecoil();
+        barrelRecoil[barrel] = type.getRecoil() * bulletType.getRecoilMultiplier();
         shotsFired++;
 
         if (soundTimer <= 0 && StringUtils.isNotBlank(type.getShootSound()))
@@ -839,6 +840,7 @@ public class AAGun extends Entity implements IEntityAdditionalSpawnData, IFlanEn
             return;
 
         boolean loadedAny = false;
+        float reloadFactor = 1F;
         for (int i = 0; i < ammo.length; i++)
         {
             if (!ammo[i].isEmpty())
@@ -853,13 +855,17 @@ public class AAGun extends Entity implements IEntityAdditionalSpawnData, IFlanEn
             {
                 ammo[i] = loaded;
                 loadedAny = true;
+                // A slower round to load holds up the whole reload, so the
+                // heaviest factor among what went in wins.
+                if (loaded.getItem() instanceof ShootableItem shootableItem)
+                    reloadFactor = Math.max(reloadFactor, shootableItem.getConfigType().getReloadTimeMultiplier());
             }
         }
 
         if (loadedAny)
         {
             updateAmmoMask();
-            setReloadTimer(type.getReloadTime());
+            setReloadTimer(Math.round(type.getReloadTime() * reloadFactor));
             if (StringUtils.isNotBlank(type.getReloadSound()))
                 PacketPlaySound.sendSoundPacket(this, type.getReloadSoundRange(), type.getReloadSound(), false);
         }

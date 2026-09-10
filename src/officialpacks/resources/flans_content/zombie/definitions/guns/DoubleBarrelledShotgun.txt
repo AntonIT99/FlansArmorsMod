@@ -19,7 +19,6 @@ ReloadTime 52
 Recoil 12
 //Damage in half hearts
 Damage 1
-DamageVsVehicles 0.1
 //The higher this value, the more the bullets spread
 Accuracy 24
 //Number of bullet entities to create, useful for shotguns, defaults to 1

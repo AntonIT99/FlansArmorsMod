@@ -366,9 +366,57 @@ public final class TeamsManager
         return true;
     }
 
+    /** Number of rounds the generator keeps queued up, as in 1.7.10. */
+    private static final int GENERATED_ROUND_TARGET = 4;
+
+    /**
+     * Tops the rotation back up to {@link #GENERATED_ROUND_TARGET} rounds by
+     * picking random maps, game types and teams. Only teams declaring
+     * {@code AllowedForRoundsGenerator True} and game types that opt in are
+     * eligible. Does nothing unless the generator is switched on.
+     */
+    private void generateRounds()
+    {
+        ensureData();
+        if (!roundsGenerator || Objects.requireNonNull(savedData).rounds.size() >= GENERATED_ROUND_TARGET)
+            return;
+
+        List<Team> allowedTeams = Team.values().stream().filter(Team::isAllowedForRoundsGenerator).toList();
+        List<com.flansmodultimate.common.teams.GameType> allowedGameTypes =
+            com.flansmodultimate.common.teams.GameType.values().stream()
+                .filter(com.flansmodultimate.common.teams.GameType::isAllowedForRoundsGenerator).toList();
+        List<TeamsMap> maps = List.copyOf(getMaps());
+        if (allowedTeams.isEmpty() || allowedGameTypes.isEmpty() || maps.isEmpty())
+            return;
+
+        int missing = GENERATED_ROUND_TARGET - savedData.rounds.size();
+        for (int i = 0; i < missing; i++)
+        {
+            com.flansmodultimate.common.teams.GameType gameType = allowedGameTypes.get(random.nextInt(allowedGameTypes.size()));
+            List<String> teamIds = new ArrayList<>();
+            for (int team = 0; team < gameType.getRequiredTeams(); team++)
+                teamIds.add(allowedTeams.get(random.nextInt(allowedTeams.size())).getShortName());
+
+            addRound(maps.get(random.nextInt(maps.size())).getShortName(), gameType.getId(), teamIds,
+                10 + random.nextInt(10), generatedScoreLimit(gameType));
+        }
+    }
+
+    private static int generatedScoreLimit(com.flansmodultimate.common.teams.GameType gameType)
+    {
+        if (gameType instanceof GameTypeCTF)
+            return 5;
+        if (gameType instanceof GameTypeTDM)
+            return 30;
+        if (gameType instanceof GameTypeDM)
+            return 20;
+        return 10;
+    }
+
     public boolean startRound(int index)
     {
         ensureData();
+        generateRounds();
         if (!enabled || index < 0 || index >= Objects.requireNonNull(savedData).rounds.size())
             return false;
         TeamsRound next = Objects.requireNonNull(savedData).rounds.get(index);
@@ -411,6 +459,7 @@ public final class TeamsManager
     public boolean startNextRound()
     {
         ensureData();
+        generateRounds();
         if (Objects.requireNonNull(savedData).rounds.isEmpty())
             return false;
         return startRound((rotationIndex + 1) % savedData.rounds.size());

@@ -3,7 +3,6 @@ ShortName modern
 TopTexture ModernBoxTop
 SideTexture ModernBoxSide
 BottomTexture boxBottom
-GunBoxID 155
 Recipe I ingotIron G dyePowder.2
 III
 GGG

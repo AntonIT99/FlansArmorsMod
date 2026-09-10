@@ -98,6 +98,7 @@ public abstract class InfoType
     @Getter
     protected String smeltableFrom;
     /** If this is set to false, then this item cannot be dropped */
+    @Getter
     protected boolean canDrop = true;
     /**
      * The probability that this item will appear in a dungeon chest.

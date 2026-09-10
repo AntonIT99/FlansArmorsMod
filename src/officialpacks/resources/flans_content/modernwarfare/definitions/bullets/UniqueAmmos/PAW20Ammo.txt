@@ -19,11 +19,6 @@ ExplodeParticleType flame
 SmokeTime 0
 //SmokeParticleType <particleType>
 SpinWhenThrown true
-////Throwing
-CanThrow False
-ThrowDelay 10
-//ThrowSound <sound>
-//DropItemOnThrow <itemID.damage>
 ////Physics
 DetonateOnImpact true
 Bounciness 0.8

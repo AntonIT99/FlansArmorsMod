@@ -29,7 +29,6 @@ Drag 1.0
 //Lift
 //Lift 2.5
 //Wheels (Fake wheels imitating skids)
-NumWheels 4
 WheelPosition 0 -46 -10 -31
 WheelPosition 1 -46 -10 31
 WheelPosition 2 81 -10 27

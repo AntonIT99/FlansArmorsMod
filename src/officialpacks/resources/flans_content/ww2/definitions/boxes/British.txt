@@ -3,7 +3,6 @@ ShortName british
 TopTexture boxTop
 SideTexture britishbox
 BottomTexture boxBottom
-GunBoxID 151
 Recipe I ingotIron B dyePowder.4 R dyePowder.1
 III
 BRB

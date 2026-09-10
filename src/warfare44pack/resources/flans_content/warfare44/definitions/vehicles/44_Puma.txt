@@ -99,10 +99,10 @@ AddDye 4 gray
 
 //Health and collision
 SetupPart core 950 -79 4 -15 124 35 31
-backRightWheel 25 -66 -10 -22 21 21 9
-backRightWheel 25 -38 -10 -22 21 21 9
-frontRightWheel 25 -12 -10 -22 21 21 9
-frontRightWheel 25 15 -10 -22 21 21 9
+SetupPart backRightWheel 25 -66 -10 -22 21 21 9
+SetupPart backRightWheel 25 -38 -10 -22 21 21 9
+SetupPart frontRightWheel 25 -12 -10 -22 21 21 9
+SetupPart frontRightWheel 25 15 -10 -22 21 21 9
 
 BulletDetection 5
 

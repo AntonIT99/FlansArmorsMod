@@ -27,7 +27,6 @@ Scope scopesw2
 ZoomLevel 8.0
 FOVZoomLevel 1.25
 Deployable False
-DeployableModel None
 Model wolffstarwars.E5S
 Texture skindc15s
 AllowAllAttachments true

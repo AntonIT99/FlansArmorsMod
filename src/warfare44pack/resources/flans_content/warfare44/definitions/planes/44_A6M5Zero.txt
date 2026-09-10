@@ -30,7 +30,6 @@ Drag 1.0
 //Lift
 //Lift 2.5
 //Wheels
-NumWheels 3
 WheelPosition 0 4 -11 -40
 WheelPosition 1 4 -11 40
 WheelPosition 2 -138 18 0

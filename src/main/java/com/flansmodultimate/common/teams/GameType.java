@@ -29,12 +29,20 @@ public abstract class GameType
     private final String id;
     private final String name;
     private final int requiredTeams;
+    /** Whether the rounds generator may pick this game type. */
+    private final boolean allowedForRoundsGenerator;
 
     protected GameType(String id, String name, int requiredTeams)
+    {
+        this(id, name, requiredTeams, true);
+    }
+
+    protected GameType(String id, String name, int requiredTeams, boolean allowedForRoundsGenerator)
     {
         this.id = id.toLowerCase(Locale.ROOT);
         this.name = name;
         this.requiredTeams = requiredTeams;
+        this.allowedForRoundsGenerator = allowedForRoundsGenerator;
         if (TYPES.putIfAbsent(this.id, this) != null)
             throw new IllegalStateException("Duplicate game type: " + id);
     }

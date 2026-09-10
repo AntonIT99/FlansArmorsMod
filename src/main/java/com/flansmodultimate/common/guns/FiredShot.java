@@ -8,6 +8,7 @@ import com.flansmodultimate.common.types.BulletType;
 import com.flansmodultimate.common.types.GunType;
 import com.flansmodultimate.common.types.IAmmoOverrideUser;
 import com.flansmodultimate.common.types.InfoType;
+import com.flansmodultimate.common.types.ShootableType;
 import com.flansmodultimate.util.ModUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -49,8 +50,15 @@ public class FiredShot
     /** Constructor for living entities shooting with a gun item in hand */
     public FiredShot(GunType gunType, BulletType bulletType, @NotNull ItemStack gunStack, @NotNull ItemStack shootableStack, @Nullable ItemStack otherHandStack, @NotNull LivingEntity shooter)
     {
-        this(new FireableGun(gunType, gunStack, shooter, otherHandStack, ModUtils.getEnumMovement(shooter), !shooter.onGround()),
+        this(withAmmunition(new FireableGun(gunType, gunStack, shooter, otherHandStack, ModUtils.getEnumMovement(shooter), !shooter.onGround()), bulletType),
             bulletType, shooter, shooter, ShootableItem.getRoundsFired(shootableStack));
+    }
+
+    /** Folds the round's weapon modifiers into the gun before the shot is composed. */
+    private static FireableGun withAmmunition(FireableGun gun, ShootableType ammunition)
+    {
+        gun.applyAmmunition(ammunition);
+        return gun;
     }
 
     /** General Constructor */
@@ -166,8 +174,10 @@ public class FiredShot
 
         float spread = -1F;
 
+        // A round that dictates its own spread bypasses the weapon's, so its
+        // SpreadMultiplier is applied here instead of through the weapon.
         if (fireableGun.getType() instanceof GunType gunType && gunType.isAllowSpreadByBullet())
-            spread = bulletType.getBulletSpread();
+            spread = bulletType.getBulletSpread() * bulletType.getSpreadMultiplier();
 
         if (spread <= 0F)
             spread = fireableGun.getSpread();

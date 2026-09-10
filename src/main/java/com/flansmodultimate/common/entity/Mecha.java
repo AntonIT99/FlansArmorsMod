@@ -483,6 +483,7 @@ public class Mecha extends Driveable
         ItemStack otherHand = oppositeHandStack(left);
         FireableGun fireable = new FireableGun(gunType, gunStack, attacker, otherHand,
             attacker == null ? EnumMovement.NONE : ModUtils.getEnumMovement(attacker), !onGround());
+        fireable.applyAmmunition(loaded.bulletType());
         FiredShot shot = new FiredShot(fireable, loaded.bulletType(), this, attacker,
             ShootableItem.getRoundsFired(loaded.stack()));
         boolean creative = attacker instanceof Player player && player.getAbilities().instabuild;

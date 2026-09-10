@@ -150,6 +150,29 @@ public abstract class ShootableType extends InfoType
     @Getter
     protected float bulletSpread = -1F;
 
+    /*
+     * What loading this ammunition does to the weapon firing it. These scale the
+     * weapon's own numbers the way an attachment does, and stack on top of any
+     * attachments, so a heavy round can be authored as harder hitting but slower
+     * to reload and less controllable. A weapon that fires several kinds of
+     * ammunition therefore changes character with what is loaded.
+     *
+     * BulletSpeedMultiplier is not here: BulletType carries its own, applied to
+     * the resolved muzzle velocity rather than to the weapon.
+     */
+    /** Scales the damage the weapon deals with this ammunition loaded. */
+    @Getter
+    protected float damageMultiplier = 1F;
+    /** Scales the weapon's bullet spread with this ammunition loaded. */
+    @Getter
+    protected float spreadMultiplier = 1F;
+    /** Scales the weapon's recoil with this ammunition loaded. */
+    @Getter
+    protected float recoilMultiplier = 1F;
+    /** Scales how long the weapon takes to reload with this ammunition. */
+    @Getter
+    protected float reloadTimeMultiplier = 1F;
+
     //Physics and Stuff
     /** The speed at which the grenade should fall */
     @Getter
@@ -261,6 +284,13 @@ public abstract class ShootableType extends InfoType
         registeredAmmoList.get(contentPack).put(originalShortName, this);
     }
 
+    /** Reads a weapon modifier, keeping the current factor when the authored one is not usable. */
+    private float readPositiveMultiplier(String key, float current, TypeFile file)
+    {
+        float value = readValue(key, current, file);
+        return Float.isFinite(value) && value > 0F ? value : current;
+    }
+
     @Override
     protected void read(TypeFile file)
     {
@@ -277,6 +307,13 @@ public abstract class ShootableType extends InfoType
         dropItemOnHit = readValue("DropItemOnHit", dropItemOnHit, file);
         roundsPerItem = readValue("RoundsPerItem", roundsPerItem, file);
         numBullets = readValue("NumBullets", numBullets, file);
+
+        // Weapon modifiers. A zero or negative factor is meaningless here and
+        // would silently disable the stat, so only positive values are taken.
+        damageMultiplier = readPositiveMultiplier("DamageMultiplier", damageMultiplier, file);
+        spreadMultiplier = readPositiveMultiplier("SpreadMultiplier", spreadMultiplier, file);
+        recoilMultiplier = readPositiveMultiplier("RecoilMultiplier", recoilMultiplier, file);
+        reloadTimeMultiplier = readPositiveMultiplier("ReloadTimeMultiplier", reloadTimeMultiplier, file);
 
         // Physics
         bulletSpread = readValue("Accuracy", bulletSpread, file);
@@ -306,9 +343,9 @@ public abstract class ShootableType extends InfoType
         damage.setReadDamageVsPlayer(file.hasConfigLine("DamageVsPlayer") || file.hasConfigLine("DamageVsPlayers"));
         damage.setDamageVsVehicles(readValue("DamageVsVehicle", damage.getDamageVsVehicles(), file));
         damage.setDamageVsVehicles(readValue("DamageVsVehicles", damage.getDamageVsVehicles(), file));
-        damage.setDamageVsVehicles(readValue("DamageVsDrivable", damage.getDamageVsVehicles(), file));
-        damage.setDamageVsVehicles(readValue("DamageVsDrivables", damage.getDamageVsVehicles(), file));
-        damage.setReadDamageVsVehicles(file.hasConfigLine("DamageVsVehicle") || file.hasConfigLine("DamageVsVehicles") || file.hasConfigLine("DamageVsDrivable") || file.hasConfigLine("DamageVsDrivables"));
+        damage.setDamageVsVehicles(readValue("DamageVsDriveable", damage.getDamageVsVehicles(), file));
+        damage.setDamageVsVehicles(readValue("DamageVsDriveables", damage.getDamageVsVehicles(), file));
+        damage.setReadDamageVsVehicles(file.hasConfigLine("DamageVsVehicle") || file.hasConfigLine("DamageVsVehicles") || file.hasConfigLine("DamageVsDriveable") || file.hasConfigLine("DamageVsDriveables"));
         damage.setDamageVsPlanes(readValue("DamageVsPlane", damage.getDamageVsPlanes(), file));
         damage.setDamageVsPlanes(readValue("DamageVsPlanes", damage.getDamageVsPlanes(), file));
         damage.setReadDamageVsPlanes(file.hasConfigLine("DamageVsPlane") || file.hasConfigLine("DamageVsPlanes"));
@@ -359,9 +396,9 @@ public abstract class ShootableType extends InfoType
         explosionBlastDamage.setReadDamageVsPlayer(file.hasConfigLine("ExplosionDamageVsPlayer") || file.hasConfigLine("ExplosionDamageVsPlayers"));
         explosionBlastDamage.setDamageVsVehicles(readValue("ExplosionDamageVsVehicle", explosionBlastDamage.getDamageVsVehicles(), file));
         explosionBlastDamage.setDamageVsVehicles(readValue("ExplosionDamageVsVehicles", explosionBlastDamage.getDamageVsVehicles(), file));
-        explosionBlastDamage.setDamageVsVehicles(readValue("ExplosionDamageVsDrivable", explosionBlastDamage.getDamageVsVehicles(), file));
-        explosionBlastDamage.setDamageVsVehicles(readValue("ExplosionDamageVsDrivables", explosionBlastDamage.getDamageVsVehicles(), file));
-        explosionBlastDamage.setReadDamageVsVehicles(file.hasConfigLine("ExplosionDamageVsVehicle") || file.hasConfigLine("ExplosionDamageVsVehicles") || file.hasConfigLine("ExplosionDamageVsDrivable") || file.hasConfigLine("ExplosionDamageVsDrivables"));
+        explosionBlastDamage.setDamageVsVehicles(readValue("ExplosionDamageVsDriveable", explosionBlastDamage.getDamageVsVehicles(), file));
+        explosionBlastDamage.setDamageVsVehicles(readValue("ExplosionDamageVsDriveables", explosionBlastDamage.getDamageVsVehicles(), file));
+        explosionBlastDamage.setReadDamageVsVehicles(file.hasConfigLine("ExplosionDamageVsVehicle") || file.hasConfigLine("ExplosionDamageVsVehicles") || file.hasConfigLine("ExplosionDamageVsDriveable") || file.hasConfigLine("ExplosionDamageVsDriveables"));
         explosionBlastDamage.setDamageVsPlanes(readValue("ExplosionDamageVsPlane", explosionBlastDamage.getDamageVsPlanes(), file));
         explosionBlastDamage.setDamageVsPlanes(readValue("ExplosionDamageVsPlanes", explosionBlastDamage.getDamageVsPlanes(), file));
         explosionBlastDamage.setReadDamageVsPlanes(file.hasConfigLine("ExplosionDamageVsPlane") || file.hasConfigLine("ExplosionDamageVsPlanes"));
@@ -379,9 +416,9 @@ public abstract class ShootableType extends InfoType
         explosionFragDamage.setReadDamageVsPlayer(file.hasConfigLine("FragDamageVsPlayer") || file.hasConfigLine("FragDamageVsPlayers"));
         explosionFragDamage.setDamageVsVehicles(readValue("FragDamageVsVehicle", explosionFragDamage.getDamageVsVehicles(), file));
         explosionFragDamage.setDamageVsVehicles(readValue("FragDamageVsVehicles", explosionFragDamage.getDamageVsVehicles(), file));
-        explosionFragDamage.setDamageVsVehicles(readValue("FragDamageVsDrivable", explosionFragDamage.getDamageVsVehicles(), file));
-        explosionFragDamage.setDamageVsVehicles(readValue("FragDamageVsDrivables", explosionFragDamage.getDamageVsVehicles(), file));
-        explosionFragDamage.setReadDamageVsVehicles(file.hasConfigLine("FragDamageVsVehicle") || file.hasConfigLine("FragDamageVsVehicles") || file.hasConfigLine("FragDamageVsDrivable") || file.hasConfigLine("FragDamageVsDrivables"));
+        explosionFragDamage.setDamageVsVehicles(readValue("FragDamageVsDriveable", explosionFragDamage.getDamageVsVehicles(), file));
+        explosionFragDamage.setDamageVsVehicles(readValue("FragDamageVsDriveables", explosionFragDamage.getDamageVsVehicles(), file));
+        explosionFragDamage.setReadDamageVsVehicles(file.hasConfigLine("FragDamageVsVehicle") || file.hasConfigLine("FragDamageVsVehicles") || file.hasConfigLine("FragDamageVsDriveable") || file.hasConfigLine("FragDamageVsDriveables"));
         explosionFragDamage.setDamageVsPlanes(readValue("FragDamageVsPlane", explosionFragDamage.getDamageVsPlanes(), file));
         explosionFragDamage.setDamageVsPlanes(readValue("FragDamageVsPlanes", explosionFragDamage.getDamageVsPlanes(), file));
         explosionFragDamage.setReadDamageVsPlanes(file.hasConfigLine("FragDamageVsPlane") || file.hasConfigLine("FragDamageVsPlanes"));
@@ -413,7 +450,8 @@ public abstract class ShootableType extends InfoType
         trailParticles = readValue("SmokeTrail", trailParticles, file);
         trailParticleType = readValue("TrailParticleType", trailParticleType, file);
         explodeParticles = readValue("NumExplodeParticles", explodeParticles, file);
-        explodeParticleType = readValue("ExplodeParticles", explodeParticleType, file);
+        explodeParticles = readValue("ExplodeParticles", explodeParticles, file);
+        explodeParticleType = readValue("ExplodeParticleType", explodeParticleType, file);
     }
 
     public boolean useKineticDamageSystem()

@@ -42,6 +42,8 @@ public final class PacketLoadoutState implements IClientPacket
 
     public record Entry(LoadoutSlot slot, String typeId, String name, int unlockRank, ItemStack preview) {}
     public record BoxView(UUID id, String boxId, String name, boolean opened, String rewardKey, ItemStack preview) {}
+    /** One kind of reward box the pool offers, listed even when the player holds none of it. */
+    public record BoxTypeView(String boxId, String name, ItemStack preview, int unopened) {}
     public record RewardView(String key, String typeId, String name, int rarity) {}
 
     private OpenScreen openScreen = OpenScreen.NONE;
@@ -57,6 +59,7 @@ public final class PacketLoadoutState implements IClientPacket
     private List<Integer> loadoutUnlockRanks = List.of();
     private List<Entry> entries = List.of();
     private List<BoxView> boxes = List.of();
+    private List<BoxTypeView> boxTypes = List.of();
     private List<RewardView> rewards = List.of();
 
     public static PacketLoadoutState create(TeamsManager manager, ServerPlayer player, OpenScreen screen, int editLoadout, String revealedReward)
@@ -93,6 +96,21 @@ public final class PacketLoadoutState implements IClientPacket
             return new BoxView(instance.id(), instance.boxId(), box == null ? instance.boxId() : box.getName(), instance.isOpened(), instance.rewardKey(),
                 box == null ? ItemStack.EMPTY : ModUtils.getItemStack(box).orElse(ItemStack.EMPTY));
         }).toList();
+        // Every box type the pool advertises is listed, in the order AddRewardBox
+        // declared them, so a player can see what is on offer before owning any.
+        // Boxes held from another pool or from a command are appended after them.
+        List<String> boxTypeIds = new ArrayList<>(pool.getRewardBoxIds());
+        for (RewardBoxInstance instance : stats.getRewardBoxes())
+            if (!instance.isOpened() && !boxTypeIds.contains(instance.boxId()))
+                boxTypeIds.add(instance.boxId());
+        packet.boxTypes = boxTypeIds.stream().map(boxId -> {
+            RewardBox box = RewardBox.get(boxId);
+            long unopened = stats.getRewardBoxes().stream()
+                .filter(instance -> !instance.isOpened() && boxId.equals(instance.boxId())).count();
+            return new BoxTypeView(boxId, box == null ? boxId : box.getName(),
+                box == null ? ItemStack.EMPTY : ModUtils.getItemStack(box).orElse(ItemStack.EMPTY), (int)unopened);
+        }).toList();
+
         packet.rewards = stats.getRewardBoxes().stream().filter(RewardBoxInstance::isOpened).map(instance -> RewardBox.findReward(instance.rewardKey()))
             .filter(java.util.Objects::nonNull).distinct().map(reward ->
                 new RewardView(reward.key(), reward.typeId(), reward.paintName(), reward.rarity().ordinal())).toList();
@@ -116,6 +134,9 @@ public final class PacketLoadoutState implements IClientPacket
             buf.writeUUID(box.id()); buf.writeUtf(box.boxId()); buf.writeUtf(box.name()); buf.writeBoolean(box.opened());
             buf.writeUtf(box.rewardKey()); buf.writeItem(box.preview());
         });
+        data.writeCollection(boxTypes, (buf, box) -> {
+            buf.writeUtf(box.boxId()); buf.writeUtf(box.name()); buf.writeItem(box.preview()); buf.writeVarInt(box.unopened());
+        });
         data.writeCollection(rewards, (buf, reward) -> {
             buf.writeUtf(reward.key()); buf.writeUtf(reward.typeId()); buf.writeUtf(reward.name()); buf.writeVarInt(reward.rarity());
         });
@@ -136,6 +157,7 @@ public final class PacketLoadoutState implements IClientPacket
             return new Entry(LoadoutSlot.values()[Math.min(slot, LoadoutSlot.values().length - 1)], buf.readUtf(), buf.readUtf(), buf.readVarInt(), buf.readItem());
         });
         boxes = data.readList(buf -> new BoxView(buf.readUUID(), buf.readUtf(), buf.readUtf(), buf.readBoolean(), buf.readUtf(), buf.readItem()));
+        boxTypes = data.readList(buf -> new BoxTypeView(buf.readUtf(), buf.readUtf(), buf.readItem(), buf.readVarInt()));
         rewards = data.readList(buf -> new RewardView(buf.readUtf(), buf.readUtf(), buf.readUtf(), buf.readVarInt()));
     }
 

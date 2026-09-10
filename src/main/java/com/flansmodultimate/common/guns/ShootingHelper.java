@@ -113,6 +113,9 @@ public final class ShootingHelper
                                   @Nullable LivingEntity attacker, int shot, @NotNull ShootingHandler handler)
     {
         numShots = Math.max(1, numShots);
+        // The one place a weapon and its ammunition meet on this path, so the
+        // round's weapon modifiers are folded in here rather than at every caller.
+        fireableGun.applyAmmunition(shootableType);
 
         if (shootableType instanceof BulletType bulletType)
         {

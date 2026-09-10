@@ -45,7 +45,7 @@ AddRecipeParts hips 2 smallIronLeg
 //Dye colours are "black", "red", "green", "brown", "blue", "purple", "cyan", "silver", "gray", "pink", "lime", "yellow", "lightBlue", "magenta", "orange", "white"
 AddDye 5 black
 AddDye 1 orange
-Add Dye 1 yellow
+AddDye 1 yellow
 //Health and collision
 SetupPart core 200 -12 24 -12 24 24 24
 SetupPart leftArm 30 -4 36 -24 16 8 8

@@ -60,7 +60,8 @@ public class PlayerClass extends InfoType
         // Legacy packs write skin names like "Zombie"; texture paths must be sanitized
         skinOverride = readResource("SkinOverride", skinOverride, file);
         readArmour(file, EquipmentSlot.HEAD, "Hat", "Helmet");
-        readArmour(file, EquipmentSlot.CHEST, "Chest", "Top");
+        // Body is the spelling ArmorType has always accepted for the chest slot.
+        readArmour(file, EquipmentSlot.CHEST, "Chest", "Top", "Body");
         readArmour(file, EquipmentSlot.LEGS, "Legs", "Bottom");
         readArmour(file, EquipmentSlot.FEET, "Shoes", "Boots");
 
@@ -83,10 +84,12 @@ public class PlayerClass extends InfoType
         skinOverrideTexture = StringUtils.isBlank(skinOverride) ? null : loadTexture(skinOverride, this);
     }
 
-    private void readArmour(TypeFile file, EquipmentSlot slot, String primary, String alias)
+    /** Later names win, so a definition listing several spellings keeps the last one authored. */
+    private void readArmour(TypeFile file, EquipmentSlot slot, String... names)
     {
-        String value = readValue(primary, null, file);
-        value = readValue(alias, value, file);
+        String value = null;
+        for (String name : names)
+            value = readValue(name, value, file);
         if (StringUtils.isNotBlank(value) && !"none".equalsIgnoreCase(value))
             armour.put(slot, value);
     }

@@ -35,7 +35,7 @@ ModelScale 0.6
 AllowAllAttachments true
 //List here all the attachments allowed on this gun by shortName and separated by spaces
 AllowAttachments ZF4Scope
-Allowg43relAttachments false
+AllowBarrelAttachments false
 AllowScopeAttachments true
 AllowStockAttachments false
 AllowGripAttachments false

@@ -3,7 +3,6 @@ ShortName ManusMWBox
 TopTexture boxTop
 SideTexture SkinManusMWBox
 BottomTexture boxBottom
-GunBoxID 161
 Recipe I SMP_Part_Mat_Block_Steel B dyePowder.4 R dyePowder.1
 III
 RRR
@@ -13,8 +12,6 @@ III
 //The names of the items / blocks are those in the code, with some exceptions such as iron (ingotIron) and gunpowder (sulphur)
 //And with parts from this mod, they are the shortName of the item
 //Guns cannot yet have multiple ammo types in the same slot. For now, just list them under two seperate guns that are the same
-//NumGuns must come before all the addGun lines and must be correct.
-NumGuns 8
 AddGun MG3ZB 8 SMP_Part_Mat_Block_Steel 2 log
 AddAmmo AmmoNATO762mmMG3 3 SMP_Part_Mat_Plate_Steel 1 gunpowder
 AddGun BrowningM2HB 14 SMP_Part_Mat_Block_Steel

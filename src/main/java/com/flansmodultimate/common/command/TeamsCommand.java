@@ -110,6 +110,11 @@ public final class TeamsCommand
                 manager(context).setVoting(enabled);
                 return success(context, "Round voting " + (enabled ? "enabled" : "disabled"));
             })))
+            .then(Commands.literal("roundsGenerator").then(Commands.argument("value", BoolArgumentType.bool()).executes(context -> {
+                boolean enabled = BoolArgumentType.getBool(context, "value");
+                manager(context).setRoundsGenerator(enabled);
+                return success(context, "Rounds generator " + (enabled ? "enabled" : "disabled"));
+            })))
             .then(Commands.literal("start").executes(context -> manager(context).startNextRound() ? success(context, "Round started") : failure(context, "No valid round is configured"))
                 .then(Commands.argument("index", IntegerArgumentType.integer(0)).executes(context -> manager(context).startRound(IntegerArgumentType.getInteger(context, "index"))
                     ? success(context, "Round started") : failure(context, "Invalid round index"))))
@@ -169,7 +174,7 @@ public final class TeamsCommand
     {
         context.getSource().sendSuccess(() -> Component.literal("/teams loadouts, /teams join <team>, /teams class <class>, /teams vote <number>, /teams score, /teams stats, /teams list <gametypes|teams|classes|loadouts|rewardboxes|maps|rounds>"), false);
         if (context.getSource().hasPermission(2))
-            context.getSource().sendSuccess(() -> Component.literal("Administration: /teams <explosions|forceAdventure|fuelNeeded> <true|false>, /teams admin <loadoutpool|xpmultiplier|xp|resetrank|giverewardbox|enabled|voting|start|next|stop|arena|survival|kit|map|round|setvariable>"), false);
+            context.getSource().sendSuccess(() -> Component.literal("Administration: /teams <explosions|forceAdventure|fuelNeeded> <true|false>, /teams admin <loadoutpool|xpmultiplier|xp|resetrank|giverewardbox|enabled|voting|roundsGenerator|start|next|stop|arena|survival|kit|map|round|setvariable>"), false);
         return 1;
     }
 

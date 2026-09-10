@@ -1,7 +1,5 @@
 package com.flansmodultimate.common.entity;
 
-import com.flansmodultimate.common.driveables.physics.GroundPropulsionPhysics;
-import com.flansmodultimate.common.driveables.physics.EnumDriveType;
 import com.flansmod.common.vector.Vector3f;
 import com.flansmodultimate.FlansMod;
 import com.flansmodultimate.common.driveables.DriveableControlPhysics;
@@ -19,6 +17,8 @@ import com.flansmodultimate.common.driveables.Propeller;
 import com.flansmodultimate.common.driveables.SuspensionPhysics;
 import com.flansmodultimate.common.driveables.ThrottleLeverRamp;
 import com.flansmodultimate.common.driveables.physics.AircraftPerformancePhysics;
+import com.flansmodultimate.common.driveables.physics.EnumDriveType;
+import com.flansmodultimate.common.driveables.physics.GroundPropulsionPhysics;
 import com.flansmodultimate.common.driveables.physics.ResolvedVehiclePhysics;
 import com.flansmodultimate.common.driveables.physics.VehiclePhysicsConstants;
 import com.flansmodultimate.common.driveables.physics.VehiclePhysicsUnits;
@@ -58,6 +58,8 @@ public class Plane extends Driveable
     private static final int DOOR_CLEARANCE = 3;
     /** Throttle at or below which the legacy plane counted as parked. */
     private static final float PARKED_THROTTLE = 0.05F;
+    /** Rudder deflection forced on a SpinWithoutTail plane once its tail is gone. */
+    private static final float SPIN_WITHOUT_TAIL_FLAP_YAW = 15F;
 
     @Getter protected float propellerAngle;
     @Getter protected float prevPropellerAngle;
@@ -376,6 +378,17 @@ public class Plane extends Driveable
             flapPitchLeft = LegacyPlanePhysics.flap(flapPitchLeft, pitch - roll);
             flapPitchRight = LegacyPlanePhysics.flap(flapPitchRight, pitch + roll);
         }
+
+        // A plane that loses its tail pins the rudder hard over and spins.
+        if (spinsWithoutTail())
+            flapYaw = SPIN_WITHOUT_TAIL_FLAP_YAW;
+    }
+
+    /** True while a {@code SpinWithoutTail} plane is flying with a destroyed tail. */
+    private boolean spinsWithoutTail()
+    {
+        PlaneType type = getPlaneType();
+        return type != null && type.isSpinWithoutTail() && !isPartIntact(EnumDriveablePart.TAIL);
     }
 
     private void updateThrottle(PlaneType type)
@@ -580,7 +593,7 @@ public class Plane extends Driveable
         float yawRate = rates.yaw();
         float pitchRate = rates.pitch();
         float rollRate = rates.roll();
-        if (!isPartIntact(EnumDriveablePart.TAIL))
+        if (!isPartIntact(EnumDriveablePart.TAIL) && !spinsWithoutTail())
         {
             yawRate = 0F;
             pitchRate = 0F;
@@ -668,7 +681,7 @@ public class Plane extends Driveable
         float rollRate = rates.roll();
         if (getPlaneMode() == EnumPlaneMode.PLANE)
         {
-            if (!isPartIntact(EnumDriveablePart.TAIL))
+            if (!isPartIntact(EnumDriveablePart.TAIL) && !spinsWithoutTail())
             {
                 yawRate = 0F;
                 pitchRate = 0F;

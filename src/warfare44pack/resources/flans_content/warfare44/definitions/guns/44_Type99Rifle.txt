@@ -53,7 +53,6 @@ ReloadSoundRange 5
 GunSoundRange 400
 
 //Server Stuff
-GunCategory 0
 
 //Bullet Casing
 CasingModel W44.W44BulletCasing

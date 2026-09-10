@@ -35,4 +35,4 @@ Recipe B SMP_Part_Misc_Ammo_BombBody T tnt F SMP_Part_Misc_Ammo_Fuse
  F 
  T 
  B 
-DescriptionBomb for Tu-22M and MiG-15
+Description Bomb for Tu-22M and MiG-15

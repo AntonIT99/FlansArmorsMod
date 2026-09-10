@@ -10,7 +10,7 @@ Find functionality that exists in `REFERENCE` but is missing or incomplete in `T
 ## Inputs and direction
 
 - Treat an unlabeled supplied directory as `REFERENCE`.
-- Default `TARGET` permanently to `C:\Users\alpha\Documents\Minecraft-Development\Flans-Mod-Ultimate-2.0`.
+- Default `TARGET` permanently to the repository root at `../../..` relative to this skill directory. Resolve and canonicalize that path before use.
 - An explicitly supplied `TARGET` overrides that default for this invocation only.
 - Resolve and verify both directories before analysis. If `REFERENCE` is absent or unreadable, request it; never silently reverse the comparison.
 - The comparison is strictly `REFERENCE` -> `TARGET`. Exclude target-only functionality, target improvements, modernization/refactors, and reference behavior already fully represented in the target.
@@ -32,7 +32,7 @@ Work strategically: search before opening many files, reuse target-system findin
 
 ## Report
 
-Write the complete report in the current working directory. Use `feature-gap-analysis.md` when it does not already contain an unrelated analysis. Otherwise derive a short filesystem-safe identifier from the reference directory and use `feature-gap-analysis-<identifier>.md`; if needed, add a numeric suffix rather than overwriting any unrelated report.
+Write the complete report in the current working directory. Use `../../../reports/feature-gap-analysis.md` when it does not already contain an unrelated analysis. Otherwise derive a short filesystem-safe identifier from the reference directory and use `feature-gap-analysis-<identifier>.md`; if needed, add a numeric suffix rather than overwriting any unrelated report.
 
 Group findings by subsystem. Every finding must contain:
 

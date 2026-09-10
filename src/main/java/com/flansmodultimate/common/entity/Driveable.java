@@ -2894,7 +2894,7 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
             if (part.isDestroyed())
                 onPartDestroyed(part.getType());
         }
-        return new ShootingHelper.HitData(remainingPower, penetrationRatio, false);
+        return new ShootingHelper.HitData(remainingPower, armourBlocked ? 0F : penetrationRatio, false);
     }
 
     /** Precise ray trace against every configured local part box. */

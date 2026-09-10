@@ -5,8 +5,6 @@ General:
 - Implement TaP Flan's Mod Features
 - Make SkinOverride compatible with old skin format
 - Check and Improve explosion visuals
-- Option to enforce explosions for new explosion system breaking blocks (ignore ExplosionBreaksBlocks property)
-- Semtex grenade uses wrong model -> could indicates a bigger problem... -> Maybe because of the official packs?
 
 Mechas:
 - Mecha categories?

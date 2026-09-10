@@ -16,6 +16,7 @@ public record CommonConfigSnapshot(
 
     boolean disableCrosshairForGuns,
     boolean explosionsBreakBlocks,
+    boolean forceNewExplosionsBreakBlocks,
     boolean flanExplosionsDropBlocks,
     int bonusRegenAmount,
     int bonusRegenTickDelay,
@@ -105,7 +106,7 @@ public record CommonConfigSnapshot(
     boolean enchantmentModuleEnabled
 )
 {
-    public static final int CURRENT_VERSION = 22;
+    public static final int CURRENT_VERSION = 23;
 
     public static void write(FriendlyByteBuf buf, CommonConfigSnapshot s)
     {
@@ -119,6 +120,7 @@ public record CommonConfigSnapshot(
 
         buf.writeBoolean(s.disableCrosshairForGuns);
         buf.writeBoolean(s.explosionsBreakBlocks);
+        buf.writeBoolean(s.forceNewExplosionsBreakBlocks);
         buf.writeBoolean(s.flanExplosionsDropBlocks);
         buf.writeVarInt(s.bonusRegenAmount);
         buf.writeVarInt(s.bonusRegenTickDelay);
@@ -223,6 +225,7 @@ public record CommonConfigSnapshot(
             buf.readUtf(32767),
             buf.readUtf(32767),
 
+            buf.readBoolean(),
             buf.readBoolean(),
             buf.readBoolean(),
             buf.readBoolean(),

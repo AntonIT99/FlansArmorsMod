@@ -142,9 +142,24 @@ public class FlanExplosion extends Explosion
 
     public FlanExplosion(Level level, @Nullable Entity explosive, @Nullable LivingEntity causingEntity, ShootableType type, double x, double y, double z, boolean canDamageSelf)
     {
-        this(level, explosive, causingEntity, x, y, z, type.getExplosionStats(explosive), type.getFireRadius() > 0,
-            type.isExplosionBreaksBlocks() && FlansMod.teamsManager.isExplosionsBreakBlocks(),
+        this(level, explosive, causingEntity, type, x, y, z, type.getExplosionStats(explosive), canDamageSelf);
+    }
+
+    private FlanExplosion(Level level, @Nullable Entity explosive, @Nullable LivingEntity causingEntity,
+                          ShootableType type, double x, double y, double z, Stats stats, boolean canDamageSelf)
+    {
+        this(level, explosive, causingEntity, x, y, z, stats, type.getFireRadius() > 0,
+            shouldBreakBlocks(type, stats),
             type.getSmokeParticleCount(), type.getDebrisParticleCount(), canDamageSelf);
+    }
+
+    private static boolean shouldBreakBlocks(ShootableType type, Stats stats)
+    {
+        boolean globallyAllowed = FlansMod.teamsManager.isExplosionsBreakBlocks()
+            && ModCommonConfig.get().explosionsBreakBlocks();
+        boolean forcedNewExplosion = ModCommonConfig.get().forceNewExplosionsBreakBlocks()
+            && stats.explosiveMassKg() > 0F;
+        return globallyAllowed && (type.isExplosionBreaksBlocks() || forcedNewExplosion);
     }
 
     public FlanExplosion(Level level, @Nullable Entity explosive, @Nullable LivingEntity causingEntity, double x, double y, double z, Stats stats, boolean causesFire, boolean breaksBlocks, int smokeCount, int debrisCount, boolean canDamageSelf)

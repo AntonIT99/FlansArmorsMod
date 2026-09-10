@@ -6,7 +6,6 @@
 // Naming
 Name GermanSupportChestLeiber
 ShortName GermanSupportChestLeiber
-ItemID Your ID
 
 
 // Visuals

@@ -1,7 +1,6 @@
 //Naming
 Name Madcat Omnimech
 ShortName Madcat
-ItemID 28630
 //Visuals
 Icon IconMechMadcat
 Model manus_sifi.Madcat

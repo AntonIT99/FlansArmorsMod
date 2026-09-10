@@ -6,7 +6,6 @@
 // Naming
 Name GermanOfficerChest
 ShortName GermanOfficerChest
-ItemID Your ID
 
 
 // Visuals

@@ -1,6 +1,5 @@
 Name Clone Torrent Company Helmet
 ShortName clonetorrentHelmet
-ItemID 31220
 Icon clonetorrenthelmet
 Colour 255 255 255
 Type Helmet

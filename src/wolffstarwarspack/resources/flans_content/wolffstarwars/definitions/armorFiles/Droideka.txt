@@ -1,6 +1,5 @@
 Name Droideka
 ShortName droideka
-ItemID 31218
 Icon droideka
 Colour 255 255 255
 Type Head

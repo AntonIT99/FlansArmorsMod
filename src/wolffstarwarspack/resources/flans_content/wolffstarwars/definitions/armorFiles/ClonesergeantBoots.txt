@@ -1,6 +1,5 @@
 Name Clone Sergeant Boots
 ShortName clonesergentBoots
-ItemID 31247
 Icon clonesergentboots
 Colour 255 255 255
 Type Boots

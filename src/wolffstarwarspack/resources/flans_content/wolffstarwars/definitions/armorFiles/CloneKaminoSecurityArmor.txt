@@ -1,6 +1,5 @@
 Name ClonetrooperArmor
 ShortName cloneKaminoArmor
-ItemID 31250
 Icon clonekaminoarmor
 Colour 255 255 255
 Type Body

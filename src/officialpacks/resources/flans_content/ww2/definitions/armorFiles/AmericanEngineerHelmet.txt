@@ -6,7 +6,6 @@
 // Naming
 Name AmericanEngineerHelmet
 ShortName AmericanEngineerHelmet
-ItemID Your ID
 
 
 // Visuals

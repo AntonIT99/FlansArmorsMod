@@ -1,7 +1,6 @@
 //Naming
 Name Dropship Mk.3 Command - Ice Skin
 ShortName DropshipMk3_C_Ice
-ItemID 28675
 //Visuals
 Icon IconPlaneDropshipMk3_C_Ice
 Model manus_sifi.DropshipMk3_C

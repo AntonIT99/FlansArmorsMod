@@ -1,7 +1,6 @@
 //Naming
 Name Dropship Mk.3 Command - Jungle Skin
 ShortName DropshipMk3_C_Jungle
-ItemID 28684
 //Visuals
 Icon IconPlaneDropshipMk3_C_Jungle
 Model manus_sifi.DropshipMk3_C

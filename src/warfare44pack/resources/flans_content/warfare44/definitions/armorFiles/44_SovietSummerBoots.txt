@@ -6,7 +6,6 @@
 // Naming
 Name Soviet Summer Obr43 Boots
 ShortName 44_SovietSummerObr43Boots
-ItemID Your ID
 
 
 // Visuals

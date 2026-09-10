@@ -3,7 +3,6 @@ ShortName BombUSSRFAB500
 Model manus_modern_warfare.LargeBomb
 //Colour of icon and model
 Colour 255 255 255
-ItemID 28282
 Icon IconBombUSSRFAB500
 //How affected by gravity the bullet is
 FallSpeed 1

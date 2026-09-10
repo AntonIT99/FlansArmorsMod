@@ -1,6 +1,5 @@
 Name Clone 501st Legion Boots
 ShortName clone332Boots
-ItemID 31219
 Icon clone501boots
 Colour 255 255 255
 Type Boots

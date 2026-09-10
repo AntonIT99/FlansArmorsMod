@@ -1,7 +1,6 @@
 //Naming
 Name GTK Boxer with HK Grenade Machine Gun
 ShortName Boxer2
-ItemID 28121
 //Visuals
 Icon IconVehicleBoxer2
 Model manus_modern_warfare.Boxer2

@@ -1,6 +1,5 @@
 Name Highpowered Boots
 ShortName HighPoweredBoots
-ItemID 31262
 Icon sithboots
 Colour 255 255 255
 Type Boots

@@ -6,7 +6,6 @@
 // Naming
 Name German Feldgrau Side Cap
 ShortName 44_GermanFeldgrauSideCap
-ItemID Your ID
 
 
 // Visuals

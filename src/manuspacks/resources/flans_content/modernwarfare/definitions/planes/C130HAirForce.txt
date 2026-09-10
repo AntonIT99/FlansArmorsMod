@@ -1,7 +1,6 @@
 //Naming
 Name C-130H - US Air Force
 ShortName C130HAirForce
-ItemID 28211
 //Visuals
 Icon IconPlaneC130HAirForce
 Model manus_modern_warfare.C130H

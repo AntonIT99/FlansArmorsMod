@@ -6,7 +6,6 @@
 // Naming
 Name German M43 Great Coat
 ShortName 44_GermanM43GreatCoat
-ItemID Your ID
 
 
 // Visuals

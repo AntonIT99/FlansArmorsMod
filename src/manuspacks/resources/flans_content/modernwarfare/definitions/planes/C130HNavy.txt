@@ -1,7 +1,6 @@
 //Naming
 Name C-130H - US Navy
 ShortName C130HNavy
-ItemID 28210
 //Visuals
 Icon IconPlaneC130HNavy
 Model manus_modern_warfare.C130H

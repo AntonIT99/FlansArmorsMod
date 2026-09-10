@@ -1,7 +1,6 @@
 //Naming
 Name Tupolev Tu-22M Backfire
 ShortName TU22M
-ItemID 28200
 //Visuals
 Icon IconPlaneTU22M
 Model manus_modern_warfare.TU22M

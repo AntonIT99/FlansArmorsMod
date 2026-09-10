@@ -1,7 +1,6 @@
 //Naming
 Name TIE-Fighter
 ShortName TIEFighter
-ItemID 28600
 //Visuals
 Icon IconPlaneTIEFighter
 Model manus_sifi.TIEFighter

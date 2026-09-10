@@ -1,7 +1,6 @@
 //Naming
 Name Colonial Viper Mk. 2
 ShortName ViperMk1
-ItemID 28620
 //Visuals
 Icon IconPlaneViperMk2
 Model manus_sifi.ViperMk2

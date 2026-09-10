@@ -1,7 +1,6 @@
 //Naming
 Name Leopard 2 - Version A6
 ShortName Leopard2A6
-ItemID 28140
 //Visuals
 Icon IconVehicleLeopard2A6
 Model manus_modern_warfare.Leopard2A6

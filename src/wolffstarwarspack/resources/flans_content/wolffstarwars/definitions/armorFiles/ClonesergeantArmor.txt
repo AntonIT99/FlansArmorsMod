@@ -1,6 +1,5 @@
 Name Clone Sergeant Armor
 ShortName clonesergentArmor
-ItemID 31246
 Icon clonesergentarmor
 Colour 255 255 255
 Type Body

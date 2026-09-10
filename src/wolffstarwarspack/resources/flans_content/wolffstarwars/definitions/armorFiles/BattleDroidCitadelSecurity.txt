@@ -1,6 +1,5 @@
 Name Battle Droid B1 Citadel Security
 ShortName BattleDroidCitadelSecurity
-ItemID 31218
 Icon battledroidcitadelsecurity
 Colour 255 255 255
 Type Head

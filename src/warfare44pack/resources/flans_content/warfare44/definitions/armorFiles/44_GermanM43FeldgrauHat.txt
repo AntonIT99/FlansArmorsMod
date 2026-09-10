@@ -6,7 +6,6 @@
 // Naming
 Name German M43 Feldgrau Hat
 ShortName 44_GermanM43FeldgrauHat
-ItemID Your ID
 
 
 // Visuals

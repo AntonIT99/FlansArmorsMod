@@ -1,7 +1,6 @@
 //Naming
 Name Dropship Mk.3 VIP Transport - Desert Skin
 ShortName DropshipMk3_B_Desert
-ItemID 28680
 //Visuals
 Icon IconPlaneDropshipMk3_B_Desert
 Model manus_sifi.DropshipMk3_B

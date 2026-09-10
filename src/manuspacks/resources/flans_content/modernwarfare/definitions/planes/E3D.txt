@@ -1,7 +1,6 @@
 //Naming
 Name E-3D AWACS
 ShortName E3D
-ItemID 28215
 //Visuals
 Icon IconPlaneE3D
 Model manus_modern_warfare.E3D

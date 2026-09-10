@@ -6,7 +6,6 @@
 // Naming
 Name GermanAssaultChest
 ShortName GermanAssaultChest
-ItemID Your ID
 
 
 // Visuals

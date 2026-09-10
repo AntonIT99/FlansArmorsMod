@@ -1,6 +1,5 @@
 Name French WW2 Boots
 ShortName frenchBoots
-ItemID 23588
 Icon AmericanBoots
 Colour 255 255 255
 Type Boots

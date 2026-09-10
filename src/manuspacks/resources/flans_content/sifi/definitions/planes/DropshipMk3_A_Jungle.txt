@@ -1,7 +1,6 @@
 //Naming
 Name Dropship Mk.3 - Jungle Skin
 ShortName DropshipMk3_A_Jungle
-ItemID 28682
 //Visuals
 Icon IconPlaneDropshipMk3_A_Jungle
 Model manus_sifi.DropshipMk3_A

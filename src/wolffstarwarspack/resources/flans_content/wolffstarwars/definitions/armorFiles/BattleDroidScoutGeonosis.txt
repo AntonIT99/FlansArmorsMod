@@ -1,6 +1,5 @@
 Name Battle Droid B1 Scout Geonosis
 ShortName BattleDroidScoutGeonosis
-ItemID 31218
 Icon battledroidscoutgeonosis
 Colour 255 255 255
 Type Head

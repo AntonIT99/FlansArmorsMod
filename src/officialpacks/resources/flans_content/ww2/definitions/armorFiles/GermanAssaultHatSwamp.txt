@@ -6,7 +6,6 @@
 // Naming
 Name GermanAssaultHatSwamp
 ShortName GermanAssaultHatSwamp
-ItemID Your ID
 
 
 // Visuals

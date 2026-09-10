@@ -6,7 +6,6 @@
 // Naming
 Name AmericanMedicChest
 ShortName AmericanMedicChest
-ItemID Your ID
 
 
 // Visuals

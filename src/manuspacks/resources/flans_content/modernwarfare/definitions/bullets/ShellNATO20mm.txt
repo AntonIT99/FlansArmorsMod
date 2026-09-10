@@ -3,7 +3,6 @@ ShortName ShellNATO20mm
 Model Bullet
 //Colour of icon and model
 Colour 255 255 255
-ItemID 28257
 Icon IconAmmoNATO20mm
 //How affected by gravity the bullet is
 FallSpeed 1

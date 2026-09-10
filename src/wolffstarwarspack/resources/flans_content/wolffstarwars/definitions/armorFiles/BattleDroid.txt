@@ -1,6 +1,5 @@
 Name Battle Droid B1
 ShortName BattleDroid
-ItemID 31218
 Icon battledroid
 Colour 255 255 255
 Type Head

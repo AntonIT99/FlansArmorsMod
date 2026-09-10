@@ -6,7 +6,6 @@
 // Naming
 Name AmericanSniperChest
 ShortName AmericanSniperChest
-ItemID Your ID
 
 
 // Visuals

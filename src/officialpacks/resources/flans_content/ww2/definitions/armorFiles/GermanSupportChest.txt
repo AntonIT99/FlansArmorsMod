@@ -6,7 +6,6 @@
 // Naming
 Name GermanSupportChest
 ShortName GermanSupportChest
-ItemID Your ID
 
 
 // Visuals

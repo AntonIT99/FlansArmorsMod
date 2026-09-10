@@ -1,6 +1,5 @@
 Name Clonetrooper Pants
 ShortName cloneKaminoPants
-ItemID 31253
 Icon clonekaminopants
 Colour 255 255 255
 Type Pants

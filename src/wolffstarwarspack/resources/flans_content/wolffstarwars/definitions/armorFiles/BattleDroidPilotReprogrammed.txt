@@ -1,6 +1,5 @@
 Name Battle Droid B1 Pilot Reprogrammed
 ShortName BattleDroidPilotReprogrammed
-ItemID 31218
 Icon battledroidpilotreprogrammed
 Colour 255 255 255
 Type Head

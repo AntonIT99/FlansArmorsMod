@@ -6,7 +6,6 @@
 // Naming
 Name German Palmenmuster Jacket
 ShortName 44_GermanPalmenmusterChest
-ItemID Your ID
 
 
 // Visuals

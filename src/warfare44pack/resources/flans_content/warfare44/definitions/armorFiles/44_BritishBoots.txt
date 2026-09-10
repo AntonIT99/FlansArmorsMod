@@ -6,7 +6,6 @@
 // Naming
 Name British Boots
 ShortName 44_BritishBoots
-ItemID Your ID
 
 
 // Visuals

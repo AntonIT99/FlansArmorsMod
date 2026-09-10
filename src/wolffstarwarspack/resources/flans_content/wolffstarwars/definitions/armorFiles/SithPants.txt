@@ -1,6 +1,5 @@
 Name Sith Boots
 ShortName SithPants
-ItemID 31262
 Icon sithleggings
 Colour 255 255 255
 Type Pants

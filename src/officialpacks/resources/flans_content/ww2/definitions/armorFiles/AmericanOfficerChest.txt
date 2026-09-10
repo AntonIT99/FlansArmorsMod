@@ -6,7 +6,6 @@
 // Naming
 Name AmericanOfficerChest
 ShortName AmericanOfficerChest
-ItemID Your ID
 
 
 // Visuals

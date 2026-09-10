@@ -6,7 +6,6 @@
 // Naming
 Name German Sumpftarn-M43 Camo Smock
 ShortName 44_GermanSumpftarnM43CamoSmock
-ItemID Your ID
 
 
 // Visuals

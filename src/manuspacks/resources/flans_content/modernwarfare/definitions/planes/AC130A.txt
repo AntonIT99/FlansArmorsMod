@@ -1,7 +1,6 @@
 //Naming
 Name AC-130A Spectre
 ShortName AC130A
-ItemID 28212
 //Visuals
 Icon IconPlaneAC130A
 Model manus_modern_warfare.AC130A

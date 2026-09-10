@@ -1,7 +1,6 @@
 //Naming
 Name Dropship Mk.3 VIP Transport - Grey Skin
 ShortName DropshipMk3_B_Grey
-ItemID 28671
 //Visuals
 Icon IconPlaneDropshipMk3_B_Grey
 Model manus_sifi.DropshipMk3_B

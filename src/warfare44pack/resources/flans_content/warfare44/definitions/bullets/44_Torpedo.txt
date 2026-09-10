@@ -4,7 +4,6 @@ Model W44.Torpedo
 Texture Skin44_Torpedo
 //Colour of icon and model
 Colour 255 255 255
-ItemID 7447
 Icon 44_Torpedo
 //How affected by gravity the bullet is
 FallSpeed 8

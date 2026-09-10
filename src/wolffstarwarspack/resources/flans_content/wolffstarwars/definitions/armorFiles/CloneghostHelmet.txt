@@ -1,6 +1,5 @@
 Name Clone Ghost Company Helmet
 ShortName cloneghostHelmet
-ItemID 31220
 Icon cloneghosthelmet
 Colour 255 255 255
 Type Helmet

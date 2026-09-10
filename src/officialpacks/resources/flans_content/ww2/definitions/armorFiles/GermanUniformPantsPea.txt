@@ -6,7 +6,6 @@
 // Naming
 Name GermanPantsPea
 ShortName GermanUniformPantsPea
-ItemID Your ID
 
 
 // Visuals

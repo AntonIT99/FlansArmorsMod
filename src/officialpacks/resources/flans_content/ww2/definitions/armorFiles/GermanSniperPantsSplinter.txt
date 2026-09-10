@@ -6,7 +6,6 @@
 // Naming
 Name GermanSniperPantsSplinter
 ShortName GermanSniperPantsSplinter
-ItemID Your ID
 
 
 // Visuals

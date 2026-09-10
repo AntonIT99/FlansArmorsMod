@@ -6,7 +6,6 @@
 // Naming
 Name German Feldgrau Pants
 ShortName 44_GermanFeldgrauPants
-ItemID Your ID
 
 
 // Visuals

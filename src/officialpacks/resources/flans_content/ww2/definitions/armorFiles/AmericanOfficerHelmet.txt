@@ -6,7 +6,6 @@
 // Naming
 Name AmericanOfficerHelmet
 ShortName AmericanOfficerHelmet
-ItemID Your ID
 
 
 // Visuals

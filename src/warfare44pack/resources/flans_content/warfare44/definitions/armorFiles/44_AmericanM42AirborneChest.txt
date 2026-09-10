@@ -6,7 +6,6 @@
 // Naming
 Name American M42 Airborne Jacket
 ShortName 44_AmericanM42AirborneChest
-ItemID Your ID
 
 
 // Visuals

@@ -3,7 +3,6 @@ ShortName WH40K_Shell_LemanRussAP
 Model Bullet
 //Colour of icon and model
 Colour 255 255 255
-ItemID 28528
 Icon Icon_WH40K_Shell_LemanRussAP
 //How affected by gravity the bullet is
 FallSpeed 0.2

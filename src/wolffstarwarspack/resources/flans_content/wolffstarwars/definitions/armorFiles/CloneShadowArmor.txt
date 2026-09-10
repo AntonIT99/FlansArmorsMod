@@ -1,6 +1,5 @@
 Name Clone Shadow Trooper Armor
 ShortName cloneShadowArmor
-ItemID 31218
 Icon cloneshadowarmor
 Colour 255 255 255
 Type Body

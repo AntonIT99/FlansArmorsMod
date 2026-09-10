@@ -6,7 +6,6 @@
 // Naming
 Name AmericanAssaultChestKhaki
 ShortName AmericanAssaultChestKhaki
-ItemID Your ID
 
 
 // Visuals

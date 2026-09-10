@@ -1,6 +1,5 @@
 Name Clone Jet Trooper Armour
 ShortName JettrooperArmor
-ItemID 31246
 Icon jettrooperarmor
 Colour 255 255 255
 Type Boots

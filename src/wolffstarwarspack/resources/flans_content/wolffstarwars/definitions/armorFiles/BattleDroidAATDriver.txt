@@ -1,6 +1,5 @@
 Name Battle Droid B1 AAT Driver
 ShortName BattleDroidAATDriver
-ItemID 31218
 Icon battledroidaatdriver
 Colour 255 255 255
 Type Head

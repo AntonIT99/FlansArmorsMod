@@ -5,7 +5,6 @@ Icon laserblue
 Model wolffstarwars.LaserBeam
 //Colour of icon and model
 Colour 255 255 255
-ItemID 31208
 Texture wolffstarwars_laser_blue
 //How affected by gravity the bullet is
 FallSpeed 0

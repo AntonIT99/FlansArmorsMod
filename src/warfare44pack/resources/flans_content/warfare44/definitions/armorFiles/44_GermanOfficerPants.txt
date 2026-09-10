@@ -6,7 +6,6 @@
 // Naming
 Name German Officer Pants
 ShortName 44_GermanOfficerPants
-ItemID Your ID
 
 
 // Visuals

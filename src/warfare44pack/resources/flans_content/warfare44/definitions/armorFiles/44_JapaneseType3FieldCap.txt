@@ -6,7 +6,6 @@
 // Naming
 Name Japanese Type 3 'Sen-bou' Field Cap (Khaki)
 ShortName 44_JapaneseType3FieldCap
-ItemID Your ID
 
 
 // Visuals

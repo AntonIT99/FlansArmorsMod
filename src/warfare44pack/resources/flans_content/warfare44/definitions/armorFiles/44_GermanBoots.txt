@@ -6,7 +6,6 @@
 // Naming
 Name German Boots
 ShortName 44_GermanBoots
-ItemID Your ID
 
 
 // Visuals

@@ -6,7 +6,6 @@
 // Naming
 Name Fallschirmjager Camo M38 Stahlhelm
 ShortName 44_FallschirmjagerCamoM38Stahlhelm
-ItemID Your ID
 
 
 // Visuals

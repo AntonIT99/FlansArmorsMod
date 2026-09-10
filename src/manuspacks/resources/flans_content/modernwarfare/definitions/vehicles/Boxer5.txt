@@ -1,7 +1,6 @@
 //Naming
 Name GTK Boxer with Skyranger AD
 ShortName Boxer5
-ItemID 28124
 //Visuals
 Icon IconVehicleBoxer5
 Model manus_modern_warfare.Boxer5

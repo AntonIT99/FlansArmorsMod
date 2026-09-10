@@ -6,7 +6,6 @@
 // Naming
 Name GermanBoots
 ShortName GermanUniformBoots
-ItemID Your ID
 
 
 // Visuals

@@ -1,6 +1,5 @@
 Name Battle Droid B1 Commander Geonosis
 ShortName BattleDroidCommanderGeonosis
-ItemID 31218
 Icon battledroidcommandergeonosis
 Colour 255 255 255
 Type Head

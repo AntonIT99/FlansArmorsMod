@@ -1,6 +1,5 @@
 Name Clone Commander Pants
 ShortName JettrooperPants
-ItemID 31229
 Icon clonecommanderpants
 Colour 255 255 255
 Type Pants

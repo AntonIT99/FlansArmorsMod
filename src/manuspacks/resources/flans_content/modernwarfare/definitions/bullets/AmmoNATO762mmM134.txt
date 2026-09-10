@@ -3,7 +3,6 @@ ShortName AmmoNATO762mmM134
 Model Bullet
 //Colour of icon and model
 Colour 255 255 255
-ItemID 28255
 Icon IconAmmoNATO762mmM134
 //How affected by gravity the bullet is
 FallSpeed 0.25

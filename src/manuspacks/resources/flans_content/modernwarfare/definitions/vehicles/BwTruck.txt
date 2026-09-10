@@ -1,7 +1,6 @@
 //Naming
 Name German Army Truck
 ShortName BwTruck
-ItemID 28110
 //Visuals
 Icon IconVehicleBwTruck
 Model manus_modern_warfare.BwTruck

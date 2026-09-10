@@ -1,6 +1,5 @@
 Name Battle Droid B1 Security Geonosis
 ShortName BattleDroidSecurity2Geonosis
-ItemID 31218
 Icon battledroidsecurity2geonosis
 Colour 255 255 255
 Type Head

@@ -6,7 +6,6 @@
 // Naming
 Name AmericanUniformPants
 ShortName AmericanUniformPants
-ItemID Your ID
 
 
 // Visuals

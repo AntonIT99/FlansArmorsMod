@@ -1,7 +1,6 @@
 //Naming
 Name Dropship Mk.3 Command - Desert Skin
 ShortName DropshipMk3_C_Desert
-ItemID 28681
 //Visuals
 Icon IconPlaneDropshipMk3_C_Desert
 Model manus_sifi.DropshipMk3_C

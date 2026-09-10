@@ -6,7 +6,6 @@
 // Naming
 Name AmericanAssaultHelmet
 ShortName AmericanAssaultHelmet
-ItemID Your ID
 
 
 // Visuals

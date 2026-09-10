@@ -6,7 +6,6 @@
 // Naming
 Name GermanMedicChestPea
 ShortName GermanMedicChestPea
-ItemID Your ID
 
 
 // Visuals

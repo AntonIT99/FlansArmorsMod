@@ -1,7 +1,6 @@
 //Naming
 Name TIE-Interceptor
 ShortName TIEInterceptor
-ItemID 28602
 //Visuals
 Icon IconPlaneTIEInterceptor
 Model manus_sifi.TIEInterceptor

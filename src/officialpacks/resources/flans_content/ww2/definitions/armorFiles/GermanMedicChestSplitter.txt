@@ -6,7 +6,6 @@
 // Naming
 Name GermanMedicChestSplinter
 ShortName GermanMedicChestSplinter
-ItemID Your ID
 
 
 // Visuals

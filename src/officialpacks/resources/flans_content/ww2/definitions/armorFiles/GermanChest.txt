@@ -6,7 +6,6 @@
 // Naming
 Name GermanChest
 ShortName GermanChest
-ItemID Your ID
 
 
 // Visuals

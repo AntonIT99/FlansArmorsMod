@@ -1,7 +1,6 @@
 //Naming
 Name F-22 Raptor
 ShortName F22
-ItemID 28182
 //Visuals
 Icon IconPlaneF22
 Model manus_modern_warfare.F22

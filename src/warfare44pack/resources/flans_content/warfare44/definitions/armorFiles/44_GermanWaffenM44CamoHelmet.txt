@@ -6,7 +6,6 @@
 // Naming
 Name Waffen M44Camo Stahlhelm
 ShortName 44_WaffenM44CamoStahlhelm
-ItemID Your ID
 
 
 // Visuals

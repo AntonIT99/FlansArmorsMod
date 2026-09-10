@@ -1,6 +1,5 @@
 Name French WW2 Helmet
 ShortName frenchHelmet
-ItemID 23585
 Icon FrenchHelmet
 Colour 255 255 255
 Type Helmet

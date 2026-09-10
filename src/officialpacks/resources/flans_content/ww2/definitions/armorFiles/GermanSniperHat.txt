@@ -6,7 +6,6 @@
 // Naming
 Name GermanSniperHat
 ShortName GermanSniperHat
-ItemID Your ID
 
 
 // Visuals

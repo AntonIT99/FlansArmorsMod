@@ -1,6 +1,5 @@
 Name Clone Lieutnant Boots
 ShortName clonelieutnantBoots
-ItemID 31235
 Icon clonelieutnantboots
 Colour 255 255 255
 Type Boots

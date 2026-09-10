@@ -1,6 +1,5 @@
 Name ClonetrooperArmor
 ShortName clonetrooperArmor
-ItemID 31250
 Icon clonetrooperarmor
 Colour 255 255 255
 Type Body

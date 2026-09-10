@@ -6,7 +6,6 @@
 // Naming
 Name GermanAssaultChestSplinter
 ShortName GermanAssaultChestSplinter
-ItemID Your ID
 
 
 // Visuals

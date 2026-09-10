@@ -6,7 +6,6 @@
 // Naming
 Name German Officer Boots
 ShortName 44_GermanOfficerBoots
-ItemID Your ID
 
 
 // Visuals

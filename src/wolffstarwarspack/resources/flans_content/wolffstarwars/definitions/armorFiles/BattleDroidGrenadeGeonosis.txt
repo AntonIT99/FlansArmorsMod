@@ -1,6 +1,5 @@
 Name Battle Droid B1 Grenade Geonosis
 ShortName BattleDroidGrenadeGeonosis
-ItemID 31218
 Icon battledroidgrenadegeonosis
 Colour 255 255 255
 Type Head

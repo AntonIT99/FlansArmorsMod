@@ -1,6 +1,5 @@
 Name Battle Droid B1 Marine Geonosis
 ShortName BattleDroidMarine2Geonosis
-ItemID 31218
 Icon battledroidmarine2geonosis
 Colour 255 255 255
 Type Head

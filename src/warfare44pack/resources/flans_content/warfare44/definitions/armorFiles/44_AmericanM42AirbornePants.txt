@@ -6,7 +6,6 @@
 // Naming
 Name American M42 Airborne Pants
 ShortName 44_AmericanM42AirbornePants
-ItemID Your ID
 
 
 // Visuals

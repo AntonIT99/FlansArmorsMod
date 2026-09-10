@@ -1,6 +1,5 @@
 Name Clone 442th Attack Battalion Helmet
 ShortName clone442IIHelmet
-ItemID 31220
 Icon clone442iihelmet
 Colour 255 255 255
 Type Helmet

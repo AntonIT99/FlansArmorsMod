@@ -6,7 +6,6 @@
 // Naming
 Name German Splittermuster Camo Smock
 ShortName 44_GermanSplittermusterCamoSmock
-ItemID Your ID
 
 
 // Visuals

@@ -6,7 +6,6 @@
 // Naming
 Name GermanEngineerChestPea
 ShortName GermanEngineerChestPea
-ItemID Your ID
 
 
 // Visuals

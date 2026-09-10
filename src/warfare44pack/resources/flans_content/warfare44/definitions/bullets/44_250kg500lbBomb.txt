@@ -4,7 +4,6 @@ Model W44.Warfarebomb
 Texture warfarebomb
 //Colour of icon and model
 Colour 255 255 255
-ItemID 23271
 Icon 44_250kg500lbBomb
 //How affected by gravity the bullet is
 FallSpeed 1

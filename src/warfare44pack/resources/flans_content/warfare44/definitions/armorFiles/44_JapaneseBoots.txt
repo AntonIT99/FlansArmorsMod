@@ -6,7 +6,6 @@
 // Naming
 Name Japanese Boots
 ShortName 44_JapaneseBoots
-ItemID Your ID
 
 
 // Visuals

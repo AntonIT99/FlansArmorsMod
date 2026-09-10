@@ -1,7 +1,6 @@
 //Naming
 Name GTK Boxer
 ShortName Boxer1
-ItemID 28120
 //Visuals
 Icon IconVehicleBoxer1
 Model manus_modern_warfare.Boxer1

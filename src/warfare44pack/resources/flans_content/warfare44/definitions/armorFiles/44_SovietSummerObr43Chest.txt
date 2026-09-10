@@ -6,7 +6,6 @@
 // Naming
 Name Soviet Summer Obr43 Jacket
 ShortName 44_SovietSummerObr43Chest
-ItemID Your ID
 
 
 // Visuals

@@ -6,7 +6,6 @@
 // Naming
 Name German Officer Hat
 ShortName 44_GermanOfficerHat
-ItemID Your ID
 
 
 // Visuals

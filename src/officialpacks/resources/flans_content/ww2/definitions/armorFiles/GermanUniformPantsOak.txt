@@ -6,7 +6,6 @@
 // Naming
 Name GermanPantsOak
 ShortName GermanUniformPantsOak
-ItemID Your ID
 
 
 // Visuals

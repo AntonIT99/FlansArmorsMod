@@ -1,6 +1,5 @@
 Name Clone Green Company Helmet
 ShortName clonegreenHelmet
-ItemID 31220
 Icon clonegreenhelmet
 Colour 255 255 255
 Type Helmet

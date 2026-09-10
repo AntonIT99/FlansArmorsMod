@@ -6,7 +6,6 @@
 // Naming
 Name German Sumpftarn-M45 Pants
 ShortName 44_GermanSumpftarnM45Pants
-ItemID Your ID
 
 
 // Visuals

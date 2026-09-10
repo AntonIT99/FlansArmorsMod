@@ -1,7 +1,6 @@
 //Naming
 Name M3 Halftrack
 ShortName M3Halftrack
-ItemID 23400
 //Visuals
 Icon M3Halftrack
 Model ww2.M3Halftrack

@@ -6,7 +6,6 @@
 // Naming
 Name GermanEngineerChestSwamp
 ShortName GermanEngineerChestSwamp
-ItemID Your ID
 
 
 // Visuals

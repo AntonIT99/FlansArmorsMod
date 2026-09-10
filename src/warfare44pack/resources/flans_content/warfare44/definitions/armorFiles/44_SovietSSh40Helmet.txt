@@ -6,7 +6,6 @@
 // Naming
 Name Soviet Summer Obr43 Helmet
 ShortName 44_SovietSummerObr43Helmet
-ItemID Your ID
 
 
 // Visuals

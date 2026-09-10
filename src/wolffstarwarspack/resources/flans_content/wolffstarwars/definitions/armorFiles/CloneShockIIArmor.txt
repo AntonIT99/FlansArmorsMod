@@ -1,6 +1,5 @@
 Name ClonetrooperArmor
 ShortName cloneShockIIArmor
-ItemID 31250
 Icon cloneshockiiarmor
 Colour 255 255 255
 Type Body

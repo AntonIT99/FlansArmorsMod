@@ -6,7 +6,6 @@
 // Naming
 Name German Sumpftarn-M45 Jacket
 ShortName 44_GermanSumpftarnM45Chest
-ItemID Your ID
 
 
 // Visuals

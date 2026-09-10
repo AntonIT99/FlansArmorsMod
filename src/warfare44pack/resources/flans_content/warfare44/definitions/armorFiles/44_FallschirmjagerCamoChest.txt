@@ -6,7 +6,6 @@
 // Naming
 Name Fallschirmjager Camo Jacket
 ShortName 44_FallschirmjagerCamoChest
-ItemID Your ID
 
 
 // Visuals

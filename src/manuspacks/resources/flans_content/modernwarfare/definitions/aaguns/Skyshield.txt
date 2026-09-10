@@ -3,7 +3,6 @@ ShortName Skyshield
 //The ammo this gun uses (shortName)
 Ammo ShellNATO35mm
 Icon IconAAGunSkyshield
-ItemID 28160
 Model manus_modern_warfare.Skyshield
 //Place the texture .png in the skins folder
 Texture SkinAAGunSkyshield

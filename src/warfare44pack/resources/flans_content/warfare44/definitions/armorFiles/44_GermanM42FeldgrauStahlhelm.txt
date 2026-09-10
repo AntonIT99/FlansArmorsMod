@@ -6,7 +6,6 @@
 // Naming
 Name German M42 Feldgrau Stahlhelm
 ShortName 44_GermanM42FeldgrauStahlhelm
-ItemID Your ID
 
 
 // Visuals

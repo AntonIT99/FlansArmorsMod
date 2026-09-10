@@ -6,7 +6,6 @@
 // Naming
 Name GermanMedicHelmet
 ShortName GermanMedicHelmet
-ItemID Your ID
 
 
 // Visuals

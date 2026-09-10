@@ -1,7 +1,6 @@
 //Naming
 Name MiG 15 Fagot
 ShortName MIG15
-ItemID 28180
 //Visuals
 Icon IconPlaneMIG15
 Model manus_modern_warfare.MIG15

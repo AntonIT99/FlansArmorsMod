@@ -1,6 +1,5 @@
 Name Clonetrooper Helmet
 ShortName clone332IIHelmet
-ItemID 31252
 Icon clone332iihelmet
 Colour 255 255 255
 Type Helmet

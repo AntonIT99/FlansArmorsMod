@@ -6,7 +6,6 @@
 // Naming
 Name American MP Officer Jacket
 ShortName 44_AmericanMPOfficerChest
-ItemID Your ID
 
 
 // Visuals

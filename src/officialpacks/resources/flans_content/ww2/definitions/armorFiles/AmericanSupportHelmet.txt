@@ -6,7 +6,6 @@
 // Naming
 Name AmericanSupportHelmet
 ShortName AmericanSupportHelmet
-ItemID Your ID
 
 
 // Visuals

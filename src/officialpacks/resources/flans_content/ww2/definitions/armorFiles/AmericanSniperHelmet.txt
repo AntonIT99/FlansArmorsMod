@@ -6,7 +6,6 @@
 // Naming
 Name AmericanSniperHelmet
 ShortName AmericanSniperHelmet
-ItemID Your ID
 
 
 // Visuals

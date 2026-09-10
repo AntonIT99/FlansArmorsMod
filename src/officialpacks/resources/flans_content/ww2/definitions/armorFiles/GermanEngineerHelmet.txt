@@ -6,7 +6,6 @@
 // Naming
 Name GermanEngineerHelmet
 ShortName GermanEngineerHelmet
-ItemID Your ID
 
 
 // Visuals

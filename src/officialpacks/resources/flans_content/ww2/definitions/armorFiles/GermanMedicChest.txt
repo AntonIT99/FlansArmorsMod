@@ -6,7 +6,6 @@
 // Naming
 Name GermanMedicChest
 ShortName GermanMedicChest
-ItemID Your ID
 
 
 // Visuals

@@ -1,7 +1,6 @@
 //Naming
 Name Dropship Mk.3 VIP Transport - Grass Skin
 ShortName DropshipMk3_B_Grass
-ItemID 28677
 //Visuals
 Icon IconPlaneDropshipMk3_B_Grass
 Model manus_sifi.DropshipMk3_B

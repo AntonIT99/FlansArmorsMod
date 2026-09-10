@@ -6,7 +6,6 @@
 // Naming
 Name AmericanUniformBoots
 ShortName AmericanUniformBoots
-ItemID Your ID
 
 
 // Visuals

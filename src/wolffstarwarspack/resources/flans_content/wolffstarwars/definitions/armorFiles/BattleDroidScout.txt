@@ -1,6 +1,5 @@
 Name Battle Droid B1 Scout
 ShortName BattleDroidScout
-ItemID 31218
 Icon battledroidscout
 Colour 255 255 255
 Type Head

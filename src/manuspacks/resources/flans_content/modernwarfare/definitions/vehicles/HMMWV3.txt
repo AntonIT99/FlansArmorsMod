@@ -1,7 +1,6 @@
 //Naming
 Name M998 HMMWV with Cal. 50 Gun
 ShortName HMMWV3
-ItemID 28102
 //Visuals
 Icon IconVehicleHMMWV3
 Model manus_modern_warfare.HMMWV3

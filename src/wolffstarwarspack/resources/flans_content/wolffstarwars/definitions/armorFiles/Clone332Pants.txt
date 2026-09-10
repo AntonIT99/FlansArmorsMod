@@ -1,6 +1,5 @@
 Name Clone 501st Legion Pants
 ShortName clone332Pants
-ItemID 31221
 Icon clone501pants
 Colour 255 255 255
 Type Pants

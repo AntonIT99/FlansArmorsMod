@@ -1,6 +1,5 @@
 Name Sith Eyes
 ShortName SithEyes
-ItemID 31218
 Icon sitheye
 Colour 255 255 255
 Type Head

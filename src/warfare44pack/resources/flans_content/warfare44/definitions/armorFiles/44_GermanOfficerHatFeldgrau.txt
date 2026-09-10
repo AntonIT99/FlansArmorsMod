@@ -6,7 +6,6 @@
 // Naming
 Name German Officer Hat Feldgrau
 ShortName 44_GermanOfficerHatFeldgrau
-ItemID Your ID
 
 
 // Visuals

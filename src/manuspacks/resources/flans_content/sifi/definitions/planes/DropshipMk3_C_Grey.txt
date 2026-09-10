@@ -1,7 +1,6 @@
 //Naming
 Name Dropship Mk.3 Command - Grey Skin
 ShortName DropshipMk3_C_Grey
-ItemID 28672
 //Visuals
 Icon IconPlaneDropshipMk3_C_Grey
 Model manus_sifi.DropshipMk3_C

@@ -1,6 +1,5 @@
 Name Battle Droid B1 Grenade
 ShortName BattleDroidGrenade
-ItemID 31218
 Icon battledroidgrenade
 Colour 255 255 255
 Type Head

@@ -1,7 +1,6 @@
 //Naming
 Name Leopard 2 - Version A7+ PSO
 ShortName Leopard2A7
-ItemID 28141
 //Visuals
 Icon IconVehicleLeopard2A7
 Model manus_modern_warfare.Leopard2A7

@@ -1,6 +1,5 @@
 Name Clonetrooper Helmet
 ShortName cloneKaminoHelmet
-ItemID 31252
 Icon clonekaminohelmet
 Colour 255 255 255
 Type Helmet

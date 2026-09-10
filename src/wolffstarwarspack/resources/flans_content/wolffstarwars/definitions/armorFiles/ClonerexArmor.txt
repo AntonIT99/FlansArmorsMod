@@ -1,6 +1,5 @@
 Name Rex's Clone Armor
 ShortName rexcloneArmor
-ItemID 31242
 Icon rexclonearmor
 Colour 255 255 255
 Type Body

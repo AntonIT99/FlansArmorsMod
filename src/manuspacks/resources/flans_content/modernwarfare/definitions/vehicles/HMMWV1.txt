@@ -1,7 +1,6 @@
 //Naming
 Name M998 HMMWV
 ShortName HMMWV1
-ItemID 28100
 //Visuals
 Icon IconVehicleHMMWV1
 Model manus_modern_warfare.HMMWV1

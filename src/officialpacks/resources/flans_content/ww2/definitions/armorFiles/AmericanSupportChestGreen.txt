@@ -6,7 +6,6 @@
 // Naming
 Name AmericanSupportChestGreen
 ShortName AmericanSupportChestGreen
-ItemID Your ID
 
 
 // Visuals

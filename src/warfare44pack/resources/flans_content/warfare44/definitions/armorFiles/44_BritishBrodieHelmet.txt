@@ -6,7 +6,6 @@
 // Naming
 Name British Brodie Helmet
 ShortName 44_BritishBrodieHelmet
-ItemID Your ID
 
 
 // Visuals

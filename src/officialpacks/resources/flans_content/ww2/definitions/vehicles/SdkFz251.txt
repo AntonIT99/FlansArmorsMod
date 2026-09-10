@@ -1,7 +1,6 @@
 //Naming
 Name SdkFz.251 Halftrack
 ShortName SdkFz251
-ItemID 23491
 //Visuals
 Icon SdkFz251
 Model ww2.SdkFz251

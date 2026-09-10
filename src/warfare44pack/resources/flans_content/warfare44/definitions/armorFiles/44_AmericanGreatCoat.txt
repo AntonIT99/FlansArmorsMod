@@ -6,7 +6,6 @@
 // Naming
 Name American Great Coat
 ShortName 44_AmericanGreatCoat
-ItemID Your ID
 
 
 // Visuals

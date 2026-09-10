@@ -6,7 +6,6 @@
 // Naming
 Name AmericanSupportChest
 ShortName AmericanSupportChest
-ItemID Your ID
 
 
 // Visuals

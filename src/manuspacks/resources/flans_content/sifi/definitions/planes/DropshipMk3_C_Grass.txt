@@ -1,7 +1,6 @@
 //Naming
 Name Dropship Mk.3 Command - Grass Skin
 ShortName DropshipMk3_C_Grass
-ItemID 28678
 //Visuals
 Icon IconPlaneDropshipMk3_C_Grass
 Model manus_sifi.DropshipMk3_C

@@ -1,6 +1,5 @@
 Name French WW2 Coat
 ShortName frenchCoat
-ItemID 23586
 Icon FrenchCoat
 Colour 255 255 255
 Type Body

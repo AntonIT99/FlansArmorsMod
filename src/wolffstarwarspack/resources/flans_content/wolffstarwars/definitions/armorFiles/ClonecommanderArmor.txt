@@ -1,6 +1,5 @@
 Name Clone Commander Armor
 ShortName clonecommanderArmor
-ItemID 31226
 Icon clonecommanderarmor
 Colour 255 255 255
 Type Body

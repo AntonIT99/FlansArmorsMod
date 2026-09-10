@@ -6,7 +6,6 @@
 // Naming
 Name American M1 Helmet (Netting)
 ShortName 44_AmericanM1HelmetNetting
-ItemID Your ID
 
 
 // Visuals

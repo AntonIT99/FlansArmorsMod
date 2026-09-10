@@ -6,7 +6,6 @@
 // Naming
 Name German Pz.Grenadier Feldgrau Jacket
 ShortName 44_GermanPzGrenadierFeldgrauChest
-ItemID Your ID
 
 
 // Visuals

@@ -1,6 +1,5 @@
 Name Italian WW2 Coat
 ShortName italianCoat
-ItemID 23696
 Icon ItalianCoat
 Colour 255 255 255
 Type Body

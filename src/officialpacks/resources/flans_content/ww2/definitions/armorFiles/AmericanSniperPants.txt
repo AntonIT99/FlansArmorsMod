@@ -6,7 +6,6 @@
 // Naming
 Name AmericanSniperPants
 ShortName AmericanSniperPants
-ItemID Your ID
 
 
 // Visuals

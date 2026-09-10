@@ -1,7 +1,6 @@
 //Naming
 Name GTK Boxer with Cal. 50 Gun
 ShortName Boxer3
-ItemID 28122
 //Visuals
 Icon IconVehicleBoxer3
 Model manus_modern_warfare.Boxer3

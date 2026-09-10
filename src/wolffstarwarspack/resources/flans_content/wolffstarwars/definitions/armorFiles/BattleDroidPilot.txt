@@ -1,6 +1,5 @@
 Name Battle Droid B1 Pilot
 ShortName BattleDroidPilot
-ItemID 31218
 Icon battledroidpilot
 Colour 255 255 255
 Type Head

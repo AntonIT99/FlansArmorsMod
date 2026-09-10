@@ -1,6 +1,5 @@
 Name Clone Shadow Trooper Phase 2 Helmet
 ShortName cloneShadowIIHelmet
-ItemID 31220
 Icon cloneshadowiihelmet
 Colour 255 255 255
 Type Helmet

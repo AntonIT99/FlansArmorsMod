@@ -1,7 +1,6 @@
 //Naming
 Name A-10 Thunderbolt
 ShortName A10
-ItemID 28181
 //Visuals
 Icon IconPlaneA10
 Model manus_modern_warfare.A10

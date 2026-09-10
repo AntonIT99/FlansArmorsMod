@@ -6,7 +6,6 @@
 // Naming
 Name GermanAssaultHat
 ShortName GermanAssaultHat
-ItemID Your ID
 
 
 // Visuals

@@ -3,7 +3,6 @@ ShortName ShellNATO120mmDM43KE
 Model Bullet
 //Colour of icon and model
 Colour 255 255 255
-ItemID 28271
 Icon IconShellNATO120mmDM43KE
 //How affected by gravity the bullet is
 FallSpeed 1

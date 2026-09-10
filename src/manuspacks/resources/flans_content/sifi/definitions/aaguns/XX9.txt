@@ -3,7 +3,6 @@ ShortName XX9
 //The ammo this gun uses (shortName)
 Ammo AmmoPowerpackXX9
 Icon IconAAGunXX9
-ItemID 28648
 Model manus_sifi.XX9
 //Place the texture .png in the skins folder
 Texture SkinAAGunXX9

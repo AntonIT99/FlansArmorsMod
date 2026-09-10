@@ -1,6 +1,5 @@
 Name Pilot WW2 Helmet
 ShortName pilotHelmet
-ItemID 23580
 Icon PilotHelmet
 Colour 255 255 255
 Type Helmet

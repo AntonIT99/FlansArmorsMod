@@ -6,7 +6,6 @@
 // Naming
 Name GermanOfficerHat
 ShortName GermanOfficerHat
-ItemID Your ID
 
 
 // Visuals

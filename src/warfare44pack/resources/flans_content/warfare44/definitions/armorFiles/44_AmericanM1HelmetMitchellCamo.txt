@@ -6,7 +6,6 @@
 // Naming
 Name American M1 Helmet Mitchell Camo
 ShortName 44_AmericanM1HelmetMitchellCamo
-ItemID Your ID
 
 
 // Visuals

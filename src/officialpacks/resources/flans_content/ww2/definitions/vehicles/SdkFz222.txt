@@ -1,7 +1,6 @@
 //Naming
 Name SdkFz.222 Armored Car
 ShortName SdkFz222
-ItemID 23491
 //Visuals
 Icon SdkFz222
 Model ww2.SdkFz222

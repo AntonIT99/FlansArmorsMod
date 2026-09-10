@@ -1,6 +1,5 @@
 Name Clonetrooper Pants
 ShortName shadowtrooperPants
-ItemID 31253
 Icon shadowtrooperpants
 Colour 255 255 255
 Type Pants

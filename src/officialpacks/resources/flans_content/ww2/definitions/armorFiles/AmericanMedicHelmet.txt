@@ -6,7 +6,6 @@
 // Naming
 Name AmericanMedicHelmet
 ShortName AmericanMedicHelmet
-ItemID Your ID
 
 
 // Visuals

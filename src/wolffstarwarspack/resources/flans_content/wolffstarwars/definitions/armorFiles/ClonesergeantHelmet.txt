@@ -1,6 +1,5 @@
 Name Clone Sergeant Helmet
 ShortName clonesergentHelmet
-ItemID 31248
 Icon clonesergenthelmet
 Colour 255 255 255
 Type Helmet

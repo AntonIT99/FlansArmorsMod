@@ -5,7 +5,6 @@ Icon Icon_WH40K_Grenade_FragGrenade_1A
 //Colour in Red, Green, Blue, each going up to 255
 Colour 255 255 255
 ////Item and recipe
-ItemID 23857
 StackSize 4
 ////Visuals
 Model Manus_WH40K.Misc.WH40K_Misc_FragGrenade_1

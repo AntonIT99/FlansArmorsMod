@@ -1,6 +1,5 @@
 Name SIG P232
 ShortName SIGP232
-ItemID 30010
 //The ammo this gun uses (shortName)
 Ammo sigP226Ammo
 Ammo kcasmartpistolAmmo

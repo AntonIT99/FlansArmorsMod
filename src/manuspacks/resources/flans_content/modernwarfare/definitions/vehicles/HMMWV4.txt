@@ -1,7 +1,6 @@
 //Naming
 Name M998 HMMWV with M134
 ShortName HMMWV4
-ItemID 28103
 //Visuals
 Icon IconVehicleHMMWV4
 Model manus_modern_warfare.HMMWV4

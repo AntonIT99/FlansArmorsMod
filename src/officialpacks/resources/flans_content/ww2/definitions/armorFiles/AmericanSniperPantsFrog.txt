@@ -6,7 +6,6 @@
 // Naming
 Name AmericanSniperPantsFrog
 ShortName AmericanSniperPantsFrog
-ItemID Your ID
 
 
 // Visuals

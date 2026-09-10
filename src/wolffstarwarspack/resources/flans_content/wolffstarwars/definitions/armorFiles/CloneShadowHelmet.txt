@@ -1,6 +1,5 @@
 Name Clone Shadow Trooper Helmet
 ShortName cloneShadowHelmet
-ItemID 31220
 Icon cloneshadowhelmet
 Colour 255 255 255
 Type Helmet

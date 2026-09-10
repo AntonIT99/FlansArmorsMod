@@ -6,7 +6,6 @@
 // Naming
 Name Waffen M44Camo Pants
 ShortName 44_WaffenM44CamoPants
-ItemID Your ID
 
 
 // Visuals

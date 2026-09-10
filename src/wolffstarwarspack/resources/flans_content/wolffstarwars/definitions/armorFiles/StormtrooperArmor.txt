@@ -1,6 +1,5 @@
 Name ClonetrooperArmor
 ShortName stormtrooperArmor
-ItemID 31250
 Icon stormtrooperchest
 Colour 255 255 255
 Type Body

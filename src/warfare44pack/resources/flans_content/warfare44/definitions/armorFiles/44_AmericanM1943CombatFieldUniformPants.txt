@@ -6,7 +6,6 @@
 // Naming
 Name American M-1943 Combat Field Uniform Pants
 ShortName 44_AmericanM1943CombatFieldUniformPants
-ItemID Your ID
 
 
 // Visuals

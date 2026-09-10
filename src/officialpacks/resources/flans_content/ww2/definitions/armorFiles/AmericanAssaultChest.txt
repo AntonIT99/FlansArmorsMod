@@ -6,7 +6,6 @@
 // Naming
 Name AmericanAssaultChest
 ShortName AmericanAssaultChest
-ItemID Your ID
 
 
 // Visuals

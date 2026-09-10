@@ -1,7 +1,6 @@
 //Naming
 Name Dropship Mk.3 VIP Transport - Ice Skin
 ShortName DropshipMk3_B_Ice
-ItemID 28674
 //Visuals
 Icon IconPlaneDropshipMk3_B_Ice
 Model manus_sifi.DropshipMk3_B

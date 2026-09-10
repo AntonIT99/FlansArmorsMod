@@ -6,7 +6,6 @@
 // Naming
 Name GermanMedicChestLeiber
 ShortName GermanMedicChestLeiber
-ItemID Your ID
 
 
 // Visuals

@@ -6,7 +6,6 @@
 // Naming
 Name American MP Officer Helmet
 ShortName 44_AmericanMPOfficerHelmet
-ItemID Your ID
 
 
 // Visuals

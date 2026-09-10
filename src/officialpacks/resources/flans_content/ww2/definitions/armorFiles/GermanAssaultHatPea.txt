@@ -6,7 +6,6 @@
 // Naming
 Name GermanAssaultHatPea
 ShortName GermanAssaultHatPea
-ItemID Your ID
 
 
 // Visuals

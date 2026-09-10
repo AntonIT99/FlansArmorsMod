@@ -6,7 +6,6 @@
 // Naming
 Name German M43 Leibermuster Hat
 ShortName 44_GermanM43LeibermusterHat
-ItemID Your ID
 
 
 // Visuals

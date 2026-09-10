@@ -4,7 +4,6 @@ Model manus_sifi.Laser
 Texture SkinBulletLaserRed
 //Colour of icon and model
 Colour 255 255 255
-ItemID 28643
 Icon IconAmmoPowerpackRebelLaserCannon
 //How affected by gravity the bullet is
 FallSpeed 0.0

@@ -1,6 +1,5 @@
 Name Clone Ghost Company Armor
 ShortName cloneghostArmor
-ItemID 31218
 Icon cloneghostarmor
 Colour 255 255 255
 Type Body

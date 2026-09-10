@@ -1,6 +1,5 @@
 Name OOM-10
 ShortName OOM10
-ItemID 31218
 Icon oom10
 Colour 255 255 255
 Type Head

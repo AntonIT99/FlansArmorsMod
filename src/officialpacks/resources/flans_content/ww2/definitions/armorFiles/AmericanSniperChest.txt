@@ -6,7 +6,6 @@
 // Naming
 Name AmericanSniperChestFrog
 ShortName AmericanSniperChestFrog
-ItemID Your ID
 
 
 // Visuals

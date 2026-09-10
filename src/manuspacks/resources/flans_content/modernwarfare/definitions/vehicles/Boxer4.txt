@@ -1,7 +1,6 @@
 //Naming
 Name GTK Boxer with with 20mm Cannon
 ShortName Boxer4
-ItemID 28123
 //Visuals
 Icon IconVehicleBoxer4
 Model manus_modern_warfare.Boxer4

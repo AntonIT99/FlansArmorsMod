@@ -6,7 +6,6 @@
 // Naming
 Name GermanAssaultHatSplinter
 ShortName GermanAssaultHatSplinter
-ItemID Your ID
 
 
 // Visuals

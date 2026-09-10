@@ -6,7 +6,6 @@
 // Naming
 Name German Officer Jacket
 ShortName 44_GermanOfficerChest
-ItemID Your ID
 
 
 // Visuals

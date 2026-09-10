@@ -1,7 +1,6 @@
 //Naming
 Name Dropship Mk.3 VIP Transport - Jungle Skin
 ShortName DropshipMk3_B_Jungle
-ItemID 28683
 //Visuals
 Icon IconPlaneDropshipMk3_B_Jungle
 Model manus_sifi.DropshipMk3_B

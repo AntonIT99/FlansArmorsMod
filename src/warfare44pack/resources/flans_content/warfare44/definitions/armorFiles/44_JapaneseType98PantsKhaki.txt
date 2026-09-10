@@ -6,7 +6,6 @@
 // Naming
 Name Japanese Type 98 Pants (Khaki)
 ShortName 44_JapaneseType98PantsKhaki
-ItemID Your ID
 
 
 // Visuals

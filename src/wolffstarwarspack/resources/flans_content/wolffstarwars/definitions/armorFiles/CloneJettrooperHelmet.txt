@@ -1,6 +1,5 @@
 Name Clone Jet Trooper Helmet
 ShortName JettrooperHelmet
-ItemID 31248
 Icon jettrooperhelmet
 Colour 255 255 255
 Type Helmet

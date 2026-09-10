@@ -1,7 +1,6 @@
 //Naming
 Name AH-1Z Super Cobra - Green
 ShortName AH1ZGreen
-ItemID 28220
 //Visuals
 Icon IconPlaneAH1ZGreen
 Model manus_modern_warfare.AH1Z

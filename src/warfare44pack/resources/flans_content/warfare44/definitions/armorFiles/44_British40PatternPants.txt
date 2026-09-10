@@ -6,7 +6,6 @@
 // Naming
 Name British British 40 Pattern Pants
 ShortName 44_British40PatternPants
-ItemID Your ID
 
 
 // Visuals

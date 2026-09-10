@@ -1,6 +1,5 @@
 Name Clone 501st Legion Armor
 ShortName clone332Armor
-ItemID 31218
 Icon clone501armor
 Colour 255 255 255
 Type Body

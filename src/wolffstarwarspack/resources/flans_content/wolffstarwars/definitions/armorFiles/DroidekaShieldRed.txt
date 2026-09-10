@@ -1,6 +1,5 @@
 Name Red Droideka Shield
 ShortName droidekashieldred
-ItemID 31218
 Icon droidekashieldred
 Colour 255 255 255
 Type Body

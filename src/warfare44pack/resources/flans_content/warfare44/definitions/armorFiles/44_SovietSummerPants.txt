@@ -6,7 +6,6 @@
 // Naming
 Name Soviet Summer Obr43 Pants
 ShortName 44_SovietSummerObr43Pants
-ItemID Your ID
 
 
 // Visuals

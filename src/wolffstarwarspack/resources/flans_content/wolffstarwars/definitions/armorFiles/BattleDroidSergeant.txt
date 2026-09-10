@@ -1,6 +1,5 @@
 Name Battle Droid B1 Sergeant
 ShortName BattleDroidSergeant
-ItemID 31218
 Icon battledroidsergeant
 Colour 255 255 255
 Type Head

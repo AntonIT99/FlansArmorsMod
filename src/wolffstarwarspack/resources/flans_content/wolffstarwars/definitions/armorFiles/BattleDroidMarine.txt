@@ -1,6 +1,5 @@
 Name Battle Droid B1 Marine
 ShortName BattleDroidMarine
-ItemID 31218
 Icon battledroidmarine
 Colour 255 255 255
 Type Head

@@ -1,6 +1,5 @@
 Name Jedi Boots
 ShortName JediBootsPowered
-ItemID 31262
 Icon jediboots
 Colour 255 255 255
 Type Boots

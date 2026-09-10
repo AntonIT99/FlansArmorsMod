@@ -6,7 +6,6 @@
 // Naming
 Name GermanMedicChestOak
 ShortName GermanMedicChestOak
-ItemID Your ID
 
 
 // Visuals

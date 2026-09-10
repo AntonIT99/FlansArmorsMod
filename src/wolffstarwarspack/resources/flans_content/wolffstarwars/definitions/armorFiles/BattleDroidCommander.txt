@@ -1,6 +1,5 @@
 Name Battle Droid B1 Commander
 ShortName BattleDroidCommander
-ItemID 31218
 Icon battledroidcommander
 Colour 255 255 255
 Type Head

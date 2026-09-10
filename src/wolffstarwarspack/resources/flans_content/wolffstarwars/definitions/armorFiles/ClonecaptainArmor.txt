@@ -1,6 +1,5 @@
 Name Clone Captain Armor
 ShortName clonecaptainArmor
-ItemID 31218
 Icon clonecaptainarmor
 Colour 255 255 255
 Type Body

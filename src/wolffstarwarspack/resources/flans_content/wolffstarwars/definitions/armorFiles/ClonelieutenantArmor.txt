@@ -1,6 +1,5 @@
 Name Clone Lieutnant Armor
 ShortName clonelieutnantArmor
-ItemID 31234
 Icon clonelieutnantarmor
 Colour 255 255 255
 Type Body

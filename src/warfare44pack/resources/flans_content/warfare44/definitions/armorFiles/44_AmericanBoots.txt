@@ -6,7 +6,6 @@
 // Naming
 Name American Boots
 ShortName 44_AmericanBoots
-ItemID Your ID
 
 
 // Visuals

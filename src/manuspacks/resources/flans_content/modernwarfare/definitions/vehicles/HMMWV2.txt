@@ -1,7 +1,6 @@
 //Naming
 Name M998 HMMWV with open load area
 ShortName HMMWV2
-ItemID 28101
 //Visuals
 Icon IconVehicleHMMWV2
 Model manus_modern_warfare.HMMWV2

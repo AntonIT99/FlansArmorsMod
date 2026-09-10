@@ -6,7 +6,6 @@
 // Naming
 Name GermanMedicChestSwamp
 ShortName GermanMedicChestSwamp
-ItemID Your ID
 
 
 // Visuals

@@ -1,7 +1,6 @@
 //Naming
 Name AH-1Z Super Cobra - Grey
 ShortName AH1ZGrey
-ItemID 28221
 //Visuals
 Icon IconPlaneAH1ZGrey
 Model manus_modern_warfare.AH1Z

@@ -6,7 +6,6 @@
 // Naming
 Name Waffen M44 Camo Jacket
 ShortName 44_WaffenM44CamoChest
-ItemID Your ID
 
 
 // Visuals

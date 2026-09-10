@@ -3,7 +3,6 @@ ShortName ImperialThrone
 //The ammo this gun uses (shortName)
 
 Icon IconAAGunImperialThrone
-ItemID 28695
 Model manus_sifi.ImperialThrone
 //Place the texture .png in the skins folder
 Texture SkinAAGunImperialThrone

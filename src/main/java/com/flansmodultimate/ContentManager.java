@@ -121,8 +121,6 @@ public class ContentManager
     private static final Map<IContentProvider, Map<String, DynamicReference>> guiTextureReferences = new HashMap<>();
     @Getter
     private static final Map<IContentProvider, Map<String, DynamicReference>> skinsTextureReferences = new HashMap<>();
-    @Getter
-    private static final Map<IContentProvider, Map<String, DynamicReference>> modelReferences = new HashMap<>();
 
     private static final String ID_ALIAS_FILE = "id_alias.json";
     private static final String ARMOR_TEXTURES_ALIAS_FILE = "armor_textures_alias.json";
@@ -143,15 +141,12 @@ public class ContentManager
     private static final Map<IContentProvider, ArrayList<InfoType>> configs = new HashMap<>();
     private static Set<Path> excludedFlanArchives = Set.of();
 
-    // Keep track of registered items and loaded textures and models
+    // Keep track of registered items and loaded textures
     /** &lt; shortname, config file string representation &gt; */
     private static final Map<String, String> registeredItems = new HashMap<>();
     private static final ConcurrentMap<EnumType, Constructor<? extends InfoType>> typeConstructors = new ConcurrentHashMap<>();
     /** &lt; folder name, &lt;lowercase name, texture file &gt;&gt; */
     private static final Map<String, Map<String, TextureFile>> textures = new HashMap<>();
-    /** &lt; model class name, &lt; contentPack &gt;&gt; */
-    @Getter
-    private static final Map<String, IContentProvider> registeredModels = new HashMap<>();
     private static final Map<ResourceLocation, Set<TextureOrigin>> modelTextureOrigins = new HashMap<>();
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -244,7 +239,7 @@ public class ContentManager
 
     /**
      * Adds immutable packaged providers ahead of user folder packs. First registration keeps the
-     * original item/model/texture name, so this ordering makes later user conflicts receive aliases.
+     * original item/texture name, so this ordering makes later user conflicts receive aliases.
      */
     public static void addPackagedContentPacks(List<? extends IContentProvider> providers)
     {
@@ -255,6 +250,12 @@ public class ContentManager
             if (!contentPacks.contains(provider))
                 contentPacks.add(provider);
         }
+    }
+
+    /** Packaged providers first, then the user folder packs in alphabetical order. */
+    public static List<IContentProvider> getContentPacks()
+    {
+        return Collections.unmodifiableList(contentPacks);
     }
 
     public static void readContentPacks()
@@ -297,7 +298,6 @@ public class ContentManager
             armorTextureReferences.putIfAbsent(provider, new HashMap<>());
             guiTextureReferences.putIfAbsent(provider, new HashMap<>());
             skinsTextureReferences.putIfAbsent(provider, new HashMap<>());
-            modelReferences.putIfAbsent(provider, new HashMap<>());
 
             if (!provider.isArchive())
                 compileJavaModelsIfNeeded(provider);

@@ -3,10 +3,7 @@
 package com.flansmod.client.model.ww2;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsmod.api.client.model.ModelBase;
-import org.jetbrains.annotations.NotNull;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelWW2Parachute extends ModelBase {
    public ModelRendererTurbo backpackModel;
@@ -30,18 +27,5 @@ public class ModelWW2Parachute extends ModelBase {
       this.parachuteModel[5] = new ModelRendererTurbo(this, 0, 64, 128, 128);
       this.parachuteModel[5].flip = true;
       this.parachuteModel[5].addTrapezoid(-8.0F, 70.0F, -8.0F, 16, 4, 16, 0.0F, -4.0F, 5);
-   }
-
-   @Override
-   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
-   {
-       poseStack.pushPose();
-      this.backpackModel.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-
-      for (ModelRendererTurbo part : this.parachuteModel) {
-         part.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-      }
-
-       poseStack.popPose();
    }
 }

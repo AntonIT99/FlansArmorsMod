@@ -2,9 +2,6 @@ package com.flansmod.client.model;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.flansmodultimate.FlansMod;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.resources.ResourceLocation;
 
@@ -27,15 +24,6 @@ public class ModelDefaultMuzzleFlash extends ModelMuzzleFlash
         mfModel[1].glow = true;
         mfModel[2].addBox(0f, -2f, 0f, 4, 4, 0);
         mfModel[2].glow = true;
-    }
-
-    @Override
-    public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
-    {
-        for (ModelRendererTurbo mod : mfModel)
-        {
-            mod.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-        }
     }
 
     @Override

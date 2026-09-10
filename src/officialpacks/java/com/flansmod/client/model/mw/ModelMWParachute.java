@@ -1,10 +1,7 @@
 package com.flansmod.client.model.mw;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsmod.api.client.model.ModelBase;
-import org.jetbrains.annotations.NotNull;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelMWParachute extends ModelBase
 {
@@ -36,15 +33,4 @@ public class ModelMWParachute extends ModelBase
 		parachuteModel[5].addTrapezoid(-8, 70, -8, 16, 4, 16, 0F, -4F, ModelRendererTurbo.MR_BOTTOM);
 	}
 	
-	@Override
-	public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
-	{
-	    poseStack.pushPose();
-		backpackModel.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-		
-		for(ModelRendererTurbo part : parachuteModel)
-			part.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-
-	    poseStack.popPose();
-	}
 }

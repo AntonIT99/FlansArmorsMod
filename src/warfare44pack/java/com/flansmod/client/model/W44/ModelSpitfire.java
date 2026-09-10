@@ -12,7 +12,7 @@ package com.flansmod.client.model.W44;
 
 import com.flansmod.client.model.ModelPlane;
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.wolffsmod.api.client.model.ModelBase;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelSpitfire
 extends ModelPlane {

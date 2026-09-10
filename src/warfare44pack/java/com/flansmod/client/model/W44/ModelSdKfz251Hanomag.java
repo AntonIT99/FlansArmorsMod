@@ -16,7 +16,7 @@ import com.flansmod.client.model.ModelVehicle;
 import com.flansmod.client.tmt.Coord2D;
 import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.flansmod.client.tmt.Shape2D;
-import com.wolffsmod.api.client.model.ModelBase;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelSdKfz251Hanomag
 extends ModelVehicle {

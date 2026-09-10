@@ -3,10 +3,7 @@
 package com.flansmod.client.model.W44;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsmod.api.client.model.ModelBase;
-import org.jetbrains.annotations.NotNull;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelMedicalKit extends ModelBase {
    int textureX = 64;
@@ -72,14 +69,4 @@ public class ModelMedicalKit extends ModelBase {
       this.yourclassnameModel[13].rotateAngleZ = (float) Math.PI;
    }
 
-   @Override
-   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
-   {
-       poseStack.pushPose();
-      for (int i = 0; i < 14; i++) {
-         this.yourclassnameModel[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-      }
-
-       poseStack.popPose();
-   }
 }

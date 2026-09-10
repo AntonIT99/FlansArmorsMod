@@ -19,7 +19,6 @@ import com.flansmodultimate.common.types.GunType;
 import com.flansmodultimate.common.types.InfoType;
 import com.flansmodultimate.config.ModClientConfig;
 import com.flansmodultimate.util.ClassLoaderUtils;
-import com.flansmodultimate.util.DynamicReference;
 import com.flansmodultimate.util.LogUtils;
 import com.wolffsmod.api.client.model.IModelBase;
 import com.wolffsmod.api.client.model.ModelRenderer;
@@ -32,11 +31,12 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.resources.ResourceLocation;
 
-import java.io.IOException;
 import java.nio.file.NoSuchFileException;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,9 +44,19 @@ import java.util.concurrent.ConcurrentHashMap;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ModelCache
 {
-    private record ModelClassLocation(IContentProvider contentPack, String fileClassName, String actualClassName) {}
+    /**
+     * @param className     name of the model class inside {@code contentPack}, which is the declared model
+     *                      class name unless a legacy pack ships it below its own package
+     * @param ownClassFile  true when the class file is shipped by the content pack the type belongs to, which
+     *                      makes it take precedence over a model class of the same name compiled into the mod
+     */
+    private record ModelClassLocation(IContentProvider contentPack, String className, boolean ownClassFile) {}
 
-    public record ModelCacheKey(String modelClassName, @Nullable String typeShortName)
+    /**
+     * @param contentPackName the content pack the model is loaded for, because the same model class name may
+     *                        resolve to a different class file in every content pack
+     */
+    private record ModelCacheKey(String modelClassName, @Nullable String typeShortName, @Nullable String contentPackName)
     {
         public ModelCacheKey
         {
@@ -90,19 +100,19 @@ public final class ModelCache
     @Nullable
     public static IModelBase getOrLoadTypeModel(InfoType type)
     {
-        return getOrLoadModel(new ModelCacheKey(type.getModelClassName(), type.getShortName()), type, null, type.getTexture());
+        return getOrLoadModel(new ModelCacheKey(type.getModelClassName(), type.getShortName(), type.getContentPack().getName()), type, null, type.getTexture());
     }
 
     @Nullable
     public static IModelBase getOrLoadTypeModel(ArmorType type)
     {
-        return getOrLoadModel(new ModelCacheKey(type.getModelClassName(), type.getShortName()), type, new ModelDefaultArmor(type.getArmorItemType()), type.getTexture());
+        return getOrLoadModel(new ModelCacheKey(type.getModelClassName(), type.getShortName(), type.getContentPack().getName()), type, new ModelDefaultArmor(type.getArmorItemType()), type.getTexture());
     }
 
     @Nullable
     public static ModelMG getOrLoadDeployableGunModel(GunType gunType)
     {
-        if (getOrLoadModel(new ModelCacheKey(gunType.getDeployableModelClassName(), gunType.getShortName()), gunType, null, gunType.getDeployableTexture()) instanceof ModelMG modelMG)
+        if (getOrLoadModel(new ModelCacheKey(gunType.getDeployableModelClassName(), gunType.getShortName(), gunType.getContentPack().getName()), gunType, null, gunType.getDeployableTexture()) instanceof ModelMG modelMG)
         {
             return modelMG;
         }
@@ -112,7 +122,7 @@ public final class ModelCache
     @Nullable
     public static ModelCasing getOrLoadCasingModel(GunType gunType)
     {
-        if (getOrLoadModel(new ModelCacheKey(gunType.getCasingModelClassName(), null), gunType, null, gunType.getCasingTexture()) instanceof ModelCasing modelCasing)
+        if (getOrLoadModel(new ModelCacheKey(gunType.getCasingModelClassName(), null, gunType.getContentPack().getName()), gunType, null, gunType.getCasingTexture()) instanceof ModelCasing modelCasing)
         {
             return modelCasing;
         }
@@ -122,7 +132,7 @@ public final class ModelCache
     @Nullable
     public static ModelFlash getOrLoadFlashModel(GunType gunType)
     {
-        if (getOrLoadModel(new ModelCacheKey(gunType.getFlashModelClassName(), null), gunType, null, gunType.getFlashTexture()) instanceof ModelFlash modelFlash)
+        if (getOrLoadModel(new ModelCacheKey(gunType.getFlashModelClassName(), null, gunType.getContentPack().getName()), gunType, null, gunType.getFlashTexture()) instanceof ModelFlash modelFlash)
         {
             return modelFlash;
         }
@@ -132,7 +142,7 @@ public final class ModelCache
     @Nullable
     public static ModelMuzzleFlash getOrLoadMuzzleFlashModel(GunType gunType)
     {
-        if (getOrLoadModel(new ModelCacheKey(gunType.getMuzzleFlashModelClassName(), null), gunType, new ModelDefaultMuzzleFlash(), null) instanceof ModelMuzzleFlash modelMuzzleFlash)
+        if (getOrLoadModel(new ModelCacheKey(gunType.getMuzzleFlashModelClassName(), null, gunType.getContentPack().getName()), gunType, new ModelDefaultMuzzleFlash(), null) instanceof ModelMuzzleFlash modelMuzzleFlash)
         {
             return modelMuzzleFlash;
         }
@@ -155,7 +165,7 @@ public final class ModelCache
         if (StringUtils.isBlank(modelCacheKey.modelClassName()))
         {
             if (defaultModel != null)
-                modelCacheKey = new ModelCacheKey(defaultModel.getClass().getName(), modelCacheKey.typeShortName());
+                modelCacheKey = new ModelCacheKey(defaultModel.getClass().getName(), modelCacheKey.typeShortName(), modelCacheKey.contentPackName());
             else
                 return null;
         }
@@ -229,22 +239,24 @@ public final class ModelCache
             else
             {
                 ModelClassLocation modelLocation = findModelClass(type.getContentPack(), modelClassName);
-                if (modelLocation != null)
+                // A model class file shipped by the type's own content pack overrides a model class of the
+                // same name compiled into the mod, unless that override is disabled in the client config.
+                boolean preferContentPackClass = modelLocation.ownClassFile() && !ModClientConfig.get().preferBuiltInModelClasses;
+                try
                 {
-                    try
-                    {
-                        model = (IModelBase) ClassLoaderUtils.loadAndModifyClass(modelLocation.contentPack(), modelLocation.fileClassName(), modelLocation.actualClassName()).getConstructor().newInstance();
-                        if (!modelLocation.contentPack().equals(type.getContentPack()))
-                            FlansMod.log.debug("Loaded model class {} for {} from fallback content pack [{}].", modelClassName, type, modelLocation.contentPack().getName());
-                    }
-                    catch (Exception | NoClassDefFoundError | ClassFormatError e)
-                    {
-                        FlansMod.log.error("Could not load model class {} for {}", modelClassName, type);
-                        if (e instanceof IOException ioException && ioException.getCause() instanceof NoSuchFileException noSuchFileException)
-                            FlansMod.log.error("File not found: {}", noSuchFileException.getFile());
-                        else
-                            LogUtils.logErrorWithoutStacktrace(e);
-                    }
+                    model = (IModelBase) ClassLoaderUtils.loadModelClass(modelLocation.contentPack(), modelLocation.className(), preferContentPackClass)
+                        .getConstructor().newInstance();
+                    if (!modelLocation.contentPack().equals(type.getContentPack()))
+                        FlansMod.log.debug("Loaded model class {} for {} from fallback content pack [{}].", modelLocation.className(), type, modelLocation.contentPack().getName());
+                }
+                catch (Exception | LinkageError e)
+                {
+                    FlansMod.log.error("Could not load model class {} for {}", modelClassName, type);
+                    NoSuchFileException missingFile = findMissingFile(e);
+                    if (missingFile != null)
+                        FlansMod.log.error("File not found: {}", missingFile.getFile());
+                    else
+                        LogUtils.logErrorWithoutStacktrace(e);
                 }
             }
 
@@ -271,32 +283,47 @@ public final class ModelCache
         return model;
     }
 
-    @Nullable
     private static ModelClassLocation findModelClass(IContentProvider preferredContentPack, String modelClassName)
     {
-        Map<String, DynamicReference> preferredReferences = ContentManager.getModelReferences().get(preferredContentPack);
-        DynamicReference preferredActualClassName = preferredReferences == null ? null : preferredReferences.get(modelClassName);
-        if (preferredActualClassName == null)
-            return null;
-
         if (ClassLoaderUtils.hasClassFile(preferredContentPack, modelClassName))
-            return new ModelClassLocation(preferredContentPack, modelClassName, preferredActualClassName.get());
+            return new ModelClassLocation(preferredContentPack, modelClassName, true);
 
         if (!ModClientConfig.get().searchModelsInOtherContentPacks)
-            return new ModelClassLocation(preferredContentPack, modelClassName, preferredActualClassName.get());
+            return new ModelClassLocation(preferredContentPack, modelClassName, false);
 
         String legacyClassName = getLegacyClassName(modelClassName);
 
-        return ContentManager.getModelReferences().entrySet().stream()
-            .filter(entry -> !entry.getKey().equals(preferredContentPack))
-            .filter(entry -> ClassLoaderUtils.hasClassFile(entry.getKey(), modelClassName)
-                || legacyClassName != null && ClassLoaderUtils.hasClassFile(entry.getKey(), legacyClassName))
-            .sorted(Map.Entry.comparingByKey((left, right) -> left.getName().compareToIgnoreCase(right.getName())))
-            .map(entry -> new ModelClassLocation(entry.getKey(),
-                ClassLoaderUtils.hasClassFile(entry.getKey(), modelClassName) ? modelClassName : legacyClassName,
-                preferredActualClassName.get()))
+        return ContentManager.getContentPacks().stream()
+            .filter(contentPack -> !contentPack.equals(preferredContentPack))
+            .sorted(Comparator.comparing(IContentProvider::getName, String.CASE_INSENSITIVE_ORDER))
+            .map(contentPack -> findClassFile(contentPack, modelClassName, legacyClassName))
+            .filter(Objects::nonNull)
             .findFirst()
-            .orElse(new ModelClassLocation(preferredContentPack, modelClassName, preferredActualClassName.get()));
+            .orElse(new ModelClassLocation(preferredContentPack, modelClassName, false));
+    }
+
+    /** Legacy content packs may ship the same model below their own package instead of the common one. */
+    @Nullable
+    private static ModelClassLocation findClassFile(IContentProvider contentPack, String modelClassName, @Nullable String legacyClassName)
+    {
+        if (ClassLoaderUtils.hasClassFile(contentPack, modelClassName))
+            return new ModelClassLocation(contentPack, modelClassName, false);
+
+        if (legacyClassName != null && ClassLoaderUtils.hasClassFile(contentPack, legacyClassName))
+            return new ModelClassLocation(contentPack, legacyClassName, false);
+
+        return null;
+    }
+
+    @Nullable
+    private static NoSuchFileException findMissingFile(Throwable throwable)
+    {
+        for (Throwable cause = throwable; cause != null; cause = cause.getCause())
+        {
+            if (cause instanceof NoSuchFileException noSuchFileException)
+                return noSuchFileException;
+        }
+        return null;
     }
 
     @Nullable

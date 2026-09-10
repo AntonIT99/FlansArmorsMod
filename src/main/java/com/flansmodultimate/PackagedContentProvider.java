@@ -120,6 +120,13 @@ public final class PackagedContentProvider implements IContentProvider
         return getAssetsPath(fs).resolve("textures");
     }
 
+    /** All logical packs packaged below the same models root share their model classes. */
+    @Override
+    public String getModelSourceId()
+    {
+        return path + "!" + (archiveBacked ? archiveModelsRoot : developmentModelsRoot);
+    }
+
     @Override
     public Path getModelPath(String modelFullClassName, @Nullable FileSystem fs)
     {

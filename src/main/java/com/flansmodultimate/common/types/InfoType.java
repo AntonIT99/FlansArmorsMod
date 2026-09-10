@@ -433,6 +433,10 @@ public abstract class InfoType
         return "textures/" + type.getTextureFolderName() + "/" + textureName + FileUtils.PNG_EXTENSION;
     }
 
+    /**
+     * Resolves the model class name a {@code Model} entry refers to inside its own content pack. Content
+     * packs are free to ship equally named model classes, every pack loads its own class files.
+     */
     @OnlyIn(Dist.CLIENT)
     protected static String findModelClass(String modelName, IContentProvider contentPack)
     {
@@ -440,7 +444,6 @@ public abstract class InfoType
         if (StringUtils.isNotBlank(modelName) && !modelName.equalsIgnoreCase("null") && !modelName.equalsIgnoreCase("none"))
         {
             String[] modelNameSplit = modelName.split("\\.");
-            Path classFile;
             Optional<FileSystem> fs = Optional.ofNullable(FileUtils.createFileSystem(contentPack));
 
             if (modelNameSplit.length > 1)
@@ -448,10 +451,9 @@ public abstract class InfoType
                 String modelPackageName = String.join(".", Arrays.copyOf(modelNameSplit, modelNameSplit.length - 1));
                 String modelSimpleName = modelNameSplit[modelNameSplit.length - 1];
                 modelClassName = "com." + FlansMod.FLANSMOD_ID + ".client.model." + modelPackageName + ".Model" + modelSimpleName;
-                classFile = contentPack.getModelPath(modelClassName, fs.orElse(null));
 
                 // Try 1.12.2 package format
-                if (!Files.exists(classFile))
+                if (!Files.exists(contentPack.getModelPath(modelClassName, fs.orElse(null))))
                 {
                     if (modelNameSplit[0].equals("jamespostmodernweapons"))
                         modelNameSplit[0] = "modernweapons";
@@ -479,69 +481,19 @@ public abstract class InfoType
                         }
                     }
 
-                    classFile = contentPack.getModelPath(modelClassName, fs.orElse(null));
-
                     // Fallback to default
-                    if (!Files.exists(classFile))
+                    if (!Files.exists(contentPack.getModelPath(modelClassName, fs.orElse(null))))
                         modelClassName = "com." + FlansMod.FLANSMOD_ID + ".client.model." + modelPackageName + ".Model" + modelSimpleName;
                 }
             }
             else
             {
                 modelClassName = "com." + FlansMod.FLANSMOD_ID + ".client.model.Model" + modelName;
-                classFile = contentPack.getModelPath(modelClassName, fs.orElse(null));
-            }
-
-            if (!modelClassAlreadyRegisteredForContentPack(modelClassName, contentPack))
-            {
-                String actualClassName = modelClassName;
-                if (hasModelConflictWithOtherContentPack(actualClassName, contentPack))
-                {
-                    IContentProvider otherContentPack = ContentManager.getRegisteredModels().get(modelClassName);
-                    FileSystem otherFs = FileUtils.createFileSystem(otherContentPack);
-                    Path otherClassFile = otherContentPack.getModelPath(modelClassName, otherFs);
-
-                    if (FileUtils.isDifferentFileContent(classFile, otherClassFile, false))
-                    {
-                        actualClassName = findNewValidClassName(modelClassName);
-                        FlansMod.log.info("Duplicate model class name {} renamed at runtime to {} in [{}] to avoid a conflict with [{}].", modelClassName, actualClassName, contentPack.getName(), otherContentPack.getName());
-                    }
-
-                    FileUtils.closeFileSystem(otherFs, otherContentPack);
-                }
-
-                ContentManager.getRegisteredModels().putIfAbsent(actualClassName, contentPack);
-                DynamicReference.storeOrUpdate(modelClassName, actualClassName, ContentManager.getModelReferences().get(contentPack));
             }
 
             FileUtils.closeFileSystem(fs.orElse(null), contentPack);
         }
         return modelClassName;
-    }
-
-    protected static boolean modelClassAlreadyRegisteredForContentPack(String modelClassName, IContentProvider contentPack) {
-        if (ContentManager.getModelReferences().get(contentPack).containsKey(modelClassName))
-        {
-            String actualClassName = ContentManager.getModelReferences().get(contentPack).get(modelClassName).get();
-            return ContentManager.getRegisteredModels().containsKey(actualClassName)
-                    && ContentManager.getRegisteredModels().get(actualClassName).equals(contentPack);
-        }
-        return false;
-    }
-
-    protected static boolean hasModelConflictWithOtherContentPack(String modelClassName, IContentProvider contentPack)
-    {
-        return ContentManager.getRegisteredModels().containsKey(modelClassName) && !contentPack.equals(ContentManager.getRegisteredModels().get(modelClassName));
-    }
-
-    protected static String findNewValidClassName(String className)
-    {
-        String newClassName = className;
-        for (int i = 2; ContentManager.getRegisteredModels().containsKey(newClassName); i++)
-        {
-            newClassName = className + "_" + i;
-        }
-        return newClassName;
     }
 
     @OnlyIn(Dist.CLIENT)

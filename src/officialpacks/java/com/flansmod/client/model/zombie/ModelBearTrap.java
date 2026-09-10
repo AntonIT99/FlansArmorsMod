@@ -1,10 +1,7 @@
 package com.flansmod.client.model.zombie;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsmod.api.client.model.ModelBase;
-import org.jetbrains.annotations.NotNull;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelBearTrap extends ModelBase
 {
@@ -72,17 +69,4 @@ public class ModelBearTrap extends ModelBase
 
 	}
 	
-	@Override
-	public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
-	{
-	    poseStack.pushPose();
-		for(ModelRendererTurbo mineModelBit : mineModel)
-			mineModelBit.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-		buttonModel.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-		for(ModelRendererTurbo spikeModelBit : spikeModel)
-			spikeModelBit.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-
-
-	    poseStack.popPose();
-	}
 }

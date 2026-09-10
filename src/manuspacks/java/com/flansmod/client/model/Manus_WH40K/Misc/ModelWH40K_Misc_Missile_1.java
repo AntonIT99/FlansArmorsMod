@@ -3,10 +3,7 @@
 package com.flansmod.client.model.Manus_WH40K.Misc;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsmod.api.client.model.ModelBase;
-import org.jetbrains.annotations.NotNull;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelWH40K_Misc_Missile_1 extends ModelBase {
    int textureX = 64;
@@ -26,16 +23,5 @@ public class ModelWH40K_Misc_Missile_1 extends ModelBase {
       this.hvarModel[2].setRotationPoint(0.0F, 0.0F, 0.0F);
       this.hvarModel[3].addShapeBox(-2.0F, -10.0F, -2.0F, 4, 2, 4, 0.0F, 0.0F, 0.0F, -3.9F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.9F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.9F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.9F, 0.0F, 0.0F, 0.0F);
       this.hvarModel[3].setRotationPoint(0.0F, 0.0F, 0.0F);
-   }
-
-   @Override
-   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
-   {
-       poseStack.pushPose();
-      for (int i = 0; i < 4; i++) {
-         this.hvarModel[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-      }
-
-       poseStack.popPose();
    }
 }

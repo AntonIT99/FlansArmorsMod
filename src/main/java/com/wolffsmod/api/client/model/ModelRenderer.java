@@ -1,5 +1,6 @@
 package com.wolffsmod.api.client.model;
 
+import com.flansmodultimate.client.model.ModelBase;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraftforge.api.distmarker.Dist;

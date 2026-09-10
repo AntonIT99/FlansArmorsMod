@@ -1,10 +1,7 @@
 package com.flansmod.client.model.zombie;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsmod.api.client.model.ModelBase;
-import org.jetbrains.annotations.NotNull;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelFleshLump extends ModelBase
 {
@@ -20,13 +17,4 @@ public class ModelFleshLump extends ModelBase
 		fleshModel[1].addShapeBox(-2F, -2F, 0F, 4, 5, 5, 0F, /* 0 */ 0F, -1F, 0.5F, /* 1 */ -0.5F, 0.5F, 0F, /* 2 */ 1F, 0F, 0F, /* 3 */ 0.5F, 0.5F, 0.5F, /* 4 */ -1F, 1F, 0F, /* 5 */ -1F, 0F, 0.5F, /* 6 */ 1F, 0F, 0F, /* 7 */ 0.5F, 0F, -1F);
 	}
 
-	@Override
-	public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
-	{
-	    poseStack.pushPose();
-		for(ModelRendererTurbo m : fleshModel)
-			m.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-
-	    poseStack.popPose();
-	}
 }

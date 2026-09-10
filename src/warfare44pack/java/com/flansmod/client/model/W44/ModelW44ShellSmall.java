@@ -3,10 +3,7 @@
 package com.flansmod.client.model.W44;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsmod.api.client.model.ModelBase;
-import org.jetbrains.annotations.NotNull;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelW44ShellSmall extends ModelBase {
    int textureX = 32;
@@ -26,16 +23,5 @@ public class ModelW44ShellSmall extends ModelBase {
       this.w44shellsmallModel[0].glow = true;
       this.w44shellsmallModel[1].glow = true;
       this.w44shellsmallModel[2].glow = true;
-   }
-
-   @Override
-   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
-   {
-       poseStack.pushPose();
-      for (int i = 0; i < 3; i++) {
-         this.w44shellsmallModel[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-      }
-
-       poseStack.popPose();
    }
 }

@@ -3,10 +3,7 @@
 package com.flansmod.client.model.ww2;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsmod.api.client.model.ModelBase;
-import org.jetbrains.annotations.NotNull;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelMine extends ModelBase {
    public ModelRendererTurbo[] mineModel = new ModelRendererTurbo[3];
@@ -24,16 +21,4 @@ public class ModelMine extends ModelBase {
       this.buttonModel.addBox(-0.5F, 1.5F, -0.5F, 1, 1, 1);
    }
 
-   @Override
-   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
-   {
-       poseStack.pushPose();
-      for (ModelRendererTurbo mineModelBit : this.mineModel) {
-         mineModelBit.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-      }
-
-      this.buttonModel.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-
-       poseStack.popPose();
-   }
 }

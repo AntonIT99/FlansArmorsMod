@@ -6,7 +6,7 @@ package com.flansmod.client.model.apocalypse;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.flansmod.common.vector.Vector3f;
-import com.wolffsmod.api.client.model.ModelBase;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelSkullDrone extends ModelBase
 {

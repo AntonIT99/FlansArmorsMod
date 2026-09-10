@@ -2,9 +2,6 @@ package com.flansmod.client.model.mw;
 
 import com.flansmod.client.model.ModelBullet;
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import org.jetbrains.annotations.NotNull;
 
 
 public class ModelStingerMissile extends ModelBullet
@@ -27,16 +24,5 @@ public class ModelStingerMissile extends ModelBullet
 		bulletModel[2] = new ModelRendererTurbo(this, 55, 2, textureX, textureY);
 		bulletModel[2].addBox(0F, -10F, -1F, 0, 1, 2);
 		
-	}
-	
-	@Override
-	public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
-	{
-	    poseStack.pushPose();
-		//GlStateManager.scale(0.5F, 0.5F, 0.5F);
-		for(ModelRendererTurbo mrt : bulletModel)
-			mrt.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-
-	    poseStack.popPose();
 	}
 }

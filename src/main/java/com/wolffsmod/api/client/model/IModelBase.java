@@ -1,5 +1,6 @@
 package com.wolffsmod.api.client.model;
 
+import com.flansmodultimate.client.render.EnumRenderPass;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +27,18 @@ public interface IModelBase
 
     Map<String, TextureOffset> getModelTextureMap();
 
-    void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha);
+    default float getScale()
+    {
+        return 1F;
+    }
+
+    default void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
+    {
+        for (ModelRenderer modelRenderer : getBoxList())
+        {
+            modelRenderer.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
+        }
+    }
 
     default int getTextureWidth()
     {
@@ -68,4 +80,6 @@ public interface IModelBase
         dest.rotationPointY = source.rotationPointY;
         dest.rotationPointZ = source.rotationPointZ;
     }
+
+    void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, EnumRenderPass renderPass);
 }

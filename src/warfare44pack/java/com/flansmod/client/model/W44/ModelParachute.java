@@ -3,10 +3,7 @@
 package com.flansmod.client.model.W44;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsmod.api.client.model.ModelBase;
-import org.jetbrains.annotations.NotNull;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelParachute extends ModelBase {
    int textureX = 256;
@@ -142,14 +139,4 @@ public class ModelParachute extends ModelBase {
       this.parachuteModel[35].setRotationPoint(-29.0F, 28.0F, -10.0F);
    }
 
-   @Override
-   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
-   {
-       poseStack.pushPose();
-      for (ModelRendererTurbo part : this.parachuteModel) {
-         part.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-      }
-
-       poseStack.popPose();
-   }
 }

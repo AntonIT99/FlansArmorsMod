@@ -11,9 +11,10 @@
 package com.flansmod.client.model.wolffstarwars; //Path where the model is located
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.flansmodultimate.client.model.ModelBase;
+import com.flansmodultimate.client.render.EnumRenderPass;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsmod.api.client.model.ModelBase;
 import org.jetbrains.annotations.NotNull;
 
 public class ModelStunBeam extends ModelBase //Same as Filename
@@ -66,15 +67,11 @@ public class ModelStunBeam extends ModelBase //Same as Filename
 	}
 
 	@Override
-	public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
+	public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, EnumRenderPass renderPass)
 	{
 	    poseStack.pushPose();
 		poseStack.translate(-2F / 16F, 2.5F, 4.0F / 16F);
-		for(ModelRendererTurbo part: stunBeamModel)
-		{
-			part.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-		}
-
+        super.renderToBuffer(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, renderPass);
 	    poseStack.popPose();
 	}
 }

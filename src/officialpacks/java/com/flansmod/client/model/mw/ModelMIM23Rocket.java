@@ -2,9 +2,6 @@ package com.flansmod.client.model.mw;
 
 import com.flansmod.client.model.ModelBullet;
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import org.jetbrains.annotations.NotNull;
 
 
 public class ModelMIM23Rocket extends ModelBullet
@@ -35,16 +32,5 @@ public class ModelMIM23Rocket extends ModelBullet
 		for(int i = 0; i < 4; i++)
 			bulletModel[i].rotateAngleZ = (float)Math.PI / 2F;
 		
-	}
-	
-	@Override
-	public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
-	{
-	    poseStack.pushPose();
-		//GlStateManager.scale(0.5F, 0.5F, 0.5F);
-		for(ModelRendererTurbo mrt : bulletModel)
-			mrt.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-
-	    poseStack.popPose();
 	}
 }

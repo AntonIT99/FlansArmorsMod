@@ -5,6 +5,8 @@ General:
 - Implement TaP Flan's Mod Features
 - Make SkinOverride compatible with old skin format
 - Check and Improve explosion visuals
+- Option to enforce explosions for new explosion system breaking blocks (ignore ExplosionBreaksBlocks property)
+- Semtex grenade uses wrong model -> could indicates a bigger problem... -> Maybe because of the official packs?
 
 Mechas:
 - Mecha categories?
@@ -29,7 +31,6 @@ Categories:
 - missing ammo groups for shells
 
 Content Packs:
-- Scaling problem with Semtex grenade?
 - Rewrite the official packs with the new gun and vehicle systems
 WW2
 - Fix Scope Attachment Points
@@ -39,6 +40,35 @@ Manus:
 - Sitting position too high (Flak 36)
 Star Wars Pack
 - Add Idle Sound to Lightsabers
+Tyrants And Plebeians OHIO:
+- Clean duplicate items id:
+Detected conflict for item id '16inapmk3' in same content pack: bullets/NS 16inMk3.txt [Tyrants And Plebeians OHIO.zip] and bullets/NS 16inAPMk3.txt [Tyrants And Plebeians OHIO.zip]. Ignoring NS 16inMk3.txt
+Detected conflict for item id 'fiveinchdestroyer' in same content pack: bullets/NS 5in usa.txt [Tyrants And Plebeians OHIO.zip] and bullets/NS 5in destroyer placeholder.txt [Tyrants And Plebeians OHIO.zip]. Ignoring NS 5in usa.txt
+Detected conflict for item id 'bofors57ammo' in same content pack: bullets/NS Bofors57Ammo.txt [Tyrants And Plebeians OHIO.zip] and bullets/Bofors57Ammo.txt [Tyrants And Plebeians OHIO.zip]. Ignoring NS Bofors57Ammo.txt
+Detected conflict for item id 'bofors57ammoaa' in same content pack: bullets/NS Bofors57AmmoAA.txt [Tyrants And Plebeians OHIO.zip] and bullets/Bofors57AmmoAA.txt [Tyrants And Plebeians OHIO.zip]. Ignoring NS Bofors57AmmoAA.txt
+Detected conflict for item id 'bofors57ammoap' in same content pack: bullets/NS Bofors57AmmoAP.txt [Tyrants And Plebeians OHIO.zip] and bullets/Bofors57AmmoAP.txt [Tyrants And Plebeians OHIO.zip]. Ignoring NS Bofors57AmmoAP.txt
+Detected conflict for item id 'g7s' in same content pack: bullets/NS placeholder torpedo 2.txt [Tyrants And Plebeians OHIO.zip] and bullets/NS guided torpedo german.txt [Tyrants And Plebeians OHIO.zip]. Ignoring NS placeholder torpedo 2.txt
+Detected conflict for item id 'meme533torpedousa' in same content pack: bullets/NS placeholder torpedo 3.txt [Tyrants And Plebeians OHIO.zip] and bullets/NS meme torpedo 533mm USA.txt [Tyrants And Plebeians OHIO.zip]. Ignoring NS placeholder torpedo 3.txt
+Detected conflict for item id 'mark15torpedousa' in same content pack: bullets/NS usa 533 torpedo mark 15.txt [Tyrants And Plebeians OHIO.zip] and bullets/NS placeholder torpedo.txt [Tyrants And Plebeians OHIO.zip]. Ignoring NS usa 533 torpedo mark 15.txt
+Detected conflict for item id 'subtorpww2' in same content pack: bullets/NS ww2 generi 533 torp sub.txt [Tyrants And Plebeians OHIO.zip] and bullets/NS ww2 generi 533 torp non passengergun.txt [Tyrants And Plebeians OHIO.zip]. Ignoring NS ww2 generi 533 torp sub.txt
+Detected conflict for item id 'hornenergy' in same content pack: bullets/SA HornEnergy.txt [Tyrants And Plebeians OHIO.zip] and bullets/Hornzero.txt [Tyrants And Plebeians OHIO.zip]. Ignoring SA HornEnergy.txt
+Detected conflict for item id 'artillerynu' in same content pack: bullets/TSA Generic Nuclear Artillery.txt [Tyrants And Plebeians OHIO.zip] and bullets/TSA Generic Nuclear Artillery and trident submunition.txt [Tyrants And Plebeians OHIO.zip]. Ignoring TSA Generic Nuclear Artillery.txt
+Detected conflict for item id '94mmap' in same content pack: bullets/TSM 94mmAP.txt [Tyrants And Plebeians OHIO.zip] and bullets/TSM 94mm Brit.txt [Tyrants And Plebeians OHIO.zip]. Ignoring TSM 94mmAP.txt
+Detected conflict for item id 'binoculars' in same content pack: guns/HG Binoculars.txt [Tyrants And Plebeians OHIO.zip] and guns/Binoculars.txt [Tyrants And Plebeians OHIO.zip]. Ignoring HG Binoculars.txt
+Detected conflict for item id 'bofors152mmgun' in same content pack: guns/NG 152mmBoforsGun.txt [Tyrants And Plebeians OHIO.zip] and bullets/NG 152mmBoforsGun.txt [Tyrants And Plebeians OHIO.zip]. Ignoring NG 152mmBoforsGun.txt
+Detected conflict for item id '410l45' in same content pack: guns/NG 410mm.txt [Tyrants And Plebeians OHIO.zip] and guns/NG 410.txt [Tyrants And Plebeians OHIO.zip]. Ignoring NG 410mm.txt
+Detected conflict for item id '34k' in same content pack: guns/NG 76mm 34k.txt [Tyrants And Plebeians OHIO.zip] and guns/76mm 34k.txt [Tyrants And Plebeians OHIO.zip]. Ignoring NG 76mm 34k.txt
+Detected conflict for item id '8inmk16' in same content pack: guns/NG 8inmk16 advanced.txt [Tyrants And Plebeians OHIO.zip] and guns/NG 8in55Mk16 placeholder.txt [Tyrants And Plebeians OHIO.zip]. Ignoring NG 8inmk16 advanced.txt
+Detected conflict for item id 'bofors57mmgun' in same content pack: guns/bofor 57.txt [Tyrants And Plebeians OHIO.zip] and guns/NG bofor 57.txt [Tyrants And Plebeians OHIO.zip]. Ignoring bofor 57.txt
+Detected conflict for item id 'repair' in same content pack: parts/Tier1Scrap.txt [Tyrants And Plebeians OHIO.zip] and parts/Repair Material.txt [Tyrants And Plebeians OHIO.zip]. Ignoring Tier1Scrap.txt
+Detected conflict for item id 'type96aatrip' in same content pack: vehicles/T0p5A JapAA.txt [Tyrants And Plebeians OHIO.zip] and vehicles/JapAA.txt [Tyrants And Plebeians OHIO.zip]. Ignoring T0p5A JapAA.txt
+Detected conflict for item id '5in38twingunmount' in same content pack: vehicles/T1A 5inl38 twin.txt [Tyrants And Plebeians OHIO.zip] and vehicles/T1A 5inMk12TwinGunMount.txt [Tyrants And Plebeians OHIO.zip]. Ignoring T1A 5inl38 twin.txt
+Detected conflict for item id 'type_94_at' in same content pack: vehicles/T1A Type 1 47mm atgun.txt [Tyrants And Plebeians OHIO.zip] and vehicles/T0A Type94ATGun.txt [Tyrants And Plebeians OHIO.zip]. Ignoring T1A Type 1 47mm atgun.txt
+Detected conflict for item id 't1934' in same content pack: vehicles/T1S Type1934.txt [Tyrants And Plebeians OHIO.zip] and vehicles/T0p5S Type1934 generic.txt [Tyrants And Plebeians OHIO.zip]. Ignoring T1S Type1934.txt
+Detected conflict for item id 'usswillydporter' in same content pack: vehicles/T1S WillyDPorter.txt [Tyrants And Plebeians OHIO.zip] and vehicles/T1S Porter.txt [Tyrants And Plebeians OHIO.zip]. Ignoring T1S WillyDPorter.txt
+Detected conflict for item id 'ww2_vehicle_higginsboat_1a' in same content pack: vehicles/T1T HigginsBoat.txt [Tyrants And Plebeians OHIO.zip] and vehicles/T1S HigginsBoat.txt [Tyrants And Plebeians OHIO.zip]. Ignoring T1T HigginsBoat.txt
+Detected conflict for item id 'wisconsin' in same content pack: vehicles/T1p5S Wisconsin.txt [Tyrants And Plebeians OHIO.zip] and vehicles/T1S placeholder wisconsin.txt [Tyrants And Plebeians OHIO.zip]. Ignoring T1p5S Wisconsin.txt
+
 
 Feature Ideas:
 - Banners

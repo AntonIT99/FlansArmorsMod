@@ -3,10 +3,7 @@
 package com.flansmod.client.model.W44;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsmod.api.client.model.ModelBase;
-import org.jetbrains.annotations.NotNull;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelWarfarebomb extends ModelBase {
    int textureX = 128;
@@ -134,16 +131,5 @@ public class ModelWarfarebomb extends ModelBase {
       this.warfarebombModel[23].setRotationPoint(0.0F, 0.0F, 0.0F);
       this.warfarebombModel[23].rotateAngleY = (float) (Math.PI / 2);
       this.warfarebombModel[23].rotateAngleZ = (float) (-Math.PI / 2);
-   }
-
-   @Override
-   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
-   {
-       poseStack.pushPose();
-      for (int i = 0; i < 24; i++) {
-         this.warfarebombModel[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-      }
-
-       poseStack.popPose();
    }
 }

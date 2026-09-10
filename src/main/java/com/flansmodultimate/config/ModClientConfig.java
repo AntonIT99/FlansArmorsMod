@@ -16,6 +16,7 @@ public final class ModClientConfig
     public final boolean showPackNameInItemDescriptions;
     public final boolean loadAllModelsInCache;
     public final boolean searchModelsInOtherContentPacks;
+    public final boolean preferBuiltInModelClasses;
     public final boolean showShootableDurabilityBars;
     public final boolean showArmorDamageAbsorptionBar;
     public final EnumSpeedUnit driveableSpeedUnit;
@@ -76,6 +77,7 @@ public final class ModClientConfig
     private static final ForgeConfigSpec.BooleanValue SHOW_PACK_NAME_IN_ITEM_DESCRIPTIONS;
     private static final ForgeConfigSpec.BooleanValue LOAD_ALL_MODELS_IN_CACHE;
     private static final ForgeConfigSpec.BooleanValue SEARCH_MODELS_IN_OTHER_CONTENT_PACKS;
+    private static final ForgeConfigSpec.BooleanValue PREFER_BUILT_IN_MODEL_CLASSES;
     private static final ForgeConfigSpec.BooleanValue SHOW_SHOOTABLE_DURABILITY_BARS;
     private static final ForgeConfigSpec.BooleanValue SHOW_ARMOR_DAMAGE_ABSORPTION_BAR;
     private static final ForgeConfigSpec.EnumValue<EnumSpeedUnit> DRIVEABLE_SPEED_UNIT;
@@ -154,6 +156,15 @@ public final class ModClientConfig
         SEARCH_MODELS_IN_OTHER_CONTENT_PACKS = builder
                 .comment("When a model class is missing from its content pack, search for it in other loaded content packs")
                 .define("searchModelsInOtherContentPacks", true);
+        PREFER_BUILT_IN_MODEL_CLASSES = builder
+                .comment("""
+                    Let the model classes compiled into the mod always win over the model class files shipped
+                    inside a content pack.
+                    By default a content pack's own model class file wins for the items of that pack, so a pack
+                    shipping its own version of a model that also exists in the mod renders with its own version.
+                    Content packs keep loading the model classes the mod does not provide either way.
+                    """)
+                .define("preferBuiltInModelClasses", false);
         SHOW_SHOOTABLE_DURABILITY_BARS = builder
                 .comment("Show a durability-style bar for shootable items when their current round item is not full")
                 .define("showShootableDurabilityBars", true);
@@ -313,6 +324,7 @@ public final class ModClientConfig
         showPackNameInItemDescriptions = SHOW_PACK_NAME_IN_ITEM_DESCRIPTIONS.get();
         loadAllModelsInCache = LOAD_ALL_MODELS_IN_CACHE.get();
         searchModelsInOtherContentPacks = SEARCH_MODELS_IN_OTHER_CONTENT_PACKS.get();
+        preferBuiltInModelClasses = PREFER_BUILT_IN_MODEL_CLASSES.get();
         showShootableDurabilityBars = SHOW_SHOOTABLE_DURABILITY_BARS.get();
         showArmorDamageAbsorptionBar = SHOW_ARMOR_DAMAGE_ABSORPTION_BAR.get();
         driveableSpeedUnit = DRIVEABLE_SPEED_UNIT.get();
@@ -439,6 +451,7 @@ public final class ModClientConfig
             return;
 
         if (old.searchModelsInOtherContentPacks != get().searchModelsInOtherContentPacks
+            || old.preferBuiltInModelClasses != get().preferBuiltInModelClasses
             || old.loadAllModelsInCache != get().loadAllModelsInCache && get().loadAllModelsInCache)
             ModelCache.reload();
 

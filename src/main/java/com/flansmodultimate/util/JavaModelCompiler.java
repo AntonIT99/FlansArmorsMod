@@ -286,7 +286,7 @@ public final class JavaModelCompiler
             Path outputFile = packRoot.resolve(relativePath);
             Files.createDirectories(outputFile.getParent());
             byte[] classData = Files.readAllBytes(classFile);
-            Files.write(outputFile, ClassLoaderUtils.getModifiedClassData(classData, null));
+            Files.write(outputFile, ClassLoaderUtils.transformClass(classData).classData());
         }
 
         return classFiles.size();

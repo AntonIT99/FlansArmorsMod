@@ -2,7 +2,7 @@ package com.flansmod.client.model.apocalypse;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
 
-import com.wolffsmod.api.client.model.ModelBase;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelSkullBoss extends ModelBase
 {

@@ -1,7 +1,12 @@
-package com.wolffsmod.api.client.model;
+package com.flansmodultimate.client.model;
 
+import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.flansmodultimate.client.render.EnumRenderPass;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.wolffsmod.api.client.model.IModelBase;
+import com.wolffsmod.api.client.model.ModelRenderer;
+import com.wolffsmod.api.client.model.TextureOffset;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -89,9 +94,22 @@ public abstract class ModelBase extends Model implements IModelBase
     @Override
     public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
     {
+        renderToBuffer(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, EnumRenderPass.DEFAULT);
+    }
+
+    @Override
+    public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, EnumRenderPass renderPass)
+    {
         for (ModelRenderer modelRenderer : boxList)
         {
-            modelRenderer.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, scale);
+            if (modelRenderer instanceof ModelRendererTurbo modelRendererTurbo)
+            {
+                modelRendererTurbo.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
+            }
+            else if (renderPass == EnumRenderPass.DEFAULT)
+            {
+                modelRenderer.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, scale);
+            }
         }
     }
 }

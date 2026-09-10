@@ -116,6 +116,16 @@ public interface IContentProvider
         return getPath().resolve("data").resolve(FlansMod.FLANSMOD_ID);
     }
 
+    /**
+     * Identifies the class file tree this provider loads its model classes from. Providers sharing one tree,
+     * such as several logical packs packaged in the same mod, also share their loaded model classes. Providers
+     * with different trees stay isolated from each other and may use the same model class names.
+     */
+    default String getModelSourceId()
+    {
+        return getPath().toString();
+    }
+
     default Path getModelPath(String modelFullClassName, @Nullable FileSystem fs)
     {
         if (isArchive() && fs != null)

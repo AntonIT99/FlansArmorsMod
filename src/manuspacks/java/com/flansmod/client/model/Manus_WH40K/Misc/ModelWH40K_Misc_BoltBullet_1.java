@@ -3,10 +3,7 @@
 package com.flansmod.client.model.Manus_WH40K.Misc;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsmod.api.client.model.ModelBase;
-import org.jetbrains.annotations.NotNull;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelWH40K_Misc_BoltBullet_1 extends ModelBase {
    int textureX = 32;
@@ -20,16 +17,5 @@ public class ModelWH40K_Misc_BoltBullet_1 extends ModelBase {
       this.boltbulletModel[0].setRotationPoint(0.0F, 0.0F, 0.0F);
       this.boltbulletModel[1].addShapeBox(-0.5F, 0.0F, -0.5F, 1, 1, 1, 0.0F, -0.25F, 0.0F, -0.25F, -0.25F, 0.0F, -0.25F, -0.25F, 0.0F, -0.25F, -0.25F, 0.0F, -0.25F, -0.35F, -0.5F, -0.35F, -0.35F, -0.5F, -0.35F, -0.35F, -0.5F, -0.35F, -0.35F, -0.5F, -0.35F);
       this.boltbulletModel[1].setRotationPoint(0.0F, 1.0F, 0.0F);
-   }
-
-   @Override
-   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
-   {
-       poseStack.pushPose();
-      for (int i = 0; i < 2; i++) {
-         this.boltbulletModel[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-      }
-
-       poseStack.popPose();
    }
 }

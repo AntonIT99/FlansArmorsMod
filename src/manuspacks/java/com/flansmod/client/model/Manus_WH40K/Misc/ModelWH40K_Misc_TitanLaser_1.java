@@ -3,10 +3,7 @@
 package com.flansmod.client.model.Manus_WH40K.Misc;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsmod.api.client.model.ModelBase;
-import org.jetbrains.annotations.NotNull;
+import com.flansmodultimate.client.model.ModelBase;
 
 public class ModelWH40K_Misc_TitanLaser_1 extends ModelBase {
    int textureX = 32;
@@ -20,16 +17,5 @@ public class ModelWH40K_Misc_TitanLaser_1 extends ModelBase {
       this.titanlaserModel[0].setRotationPoint(-0.5F, 0.0F, -3.5F);
       this.titanlaserModel[1].addShapeBox(0.0F, 0.0F, 0.0F, 7, 50, 1, 0.0F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F);
       this.titanlaserModel[1].setRotationPoint(-3.5F, 0.0F, -0.5F);
-   }
-
-   @Override
-   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
-   {
-       poseStack.pushPose();
-      for (int i = 0; i < 2; i++) {
-         this.titanlaserModel[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-      }
-
-       poseStack.popPose();
    }
 }

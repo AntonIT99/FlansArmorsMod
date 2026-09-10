@@ -1,0 +1,79 @@
+//Deobfuscated with https://github.com/SimplyProgrammer/Minecraft-Deobfuscator3000 using mappings "D:\Minecraft\Dev Tools\Deobfuscator\Minecraft-Deobfuscator3000-1.2.3\1.7.10 stable mappings"!
+
+package com.flansmod.client.model.W44;
+
+import org.lwjgl.opengl.GL11;
+
+import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.wolffsmod.api.client.model.ModelBase;
+
+import net.minecraft.world.entity.Entity;
+
+public class ModelTripMine extends ModelBase {
+   int textureX = 512;
+   int textureY = 256;
+   public ModelRendererTurbo[] tripmineModel = new ModelRendererTurbo[13];
+
+   public ModelTripMine() {
+      this.tripmineModel[0] = new ModelRendererTurbo(this, 1, 1, this.textureX, this.textureY);
+      this.tripmineModel[1] = new ModelRendererTurbo(this, 33, 1, this.textureX, this.textureY);
+      this.tripmineModel[2] = new ModelRendererTurbo(this, 65, 1, this.textureX, this.textureY);
+      this.tripmineModel[3] = new ModelRendererTurbo(this, 97, 1, this.textureX, this.textureY);
+      this.tripmineModel[4] = new ModelRendererTurbo(this, 129, 1, this.textureX, this.textureY);
+      this.tripmineModel[5] = new ModelRendererTurbo(this, 161, 1, this.textureX, this.textureY);
+      this.tripmineModel[6] = new ModelRendererTurbo(this, 1, 1, this.textureX, this.textureY);
+      this.tripmineModel[7] = new ModelRendererTurbo(this, 193, 1, this.textureX, this.textureY);
+      this.tripmineModel[8] = new ModelRendererTurbo(this, 25, 1, this.textureX, this.textureY);
+      this.tripmineModel[9] = new ModelRendererTurbo(this, 217, 1, this.textureX, this.textureY);
+      this.tripmineModel[10] = new ModelRendererTurbo(this, 57, 1, this.textureX, this.textureY);
+      this.tripmineModel[11] = new ModelRendererTurbo(this, 33, 1, this.textureX, this.textureY);
+      this.tripmineModel[12] = new ModelRendererTurbo(this, 249, 1, this.textureX, this.textureY);
+      this.tripmineModel[0].addShapeBox(-8.5F, -16.0F, 100.0F, 3, 22, 10, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F);
+      this.tripmineModel[0].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.tripmineModel[0].rotateAngleZ = (float) Math.PI;
+      this.tripmineModel[1].addShapeBox(-1.5F, -16.0F, 100.0F, 3, 22, 10, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F);
+      this.tripmineModel[1].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.tripmineModel[1].rotateAngleZ = (float) Math.PI;
+      this.tripmineModel[2].addShapeBox(-5.5F, -16.0F, 100.0F, 4, 22, 10, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.tripmineModel[2].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.tripmineModel[2].rotateAngleZ = (float) Math.PI;
+      this.tripmineModel[3].addShapeBox(-8.5F, -19.0F, 100.0F, 3, 3, 10, 0.0F, -3.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, -3.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F);
+      this.tripmineModel[3].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.tripmineModel[3].rotateAngleZ = (float) Math.PI;
+      this.tripmineModel[4].addShapeBox(-5.5F, -19.0F, 100.0F, 4, 3, 10, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.tripmineModel[4].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.tripmineModel[4].rotateAngleZ = (float) Math.PI;
+      this.tripmineModel[5].addShapeBox(-1.5F, -19.0F, 100.0F, 3, 3, 10, 0.0F, 0.0F, 0.0F, -3.0F, -3.0F, 0.0F, -3.0F, -3.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F);
+      this.tripmineModel[5].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.tripmineModel[5].rotateAngleZ = (float) Math.PI;
+      this.tripmineModel[6].addShapeBox(-4.0F, -23.0F, 104.5F, 1, 4, 1, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.15F, 0.0F, 0.15F, 0.15F, 0.0F, 0.15F, 0.15F, 0.0F, 0.15F, 0.15F, 0.0F, 0.15F);
+      this.tripmineModel[6].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.tripmineModel[6].rotateAngleZ = (float) Math.PI;
+      this.tripmineModel[7].addShapeBox(-5.5F, 6.0F, 103.0F, 4, 15, 4, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, -1.0F, -1.0F, 0.0F, -1.0F, -1.0F, 0.0F, -1.0F, -1.0F, 0.0F, -1.0F);
+      this.tripmineModel[7].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.tripmineModel[7].rotateAngleZ = (float) Math.PI;
+      this.tripmineModel[8].addShapeBox(-5.5F, 21.0F, 103.0F, 4, 3, 4, 0.0F, -1.0F, 0.0F, -1.0F, -1.0F, 0.0F, -1.0F, -1.0F, 0.0F, -1.0F, -1.0F, 0.0F, -1.0F, -2.0F, 0.0F, -2.0F, -2.0F, 0.0F, -2.0F, -2.0F, 0.0F, -2.0F, -2.0F, 0.0F, -2.0F);
+      this.tripmineModel[8].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.tripmineModel[8].rotateAngleZ = (float) Math.PI;
+      this.tripmineModel[9].addShapeBox(-5.5F, -5.0F, -105.0F, 4, 26, 4, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, -1.0F, -1.0F, 0.0F, -1.0F, -1.0F, 0.0F, -1.0F, -1.0F, 0.0F, -1.0F);
+      this.tripmineModel[9].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.tripmineModel[9].rotateAngleZ = (float) Math.PI;
+      this.tripmineModel[10].addShapeBox(-5.5F, 21.0F, -105.0F, 4, 3, 4, 0.0F, -1.0F, 0.0F, -1.0F, -1.0F, 0.0F, -1.0F, -1.0F, 0.0F, -1.0F, -1.0F, 0.0F, -1.0F, -2.0F, 0.0F, -2.0F, -2.0F, 0.0F, -2.0F, -2.0F, 0.0F, -2.0F, -2.0F, 0.0F, -2.0F);
+      this.tripmineModel[10].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.tripmineModel[10].rotateAngleZ = (float) Math.PI;
+      this.tripmineModel[11].addShapeBox(-4.0F, -22.0F, -102.5F, 1, 1, 208, 0.0F, -0.15F, -15.15F, -0.15F, -0.15F, -15.15F, -0.15F, -0.15F, -0.15F, -0.15F, -0.15F, -0.15F, -0.15F, -0.15F, 15.85F, -0.15F, -0.15F, 15.85F, -0.15F, -0.15F, -0.15F, -0.15F, -0.15F, -0.15F, -0.15F);
+      this.tripmineModel[11].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.tripmineModel[11].rotateAngleZ = (float) Math.PI;
+      this.tripmineModel[12].addShapeBox(-5.5F, -12.0F, -105.0F, 4, 7, 4, 0.0F, -1.0F, 0.0F, -1.0F, -1.0F, 0.0F, -1.0F, -1.0F, 0.0F, -1.0F, -1.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.tripmineModel[12].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.tripmineModel[12].rotateAngleZ = (float) Math.PI;
+   }
+
+   public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
+      GL11.glScalef(0.25F, 0.25F, 0.25F);
+
+      for (int i = 0; i < 13; i++) {
+         this.tripmineModel[i].render(f5);
+      }
+   }
+}

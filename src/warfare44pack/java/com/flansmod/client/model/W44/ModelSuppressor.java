@@ -1,0 +1,45 @@
+//Deobfuscated with https://github.com/SimplyProgrammer/Minecraft-Deobfuscator3000 using mappings "D:\Minecraft\Dev Tools\Deobfuscator\Minecraft-Deobfuscator3000-1.2.3\1.7.10 stable mappings"!
+
+package com.flansmod.client.model.W44;
+
+import com.flansmod.client.model.ModelAttachment;
+import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.flansmod.common.vector.Vector3f;
+
+public class ModelSuppressor extends ModelAttachment {
+   int textureX = 64;
+   int textureY = 64;
+
+   public ModelSuppressor() {
+      this.attachmentModel = new ModelRendererTurbo[9];
+      this.attachmentModel[0] = new ModelRendererTurbo(this, 1, 1, this.textureX, this.textureY);
+      this.attachmentModel[1] = new ModelRendererTurbo(this, 1, 9, this.textureX, this.textureY);
+      this.attachmentModel[2] = new ModelRendererTurbo(this, 1, 17, this.textureX, this.textureY);
+      this.attachmentModel[3] = new ModelRendererTurbo(this, 1, 25, this.textureX, this.textureY);
+      this.attachmentModel[4] = new ModelRendererTurbo(this, 33, 25, this.textureX, this.textureY);
+      this.attachmentModel[5] = new ModelRendererTurbo(this, 1, 33, this.textureX, this.textureY);
+      this.attachmentModel[6] = new ModelRendererTurbo(this, 1, 41, this.textureX, this.textureY);
+      this.attachmentModel[7] = new ModelRendererTurbo(this, 1, 49, this.textureX, this.textureY);
+      this.attachmentModel[8] = new ModelRendererTurbo(this, 1, 57, this.textureX, this.textureY);
+      this.attachmentModel[0].addShapeBox(-4.0F, -1.0F, -2.0F, 16, 2, 4, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.attachmentModel[0].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.attachmentModel[1].addShapeBox(-4.0F, 1.0F, -2.0F, 16, 1, 4, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F);
+      this.attachmentModel[1].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.attachmentModel[2].addShapeBox(-4.0F, -2.0F, -2.0F, 16, 1, 4, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.attachmentModel[2].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.attachmentModel[3].addShapeBox(12.0F, 0.5F, -1.5F, 12, 1, 3, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F);
+      this.attachmentModel[3].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.attachmentModel[4].addShapeBox(12.0F, -0.5F, -1.5F, 12, 1, 3, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.attachmentModel[4].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.attachmentModel[5].addShapeBox(12.0F, -1.5F, -1.5F, 12, 1, 3, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.attachmentModel[5].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.attachmentModel[6].addShapeBox(-2.25F, 1.25F, -2.5F, 11, 1, 5, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F);
+      this.attachmentModel[6].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.attachmentModel[7].addShapeBox(-2.25F, -1.0F, -2.5F, 11, 2, 5, 0.0F, 0.0F, 0.25F, 0.0F, 0.0F, 0.25F, 0.0F, 0.0F, 0.25F, 0.0F, 0.0F, 0.25F, 0.0F, 0.0F, 0.25F, 0.0F, 0.0F, 0.25F, 0.0F, 0.0F, 0.25F, 0.0F, 0.0F, 0.25F, 0.0F);
+      this.attachmentModel[7].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.attachmentModel[8].addShapeBox(-2.25F, -2.25F, -2.5F, 11, 1, 5, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.attachmentModel[8].setRotationPoint(0.0F, 0.0F, 0.0F);
+      this.attachmentFlashOffset = new Vector3f(0.25F, 0.015625F, 0.0F);
+      this.flipAll();
+   }
+}

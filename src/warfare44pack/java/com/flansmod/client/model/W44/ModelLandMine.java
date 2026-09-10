@@ -1,0 +1,79 @@
+//Deobfuscated with https://github.com/SimplyProgrammer/Minecraft-Deobfuscator3000 using mappings "D:\Minecraft\Dev Tools\Deobfuscator\Minecraft-Deobfuscator3000-1.2.3\1.7.10 stable mappings"!
+
+package com.flansmod.client.model.W44;
+
+import org.lwjgl.opengl.GL11;
+
+import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.wolffsmod.api.client.model.ModelBase;
+
+import net.minecraft.world.entity.Entity;
+
+public class ModelLandMine extends ModelBase {
+   int textureX = 64;
+   int textureY = 64;
+   public ModelRendererTurbo[] landmineModel = new ModelRendererTurbo[13];
+
+   public ModelLandMine() {
+      this.landmineModel[0] = new ModelRendererTurbo(this, 1, 1, this.textureX, this.textureY);
+      this.landmineModel[1] = new ModelRendererTurbo(this, 1, 17, this.textureX, this.textureY);
+      this.landmineModel[2] = new ModelRendererTurbo(this, 1, 25, this.textureX, this.textureY);
+      this.landmineModel[3] = new ModelRendererTurbo(this, 1, 33, this.textureX, this.textureY);
+      this.landmineModel[4] = new ModelRendererTurbo(this, 33, 33, this.textureX, this.textureY);
+      this.landmineModel[5] = new ModelRendererTurbo(this, 1, 41, this.textureX, this.textureY);
+      this.landmineModel[6] = new ModelRendererTurbo(this, 33, 41, this.textureX, this.textureY);
+      this.landmineModel[7] = new ModelRendererTurbo(this, 1, 49, this.textureX, this.textureY);
+      this.landmineModel[8] = new ModelRendererTurbo(this, 33, 49, this.textureX, this.textureY);
+      this.landmineModel[9] = new ModelRendererTurbo(this, 41, 1, this.textureX, this.textureY);
+      this.landmineModel[10] = new ModelRendererTurbo(this, 49, 9, this.textureX, this.textureY);
+      this.landmineModel[11] = new ModelRendererTurbo(this, 41, 17, this.textureX, this.textureY);
+      this.landmineModel[12] = new ModelRendererTurbo(this, 41, 17, this.textureX, this.textureY);
+      this.landmineModel[0].addShapeBox(-7.0F, 0.0F, -4.0F, 14, 2, 8, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.landmineModel[0].setRotationPoint(0.0F, -0.75F, 0.0F);
+      this.landmineModel[0].rotateAngleZ = (float) Math.PI;
+      this.landmineModel[1].addShapeBox(-7.0F, 0.0F, -7.0F, 14, 2, 3, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.landmineModel[1].setRotationPoint(0.0F, -0.75F, 0.0F);
+      this.landmineModel[1].rotateAngleZ = (float) Math.PI;
+      this.landmineModel[2].addShapeBox(-7.0F, 0.0F, 4.0F, 14, 2, 3, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F);
+      this.landmineModel[2].setRotationPoint(0.0F, -0.75F, 0.0F);
+      this.landmineModel[2].rotateAngleZ = (float) Math.PI;
+      this.landmineModel[3].addShapeBox(-6.0F, -0.5F, -3.0F, 12, 1, 6, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.landmineModel[3].setRotationPoint(0.0F, -0.75F, 0.0F);
+      this.landmineModel[3].rotateAngleZ = (float) Math.PI;
+      this.landmineModel[4].addShapeBox(-6.0F, -0.5F, 3.0F, 12, 1, 3, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F);
+      this.landmineModel[4].setRotationPoint(0.0F, -0.75F, 0.0F);
+      this.landmineModel[4].rotateAngleZ = (float) Math.PI;
+      this.landmineModel[5].addShapeBox(-5.0F, -1.0F, -2.0F, 10, 1, 4, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.landmineModel[5].setRotationPoint(0.0F, -0.75F, 0.0F);
+      this.landmineModel[5].rotateAngleZ = (float) Math.PI;
+      this.landmineModel[6].addShapeBox(-5.0F, -1.0F, -5.0F, 10, 1, 3, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.landmineModel[6].setRotationPoint(0.0F, -0.75F, 0.0F);
+      this.landmineModel[6].rotateAngleZ = (float) Math.PI;
+      this.landmineModel[7].addShapeBox(-5.0F, -1.0F, 2.0F, 10, 1, 3, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F);
+      this.landmineModel[7].setRotationPoint(0.0F, -0.75F, 0.0F);
+      this.landmineModel[7].rotateAngleZ = (float) Math.PI;
+      this.landmineModel[8].addShapeBox(-6.0F, -0.5F, -6.0F, 12, 1, 3, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.landmineModel[8].setRotationPoint(0.0F, -0.75F, 0.0F);
+      this.landmineModel[8].rotateAngleZ = (float) Math.PI;
+      this.landmineModel[9].addShapeBox(-9.5F, 0.5F, -5.0F, 4, 1, 1, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F);
+      this.landmineModel[9].setRotationPoint(0.0F, -0.75F, 0.0F);
+      this.landmineModel[9].rotateAngleZ = (float) Math.PI;
+      this.landmineModel[10].addShapeBox(-9.5F, 0.5F, 4.0F, 4, 1, 1, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F);
+      this.landmineModel[10].setRotationPoint(0.0F, -0.75F, 0.0F);
+      this.landmineModel[10].rotateAngleZ = (float) Math.PI;
+      this.landmineModel[11].addShapeBox(-10.5F, -0.5F, -5.0F, 1, 1, 10, 0.0F, 0.0F, 0.3F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.3F, -1.0F, 0.0F, -0.3F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -0.3F, -1.0F);
+      this.landmineModel[11].setRotationPoint(0.0F, -0.75F, 0.0F);
+      this.landmineModel[11].rotateAngleZ = (float) Math.PI;
+      this.landmineModel[12].addShapeBox(-1.0F, -2.25F, -1.0F, 2, 2, 2, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.landmineModel[12].setRotationPoint(0.0F, -0.75F, 0.0F);
+      this.landmineModel[12].rotateAngleZ = (float) Math.PI;
+   }
+
+   public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
+      GL11.glScalef(0.7F, 0.7F, 0.7F);
+
+      for (int i = 0; i < 13; i++) {
+         this.landmineModel[i].render(f5);
+      }
+   }
+}

@@ -1,0 +1,31 @@
+//Deobfuscated with https://github.com/SimplyProgrammer/Minecraft-Deobfuscator3000 using mappings "D:\Minecraft\Dev Tools\Deobfuscator\Minecraft-Deobfuscator3000-1.2.3\1.7.10 stable mappings"!
+
+package com.flansmod.client.model.Manus_WH40K.Misc;
+
+import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.wolffsmod.api.client.model.ModelBase;
+import net.minecraft.world.entity.Entity;
+
+public class ModelWH40K_Misc_TitanPlasmaBall_1 extends ModelBase {
+   int textureX = 512;
+   int textureY = 512;
+   public ModelRendererTurbo[] wh40k_misc_titanplasmaball_1Model = new ModelRendererTurbo[3];
+
+   public ModelWH40K_Misc_TitanPlasmaBall_1() {
+      this.wh40k_misc_titanplasmaball_1Model[0] = new ModelRendererTurbo(this, -138, 238, this.textureX, this.textureY);
+      this.wh40k_misc_titanplasmaball_1Model[1] = new ModelRendererTurbo(this, 62, -166, this.textureX, this.textureY);
+      this.wh40k_misc_titanplasmaball_1Model[2] = new ModelRendererTurbo(this, 61, 33, this.textureX, this.textureY);
+      this.wh40k_misc_titanplasmaball_1Model[0].addShapeBox(0.0F, 0.0F, 0.0F, 200, 1, 200, 0.0F, 0.0F, -0.49F, 0.0F, -180.0F, -0.49F, 0.0F, -180.0F, -0.49F, -180.0F, 0.0F, -0.49F, -180.0F, 0.0F, -0.49F, 0.0F, -180.0F, -0.49F, 0.0F, -180.0F, -0.49F, -180.0F, 0.0F, -0.49F, -180.0F);
+      this.wh40k_misc_titanplasmaball_1Model[0].setRotationPoint(-10.0F, -0.5F, -10.0F);
+      this.wh40k_misc_titanplasmaball_1Model[1].addShapeBox(0.0F, 0.0F, 0.0F, 1, 200, 200, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, -180.0F, -0.49F, 0.0F, -180.0F, -0.49F, -180.0F, 0.0F, -0.49F, -180.0F, 0.0F, -0.49F, -180.0F, -180.0F, -0.49F, -180.0F, -180.0F);
+      this.wh40k_misc_titanplasmaball_1Model[1].setRotationPoint(-0.5F, -10.0F, -10.0F);
+      this.wh40k_misc_titanplasmaball_1Model[2].addShapeBox(0.0F, 0.0F, 0.0F, 200, 200, 1, 0.0F, 0.0F, 0.0F, -0.49F, -180.0F, 0.0F, -0.49F, -180.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, -180.0F, -0.49F, -180.0F, -180.0F, -0.49F, -180.0F, -180.0F, -0.49F, 0.0F, -180.0F, -0.49F);
+      this.wh40k_misc_titanplasmaball_1Model[2].setRotationPoint(-10.0F, -10.0F, -0.5F);
+   }
+
+   public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
+      for (int i = 0; i < 3; i++) {
+         this.wh40k_misc_titanplasmaball_1Model[i].render(f5);
+      }
+   }
+}

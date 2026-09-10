@@ -1,0 +1,38 @@
+//Deobfuscated with https://github.com/SimplyProgrammer/Minecraft-Deobfuscator3000 using mappings "D:\Minecraft\Dev Tools\Deobfuscator\Minecraft-Deobfuscator3000-1.2.3\1.7.10 stable mappings"!
+
+package com.flansmod.client.model.manus_modern_warfare;
+
+import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.wolffsmod.api.client.model.ModelBase;
+import net.minecraft.world.entity.Entity;
+
+public class ModelATMissile extends ModelBase {
+   int textureX = 128;
+   int textureY = 64;
+   public ModelRendererTurbo[] missleModel = new ModelRendererTurbo[8];
+
+   public ModelATMissile() {
+      this.missleModel[0] = new ModelRendererTurbo(this, 9, 0, this.textureX, this.textureY);
+      this.missleModel[1] = new ModelRendererTurbo(this, 0, 0, this.textureX, this.textureY);
+      this.missleModel[2] = new ModelRendererTurbo(this, 18, 0, this.textureX, this.textureY);
+      this.missleModel[3] = new ModelRendererTurbo(this, 18, 10, this.textureX, this.textureY);
+      this.missleModel[4] = new ModelRendererTurbo(this, 18, 15, this.textureX, this.textureY);
+      this.missleModel[5] = new ModelRendererTurbo(this, 18, 24, this.textureX, this.textureY);
+      this.missleModel[6] = new ModelRendererTurbo(this, 33, 0, this.textureX, this.textureY);
+      this.missleModel[7] = new ModelRendererTurbo(this, 33, 11, this.textureX, this.textureY);
+      this.missleModel[0].addTrapezoid(-1.0F, 28.0F, -1.0F, 2, 4, 2, 0.0F, -1.0F, 5);
+      this.missleModel[1].addBox(-1.0F, 0.0F, -1.0F, 2, 28, 2, 0.0F);
+      this.missleModel[2].addShapeBox(-0.5F, 20.0F, -3.0F, 1, 3, 6, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, -2.9999F, -0.4F, 0.0F, -2.9999F, -0.4F, 0.0F, -2.9999F, -0.4F, 0.0F, -2.9999F);
+      this.missleModel[3].addShapeBox(-3.0F, 20.0F, -0.5F, 6, 3, 1, 0.0F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, -2.9999F, 0.0F, -0.4F, -2.9999F, 0.0F, -0.4F, -2.9999F, 0.0F, -0.4F, -2.9999F, 0.0F, -0.4F);
+      this.missleModel[4].addShapeBox(-0.5F, 18.0F, -3.0F, 1, 2, 6, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F);
+      this.missleModel[5].addShapeBox(-3.0F, 18.0F, -0.5F, 6, 2, 1, 0.0F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F);
+      this.missleModel[6].addShapeBox(-0.5F, 0.0F, -3.0F, 1, 4, 6, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F);
+      this.missleModel[7].addShapeBox(-3.0F, 0.0F, -0.5F, 6, 4, 1, 0.0F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F);
+   }
+
+   public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
+      for (int i = 0; i < 8; i++) {
+         this.missleModel[i].render(f5);
+      }
+   }
+}

@@ -1,0 +1,106 @@
+//Deobfuscated with https://github.com/SimplyProgrammer/Minecraft-Deobfuscator3000 using mappings "D:\Minecraft\Dev Tools\Deobfuscator\Minecraft-Deobfuscator3000-1.2.3\1.7.10 stable mappings"!
+
+package com.flansmod.client.model.Manus_WH40K.Misc;
+
+import org.lwjgl.opengl.GL11;
+
+import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.wolffsmod.api.client.model.ModelBase;
+
+import net.minecraft.world.entity.Entity;
+
+public class ModelWH40K_Misc_KrakGrenade_1 extends ModelBase {
+   int textureX = 128;
+   int textureY = 128;
+   public ModelRendererTurbo[] krakgrenadeModel = new ModelRendererTurbo[25];
+
+   public ModelWH40K_Misc_KrakGrenade_1() {
+      this.krakgrenadeModel[0] = new ModelRendererTurbo(this, 1, 1, this.textureX, this.textureY);
+      this.krakgrenadeModel[1] = new ModelRendererTurbo(this, 41, 1, this.textureX, this.textureY);
+      this.krakgrenadeModel[2] = new ModelRendererTurbo(this, 81, 1, this.textureX, this.textureY);
+      this.krakgrenadeModel[3] = new ModelRendererTurbo(this, 33, 25, this.textureX, this.textureY);
+      this.krakgrenadeModel[4] = new ModelRendererTurbo(this, 65, 25, this.textureX, this.textureY);
+      this.krakgrenadeModel[5] = new ModelRendererTurbo(this, 1, 41, this.textureX, this.textureY);
+      this.krakgrenadeModel[6] = new ModelRendererTurbo(this, 25, 57, this.textureX, this.textureY);
+      this.krakgrenadeModel[7] = new ModelRendererTurbo(this, 97, 25, this.textureX, this.textureY);
+      this.krakgrenadeModel[8] = new ModelRendererTurbo(this, 89, 49, this.textureX, this.textureY);
+      this.krakgrenadeModel[9] = new ModelRendererTurbo(this, 57, 65, this.textureX, this.textureY);
+      this.krakgrenadeModel[10] = new ModelRendererTurbo(this, 1, 65, this.textureX, this.textureY);
+      this.krakgrenadeModel[11] = new ModelRendererTurbo(this, 81, 73, this.textureX, this.textureY);
+      this.krakgrenadeModel[12] = new ModelRendererTurbo(this, 1, 1, this.textureX, this.textureY);
+      this.krakgrenadeModel[13] = new ModelRendererTurbo(this, 33, 1, this.textureX, this.textureY);
+      this.krakgrenadeModel[14] = new ModelRendererTurbo(this, 65, 1, this.textureX, this.textureY);
+      this.krakgrenadeModel[15] = new ModelRendererTurbo(this, 73, 1, this.textureX, this.textureY);
+      this.krakgrenadeModel[16] = new ModelRendererTurbo(this, 105, 1, this.textureX, this.textureY);
+      this.krakgrenadeModel[17] = new ModelRendererTurbo(this, 33, 9, this.textureX, this.textureY);
+      this.krakgrenadeModel[18] = new ModelRendererTurbo(this, 113, 9, this.textureX, this.textureY);
+      this.krakgrenadeModel[19] = new ModelRendererTurbo(this, 1, 9, this.textureX, this.textureY);
+      this.krakgrenadeModel[20] = new ModelRendererTurbo(this, 73, 17, this.textureX, this.textureY);
+      this.krakgrenadeModel[21] = new ModelRendererTurbo(this, 65, 9, this.textureX, this.textureY);
+      this.krakgrenadeModel[22] = new ModelRendererTurbo(this, 57, 25, this.textureX, this.textureY);
+      this.krakgrenadeModel[23] = new ModelRendererTurbo(this, 121, 1, this.textureX, this.textureY);
+      this.krakgrenadeModel[24] = new ModelRendererTurbo(this, 113, 17, this.textureX, this.textureY);
+      this.krakgrenadeModel[0].addShapeBox(0.0F, 0.0F, 0.0F, 6, 12, 12, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.krakgrenadeModel[0].setRotationPoint(-3.0F, -13.0F, -6.0F);
+      this.krakgrenadeModel[1].addShapeBox(0.0F, 0.0F, 0.0F, 4, 2, 14, 0.0F, 0.0F, 0.0F, -4.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -4.0F, 0.0F, 0.0F, -4.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -4.0F);
+      this.krakgrenadeModel[1].setRotationPoint(-7.0F, -8.0F, -7.0F);
+      this.krakgrenadeModel[2].addShapeBox(0.0F, 0.0F, 0.0F, 3, 4, 12, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, -4.0F, 0.0F, -4.0F, 1.0F, 0.0F, -4.0F, 1.0F, 0.0F, -4.0F, -4.0F, 0.0F, -4.0F);
+      this.krakgrenadeModel[2].setRotationPoint(-6.0F, -1.0F, -6.0F);
+      this.krakgrenadeModel[3].addShapeBox(0.0F, 0.0F, 0.0F, 3, 12, 12, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F);
+      this.krakgrenadeModel[3].setRotationPoint(-6.0F, -13.0F, -6.0F);
+      this.krakgrenadeModel[4].addShapeBox(0.0F, 0.0F, 0.0F, 3, 12, 12, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F);
+      this.krakgrenadeModel[4].setRotationPoint(3.0F, -13.0F, -6.0F);
+      this.krakgrenadeModel[5].addShapeBox(0.0F, 0.0F, 0.0F, 6, 4, 12, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, -4.0F, -1.0F, 0.0F, -4.0F, -1.0F, 0.0F, -4.0F, -1.0F, 0.0F, -4.0F);
+      this.krakgrenadeModel[5].setRotationPoint(-3.0F, -1.0F, -6.0F);
+      this.krakgrenadeModel[6].addShapeBox(0.0F, 0.0F, 0.0F, 6, 2, 14, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.krakgrenadeModel[6].setRotationPoint(-3.0F, -8.0F, -7.0F);
+      this.krakgrenadeModel[7].addShapeBox(0.0F, 0.0F, 0.0F, 3, 4, 12, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, -4.0F, -4.0F, 0.0F, -4.0F, -4.0F, 0.0F, -4.0F, 1.0F, 0.0F, -4.0F);
+      this.krakgrenadeModel[7].setRotationPoint(3.0F, -1.0F, -6.0F);
+      this.krakgrenadeModel[8].addShapeBox(0.0F, 0.0F, 0.0F, 3, 4, 12, 0.0F, 1.0F, 0.0F, -4.0F, -4.0F, 0.0F, -4.0F, -4.0F, 0.0F, -4.0F, 1.0F, 0.0F, -4.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F);
+      this.krakgrenadeModel[8].setRotationPoint(3.0F, -17.0F, -6.0F);
+      this.krakgrenadeModel[9].addShapeBox(0.0F, 0.0F, 0.0F, 6, 4, 12, 0.0F, -1.0F, 0.0F, -4.0F, -1.0F, 0.0F, -4.0F, -1.0F, 0.0F, -4.0F, -1.0F, 0.0F, -4.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.krakgrenadeModel[9].setRotationPoint(-3.0F, -17.0F, -6.0F);
+      this.krakgrenadeModel[10].addShapeBox(0.0F, 0.0F, 0.0F, 3, 4, 12, 0.0F, -4.0F, 0.0F, -4.0F, 1.0F, 0.0F, -4.0F, 1.0F, 0.0F, -4.0F, -4.0F, 0.0F, -4.0F, 0.0F, 0.0F, -3.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -3.0F);
+      this.krakgrenadeModel[10].setRotationPoint(-6.0F, -17.0F, -6.0F);
+      this.krakgrenadeModel[11].addShapeBox(0.0F, 0.0F, 0.0F, 4, 2, 14, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -4.0F, 0.0F, 0.0F, -4.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -4.0F, 0.0F, 0.0F, -4.0F, 0.0F, 0.0F, 0.0F);
+      this.krakgrenadeModel[11].setRotationPoint(3.0F, -8.0F, -7.0F);
+      this.krakgrenadeModel[12].addShapeBox(0.0F, 0.0F, 0.0F, 1, 1, 4, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F);
+      this.krakgrenadeModel[12].setRotationPoint(1.0F, 3.0F, -2.0F);
+      this.krakgrenadeModel[13].addBox(0.0F, 0.0F, 0.0F, 2, 1, 4, 0.0F);
+      this.krakgrenadeModel[13].setRotationPoint(-1.0F, 3.0F, -2.0F);
+      this.krakgrenadeModel[14].addShapeBox(0.0F, 0.0F, 0.0F, 1, 1, 4, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, -1.0F);
+      this.krakgrenadeModel[14].setRotationPoint(-2.0F, 3.0F, -2.0F);
+      this.krakgrenadeModel[15].addBox(0.0F, 0.0F, 0.0F, 2, 1, 2, 0.0F);
+      this.krakgrenadeModel[15].setRotationPoint(-1.0F, 4.0F, -1.0F);
+      this.krakgrenadeModel[16].addBox(0.0F, 0.0F, 0.0F, 3, 2, 4, 0.0F);
+      this.krakgrenadeModel[16].setRotationPoint(-1.5F, 5.0F, -2.0F);
+      this.krakgrenadeModel[17].addBox(0.0F, 0.0F, 0.0F, 6, 1, 1, 0.0F);
+      this.krakgrenadeModel[17].setRotationPoint(-3.5F, 5.5F, -0.5F);
+      this.krakgrenadeModel[18].addShapeBox(-0.5F, -0.5F, -2.5F, 1, 1, 5, 0.0F, -0.25F, -0.25F, -0.25F, -0.25F, -0.25F, -0.75F, -0.25F, -0.25F, -0.75F, -0.25F, -0.25F, -0.25F, -0.25F, -0.25F, -0.25F, -0.25F, -0.25F, -0.75F, -0.25F, -0.25F, -0.75F, -0.25F, -0.25F, -0.25F);
+      this.krakgrenadeModel[18].setRotationPoint(-3.0F, 6.0F, 0.0F);
+      this.krakgrenadeModel[18].rotateAngleZ = (float) (-Math.PI / 3);
+      this.krakgrenadeModel[19].addShapeBox(-3.5F, -0.5F, -2.5F, 3, 1, 1, 0.0F, 0.25F, -0.25F, -0.25F, 0.25F, -0.25F, -0.25F, 0.25F, -0.25F, -0.25F, 0.25F, -0.25F, -0.25F, 0.25F, -0.25F, -0.25F, 0.25F, -0.25F, -0.25F, 0.25F, -0.25F, -0.25F, 0.25F, -0.25F, -0.25F);
+      this.krakgrenadeModel[19].setRotationPoint(-3.0F, 6.0F, 4.0F);
+      this.krakgrenadeModel[19].rotateAngleZ = (float) (-Math.PI / 3);
+      this.krakgrenadeModel[20].addShapeBox(-4.5F, -0.5F, -2.5F, 1, 1, 5, 0.0F, -0.25F, -0.25F, -0.75F, -0.25F, -0.25F, -0.25F, -0.25F, -0.25F, -0.25F, -0.25F, -0.25F, -0.75F, -0.25F, -0.25F, -0.75F, -0.25F, -0.25F, -0.25F, -0.25F, -0.25F, -0.25F, -0.25F, -0.25F, -0.75F);
+      this.krakgrenadeModel[20].setRotationPoint(-3.0F, 6.0F, 0.0F);
+      this.krakgrenadeModel[20].rotateAngleZ = (float) (-Math.PI / 3);
+      this.krakgrenadeModel[21].addShapeBox(-3.5F, -0.5F, -6.5F, 3, 1, 1, 0.0F, 0.25F, -0.25F, -0.25F, 0.25F, -0.25F, -0.25F, 0.25F, -0.25F, -0.25F, 0.25F, -0.25F, -0.25F, 0.25F, -0.25F, -0.25F, 0.25F, -0.25F, -0.25F, 0.25F, -0.25F, -0.25F, 0.25F, -0.25F, -0.25F);
+      this.krakgrenadeModel[21].setRotationPoint(-3.0F, 6.0F, 4.0F);
+      this.krakgrenadeModel[21].rotateAngleZ = (float) (-Math.PI / 3);
+      this.krakgrenadeModel[22].addShapeBox(0.0F, 0.0F, 0.0F, 2, 2, 6, 0.0F, 0.0F, 3.0F, -1.0F, 0.0F, 3.0F, -1.0F, 0.5F, 0.0F, 0.0F, 0.5F, 0.0F, 0.0F, 0.0F, -4.0F, 0.0F, 0.0F, -4.0F, 0.0F, 0.5F, 0.0F, 0.0F, 0.5F, 0.0F, 0.0F);
+      this.krakgrenadeModel[22].setRotationPoint(-1.0F, 5.0F, -8.0F);
+      this.krakgrenadeModel[23].addShapeBox(0.0F, 0.0F, 0.0F, 2, 10, 1, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.krakgrenadeModel[23].setRotationPoint(-1.0F, -8.0F, -8.0F);
+      this.krakgrenadeModel[24].addShapeBox(0.0F, 0.0F, 0.0F, 2, 6, 1, 0.0F, 0.0F, 0.0F, -0.5F, 0.0F, 0.0F, -0.5F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+      this.krakgrenadeModel[24].setRotationPoint(-1.0F, -14.0F, -8.0F);
+   }
+
+   public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
+      GL11.glScalef(0.2F, 0.2F, 0.2F);
+
+      for (int i = 0; i < 25; i++) {
+         this.krakgrenadeModel[i].render(f5);
+      }
+   }
+}

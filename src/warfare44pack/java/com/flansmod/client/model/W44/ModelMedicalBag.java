@@ -3,8 +3,10 @@
 package com.flansmod.client.model.W44;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolffsmod.api.client.model.ModelBase;
-import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 public class ModelMedicalBag extends ModelBase {
    int textureX = 64;
@@ -78,9 +80,14 @@ public class ModelMedicalBag extends ModelBase {
       this.medicalbagModel[15].rotateAngleZ = (float) Math.PI;
    }
 
-   public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
+   @Override
+   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
+   {
+       poseStack.pushPose();
       for (int i = 0; i < 16; i++) {
-         this.medicalbagModel[i].render(f5);
+         this.medicalbagModel[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
       }
+
+       poseStack.popPose();
    }
 }

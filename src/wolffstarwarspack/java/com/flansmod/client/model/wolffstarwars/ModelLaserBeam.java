@@ -1,11 +1,10 @@
 package com.flansmod.client.model.wolffstarwars;
 
-import org.lwjgl.opengl.GL11;
-
 import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolffsmod.api.client.model.ModelBase;
-
-import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 
 public class ModelLaserBeam extends ModelBase
@@ -22,10 +21,14 @@ public class ModelLaserBeam extends ModelBase
         laserModel.glow = true;
     }
 
-    public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
+    @Override
+    public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
     {
-        GL11.glScalef(0.5F, 0.5F, 0.5F);
-        GL11.glTranslatef(0F, 3F, 0F);
-        laserModel.render(f5);
+        poseStack.pushPose();
+        poseStack.scale(0.5F, 0.5F, 0.5F);
+        poseStack.translate(0F, 3F, 0F);
+        laserModel.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
+
+        poseStack.popPose();
     }
 }

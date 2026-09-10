@@ -1,9 +1,11 @@
 package com.flansmod.client.model.nerf;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolffsmod.api.client.model.ModelBase;
 import com.wolffsmod.api.client.model.ModelRenderer;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.world.entity.Entity;
 
 public class ModelDisc extends ModelBase
 {
@@ -16,8 +18,11 @@ public class ModelDisc extends ModelBase
 	}
 
 	@Override
-	public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
+	public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
 	{
-		bulletModel.render(f5);
+	    poseStack.pushPose();
+		bulletModel.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
+
+	    poseStack.popPose();
 	}
 }

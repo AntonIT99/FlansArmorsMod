@@ -1,3 +1,4 @@
+
 //This File was created with the Minecraft-SMP Modelling Toolbox 2.3.0.0
 // Copyright (C) 2018 Minecraft-SMP.de
 // This file is for Flan's Flying Mod Version 4.0.x+
@@ -9,12 +10,11 @@
 
 package com.flansmod.client.model.wolffstarwars; //Path where the model is located
 
-import org.lwjgl.opengl.GL11;
-
 import com.flansmod.client.tmt.ModelRendererTurbo;
-
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolffsmod.api.client.model.ModelBase;
-import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 public class ModelStunBeam extends ModelBase //Same as Filename
 {
@@ -66,12 +66,15 @@ public class ModelStunBeam extends ModelBase //Same as Filename
 	}
 
 	@Override
-	public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
+	public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
 	{
-		GL11.glTranslatef(-2F / 16F, 2.5F, 4.0F / 16F);
+	    poseStack.pushPose();
+		poseStack.translate(-2F / 16F, 2.5F, 4.0F / 16F);
 		for(ModelRendererTurbo part: stunBeamModel)
 		{
-			part.render(f5);
+			part.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
 		}
+
+	    poseStack.popPose();
 	}
 }

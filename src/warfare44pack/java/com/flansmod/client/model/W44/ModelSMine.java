@@ -2,12 +2,12 @@
 
 package com.flansmod.client.model.W44;
 
-import org.lwjgl.opengl.GL11;
-
 import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolffsmod.api.client.model.ModelBase;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.world.entity.Entity;
 
 public class ModelSMine extends ModelBase {
    int textureX = 64;
@@ -113,11 +113,16 @@ public class ModelSMine extends ModelBase {
       this.smineModel[23].rotateAngleZ = (float) Math.PI;
    }
 
-   public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
-      GL11.glScalef(0.3F, 0.3F, 0.3F);
+   @Override
+   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
+   {
+       poseStack.pushPose();
+      poseStack.scale(0.3F, 0.3F, 0.3F);
 
       for (int i = 0; i < 24; i++) {
-         this.smineModel[i].render(f5);
+         this.smineModel[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
       }
+
+       poseStack.popPose();
    }
 }

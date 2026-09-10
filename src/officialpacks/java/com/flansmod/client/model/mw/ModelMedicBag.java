@@ -10,9 +10,10 @@
 package com.flansmod.client.model.mw;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
-
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolffsmod.api.client.model.ModelBase;
-import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 public class ModelMedicBag extends ModelBase
 {
@@ -113,12 +114,15 @@ public class ModelMedicBag extends ModelBase
 	}
 
 	@Override
-	public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
+	public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
 	{
+	    poseStack.pushPose();
 		for(int i = 0; i < 19; i++)
 		{
-			medicbagModel[i].render(f5);
+			medicbagModel[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
 		}
+
+	    poseStack.popPose();
 	}
 
 	public ModelRendererTurbo medicbagModel[];

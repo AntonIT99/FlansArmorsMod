@@ -3,8 +3,10 @@
 package com.flansmod.client.model.W44;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolffsmod.api.client.model.ModelBase;
-import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 public class ModelDepthCharge extends ModelBase {
    int textureX = 256;
@@ -149,9 +151,14 @@ public class ModelDepthCharge extends ModelBase {
       this.depthchargeModel[44].setRotationPoint(-2.0F, -15.0F, -8.5F);
    }
 
-   public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
+   @Override
+   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
+   {
+       poseStack.pushPose();
       for (int i = 0; i < 45; i++) {
-         this.depthchargeModel[i].render(f5);
+         this.depthchargeModel[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
       }
+
+       poseStack.popPose();
    }
 }

@@ -3,8 +3,10 @@
 package com.flansmod.client.model.manus_modern_warfare;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolffsmod.api.client.model.ModelBase;
-import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 public class ModelATMissile extends ModelBase {
    int textureX = 128;
@@ -30,9 +32,14 @@ public class ModelATMissile extends ModelBase {
       this.missleModel[7].addShapeBox(-3.0F, 0.0F, -0.5F, 6, 4, 1, 0.0F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F, 0.0F, 0.0F, -0.4F);
    }
 
-   public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
+   @Override
+   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
+   {
+       poseStack.pushPose();
       for (int i = 0; i < 8; i++) {
-         this.missleModel[i].render(f5);
+         this.missleModel[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
       }
+
+       poseStack.popPose();
    }
 }

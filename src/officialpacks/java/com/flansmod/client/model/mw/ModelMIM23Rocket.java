@@ -2,8 +2,10 @@ package com.flansmod.client.model.mw;
 
 import com.flansmod.client.model.ModelBullet;
 import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.world.entity.Entity;
 
 public class ModelMIM23Rocket extends ModelBullet
 {
@@ -36,10 +38,13 @@ public class ModelMIM23Rocket extends ModelBullet
 	}
 	
 	@Override
-	public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5)
+	public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
 	{
+	    poseStack.pushPose();
 		//GlStateManager.scale(0.5F, 0.5F, 0.5F);
 		for(ModelRendererTurbo mrt : bulletModel)
-			mrt.render(f5);
+			mrt.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
+
+	    poseStack.popPose();
 	}
 }

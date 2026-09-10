@@ -3,8 +3,10 @@
 package com.flansmod.client.model.Manus_WW2.Misc;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolffsmod.api.client.model.ModelBase;
-import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 public class ModelWW2_Misc_HVAR_1 extends ModelBase {
    int textureX = 64;
@@ -26,9 +28,14 @@ public class ModelWW2_Misc_HVAR_1 extends ModelBase {
       this.hvarModel[3].setRotationPoint(0.0F, 0.0F, 0.0F);
    }
 
-   public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
+   @Override
+   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
+   {
+       poseStack.pushPose();
       for (int i = 0; i < 4; i++) {
-         this.hvarModel[i].render(f5);
+         this.hvarModel[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
       }
+
+       poseStack.popPose();
    }
 }

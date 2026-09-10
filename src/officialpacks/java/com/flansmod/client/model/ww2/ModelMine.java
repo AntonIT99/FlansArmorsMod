@@ -3,8 +3,10 @@
 package com.flansmod.client.model.ww2;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolffsmod.api.client.model.ModelBase;
-import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.NotNull;
 
 public class ModelMine extends ModelBase {
    public ModelRendererTurbo[] mineModel = new ModelRendererTurbo[3];
@@ -22,11 +24,16 @@ public class ModelMine extends ModelBase {
       this.buttonModel.addBox(-0.5F, 1.5F, -0.5F, 1, 1, 1);
    }
 
-   public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
+   @Override
+   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
+   {
+       poseStack.pushPose();
       for (ModelRendererTurbo mineModelBit : this.mineModel) {
-         mineModelBit.render(f5);
+         mineModelBit.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
       }
 
-      this.buttonModel.render(f5);
+      this.buttonModel.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
+
+       poseStack.popPose();
    }
 }

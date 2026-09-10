@@ -2,12 +2,12 @@
 
 package com.flansmod.client.model.Manus_WH40K.Misc;
 
-import org.lwjgl.opengl.GL11;
-
 import com.flansmod.client.tmt.ModelRendererTurbo;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolffsmod.api.client.model.ModelBase;
+import org.jetbrains.annotations.NotNull;
 
-import net.minecraft.world.entity.Entity;
 
 public class ModelWH40K_Misc_KrakGrenade_1 extends ModelBase {
    int textureX = 128;
@@ -96,11 +96,16 @@ public class ModelWH40K_Misc_KrakGrenade_1 extends ModelBase {
       this.krakgrenadeModel[24].setRotationPoint(-1.0F, -14.0F, -8.0F);
    }
 
-   public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
-      GL11.glScalef(0.2F, 0.2F, 0.2F);
+   @Override
+   public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
+   {
+       poseStack.pushPose();
+      poseStack.scale(0.2F, 0.2F, 0.2F);
 
       for (int i = 0; i < 25; i++) {
-         this.krakgrenadeModel[i].render(f5);
+         this.krakgrenadeModel[i].render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
       }
+
+       poseStack.popPose();
    }
 }

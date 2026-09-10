@@ -1,10 +1,10 @@
 Name Pr3
 ShortName pr3
 //The ammo this gun uses (shortName)
+Ammo pr3Ammo
 Ammo m60Ammo
 Ammo m249Ammo
 Ammo devotionx55Ammo
-Ammo pr3Ammo
 Ammo pr3oscAmmo
 Icon Pr3
 //Colour in Red, Green, Blue, each going up to 255.

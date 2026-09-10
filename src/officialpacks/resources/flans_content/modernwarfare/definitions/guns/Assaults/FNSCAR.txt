@@ -1,6 +1,7 @@
 Name FN SCAR
 ShortName fnscar
 //The ammo this gun uses (shortName)
+Ammo fnscarAmmo
 Ammo m16a4Ammo
 Ammo famasAmmo
 Ammo mtarAmmo
@@ -14,7 +15,6 @@ Ammo ash12Ammo
 Ammo galilAmmo
 Ammo hcarAmmo
 Ammo kcasmartcarbineAmmo
-Ammo fnscarAmmo
 Ammo betacmag
 Ammo apcrrifleAmmo
 Ammo l86Ammo

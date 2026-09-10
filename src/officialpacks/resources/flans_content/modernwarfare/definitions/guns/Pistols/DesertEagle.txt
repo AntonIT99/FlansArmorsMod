@@ -1,8 +1,8 @@
 Name Desert Eagle
 ShortName desertEagle
 //The ammo this gun uses (shortName)
-Ammo kcasmartpistolAmmo
 Ammo desertEagleAmmo
+Ammo kcasmartpistolAmmo
 Ammo glockAmmo
 Ammo m9Ammo
 Ammo m1911Ammo

@@ -1,9 +1,9 @@
 Name Skorpion
 ShortName skorpion
 //The ammo this gun uses (shortName)
+Ammo skorpionAmmo
 Ammo mp5Ammo
 Ammo mp5kAmmo
-Ammo skorpionAmmo
 Ammo uziAmmo
 Ammo mp7Ammo
 Ammo honeybadgerAmmo

@@ -1,8 +1,8 @@
 Name SG550
 ShortName sg550
 //The ammo this gun uses (shortName)
-Ammo tripletakeAmmo
 Ammo sg550Ammo
+Ammo tripletakeAmmo
 Ammo seekerrifleammo
 Ammo ntw20Ammo
 Ammo m21Ammo

@@ -1,10 +1,10 @@
 Name RPD
 ShortName rpd
 //The ammo this gun uses (shortName)
+Ammo rpdAmmo
 Ammo ak74Ammo
 Ammo ak47Ammo
 Ammo rpkAmmo
-Ammo rpdAmmo
 Ammo witheringakammo
 Icon RPD
 //Colour in Red, Green, Blue, each going up to 255.

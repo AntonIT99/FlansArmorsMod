@@ -1,8 +1,8 @@
 Name M249 SAW
 ShortName m249
 //The ammo this gun uses (shortName)
-Ammo m60Ammo
 Ammo m249Ammo
+Ammo m60Ammo
 Ammo devotionx55Ammo
 Ammo pr3Ammo
 Ammo pr3oscAmmo

@@ -1,10 +1,10 @@
 Name Barrett .50cal
 ShortName barrett
 //The ammo this gun uses (shortName)
-Ammo kcasmart50Ammo
 Ammo barrettAmmo
 Ammo barrettExplosiveAmmo
 Ammo barrettCompactAmmo
+Ammo kcasmart50Ammo
 Icon Barrett
 //Colour in Red, Green, Blue, each going up to 255.
 Colour 255 255 255

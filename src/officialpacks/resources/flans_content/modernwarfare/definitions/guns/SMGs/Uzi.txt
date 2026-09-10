@@ -1,10 +1,10 @@
 Name Mini-Uzi
 ShortName uzi
 //The ammo this gun uses (shortName)
+Ammo uziAmmo
 Ammo mp5Ammo
 Ammo mp5kAmmo
 Ammo skorpionAmmo
-Ammo uziAmmo
 Ammo mp7Ammo
 Ammo honeybadgerAmmo
 Ammo smg100ammo

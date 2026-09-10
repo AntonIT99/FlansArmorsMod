@@ -1,13 +1,13 @@
 Name L96
 ShortName l96
 //The ammo this gun uses (shortName)
+Ammo l96Ammo
 Ammo tripletakeAmmo
 Ammo sg550Ammo
 Ammo seekerrifleammo
 Ammo ntw20Ammo
 Ammo m21Ammo
 Ammo m14Ammo
-Ammo l96Ammo
 Ammo g3Ammo
 Ammo dragunovAmmo
 Icon L96

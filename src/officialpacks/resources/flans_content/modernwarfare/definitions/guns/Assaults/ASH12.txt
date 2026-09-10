@@ -1,6 +1,7 @@
 Name ASH12
 ShortName ash12
 //The ammo this gun uses (shortName)
+Ammo ash12Ammo
 Ammo m16a4Ammo
 Ammo famasAmmo
 Ammo mtarAmmo
@@ -10,7 +11,6 @@ Ammo augAmmo
 Ammo acrAmmo
 Ammo adar15Ammo
 Ammo an94Ammo
-Ammo ash12Ammo
 Ammo galilAmmo
 Ammo hcarAmmo
 Ammo kcasmartcarbineAmmo

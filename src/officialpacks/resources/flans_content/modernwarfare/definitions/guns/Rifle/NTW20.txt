@@ -1,10 +1,10 @@
 Name NTW20
 ShortName ntw20
 //The ammo this gun uses (shortName)
+Ammo ntw20Ammo
 Ammo tripletakeAmmo
 Ammo sg550Ammo
 Ammo seekerrifleammo
-Ammo ntw20Ammo
 Ammo m21Ammo
 Ammo m14Ammo
 Ammo l96Ammo

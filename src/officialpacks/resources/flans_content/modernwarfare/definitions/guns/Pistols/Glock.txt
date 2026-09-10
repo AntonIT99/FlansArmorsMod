@@ -1,11 +1,11 @@
 Name Glock
 ShortName glock
 //The ammo this gun uses (shortName)
+Ammo m1911Ammo
 Ammo kcasmartpistolAmmo
 Ammo desertEagleAmmo
 Ammo glockAmmo
 Ammo m9Ammo
-Ammo m1911Ammo
 Ammo makarovAmmo
 Ammo sigP226Ammo
 Ammo uspAmmo

@@ -1,8 +1,8 @@
 Name FAMAS
 ShortName famas
 //The ammo this gun uses (shortName)
-Ammo m16a4Ammo
 Ammo famasAmmo
+Ammo m16a4Ammo
 Ammo mtarAmmo
 Ammo m4CarbineAmmo
 Ammo g36Ammo

@@ -1,6 +1,7 @@
 Name AN94
 ShortName an94
 //The ammo this gun uses (shortName)
+Ammo an94Ammo
 Ammo m16a4Ammo
 Ammo famasAmmo
 Ammo mtarAmmo
@@ -9,7 +10,6 @@ Ammo g36Ammo
 Ammo augAmmo
 Ammo acrAmmo
 Ammo adar15Ammo
-Ammo an94Ammo
 Ammo ash12Ammo
 Ammo galilAmmo
 Ammo hcarAmmo

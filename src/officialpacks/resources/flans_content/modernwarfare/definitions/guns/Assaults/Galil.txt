@@ -1,6 +1,7 @@
 Name Galil
 ShortName galil
 //The ammo this gun uses (shortName)
+Ammo galilAmmo
 Ammo m16a4Ammo
 Ammo famasAmmo
 Ammo mtarAmmo

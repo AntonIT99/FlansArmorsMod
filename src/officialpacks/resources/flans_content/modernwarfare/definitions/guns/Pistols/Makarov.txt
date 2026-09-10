@@ -1,12 +1,12 @@
 Name Makarov
 ShortName makarov
 //The ammo this gun uses (shortName)
+Ammo makarovAmmo
 Ammo kcasmartpistolAmmo
 Ammo desertEagleAmmo
 Ammo glockAmmo
 Ammo m9Ammo
 Ammo m1911Ammo
-Ammo makarovAmmo
 Ammo sigP226Ammo
 Ammo uspAmmo
 Ammo uspPoisonAmmo

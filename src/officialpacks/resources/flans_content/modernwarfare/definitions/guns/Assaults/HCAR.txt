@@ -1,6 +1,7 @@
 Name HCAR
 ShortName hcar
 //The ammo this gun uses (shortName)
+Ammo hcarAmmo
 Ammo m16a4Ammo
 Ammo famasAmmo
 Ammo mtarAmmo
@@ -12,7 +13,6 @@ Ammo adar15Ammo
 Ammo an94Ammo
 Ammo ash12Ammo
 Ammo galilAmmo
-Ammo hcarAmmo
 Ammo kcasmartcarbineAmmo
 Ammo fnscarAmmo
 Ammo betacmag

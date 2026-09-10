@@ -1,8 +1,8 @@
 Name Ak47
 ShortName ak47
 //The ammo this gun uses (shortName)
-Ammo ak74Ammo
 Ammo ak47Ammo
+Ammo ak74Ammo
 Ammo rpkAmmo
 Ammo rpdAmmo
 Ammo witheringakammo

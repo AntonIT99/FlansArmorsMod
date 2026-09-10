@@ -1,9 +1,9 @@
 Name MTAR
 ShortName mtar
 //The ammo this gun uses (shortName)
+Ammo mtarAmmo
 Ammo m16a4Ammo
 Ammo famasAmmo
-Ammo mtarAmmo
 Ammo m4CarbineAmmo
 Ammo g36Ammo
 Ammo augAmmo

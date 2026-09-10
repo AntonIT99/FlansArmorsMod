@@ -1,6 +1,7 @@
 Name G3
 ShortName g3
 //The ammo this gun uses (shortName)
+Ammo g3Ammo
 Ammo tripletakeAmmo
 Ammo sg550Ammo
 Ammo seekerrifleammo
@@ -8,7 +9,6 @@ Ammo ntw20Ammo
 Ammo m21Ammo
 Ammo m14Ammo
 Ammo l96Ammo
-Ammo g3Ammo
 Ammo dragunovAmmo
 Icon G3
 //Colour in Red, Green, Blue, each going up to 255.

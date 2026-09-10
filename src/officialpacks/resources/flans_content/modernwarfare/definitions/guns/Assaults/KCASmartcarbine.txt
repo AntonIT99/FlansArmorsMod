@@ -1,6 +1,7 @@
 Name KCA Smart carbine
 ShortName kcasmartcarbine
 //The ammo this gun uses (shortName)
+Ammo kcasmartcarbineAmmo
 Ammo m16a4Ammo
 Ammo famasAmmo
 Ammo mtarAmmo
@@ -13,7 +14,6 @@ Ammo an94Ammo
 Ammo ash12Ammo
 Ammo galilAmmo
 Ammo hcarAmmo
-Ammo kcasmartcarbineAmmo
 Ammo fnscarAmmo
 Ammo betacmag
 Ammo apcrrifleAmmo

@@ -1,9 +1,9 @@
 Name Devotion X55
 ShortName devotionx55
 //The ammo this gun uses (shortName)
+Ammo devotionx55Ammo
 Ammo m60Ammo
 Ammo m249Ammo
-Ammo devotionx55Ammo
 Ammo pr3Ammo
 Ammo pr3oscAmmo
 Icon DevotionX55

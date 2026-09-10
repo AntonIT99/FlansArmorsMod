@@ -1,9 +1,9 @@
 Name RPK
 ShortName rpk
 //The ammo this gun uses (shortName)
+Ammo rpkAmmo
 Ammo ak74Ammo
 Ammo ak47Ammo
-Ammo rpkAmmo
 Ammo rpdAmmo
 Ammo witheringakammo
 Icon RPK

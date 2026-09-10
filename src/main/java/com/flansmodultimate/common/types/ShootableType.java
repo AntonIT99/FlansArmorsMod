@@ -35,6 +35,8 @@ import static com.flansmodultimate.util.TypeReaderUtils.*;
 public abstract class ShootableType extends InfoType
 {
     public static final int EXPLODE_PARTICLES_RANGE = 256;
+    /** Conversion factor between the gram and kilogram scales the mass parameters are authored at. */
+    public static final float GRAMS_PER_KILOGRAM = 1000F;
     public static final double FALL_SPEED_COEFFICIENT = (9.81 / 400.0);
     public static final float AIR_DEFAULT_DRAG = 0.99F;
     public static final float WATER_DEFAULT_DRAG = 0.8F;
@@ -186,7 +188,10 @@ public abstract class ShootableType extends InfoType
     /** Upon hitting a block or entity, the grenade will be deflected and its motion will be multiplied by this constant */
     @Getter
     protected float bounciness;
-    /** Mass of the projectile in g. Used for the new damage system. Will be ignored when 0 */
+    /**
+     * Mass of the projectile in g. Authored as {@code Mass} (grams) or {@code MassKg} (kilograms).
+     * Used for the new damage system. Will be ignored when 0
+     */
     @Getter
     protected float mass;
 
@@ -226,7 +231,10 @@ public abstract class ShootableType extends InfoType
     protected int primeDelay;
 
     //Detonation Stuff
-    /** Explosive mass in kg TNT equivalent. Used for the new damage system. Will be ignored when 0 */
+    /**
+     * Explosive mass in kg TNT equivalent. Authored as {@code ExplosiveMassTNTg} (grams) or
+     * {@code ExplosiveMassTNTKg} (kilograms). Used for the new damage system. Will be ignored when 0
+     */
     @Getter
     protected float explosiveMass;
     /** The radius in which to spread fire */
@@ -325,6 +333,10 @@ public abstract class ShootableType extends InfoType
         throwSpeed = readValue("ShootSpeed", throwSpeed, file);
         hitBoxSize = readValue("HitBoxSize", hitBoxSize, file);
         mass = readValue("Mass", mass, file);
+        // MassKg is the same stat authored at a kilogram scale, so it is converted into the grams
+        // everything downstream already expects.
+        if (hasValueForConfigField("MassKg", file))
+            mass = readValue("MassKg", 0F, file) * GRAMS_PER_KILOGRAM;
         if (!Float.isFinite(mass) || mass < 0F)
         {
             logError("Mass must be a finite non-negative value in grams; kinetic damage will use the fixed fallback", file);
@@ -376,10 +388,15 @@ public abstract class ShootableType extends InfoType
         explosionBreaksBlocks = readValue("ExplosionBreakBlocks", explosionBreaksBlocks, file);
         explosionBreaksBlocks = readValue("ExplosionsBreakBlocks", explosionBreaksBlocks, file);
 
-        explosiveMass = readValue("ExplosiveMass", explosiveMass, file);
+        // Stored in kg TNT equivalent, but authored at whichever scale suits the charge: the key
+        // spells out the unit so a rifle grenade and a bomb can both be written without leading zeroes.
+        if (hasValueForConfigField("ExplosiveMassTNTg", file))
+            explosiveMass = readValue("ExplosiveMassTNTg", 0F, file) / GRAMS_PER_KILOGRAM;
+        if (hasValueForConfigField("ExplosiveMassTNTKg", file))
+            explosiveMass = readValue("ExplosiveMassTNTKg", 0F, file);
         if (!Float.isFinite(explosiveMass) || explosiveMass < 0F)
         {
-            logError("ExplosiveMass must be a finite non-negative value in kg TNT equivalent; ignoring it", file);
+            logError("ExplosiveMassTNTg/ExplosiveMassTNTKg must be a finite non-negative TNT equivalent; ignoring it", file);
             explosiveMass = 0F;
         }
         explosionRadius = readValue("ExplosionRadius", explosionRadius, file);

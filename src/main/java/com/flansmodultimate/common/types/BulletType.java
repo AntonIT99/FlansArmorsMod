@@ -30,6 +30,7 @@ public class BulletType extends ShootableType
     public static final float DEFAULT_BULLET_SPEED = 3F;
     public static final float DEFAULT_PENETRATING_POWER = 0.7F;
 
+    /** {@code mass} in grams, {@code explosiveMass} in kg TNT equivalent, {@code bulletSpeed} in blocks per tick. */
     public record RoundStats(float mass, float explosiveMass, float bulletSpeed, float penetrationAt100m) {}
 
     public record RoundEntry(String name, int count, RoundStats stats) {}
@@ -430,7 +431,9 @@ public class BulletType extends ShootableType
     private RoundStats readRoundStats(String[] round, TypeFile file)
     {
         float roundMass = nonNegativeRoundValue(round, 2, "mass in grams", file);
-        float roundExplosiveMass = nonNegativeRoundValue(round, 3, "explosive mass in kg TNT equivalent", file);
+        // Authored in grams TNT equivalent, matching the round's own mass column; stored in kg.
+        float roundExplosiveMass = nonNegativeRoundValue(round, 3, "explosive mass in g TNT equivalent", file)
+            / GRAMS_PER_KILOGRAM;
         float roundSpeed = nonNegativeRoundValue(round, 4, "muzzle velocity in m/s", file) / 20F;
         float roundPenetration = nonNegativeRoundValue(round, 5, "penetration at 100 m in millimetres", file);
         return new RoundStats(roundMass, roundExplosiveMass, roundSpeed, roundPenetration);
@@ -477,7 +480,7 @@ public class BulletType extends ShootableType
         if (explosiveEntity instanceof Bullet bullet)
         {
             FiredShot shot = bullet.getFiredShot();
-            // A per-weapon AmmoExplosiveMass or AddRoundForAmmo override replaces the
+            // A per-weapon AmmoExplosiveMassTNTg/Kg or AddRoundForAmmo override replaces the
             // charge for this shot; otherwise a belt round's own charge is used.
             boolean overridden = shot != null && !shot.getAmmoOverride().isEmpty();
             if (overridden || bullet.getConfigType().hasDifferentRounds())
@@ -500,7 +503,7 @@ public class BulletType extends ShootableType
         explosionBlastDamage.setDamage((float) (ModCommonConfig.get().newDamageSystemExplosiveDamageReference() * Math.cbrt(explosiveCharge)));
         explosionBlastDamage.calculate();
         // The frag envelope has to come from this round's own charge too, not the type's parsed
-        // fragRadius, which was derived from the type-level ExplosiveMass and is wrong for a belt
+        // fragRadius, which was derived from the type-level explosive mass and is wrong for a belt
         // whose rounds carry different charges.
         float roundFragRadius = fragType != EnumFragType.DEFAULT
             ? ExplosionScaling.fragRadius(fragType.kFragRadius, explosiveCharge) : fragRadius;

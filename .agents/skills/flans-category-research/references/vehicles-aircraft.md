@@ -99,7 +99,8 @@ Additional properties:
 - `UseAmmoGroup`: exact group already created by shell categories. It is repeatable,
   so use an array for several cannon families. Validate both producers and
   consumers as described in the weapons reference.
-- `AmmoMass`, `AmmoMuzzleVelocity`, `AmmoExplosiveMass`, `AmmoPenetrationAt100m`, and
+- `AmmoMass`/`AmmoMassKg`, `AmmoMuzzleVelocity`,
+  `AmmoExplosiveMassTNTg`/`AmmoExplosiveMassTNTKg`, `AmmoPenetrationAt100m`, and
   `AddRoundForAmmo`: per-ammunition overrides that restate what a shared generic round
   does out of this vehicle's own gun. Use them to give each vehicle the exact shell its
   real gun fired instead of collapsing a shared item to one value set. They are

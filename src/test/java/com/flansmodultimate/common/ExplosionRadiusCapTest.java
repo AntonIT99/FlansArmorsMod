@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The radius ceiling is a performance guard, not a balance decision. An authored
- * {@code ExplosiveMass} stays honest; only the radii the server has to iterate are
+ * the authored explosive mass stays honest; only the radii the server has to iterate are
  * bounded, and a server with the hardware for more simply raises the config value.
  */
 class ExplosionRadiusCapTest

@@ -48,7 +48,7 @@ public final class ExplosionVehicleDamageResolver
     }
 
     /**
-     * TNT equivalent, in kg, of a legacy explosive that never declared {@code ExplosiveMass}.
+     * TNT equivalent, in kg, of a legacy explosive that never declared {@code ExplosiveMassTNTg}/{@code ExplosiveMassTNTKg}.
      * <p>
      * Without this a legacy definition cannot scratch an armoured vehicle at all, because the
      * pressure model has no charge to work from. The crater radius is the one legacy quantity

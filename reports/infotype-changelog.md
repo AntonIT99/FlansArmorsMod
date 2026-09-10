@@ -36,8 +36,26 @@
 - ExplodeParticleType
 
 ## VehicleType
-- FixTrackLink 
+- FixTrackLink
 - TrackLinkFix
+- RecoilDistance (Removed)
 
 ## Team
 - AllowedForRoundsGenerator
+
+
+# TODO: decide to fully implement or remove these parameters
+
+# DriveableType
+- OnRadar
+- ExitSoundLength
+- Bounciness
+- MomentOfInertia
+
+# VehicleType
+- ClutchSteer
+- FlipLinkFix
+- FloatOnLand
+- HasSmoke
+- SoundsPlaceTimePrimary
+- TurretRotationSpeed

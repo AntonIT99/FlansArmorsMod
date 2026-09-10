@@ -260,6 +260,3 @@ LeftLinkPoint [49,11,18.5]
 BulletSpeed 3
 BulletSpread 1
 IsExplosionWhenDestroyed true
-
-
-RecoilDistance 100

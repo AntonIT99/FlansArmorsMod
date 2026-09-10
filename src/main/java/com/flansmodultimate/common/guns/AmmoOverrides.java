@@ -1,6 +1,7 @@
 package com.flansmodultimate.common.guns;
 
 import com.flansmodultimate.common.types.BulletType;
+import com.flansmodultimate.common.types.ShootableType;
 import com.flansmodultimate.common.types.TypeFile;
 import com.flansmodultimate.util.ResourceUtils;
 import org.jetbrains.annotations.NotNull;
@@ -22,18 +23,22 @@ import java.util.Map;
  * <em>original</em> short name as written in its own definition:
  *
  * <pre>
- * AmmoMass             &lt;ammoShortName&gt; &lt;grams&gt;
- * AmmoMuzzleVelocity   &lt;ammoShortName&gt; &lt;metresPerSecond&gt;
- * AmmoExplosiveMass    &lt;ammoShortName&gt; &lt;kgTntEquivalent&gt;
- * AmmoPenetrationAt100m&lt;ammoShortName&gt; &lt;millimetres&gt;
- * AddRoundForAmmo      &lt;ammoShortName&gt; &lt;name&gt; &lt;count&gt; &lt;massG&gt; &lt;explKg&gt; &lt;mps&gt; &lt;mm&gt;
+ * AmmoMass               &lt;ammoShortName&gt; &lt;grams&gt;
+ * AmmoMassKg             &lt;ammoShortName&gt; &lt;kilograms&gt;
+ * AmmoMuzzleVelocity     &lt;ammoShortName&gt; &lt;metresPerSecond&gt;
+ * AmmoExplosiveMassTNTg  &lt;ammoShortName&gt; &lt;gTntEquivalent&gt;
+ * AmmoExplosiveMassTNTKg &lt;ammoShortName&gt; &lt;kgTntEquivalent&gt;
+ * AmmoPenetrationAt100m  &lt;ammoShortName&gt; &lt;millimetres&gt;
+ * AddRoundForAmmo        &lt;ammoShortName&gt; &lt;name&gt; &lt;count&gt; &lt;massG&gt; &lt;explG&gt; &lt;mps&gt; &lt;mm&gt;
  * </pre>
  */
 public final class AmmoOverrides
 {
     public static final String KEY_MASS = "AmmoMass";
+    public static final String KEY_MASS_KG = "AmmoMassKg";
     public static final String KEY_MUZZLE_VELOCITY = "AmmoMuzzleVelocity";
-    public static final String KEY_EXPLOSIVE_MASS = "AmmoExplosiveMass";
+    public static final String KEY_EXPLOSIVE_MASS_G = "AmmoExplosiveMassTNTg";
+    public static final String KEY_EXPLOSIVE_MASS_KG = "AmmoExplosiveMassTNTKg";
     public static final String KEY_PENETRATION = "AmmoPenetrationAt100m";
     public static final String KEY_ADD_ROUND = "AddRoundForAmmo";
 
@@ -105,10 +110,15 @@ public final class AmmoOverrides
 
         Map<String, Builder> builders = new LinkedHashMap<>();
         readScalar(file, KEY_MASS, "grams", builders, warnings, (b, v) -> b.mass = v);
+        readScalar(file, KEY_MASS_KG, "kilograms", builders, warnings,
+            (b, v) -> b.mass = v * ShootableType.GRAMS_PER_KILOGRAM);
         // Authored in m/s for consistency with MuzzleVelocity; stored in blocks per tick.
         readScalar(file, KEY_MUZZLE_VELOCITY, "metres per second", builders, warnings,
             (b, v) -> b.speed = v / 20F);
-        readScalar(file, KEY_EXPLOSIVE_MASS, "kilograms TNT equivalent", builders, warnings,
+        // Both explosive-mass keys land in the same kg TNT equivalent field.
+        readScalar(file, KEY_EXPLOSIVE_MASS_G, "grams TNT equivalent", builders, warnings,
+            (b, v) -> b.explosiveMass = v / ShootableType.GRAMS_PER_KILOGRAM);
+        readScalar(file, KEY_EXPLOSIVE_MASS_KG, "kilograms TNT equivalent", builders, warnings,
             (b, v) -> b.explosiveMass = v);
         readScalar(file, KEY_PENETRATION, "millimetres", builders, warnings, (b, v) -> b.penetration = v);
         readRounds(file, builders, warnings);
@@ -153,7 +163,7 @@ public final class AmmoOverrides
             if (values.length < 4)
             {
                 warnings.add(KEY_ADD_ROUND + " requires <ammoShortName> <name> <count> <massG>"
-                    + " [explosiveMassKg] [muzzleVelocityMps] [penetrationMm]; ignoring '"
+                    + " [explosiveMassG] [muzzleVelocityMps] [penetrationMm]; ignoring '"
                     + String.join(" ", values) + "'");
                 continue;
             }
@@ -177,7 +187,9 @@ public final class AmmoOverrides
             Float mass = parseNonNegative(values[3], KEY_ADD_ROUND, "mass in grams", warnings);
             if (mass == null)
                 continue;
-            float explosiveMass = optional(values, 4, KEY_ADD_ROUND, "explosive mass in kg TNT equivalent", warnings);
+            // Authored in grams TNT equivalent, matching AddRound; stored in kg.
+            float explosiveMass = optional(values, 4, KEY_ADD_ROUND, "explosive mass in g TNT equivalent", warnings)
+                / ShootableType.GRAMS_PER_KILOGRAM;
             float speed = optional(values, 5, KEY_ADD_ROUND, "muzzle velocity in m/s", warnings) / 20F;
             float penetration = optional(values, 6, KEY_ADD_ROUND, "penetration at 100 m in millimetres", warnings);
             builders.computeIfAbsent(key(values[0]), k -> new Builder()).rounds.add(

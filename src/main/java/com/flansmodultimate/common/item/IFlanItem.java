@@ -160,6 +160,19 @@ public interface IFlanItem<T extends InfoType> extends ItemLike
     }
 
     /**
+     * Renders a mass held in kilograms at whatever scale reads best: anything under a kilogram is
+     * shown in grams, so a hand grenade's charge does not appear as "0.06 kg".
+     *
+     * @param massKg the mass in kilograms
+     */
+    static String formatMassKg(float massKg)
+    {
+        return massKg < 1F
+            ? formatFloat(massKg * 1000F, 1) + " g"
+            : formatFloat(massKg, 3) + " kg";
+    }
+
+    /**
      * Format doubles nicely (no trailing .0 if not needed)
      */
     static String formatDouble(double d, int decimals)

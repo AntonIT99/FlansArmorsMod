@@ -73,7 +73,7 @@ class FiredShotVelocityTest
         VehicleType vehicle = vehicle("BulletSpeed 3");
         BulletType belt = bullet("RoundsPerItem 2",
             "AddRound AP 1 162 0 800 45",
-            "AddRound HE 1 135 0.016 835 0");
+            "AddRound HE 1 135 16 835 0");
 
         assertEquals(40F, shot(vehicle, belt, 3F, 0).getMuzzleVelocity(), 1.0E-4F);
         assertEquals(41.75F, shot(vehicle, belt, 3F, 1).getMuzzleVelocity(), 1.0E-4F);

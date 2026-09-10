@@ -100,11 +100,13 @@ no longer true. The **firing weapon** can restate what the shared round does out
 its own barrel:
 
 ```text
-AmmoMass              <ammoShortName> <grams>
-AmmoMuzzleVelocity    <ammoShortName> <metresPerSecond>
-AmmoExplosiveMass     <ammoShortName> <kgTntEquivalent>
-AmmoPenetrationAt100m <ammoShortName> <millimetres>
-AddRoundForAmmo       <ammoShortName> <name> <count> <massG> [explKg] [mps] [mm]
+AmmoMass               <ammoShortName> <grams>
+AmmoMassKg             <ammoShortName> <kilograms>
+AmmoMuzzleVelocity     <ammoShortName> <metresPerSecond>
+AmmoExplosiveMassTNTg  <ammoShortName> <gTntEquivalent>
+AmmoExplosiveMassTNTKg <ammoShortName> <kgTntEquivalent>
+AmmoPenetrationAt100m  <ammoShortName> <millimetres>
+AddRoundForAmmo        <ammoShortName> <name> <count> <massG> [explG] [mps] [mm]
 ```
 
 These are gun, AA-gun, and driveable category properties, so they live in
@@ -171,11 +173,11 @@ the generic option from being the strongest option.
 
 | Domain | Rank by | Then copy |
 | --- | --- | --- |
-| Ammunition, shells | `PenetrationAt100m`, or `ExplosiveMass` for HE-only rounds | that round's whole `Mass` / `MuzzleVelocity` / `PenetrationAt100m` / `ExplosiveMass` set |
+| Ammunition, shells | `PenetrationAt100m`, or `ExplosiveMassTNTg`/`ExplosiveMassTNTKg` for HE-only rounds | that round's whole `Mass` / `MuzzleVelocity` / `PenetrationAt100m` / `ExplosiveMassTNTg`/`ExplosiveMassTNTKg` set |
 | Guns, AA guns | `RoundsPerMin` | that weapon's `RoundsPerMin`, `Dispersion`, `MuzzleVelocity` |
 | Ground vehicles | `RealMassKg` | that vehicle's whole propulsion and armour set |
 | Aircraft | `RealMaxSpeedKmh` | that aircraft's whole mass/power/speed/span/area/climb set |
-| Grenades, bombs | `ExplosiveMass` | that item's `ExplosiveMass` and `FragType` |
+| Grenades, bombs | `ExplosiveMassTNTg`/`ExplosiveMassTNTKg` | that item's `ExplosiveMassTNTg`/`ExplosiveMassTNTKg` and `FragType` |
 
 Two adjustments are allowed after selection, and both must be reported:
 
@@ -275,7 +277,7 @@ Author its effect **directly** on the ammunition category:
 | --- | --- | --- |
 | `Damage` | `Mass` | The kinetic system is only active when `Mass > 0`, so leaving mass out keeps the bolt off it entirely and makes this value authoritative. |
 | `DamageVsLiving`, `DamageVsVehicles` | — | Optional. Both inherit from `Damage`; set one when the fiction makes the bolt markedly better or worse against armour. |
-| `Explosion` | `ExplosiveMass` | A radius in blocks, for a bolt that bursts. The derived-blast system is only active when `ExplosiveMass > 0`, so omitting it leaves this radius in force. |
+| `Explosion` | `ExplosiveMassTNTg`/`ExplosiveMassTNTKg` | A radius in blocks, for a bolt that bursts. The derived-blast system is only active when `ExplosiveMass > 0`, so omitting it leaves this radius in force. |
 | `MuzzleVelocity` | — | Still authored. The projectile has to travel at some speed, and it drives the visible flight time. |
 
 This applies to blaster bolts, laser and turbolaser pulses, plasma, disruptor beams,
@@ -407,8 +409,8 @@ class tier and report the override.
 
 An R3 or R4 ammunition category obeys the ordinary ammunition rules in
 [guns-ammunition-grenades.md](guns-ammunition-grenades.md) without exception:
-`Mass` in grams, `FallSpeed: 1.0` for ballistic projectiles, `MuzzleVelocity` for
-shells and missiles, and `PenetrationAt100m` / `ExplosiveMass` whenever the intended
+`Mass` in grams (or `MassKg` in kilograms), `FallSpeed: 1.0` for ballistic projectiles, `MuzzleVelocity` for
+shells and missiles, and `PenetrationAt100m` / `ExplosiveMassTNTg`/`ExplosiveMassTNTKg` whenever the intended
 value is nonzero.
 
 Additional rules:
@@ -424,12 +426,12 @@ Additional rules:
   the round they hold. Nerf clips, drums, and belts are one category per projectile
   type, not one per capacity.
 - Energy and exotic ammunition takes direct `Damage` and `Explosion` rather than
-  `Mass` and `ExplosiveMass`, per the section above. Fictional solid shot keeps mass
+  `Mass` and `ExplosiveMassTNTg`/`ExplosiveMassTNTKg`, per the section above. Fictional solid shot keeps mass
   and stays on the kinetic system.
 
 ### Grenades and bombs
 
-`ExplosiveMass` in kg TNT equivalent stays mandatory for anything with a charge.
+`ExplosiveMassTNTg` (grams) or `ExplosiveMassTNTKg` (kilograms) TNT equivalent stays mandatory for anything with a charge.
 
 For a generic grenade, select the exemplar by charge mass among the real grenades of
 the same role, or use these tiers when no membership exists: offensive/concussion
@@ -503,7 +505,7 @@ researched.
 - Copying the strongest consumer's values because the item "should feel powerful".
 - Labelling a representative category with an exact designation it does not have.
 - Filling an unknown armour face from the front face, which stays forbidden here.
-- Giving a blaster bolt or laser pulse a `Mass` or an `ExplosiveMass`, which claims
+- Giving a blaster bolt or laser pulse a `Mass` or an `ExplosiveMassTNTg`/`ExplosiveMassTNTKg`, which claims
   a physical projectile the fiction does not have.
 - Leaving `Mass` off fictional *solid* shot and tuning `Damage` instead; a bolter
   round or a gauss slug belongs on the kinetic system.
@@ -526,7 +528,7 @@ In addition to the checklist in
 2. No `(Generic)` or `(Fictional)` label duplicates or shadows a historical label.
 3. Every R3 category names its exemplar in the working notes, and its values match
    that exemplar's set rather than a blend.
-4. Every energy round carries `Damage` and no `Mass` or `ExplosiveMass`, and its
+4. Every energy round carries `Damage` and no `Mass` or `ExplosiveMassTNTg`/`ExplosiveMassTNTKg`, and its
    damage is traceable to a rung of the calibration ladder; every fictional solid
    round instead carries a mass whose implied kinetic damage lands on its tier.
 5. Every fictional category is compared against the current file ceiling for its

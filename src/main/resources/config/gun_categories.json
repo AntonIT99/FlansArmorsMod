@@ -880,7 +880,7 @@
             "RemoveAmmo": "ships_shell_german20mmaa",
             "AmmoMass": "ships_shell_german20cmhe 122000",
             "AmmoMuzzleVelocity": "ships_shell_german20cmhe 925",
-            "AmmoExplosiveMass": "ships_shell_german20cmhe 8.9",
+            "AmmoExplosiveMassTNTKg": "ships_shell_german20cmhe 8.9",
             "AmmoPenetrationAt100m": "ships_shell_german20cmhe 61"
         },
         "items": [

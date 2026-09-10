@@ -136,7 +136,7 @@ Also define when applicable:
 | Property | Unit | Guidance |
 | --- | --- | --- |
 | `PenetrationAt100m` | millimetres | Perpendicular penetration at 100 m, preferably comparable RHA, for AP and heavy anti-materiel rounds. The game currently applies the authored value at every range despite the key name. |
-| `ExplosiveMass` | kilograms TNT equivalent | Only for explosive ammunition; derive from filler mass/composition, never total projectile mass. |
+| `ExplosiveMassTNTg` / `ExplosiveMassTNTKg` | grams / kilograms TNT equivalent | Only for explosive ammunition; derive from filler mass/composition, never total projectile mass. |
 | `FlakParticles` | particle count | Legacy visual count, not fragment count or a researched historical statistic. Ball ammunition normally uses `0`. |
 
 Normal small-arms muzzle velocity belongs to the matching gun category because
@@ -151,13 +151,13 @@ actually uses an ammunition-authoritative cannon, shell, or missile pattern.
 A definition with `Shell True`, `Missile True`, `WeaponType Shell`, or
 `WeaponType Missile` requires:
 
-- projectile `Mass` in grams unless its statistics live in each `AddRound`;
+- projectile `Mass` in grams, or `MassKg` in kilograms, unless its statistics live in each `AddRound`;
 - `MuzzleVelocity` in metres per second;
 - normally `FallSpeed: 1.0`, except for a self-propelled projectile capable of
   sustained flight;
 - `PenetrationAt100m` in millimetres at 100 m and normal impact whenever the
   intended value is nonzero;
-- `ExplosiveMass` in kilograms TNT equivalent whenever the intended value is
+- `ExplosiveMassTNTg` (grams) or `ExplosiveMassTNTKg` (kilograms) TNT equivalent whenever the intended value is
   nonzero. Omit it for genuinely inert ammunition such as many APCR projectiles.
 
 These are gameplay-critical and ammunition-authoritative when present. Continue down
@@ -174,14 +174,14 @@ line:
 ```json
 "AddRound": [
     "AP 1 162 0 800 45",
-    "HE 2 135 0.016 835 0"
+    "HE 2 135 16 835 0"
 ]
 ```
 
 The exact positional format is:
 
 ```text
-<name> <count> <massG> <explosiveMassKgTntEq> <muzzleVelocityMps> <penetrationAt100mMm>
+<name> <count> <massG> <explosiveMassGTntEq> <muzzleVelocityMps> <penetrationAt100mMm>
 ```
 
 Every entry has exactly six tokens:
@@ -190,7 +190,7 @@ Every entry has exactly six tokens:
   `Pzgr.L'Spur` and `Sprgr.` are allowed.
 - `count`: positive number of consecutive shots in the repeating pattern.
 - `massG`: projectile mass in grams.
-- `explosiveMassKgTntEq`: kilograms TNT equivalent; use `0` deliberately for an
+- `explosiveMassGTntEq`: grams TNT equivalent; use `0` deliberately for an
   inert round.
 - `muzzleVelocityMps`: exact projectile/load velocity in metres per second.
 - `penetrationAt100mMm`: normal-impact millimetres at 100 m; use `0` only when no
@@ -202,7 +202,7 @@ for principally ground-vehicle use and toward HE for principally aircraft use. A
 repeating `1 AP : 1 HE` belt is an acceptable final gameplay default for genuine
 shared use. Report inferred composition.
 
-An `AddRound` category omits top-level `Mass`, `ExplosiveMass`, `MuzzleVelocity`,
+An `AddRound` category omits top-level `Mass`, `ExplosiveMassTNTg`/`ExplosiveMassTNTKg`, `MuzzleVelocity`,
 and `PenetrationAt100m`; each active round supplies its own values. It still normally
 has category-level `FallSpeed: 1.0`. Because `AddRound` accumulates with lines from
 the definition and other categories, inspect every affected definition and avoid
@@ -221,7 +221,7 @@ round. The item supplies its own statistics and joins a compatible cannon family
         "Mass": 6800,
         "MuzzleVelocity": 770,
         "FallSpeed": 1.0,
-        "ExplosiveMass": 0.029,
+        "ExplosiveMassTNTg": 29,
         "PenetrationAt100m": 143
     },
     "items": [
@@ -235,12 +235,14 @@ round. The item supplies its own statistics and joins a compatible cannon family
   weapons only when ammunition is actually compatible, not merely similar in
   calibre.
 - `Mass` is complete fired projectile/shell mass in grams, excluding case and
-  propellant. Convert kg to g by multiplying by 1000.
+  propellant. Author it in grams as `Mass`, or in kilograms as `MassKg` — the two are the
+  same stat at different scales, so never set both.
 - `MuzzleVelocity` is for this exact shell from the represented gun.
 - `FallSpeed` is `1.0` for ballistic shells; sustained-flight projectiles are the
   exception.
-- `ExplosiveMass` is kg TNT equivalent of the bursting charge and is omitted only
-  for genuinely non-explosive rounds.
+- `ExplosiveMassTNTg` (grams) or `ExplosiveMassTNTKg` (kilograms) is the TNT equivalent of
+  the bursting charge and is omitted only for genuinely non-explosive rounds. Pick whichever
+  key keeps the number readable: grams below 1 kg, kilograms at or above it.
 - `PenetrationAt100m` is millimetres at 100 m and normal impact, omitted only when
   zero is intentional.
 - `FragType` is optional. For explosive cannon shells, use the supported enum that
@@ -278,9 +280,9 @@ its own barrel. These are weapon-category properties and belong in
 | --- | --- | --- |
 | `AmmoMass` | `<ammoShortName> <grams>` | the round's projectile mass |
 | `AmmoMuzzleVelocity` | `<ammoShortName> <metresPerSecond>` | the round's muzzle velocity |
-| `AmmoExplosiveMass` | `<ammoShortName> <kgTntEquivalent>` | the round's bursting charge, and the blast derived from it |
+| `AmmoExplosiveMassTNTg` / `AmmoExplosiveMassTNTKg` | `<ammoShortName> <gTntEquivalent>` / `<ammoShortName> <kgTntEquivalent>` | the round's bursting charge, and the blast derived from it |
 | `AmmoPenetrationAt100m` | `<ammoShortName> <millimetres>` | the round's armour penetration |
-| `AddRoundForAmmo` | `<ammoShortName> <name> <count> <massG> [explKg] [mps] [mm]` | the round's whole `AddRound` belt, replacing rather than appending |
+| `AddRoundForAmmo` | `<ammoShortName> <name> <count> <massG> [explG] [mps] [mm]` | the round's whole `AddRound` belt, replacing rather than appending |
 
 All five are repeatable, so use a JSON array when a weapon restates more than one
 ammunition:
@@ -350,9 +352,9 @@ missiles by the pack. Follow the definition, not the name.
 
 | Property | Unit | Requirement |
 | --- | --- | --- |
-| `ExplosiveMass` | kilograms TNT equivalent | Mandatory for every bomb with a charge. Derive from filler mass and composition, never from the bomb's total weight. Omit only for genuinely inert practice or ballast stores. |
+| `ExplosiveMassTNTg` / `ExplosiveMassTNTKg` | grams / kilograms TNT equivalent | Mandatory for every bomb with a charge. Derive from filler mass and composition, never from the bomb's total weight. Omit only for genuinely inert practice or ballast stores. |
 | `FragType` | enum | Required. Chosen from casing construction, not from the word in the name. |
-| `Mass` | grams | Expected. For a bomb this is the **complete filled store**, because the whole bomb is what falls and strikes — unlike a shell, where case and propellant are excluded. It enables the kinetic system for direct hits. |
+| `Mass` / `MassKg` | grams / kilograms | Expected. For a bomb this is the **complete filled store**, because the whole bomb is what falls and strikes — unlike a shell, where case and propellant are excluded. It enables the kinetic system for direct hits. |
 | `FallSpeed` | multiplier | `1.0` for a free-fall bomb. A retarded, parachute-braked, or glide store is the exception; reduce it or use `DragInAir` and report the choice. |
 | `PenetrationAt100m` | millimetres | Only for armour-piercing and semi-armour-piercing bombs with a real deck- or concrete-penetration figure. Omit for ordinary general-purpose bombs. |
 
@@ -384,7 +386,7 @@ Consequences:
 ### Charge-to-weight ratio method
 
 Most bomb sources give a nominal weight and a filler, not a TNT equivalent. Derive
-`ExplosiveMass` as:
+`ExplosiveMassTNTg`/`ExplosiveMassTNTKg` as:
 
 ```text
 explosiveMassKgTnt = totalBombMassKg * chargeToWeightRatio * tntEquivalenceFactor
@@ -410,7 +412,7 @@ Then apply the filler's TNT equivalence: Amatol 80/20 about 0.90–1.0, TNT 1.0,
 Tritonal about 1.05–1.10, Trialen about 1.20–1.30, RDX and Composition B about
 1.30–1.35, Torpex about 1.40–1.50. Record the composition and the factor.
 
-A cluster or submunition dispenser sets its own `ExplosiveMass` from its own burster
+A cluster or submunition dispenser sets its own `ExplosiveMassTNTg`/`ExplosiveMassTNTKg` from its own burster
 only; the submunition it spawns is a separate definition with its own category, and
 authoring the total payload on both double-counts the damage.
 
@@ -419,7 +421,7 @@ the real yield as kilograms of TNT equivalent like any other charge - a 50 Mt de
 is `50000000000` - and let the server's `maxExplosionRadius` setting bound what is
 actually simulated. That ceiling is a performance guard applied to every detonation's
 radii at runtime; it leaves the authored charge, and therefore the damage, honest.
-Never bake a gameplay cap into `ExplosiveMass`: doing so silently misreports the
+Never bake a gameplay cap into `ExplosiveMassTNTg`/`ExplosiveMassTNTKg`: doing so silently misreports the
 weapon and cannot be tuned per server.
 
 ### Grouping and splitting
@@ -440,7 +442,7 @@ Research and define:
 
 | Property | Unit | Guidance |
 | --- | --- | --- |
-| `ExplosiveMass` | kilograms TNT equivalent | Mandatory for every grenade with an explosive charge. Use an exact TNT-equivalent figure when available; otherwise derive it from documented filler mass and composition using a defensible TNT-equivalence factor. Omit only when the grenade has no explosive charge. |
+| `ExplosiveMassTNTg` / `ExplosiveMassTNTKg` | grams / kilograms TNT equivalent | Mandatory for every grenade with an explosive charge. Use an exact TNT-equivalent figure when available; otherwise derive it from documented filler mass and composition using a defensible TNT-equivalence factor. Omit only when the grenade has no explosive charge. |
 | `FragType` | enum | Choose from casing/design and intended fragmentation: `LOW_FRAG`, `STD_FRAG`, `SLEEVE_FRAG`, `HIGH_FRAG`, `IED_SHRAPNEL`, `HE_SHELL`, `GP_BOMB`, `THICK_CASE`, or `AIRBURST_AP`; `DEFAULT` opts out of a preset. |
 | `Fuse` | ticks | Use nominal timed delay multiplied by 20. Omit for impact, proximity, mine, or other non-timed behavior and when timing cannot be established defensibly. |
 

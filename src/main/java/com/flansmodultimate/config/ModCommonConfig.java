@@ -338,19 +338,19 @@ public final class ModCommonConfig
                 "The default gives approximately 5 damage to a 9 g bullet at 333 m/s.")
             .defineInRange("newDamageSystemDamageReference", 5.0, 0.0, 1000.0);
         NEW_DAMAGE_SYSTEM_EXPLOSIVE_DAMAGE_REFERENCE = builder
-            .comment("Explosion damage reference for the new damage system using explosive mass as TNT equivalent (when 'ExplosiveMass' is set). Is equal to the damage of 1kg TNT")
+            .comment("Explosion damage reference for the new damage system using explosive mass as TNT equivalent (when 'ExplosiveMassTNTg'/'ExplosiveMassTNTKg' is set). Is equal to the damage of 1kg TNT")
             .defineInRange("newDamageSystemExplosiveDamageReference", 80.0, 0.0, 1000.0);
         NEW_DAMAGE_SYSTEM_EXPLOSIVE_POWER_REFERENCE = builder
-            .comment("Explosion power reference for the new damage system using explosive mass as TNT equivalent (when 'ExplosiveMass' is set). Is equal to the power of 1kg TNT")
+            .comment("Explosion power reference for the new damage system using explosive mass as TNT equivalent (when 'ExplosiveMassTNTg'/'ExplosiveMassTNTKg' is set). Is equal to the power of 1kg TNT")
             .defineInRange("newDamageSystemExplosivePowerReference", 4.0, 0.0, 1000.0);
         NEW_DAMAGE_SYSTEM_EXPLOSIVE_RADIUS_REFERENCE = builder
-            .comment("Explosion radius reference for the new damage system using explosive mass as TNT equivalent (when 'ExplosiveMass' is set). Is equal to the radius of 1kg TNT.",
+            .comment("Explosion radius reference for the new damage system using explosive mass as TNT equivalent (when 'ExplosiveMassTNTg'/'ExplosiveMassTNTKg' is set). Is equal to the radius of 1kg TNT.",
                 "This is the CRATERING radius: block breaking and explosion particles. It grows as mass^0.37 up to a 5 kg charge and far more slowly above that;",
                 "see ExplosionScaling for why, and for the measured rounds the exponent is fitted to.",
                 "The default of 5.5 puts a 1 kg charge - roughly an 88 mm HE shell - at a 5.5 block crater, matching its quoted 4-6 m destruction radius.")
             .defineInRange("newDamageSystemExplosiveRadiusReference", DEFAULT_CRATER_RADIUS_REFERENCE, 0.0, 1000.0);
         NEW_DAMAGE_SYSTEM_BLAST_RADIUS_REFERENCE = builder
-            .comment("Blast radius reference for the new damage system using explosive mass as TNT equivalent (when 'ExplosiveMass' is set). Is equal to the blast radius of 1kg TNT.",
+            .comment("Blast radius reference for the new damage system using explosive mass as TNT equivalent (when 'ExplosiveMassTNTg'/'ExplosiveMassTNTKg' is set). Is equal to the blast radius of 1kg TNT.",
                 "This is the DAMAGE radius: how far the blast hurts entities and vehicles. It is derived from the charge directly, not from the cratering radius,",
                 "so the two can be tuned independently. It grows as mass^0.40 up to a 5 kg charge and far more slowly above that.",
                 "The default of 22.0 puts a 1 kg charge - roughly an 88 mm HE shell - at a 22 block blast radius, matching its quoted 15-25 m casualty radius.")

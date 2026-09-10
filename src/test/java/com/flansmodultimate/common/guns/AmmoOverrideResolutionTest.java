@@ -25,7 +25,7 @@ class AmmoOverrideResolutionTest
     @Test
     void anEmptyOverrideChangesNothing()
     {
-        BulletType bullet = bullet("Mass 6800", "MuzzleVelocity 770", "ExplosiveMass 0.029",
+        BulletType bullet = bullet("Mass 6800", "MuzzleVelocity 770", "ExplosiveMassTNTg 29",
             "PenetrationAt100m 143");
 
         assertEquals(6800F, AmmoOverride.EMPTY.resolveMass(bullet, 0));
@@ -37,12 +37,12 @@ class AmmoOverrideResolutionTest
     @Test
     void aScalarOverrideReplacesTheAmmunitionValue()
     {
-        BulletType bullet = bullet("Mass 6800", "MuzzleVelocity 770", "ExplosiveMass 0.029",
+        BulletType bullet = bullet("Mass 6800", "MuzzleVelocity 770", "ExplosiveMassTNTg 29",
             "PenetrationAt100m 143");
         AmmoOverride override = overrides(
             "AmmoMass shell 4100",
             "AmmoMuzzleVelocity shell 990",
-            "AmmoExplosiveMass shell 0",
+            "AmmoExplosiveMassTNTg shell 0",
             "AmmoPenetrationAt100m shell 177");
 
         assertEquals(4100F, override.resolveMass(bullet, 0));
@@ -67,7 +67,7 @@ class AmmoOverrideResolutionTest
     {
         BulletType bullet = bullet("RoundsPerItem 2",
             "AddRound AP 1 162 0 800 45",
-            "AddRound HE 1 135 0.016 835 0");
+            "AddRound HE 1 135 16 835 0");
         assertTrue(bullet.hasDifferentRounds());
         assertEquals(162F, bullet.getMass(0));
 

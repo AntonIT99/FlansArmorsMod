@@ -34,7 +34,7 @@ class AmmoOverridesTest
         AmmoOverrides overrides = read(
             "AmmoMass 44_75APShell 6800",
             "AmmoMuzzleVelocity 44_75APShell 770",
-            "AmmoExplosiveMass 44_75APShell 0.029",
+            "AmmoExplosiveMassTNTg 44_75APShell 29",
             "AmmoPenetrationAt100m 44_75APShell 143").overrides();
 
         AmmoOverride override = overrides.get("44_75APShell");
@@ -88,7 +88,7 @@ class AmmoOverridesTest
     {
         AmmoOverride override = read(
             "AddRoundForAmmo belt AP 1 162 0 800 45",
-            "AddRoundForAmmo belt HE 2 135 0.016 835 0").overrides().get("belt");
+            "AddRoundForAmmo belt HE 2 135 16 835 0").overrides().get("belt");
 
         assertNotNull(override);
         assertTrue(override.hasRounds());

@@ -100,7 +100,7 @@ These are preferred starting points, not automatic authorities:
   and `navweaps.com` for naval ordnance. Establish nominal weight, casing
   construction, filler mass, and filler composition separately; a nominal weight
   designation is a class, not the actual weight, and the filler is what
-  `ExplosiveMass` describes.
+  `ExplosiveMassTNTg`/`ExplosiveMassTNTKg` describes.
 - Ground vehicles: original manuals, trials, and official/manufacturer
   specifications; `panzerworld.com`, `tanks-encyclopedia.com`, and `tank-afv.com`.
   War Thunder is an expected fallback for armour layout, plate slope, reverse
@@ -152,7 +152,7 @@ Derive values only through deterministic, supported transformations. Valid examp
 include kg to g, mph or knots to km/h, ft to m, seconds to Minecraft ticks, MOA to
 degrees, hp/PS/kW when the original convention is known, and filler mass to TNT
 equivalent when the charge mass and a defensible factor for that documented explosive
-composition are available. In particular, the `ExplosiveMass` of an explosive
+composition are available. In particular, the `ExplosiveMassTNTg`/`ExplosiveMassTNTKg` of an explosive
 grenade or bomb must be authored from an exact TNT-equivalent figure or this
 documented derivation; continue researching the charge and composition rather than
 leaving it unset. Omit it only when the item has no explosive charge. For a bomb

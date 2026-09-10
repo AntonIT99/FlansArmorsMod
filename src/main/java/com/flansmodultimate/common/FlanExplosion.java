@@ -112,7 +112,7 @@ public class FlanExplosion extends Explosion
             // Every radius is capped here, the one place all explosion statistics pass
             // through, so an extreme charge cannot ask the server to iterate a radius of
             // tens of thousands of blocks. The caps are a performance ceiling, not a
-            // balance decision: the authored ExplosiveMass stays honest, and a server
+            // balance decision: the authored explosive mass stays honest, and a server
             // with the hardware for a larger detonation simply raises the config value.
             //
             // The two ceilings are deliberately separate because the work they bound is
@@ -429,7 +429,7 @@ public class FlanExplosion extends Explosion
 
         ArmorPlate plate = driveable.getConfigType().getResolvedArmor()
             .plate(target.part(), target.facing()).authored();
-        // A legacy explosive declares no ExplosiveMass, so the pressure model has no charge to
+        // A legacy explosive declares no explosive mass, so the pressure model has no charge to
         // work from and the vehicle would take nothing at all. Recover an equivalent charge from
         // the legacy crater radius and power so those definitions still threaten armour.
         float charge = stats.explosiveMassKg() > 0F ? stats.explosiveMassKg()

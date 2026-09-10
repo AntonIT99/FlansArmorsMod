@@ -84,13 +84,14 @@ that work, and every mandatory field below still applies to those categories.
   explosive filler versus TNT equivalent, hp versus PS, loaded versus empty mass,
   barrel-dependent velocity, armour angle convention, penetration distance and
   obliquity, aircraft engine/boost/loading, and exact ammunition variant.
-- Ammunition always has projectile `Mass` and normally `FallSpeed: 1.0`.
+- Ammunition always has projectile `Mass` in grams (or `MassKg` in kilograms) and normally
+  `FallSpeed: 1.0`.
   Self-propelled projectiles capable of sustained flight are the `FallSpeed`
   exception. `AddRound` belts omit top-level `Mass` because every round supplies
   it. Shells and missiles require `MuzzleVelocity`, and require
-  `PenetrationAt100m` and `ExplosiveMass` whenever the intended value is nonzero.
+  `PenetrationAt100m` and `ExplosiveMassTNTg`/`ExplosiveMassTNTKg` whenever the intended value is nonzero.
 - A gun, AA gun, or driveable may restate a shared ammunition item with `AmmoMass`,
-  `AmmoMuzzleVelocity`, `AmmoExplosiveMass`, `AmmoPenetrationAt100m`, and
+  `AmmoMassKg`, `AmmoMuzzleVelocity`, `AmmoExplosiveMassTNTg`/`AmmoExplosiveMassTNTKg`, `AmmoPenetrationAt100m`, and
   `AddRoundForAmmo`. These are weapon-category properties and never belong in
   `bullet_categories.json`. They are the preferred answer to generic ammunition
   shared by several materially different real weapons: give each consumer the round
@@ -105,7 +106,8 @@ that work, and every mandatory field below still applies to those categories.
   gun-category velocity may remain as a compatible fallback. Never assign
   contradictory configurations or silently rely on which side wins.
 - Every grenade and every bomb that possesses an explosive charge requires
-  `ExplosiveMass` in kg TNT equivalent. Do not omit it merely because no source
+  `ExplosiveMassTNTg` (grams) or `ExplosiveMassTNTKg` (kilograms) TNT equivalent — one or the
+  other, never both. Do not omit it merely because no source
   states the TNT equivalent: derive it from documented charge mass and explosive
   composition when a defensible equivalence factor exists, or, for a bomb with no
   documented filler, from the charge-to-weight ratio bands in the skill's weapons
@@ -144,7 +146,7 @@ that work, and every mandatory field below still applies to those categories.
   `RealRotorCount` for a tandem or coaxial layout, instead of the wing fields: both
   are published figures and the swept rotor disc becomes the reference area. Only a
   craft with neither a wing nor a rotor omits the lifting surface entirely.
-- Never bake a gameplay cap into `ExplosiveMass`. Author the real yield, including
+- Never bake a gameplay cap into `ExplosiveMassTNTg`/`ExplosiveMassTNTKg`. Author the real yield, including
   for nuclear stores, and leave the `maxExplosionRadius` server setting to bound
   what is simulated.
 - Ground-vehicle and aircraft categories always set quoted

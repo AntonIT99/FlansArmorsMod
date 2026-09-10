@@ -149,7 +149,7 @@ After every category edit:
    researched, game-sourced, or invented fallback is identified; AA-gun mass/health
    opt-in and multi-barrel cadence; ammunition mass/gravity and shell/missile
    statistics; every explosive
-   grenade's and bomb's nonzero `ExplosiveMass` in kg TNT equivalent, with a bomb's
+   grenade's and bomb's nonzero `ExplosiveMassTNTg`/`ExplosiveMassTNTKg`, with a bomb's
    `FragType` taken from casing construction, its `Mass` authored as the complete
    filled store, and any authored `Fuse` justified as a real timed function rather
    than an arming delay; complete vehicle

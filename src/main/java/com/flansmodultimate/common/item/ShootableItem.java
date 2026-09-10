@@ -288,10 +288,10 @@ public abstract class ShootableItem extends Item
             {
                 tooltipComponents.add(Component.translatable(TooltipKeys.EXPLOSIVE_MASS_TNT).append(":").withStyle(ChatFormatting.BLUE));
                 bulletType.getPeriod().forEach(round ->
-                    tooltipComponents.add(Component.literal("  " + round.name() + " " + IFlanItem.formatFloat(round.stats().explosiveMass(), 3) + " kg").withStyle(ChatFormatting.GRAY)));
+                    tooltipComponents.add(Component.literal("  " + round.name() + " " + IFlanItem.formatMassKg(round.stats().explosiveMass())).withStyle(ChatFormatting.GRAY)));
             }
             else
-                tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.EXPLOSIVE_MASS_TNT), IFlanItem.formatFloat(configType.getExplosiveMass(), 3) + " kg"));
+                tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.EXPLOSIVE_MASS_TNT), IFlanItem.formatMassKg(configType.getExplosiveMass())));
         }
 
         if (configType.getExplosionRadius() > 0F)

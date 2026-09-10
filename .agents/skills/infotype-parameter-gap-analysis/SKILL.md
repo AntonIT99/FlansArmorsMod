@@ -49,7 +49,7 @@ When `REFERENCE` is provided, add a dedicated list of all reference parameter na
 
 ## Report
 
-Write `infotype-parameter-gap-analysis.md` in the current working directory. If it already contains an unrelated analysis, derive a short filesystem-safe reference identifier (or `target-only`) and add it to the filename; add a numeric suffix rather than overwriting.
+Write `../../../reports/infotype-parameter-gap-analysis.md` in the current working directory. If it already contains an unrelated analysis, derive a short filesystem-safe reference identifier (or `target-only`) and add it to the filename; add a numeric suffix rather than overwriting.
 
 Use these sections as applicable:
 

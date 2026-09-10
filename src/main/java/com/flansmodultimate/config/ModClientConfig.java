@@ -166,8 +166,8 @@ public final class ModClientConfig
         HIT_MARKER_STYLE = builder
                 .comment("""
                     Visual style of the hit marker.
-                    ULTIMATE: the full screen hit marker overlay from Flan's Mod Ultimate 1.7.10.
-                    CLASSIC: the small centered hit marker icon from Flan's Mod 1.12.2.
+                    ULTIMATE: the hit marker from Flan's Mod Ultimate 1.7.10.
+                    CLASSIC: the hit marker from Flan's Mod 1.12.2.
                     """)
                 .defineEnum("hitMarkerStyle", EnumHitMarkerStyle.ULTIMATE);
         HD_HIT_MARKER = builder

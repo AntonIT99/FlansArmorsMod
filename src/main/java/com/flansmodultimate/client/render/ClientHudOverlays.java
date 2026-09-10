@@ -93,6 +93,13 @@ public final class ClientHudOverlays
     private static final int HEADSHOT_SYMBOL_SIZE = 16;
     private static final int HEADSHOT_SYMBOL_SHEET = 64;
     private static final float HIT_MARKER_FADE_TICKS = 20F;
+    /** On screen size every hit marker texture is drawn at, whatever its own resolution. */
+    private static final int HIT_MARKER_SIZE = 16;
+    /**
+     * Offset of the hit marker's center within the drawn image. Every hit marker texture is centered on
+     * the boundary between its four middle pixels, so its center is the middle of the drawn image.
+     */
+    private static final int HIT_MARKER_CENTER = HIT_MARKER_SIZE / 2;
     private static final float WOUNDED_FLASH_FADE_TICKS = 20F;
     /** Fraction of a flashbang's duration spent fading back out. */
     private static final float FLASH_FADE_FRACTION = 0.4F;
@@ -281,15 +288,11 @@ public final class ClientHudOverlays
     {
         float alpha = Math.max((ModClient.getHitMarkerTime() - 10F + partialTick) / 10F, 0F);
 
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShaderColor(1F, 1F, 1F, alpha);
-        g.blit(FlansMod.TEXTURE_GUI_BASICHITMARKER, sw / 2 - 5, sh / 2 - 5, 0, 0, 9, 9, 16, 16);
-        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+        drawCenteredHitMarker(g, FlansMod.TEXTURE_GUI_BASICHITMARKER, sw, sh, 1F, 1F, 1F, alpha);
     }
 
     /**
-     * Flan's Mod Ultimate 1.7.10 style: full screen overlay tinted by the kind of hit that was scored.
+     * Flan's Mod Ultimate 1.7.10 style: icon at screen center tinted by the kind of hit that was scored.
      * Red = no penetration, green = full damage, light blue = headshot, yellow = explosion.
      */
     private static void renderUltimateHitMarker(GuiGraphics g, float partialTick, int sw, int sh)
@@ -324,11 +327,33 @@ public final class ClientHudOverlays
             }
         }
 
-        renderFullScreenOverlay(g, hitMarkerTexture(), sw, sh, red, green, blue, alpha);
+        // A content pack HitTexture keeps the legacy full screen overlay behaviour, as it is authored for it
+        ResourceLocation customTexture = customHitTexture();
+        if (customTexture != null)
+            renderFullScreenOverlay(g, customTexture, sw, sh, red, green, blue, alpha);
+        else
+            drawCenteredHitMarker(g, ModClientConfig.get().hdHitMarker ? FlansMod.TEXTURE_GUI_FMUHITMARKERHD : FlansMod.TEXTURE_GUI_FMUHITMARKER, sw, sh, red, green, blue, alpha);
     }
 
-    /** The HitTexture of a held gun overrides the built-in full screen hit marker. */
-    private static ResourceLocation hitMarkerTexture()
+    /**
+     * Draw a hit marker texture whole, at a fixed on screen size, centered on the vanilla crosshair.
+     * <p>
+     * The uv extents match the claimed texture size, so the full image is sampled and scaled down
+     * whatever its actual resolution is (16x16, the 32x32 HD variant or a content pack HitTexture).
+     */
+    private static void drawCenteredHitMarker(GuiGraphics g, ResourceLocation texture, int sw, int sh, float red, float green, float blue, float alpha)
+    {
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.setShaderColor(red, green, blue, alpha);
+        g.blit(texture, sw / 2 - HIT_MARKER_CENTER, sh / 2 - HIT_MARKER_CENTER,
+                HIT_MARKER_SIZE, HIT_MARKER_SIZE, 0F, 0F, HIT_MARKER_SIZE, HIT_MARKER_SIZE, HIT_MARKER_SIZE, HIT_MARKER_SIZE);
+        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
+    }
+
+    /** The HitTexture of a held gun, which overrides the built-in hit marker, or null if no held gun defines one. */
+    @Nullable
+    private static ResourceLocation customHitTexture()
     {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null)
@@ -340,7 +365,7 @@ public final class ClientHudOverlays
                     return hitTexture;
             }
         }
-        return ModClientConfig.get().hdHitMarker ? FlansMod.TEXTURE_GUI_FMUHITMARKERHD : FlansMod.TEXTURE_GUI_FMUHITMARKER;
+        return null;
     }
 
     /**
@@ -366,6 +391,12 @@ public final class ClientHudOverlays
         renderFullScreenOverlay(g, FlansMod.TEXTURE_GUI_BLOOD, sw, sh, 1F, 1F, 1F, alpha);
     };
 
+    /** Half a pixel of shift when the given screen dimension is odd, so an even sized image stays exactly centered. */
+    private static float halfPixelOffset(int screenSize)
+    {
+        return (screenSize & 1) == 0 ? 0F : 0.5F;
+    }
+
     private static void renderFullScreenOverlay(GuiGraphics g, ResourceLocation texture, int sw, int sh, float red, float green, float blue, float alpha)
     {
         RenderSystem.disableDepthTest();
@@ -373,7 +404,12 @@ public final class ClientHudOverlays
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(red, green, blue, alpha);
+        // The drawn rectangle is an even number of pixels wide, so on an odd screen width its center
+        // would land half a pixel left of the screen center without this correction.
+        g.pose().pushPose();
+        g.pose().translate(halfPixelOffset(sw), 0F, 0F);
         g.blit(texture, sw / 2 - 2 * sh, 0, 0, 0, 4 * sh, sh, 4 * sh, sh);
+        g.pose().popPose();
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
         RenderSystem.depthMask(true);
         RenderSystem.enableDepthTest();

@@ -66,7 +66,7 @@ public final class KeyInputHandler
     private static final KeyMapping reloadKey = key("reload", InputConstants.KEY_R, KeyConflictContext.IN_GAME, CATEGORY_GENERAL);
     private static final KeyMapping fireModeKey = key("fire_mode", InputConstants.KEY_B, KeyConflictContext.IN_GAME, CATEGORY_GENERAL);
     private static final KeyMapping lookAtGunKey = key("look_at_gun", InputConstants.KEY_M, KeyConflictContext.IN_GAME, CATEGORY_GENERAL);
-    private static final KeyMapping preferredAmmoKey = key("preferred_ammo", InputConstants.KEY_P, KeyConflictContext.IN_GAME, CATEGORY_GENERAL);
+    private static final KeyMapping preferredAmmoKey = key("preferred_ammo", InputConstants.KEY_LBRACKET, KeyConflictContext.IN_GAME, CATEGORY_GENERAL);
     private static final KeyMapping secondaryModeKey = key("secondary_mode", InputConstants.KEY_K, KeyConflictContext.IN_GAME, CATEGORY_GENERAL);
     private static final KeyMapping increaseZoomKey = key("increase_zoom", InputConstants.KEY_UP, KeyConflictContext.IN_GAME, CATEGORY_GENERAL);
     private static final KeyMapping decreaseZoomKey = key("decrease_zoom", InputConstants.KEY_DOWN, KeyConflictContext.IN_GAME, CATEGORY_GENERAL);

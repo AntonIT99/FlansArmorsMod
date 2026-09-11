@@ -1,17 +1,48 @@
 package com.flansmod.client.tmt;
 
+import com.flansmod.client.model.ModelCustomArmour;
 import com.flansmodultimate.client.model.ModelBase;
 import com.flansmodultimate.client.render.EnumRenderPass;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import com.wolffsmod.api.client.model.IModelRenderer;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ModelRendererTurboRenderingTest
 {
+    @Test
+    void customArmourRegistersPartsThroughModelContract()
+    {
+        ModelCustomArmour model = new ModelCustomArmour();
+        new ModelRendererTurbo(model, 0, 0);
+
+        AtomicInteger modelBoxCount = new AtomicInteger();
+        model.forEachModelBox(modelRenderer -> modelBoxCount.incrementAndGet());
+
+        assertEquals(1, modelBoxCount.get());
+    }
+
+    @Test
+    void interfaceTypedChildIsRetainedAndRendered()
+    {
+        ModelBase model = new ModelBase() {};
+        IModelRenderer parent = new ModelRendererTurbo(model, 0, 0);
+        IModelRenderer child = new ModelRendererTurbo(model, 0, 0);
+        child.addBox(0, 0, 0, 1, 1, 1);
+
+        parent.addChild(child);
+        RecordingVertexConsumer vertices = new RecordingVertexConsumer();
+        parent.render(new PoseStack(), vertices, 17, 23, 1, 1, 1, 1, 1);
+
+        assertFalse(vertices.vertices.isEmpty());
+    }
+
     @Test
     void leafCacheMatchesStackPathAcrossAnimationScaleAndRotationOrderChanges()
     {

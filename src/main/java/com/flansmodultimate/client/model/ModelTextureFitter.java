@@ -3,7 +3,6 @@ package com.flansmodultimate.client.model;
 import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.flansmodultimate.FlansMod;
 import com.wolffsmod.api.client.model.IModelBase;
-import com.wolffsmod.api.client.model.IModelRenderer;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.Nullable;
@@ -50,7 +49,7 @@ public final class ModelTextureFitter
      * @param model   the model to correct, may be {@code null}
      * @param texture the texture the model is rendered with, may be {@code null} or empty
      */
-    public static void fitToTexture(@Nullable IModelBase<?> model, @Nullable ResourceLocation texture)
+    public static void fitToTexture(@Nullable IModelBase model, @Nullable ResourceLocation texture)
     {
         if (model == null || texture == null || texture.getPath().isEmpty())
             return;
@@ -59,18 +58,17 @@ public final class ModelTextureFitter
         if (size == null)
             return;
 
-        boolean rescaled = false;
+        boolean[] rescaled = {false};
 
-        for (IModelRenderer modelRenderer : model.getBoxList())
-        {
+        model.forEachModelBox(modelRenderer -> {
             if (modelRenderer instanceof ModelRendererTurbo modelRendererTurbo
                 && modelRendererTurbo.applyActualTextureSize(size.width(), size.height()))
             {
-                rescaled = true;
+                rescaled[0] = true;
             }
-        }
+        });
 
-        if (rescaled)
+        if (rescaled[0])
         {
             FlansMod.log.warn("Model {} declares a texture size that does not match {} ({}x{}). Its texture coordinates have been rescaled.", model.getClass().getName(), texture, size.width(), size.height());
         }

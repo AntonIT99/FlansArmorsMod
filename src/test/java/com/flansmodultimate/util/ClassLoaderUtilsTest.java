@@ -2,6 +2,7 @@ package com.flansmodultimate.util;
 
 import com.flansmodultimate.ContentPack;
 import com.flansmodultimate.IContentProvider;
+import com.wolffsmod.api.client.model.IModelBase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.objectweb.asm.ClassWriter;
@@ -13,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -113,6 +115,24 @@ class ClassLoaderUtilsTest
         assertTranslation(fromSecondPack, 4F);
     }
 
+    @Test
+    void transformedLegacyModelUsesNonGenericModelContract() throws Exception
+    {
+        String className = "com.flansmod.client.model.test.LegacyModelContractTest";
+        Path packRoot = Files.createDirectories(tempDir.resolve("LegacyModelContractPack"));
+        Path classFile = packRoot.resolve(className.replace('.', '/') + FileUtils.CLASS_EXTENSION);
+        Files.createDirectories(classFile.getParent());
+        Files.write(classFile, createLegacyModelData(className));
+
+        IContentProvider pack = new ContentPack("LegacyModelContractPack", packRoot);
+        Object loadedModel = ClassLoaderUtils.loadModelClass(pack, className, true).getConstructor().newInstance();
+
+        IModelBase model = assertInstanceOf(IModelBase.class, loadedModel);
+        AtomicInteger modelBoxCount = new AtomicInteger();
+        model.forEachModelBox(modelRenderer -> modelBoxCount.incrementAndGet());
+        assertEquals(1, modelBoxCount.get());
+    }
+
     private static void assertTranslation(Class<?> modelClass, float expectedX)
     {
         List<TransformOp> ops = ClassLoaderUtils.getTransforms(modelClass);
@@ -182,6 +202,28 @@ class ClassLoaderUtilsTest
         constructor.visitLdcInsn(2F);
         constructor.visitInsn(Opcodes.FCONST_0);
         constructor.visitMethodInsn(Opcodes.INVOKESTATIC, "org/lwjgl/opengl/GL11", "glTranslatef", "(FFF)V", false);
+        constructor.visitInsn(Opcodes.RETURN);
+        constructor.visitMaxs(3, 1);
+        constructor.visitEnd();
+        writer.visitEnd();
+        return writer.toByteArray();
+    }
+
+    private static byte[] createLegacyModelData(String className)
+    {
+        String legacyModelBase = "net/minecraft/client/model/ModelBase";
+        String legacyModelRenderer = "net/minecraft/client/model/ModelRenderer";
+        ClassWriter writer = new ClassWriter(0);
+        writer.visit(Opcodes.V17, Opcodes.ACC_PUBLIC | Opcodes.ACC_SUPER, className.replace('.', '/'), null, legacyModelBase, null);
+        MethodVisitor constructor = writer.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+        constructor.visitCode();
+        constructor.visitVarInsn(Opcodes.ALOAD, 0);
+        constructor.visitMethodInsn(Opcodes.INVOKESPECIAL, legacyModelBase, "<init>", "()V", false);
+        constructor.visitTypeInsn(Opcodes.NEW, legacyModelRenderer);
+        constructor.visitInsn(Opcodes.DUP);
+        constructor.visitVarInsn(Opcodes.ALOAD, 0);
+        constructor.visitMethodInsn(Opcodes.INVOKESPECIAL, legacyModelRenderer, "<init>", "(Lnet/minecraft/client/model/ModelBase;)V", false);
+        constructor.visitInsn(Opcodes.POP);
         constructor.visitInsn(Opcodes.RETURN);
         constructor.visitMaxs(3, 1);
         constructor.visitEnd();

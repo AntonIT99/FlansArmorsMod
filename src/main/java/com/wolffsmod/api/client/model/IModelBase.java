@@ -8,12 +8,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
-import java.util.List;
-import java.util.Map;
 import java.util.Random;
+import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
-public interface IModelBase<T extends IModelRenderer>
+public interface IModelBase
 {
     int TEXTURE_WIDTH = 64;
     int TEXTURE_HEIGHT = 32;
@@ -22,9 +21,9 @@ public interface IModelBase<T extends IModelRenderer>
 
     void setTexture(ResourceLocation texture);
 
-    List<T> getBoxList();
+    void addModelBox(IModelRenderer modelRenderer);
 
-    Map<String, TextureOffset> getModelTextureMap();
+    void forEachModelBox(Consumer<IModelRenderer> action);
 
     default float getScale()
     {
@@ -33,10 +32,7 @@ public interface IModelBase<T extends IModelRenderer>
 
     default void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
     {
-        for (IModelRenderer modelRenderer : getBoxList())
-        {
-            modelRenderer.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
-        }
+        forEachModelBox(modelRenderer -> modelRenderer.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale()));
     }
 
     default int getTextureWidth()
@@ -49,15 +45,9 @@ public interface IModelBase<T extends IModelRenderer>
         return TEXTURE_HEIGHT;
     }
 
-    default TextureOffset getTextureOffset(String partName)
-    {
-        return getModelTextureMap().get(partName);
-    }
+    TextureOffset getTextureOffset(String partName);
 
-    default void setTextureOffset(String partName, int x, int y)
-    {
-        getModelTextureMap().put(partName, new TextureOffset(x, y));
-    }
+    void setTextureOffset(String partName, int x, int y);
 
     default void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {}
 
@@ -65,10 +55,7 @@ public interface IModelBase<T extends IModelRenderer>
 
     default void setLivingAnimations(LivingEntity entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTickTime) {}
 
-    default T getRandomModelBox(Random rand)
-    {
-        return getBoxList().get(rand.nextInt(getBoxList().size()));
-    }
+    IModelRenderer getRandomModelBox(Random rand);
 
     static void copyModelAngles(IModelRenderer source, IModelRenderer dest)
     {

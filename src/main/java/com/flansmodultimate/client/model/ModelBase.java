@@ -5,6 +5,7 @@ import com.flansmodultimate.client.render.EnumRenderPass;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolffsmod.api.client.model.IModelBase;
+import com.wolffsmod.api.client.model.IModelRenderer;
 import com.wolffsmod.api.client.model.TextureOffset;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,16 +22,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Consumer;
 
 @SuppressWarnings({"unused", "java:S1104"})
-public abstract class ModelBase extends Model implements IModelBase<ModelRenderer>
+public abstract class ModelBase extends Model implements IModelBase
 {
     public int textureWidth = TEXTURE_WIDTH;
     public int textureHeight = TEXTURE_HEIGHT;
 
-    @Getter
     private final List<ModelRenderer> boxList = new ArrayList<>();
-    @Getter
     private final Map<String, TextureOffset> modelTextureMap = new HashMap<>();
     @Getter @Setter
     private ResourceLocation texture;
@@ -40,6 +40,20 @@ public abstract class ModelBase extends Model implements IModelBase<ModelRendere
     protected ModelBase()
     {
         super(RenderType::entityTranslucent);
+    }
+
+    @Override
+    public void addModelBox(IModelRenderer modelRenderer)
+    {
+        if (!(modelRenderer instanceof ModelRenderer renderer))
+            throw new IllegalArgumentException("Unsupported model renderer implementation: " + modelRenderer);
+        boxList.add(renderer);
+    }
+
+    @Override
+    public void forEachModelBox(Consumer<IModelRenderer> action)
+    {
+        boxList.forEach(action);
     }
 
     @Override
@@ -57,15 +71,16 @@ public abstract class ModelBase extends Model implements IModelBase<ModelRendere
     @Override
     public TextureOffset getTextureOffset(String partName)
     {
-        return IModelBase.super.getTextureOffset(partName);
+        return modelTextureMap.get(partName);
     }
 
     @Override
     public void setTextureOffset(String partName, int x, int y)
     {
-        IModelBase.super.setTextureOffset(partName, x, y);
+        modelTextureMap.put(partName, new TextureOffset(x, y));
     }
 
+    // Keep these concrete bridge methods: transformed legacy bytecode invokes them on ModelBase.
     @Override
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {

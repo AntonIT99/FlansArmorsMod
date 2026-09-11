@@ -55,30 +55,30 @@ public class ModelRenderer implements IModelRenderer
     public final List<ModelPart.Cube> cubeList = new ArrayList<>();
     public final List<ModelRenderer> childModels = new ArrayList<>();
 
-    protected final IModelBase<? super ModelRenderer> baseModel;
+    protected final IModelBase baseModel;
 
     /** The X offset into the texture used for displaying this model */
     private int textureOffsetX;
     /** The Y offset into the texture used for displaying this model */
     private int textureOffsetY;
 
-    public ModelRenderer(IModelBase<? super ModelRenderer> model, String boxNameIn)
+    public ModelRenderer(IModelBase model, String boxNameIn)
     {
         textureWidth = 64.0F;
         textureHeight = 32.0F;
         showModel = true;
         baseModel = model;
-        model.getBoxList().add(this);
+        model.addModelBox(this);
         boxName = boxNameIn;
         setTextureSize(model.getTextureWidth(), model.getTextureHeight());
     }
 
-    public ModelRenderer(IModelBase<? super ModelRenderer> model)
+    public ModelRenderer(IModelBase model)
     {
         this(model, "");
     }
 
-    public ModelRenderer(IModelBase<? super ModelRenderer> model, int texOffX, int texOffY)
+    public ModelRenderer(IModelBase model, int texOffX, int texOffY)
     {
         this(model);
         setTextureOffset(texOffX, texOffY);
@@ -86,23 +86,17 @@ public class ModelRenderer implements IModelRenderer
 
     public ModelRenderer(ModelBase model)
     {
-        this((IModelBase<? super ModelRenderer>)model);
+        this((IModelBase)model);
     }
 
     public ModelRenderer(ModelBase model, String boxNameIn)
     {
-        this((IModelBase<? super ModelRenderer>)model, boxNameIn);
+        this((IModelBase)model, boxNameIn);
     }
 
     public ModelRenderer(ModelBase model, int texOffX, int texOffY)
     {
-        this((IModelBase<? super ModelRenderer>)model, texOffX, texOffY);
-    }
-
-    @Override
-    public List<IModelRenderer> getChildModels()
-    {
-        return new ArrayList<>(childModels);
+        this((IModelBase)model, texOffX, texOffY);
     }
 
     public void addChild(ModelRenderer renderer)
@@ -158,7 +152,9 @@ public class ModelRenderer implements IModelRenderer
     @Override
     public void addChild(IModelRenderer renderer)
     {
-        IModelRenderer.super.addChild(renderer);
+        if (!(renderer instanceof ModelRenderer modelRenderer))
+            throw new IllegalArgumentException("Unsupported child renderer implementation: " + renderer);
+        childModels.add(modelRenderer);
     }
 
     public void render(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, float scale)

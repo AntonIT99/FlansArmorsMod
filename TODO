@@ -4,7 +4,7 @@ General:
 - Check if all FMU featues are implemented in the mod -> use the skills
 - Implement TaP Flan's Mod Features
 - Make SkinOverride compatible with old skin format
-- Check and Improve explosion visuals (fine tune so that 50. cal and 20mm explosion are less persistent)
+- Check and Improve explosion visuals (fine tune so that 50. cal and 20mm explosion are less persistent, sturmtiger / 10kg TNT explosion more particles)
 - Autolength for loop sounds
 - Check penetrating power balance
 

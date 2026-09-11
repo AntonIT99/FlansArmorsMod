@@ -1,6 +1,5 @@
 package com.wolffsmod.api.client.model;
 
-import com.flansmodultimate.client.model.ModelRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.jetbrains.annotations.NotNull;
@@ -40,8 +39,6 @@ public interface IModelRenderer
 
     List<ModelPart.Cube> getCubeList();
 
-    List<IModelRenderer> getChildModels();
-
     void setRotateAngleX(float angle);
 
     void setRotateAngleY(float angle);
@@ -76,12 +73,9 @@ public interface IModelRenderer
     /**
      * Sets the current box's rotation points and rotation angles to another box.
      */
-    default void addChild(IModelRenderer renderer)
-    {
-        getChildModels().add(renderer);
-    }
+    void addChild(IModelRenderer renderer);
 
-    ModelRenderer setTextureOffset(int x, int y);
+    IModelRenderer setTextureOffset(int x, int y);
 
     /**
      * Creates a textured box.

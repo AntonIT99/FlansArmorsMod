@@ -102,44 +102,11 @@ public class DriveableRenderer<T extends Driveable> extends FlanEntityRenderer<T
         float yaw = Mth.rotLerp(partialTick, driveable.getPrevYaw(), driveable.getYaw());
         float pitch = Mth.rotLerp(partialTick, driveable.getPrevPitch(), driveable.getPitch());
         float roll = Mth.rotLerp(partialTick, driveable.getPrevRoll(), driveable.getRoll());
-        float turretYaw = Mth.rotLerp(partialTick, driveable.getPrevTurretYaw(), driveable.getTurretYaw());
-        float turretPitch = Mth.rotLerp(partialTick, driveable.getPrevTurretPitch(), driveable.getTurretPitch());
 
         AnimationHistory history = animationStates.computeIfAbsent(driveable, ignored -> new AnimationHistory());
         history.advance(driveable, type);
         history.updatePassengerGunPivots(driveable, type, model);
         renderDiagnosticMarkers(driveable, type);
-        float throttle = Mth.lerp(partialTick, history.previousThrottle, history.throttle);
-        float steering = Mth.lerp(partialTick, history.previousSteering, history.steering);
-        float gearProgress = Mth.lerp(partialTick, history.previousGear, history.gear);
-        float doorProgress = Mth.lerp(partialTick, history.previousDoor, history.door);
-        float modeProgress = Mth.lerp(partialTick, history.previousMode, history.mode);
-        float animationTime = driveable.tickCount + partialTick;
-        float wheelAngle = 0F;
-        float leftTrackProgress = 0F;
-        float rightTrackProgress = 0F;
-        if (driveable instanceof Vehicle vehicle)
-        {
-            wheelAngle = Mth.rotLerp(partialTick, vehicle.getPrevWheelAngle(), vehicle.getWheelAngle()) * Mth.DEG_TO_RAD;
-            steering = Mth.rotLerp(partialTick, vehicle.getPrevWheelYaw(), vehicle.getWheelYaw());
-            leftTrackProgress = wrappedLerp(partialTick, history.previousLeftTrack, history.leftTrack);
-            rightTrackProgress = wrappedLerp(partialTick, history.previousRightTrack, history.rightTrack);
-        }
-        float legSwing = driveable instanceof Mecha
-            ? wrappedLerp(partialTick, history.previousLegSwing, history.legSwing) : 0F;
-        float legYaw = driveable instanceof Mecha mecha
-            ? Mth.rotLerp(partialTick, mecha.getPrevLegYaw(), mecha.getLegYaw()) : yaw;
-
-        ModelDriveable.RenderState state = new ModelDriveable.RenderState(
-            partialTick, yaw, pitch, roll, throttle, turretYaw, turretPitch,
-            wheelAngle, steering, animationTime, gearProgress, doorProgress, modeProgress,
-            leftTrackProgress, rightTrackProgress, legSwing, legYaw,
-            history.wingTransform, history.wingWheelTransform, history.bodyWheelTransform,
-            history.tailWheelTransform, history.doorTransform, history.door2Transform,
-            history.legAnimation, driveable.getInputMask(), driveable.getDriveableMode(), driveable.isVarFlare(),
-            history.trackLinks
-        );
-
         ResourceLocation texture = getTextureLocation(driveable);
         boolean translucent = ModClientConfig.get().useTranslucentRendering(type);
         boolean cull = ModClientConfig.get().useCullingRendering(type);
@@ -180,6 +147,41 @@ public class DriveableRenderer<T extends Driveable> extends FlanEntityRenderer<T
             if (lodResult.rendered())
                 return;
         }
+
+        // Only exact geometry needs the interpolated wheel/track/turret state.
+        // Tick history above still advances while an impostor is displayed.
+        float turretYaw = Mth.rotLerp(partialTick, driveable.getPrevTurretYaw(), driveable.getTurretYaw());
+        float turretPitch = Mth.rotLerp(partialTick, driveable.getPrevTurretPitch(), driveable.getTurretPitch());
+        float throttle = Mth.lerp(partialTick, history.previousThrottle, history.throttle);
+        float steering = Mth.lerp(partialTick, history.previousSteering, history.steering);
+        float gearProgress = Mth.lerp(partialTick, history.previousGear, history.gear);
+        float doorProgress = Mth.lerp(partialTick, history.previousDoor, history.door);
+        float modeProgress = Mth.lerp(partialTick, history.previousMode, history.mode);
+        float animationTime = driveable.tickCount + partialTick;
+        float wheelAngle = 0F;
+        float leftTrackProgress = 0F;
+        float rightTrackProgress = 0F;
+        if (driveable instanceof Vehicle vehicle)
+        {
+            wheelAngle = Mth.rotLerp(partialTick, vehicle.getPrevWheelAngle(), vehicle.getWheelAngle()) * Mth.DEG_TO_RAD;
+            steering = Mth.rotLerp(partialTick, vehicle.getPrevWheelYaw(), vehicle.getWheelYaw());
+            leftTrackProgress = wrappedLerp(partialTick, history.previousLeftTrack, history.leftTrack);
+            rightTrackProgress = wrappedLerp(partialTick, history.previousRightTrack, history.rightTrack);
+        }
+        float legSwing = driveable instanceof Mecha
+            ? wrappedLerp(partialTick, history.previousLegSwing, history.legSwing) : 0F;
+        float legYaw = driveable instanceof Mecha mecha
+            ? Mth.rotLerp(partialTick, mecha.getPrevLegYaw(), mecha.getLegYaw()) : yaw;
+
+        ModelDriveable.RenderState state = new ModelDriveable.RenderState(
+            partialTick, yaw, pitch, roll, throttle, turretYaw, turretPitch,
+            wheelAngle, steering, animationTime, gearProgress, doorProgress, modeProgress,
+            leftTrackProgress, rightTrackProgress, legSwing, legYaw,
+            history.wingTransform, history.wingWheelTransform, history.bodyWheelTransform,
+            history.tailWheelTransform, history.doorTransform, history.door2Transform,
+            history.legAnimation, driveable.getInputMask(), driveable.getDriveableMode(), driveable.isVarFlare(),
+            history.trackLinks
+        );
 
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(entityYawRotation));

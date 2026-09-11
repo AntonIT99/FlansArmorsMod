@@ -65,6 +65,8 @@ public final class DriveableImpostorCache
     /** Small MRU list; reverse lookup avoids allocating a cache key for every rendered entity. */
     private static final List<Entry> entries = new ArrayList<>(16);
     private static TextureTarget captureTarget;
+    private static MultiBufferSource.BufferSource captureBuffer;
+    private static final ImpostorAtlasBlitter atlasBlitter = new ImpostorAtlasBlitter();
     private static Settings settings;
     private static long lastCaptureTick = Long.MIN_VALUE;
 
@@ -191,10 +193,15 @@ public final class DriveableImpostorCache
     private static Entry getOrCreate(ModelDriveable model, DriveableType type, ResourceLocation sourceTexture, boolean translucent, boolean cull, float red, float green, float blue)
     {
         long now = net.minecraft.Util.getMillis();
+        ModelBounds sharedBounds = null;
         for (int index = entries.size() - 1; index >= 0; index--)
         {
             Entry existing = entries.get(index);
-            if (!existing.matches(model, sourceTexture, translucent, cull, red, green, blue))
+            // Geometry bounds are independent of paint, tint and material settings.
+            // Reuse only the same model AND type, since the type supplies its scale.
+            if (existing.model == model && existing.type == type)
+                sharedBounds = existing.bounds;
+            if (!existing.matches(model, type, sourceTexture, translucent, cull, red, green, blue))
                 continue;
             existing.lastUsedMillis = now;
             if (index != entries.size() - 1)
@@ -215,7 +222,8 @@ public final class DriveableImpostorCache
         }
 
         Entry created = new Entry(model, type, sourceTexture, translucent, cull,
-            red, green, blue, measureBounds(model, type), settings.cellCount(), now);
+            red, green, blue, sharedBounds != null ? sharedBounds : measureBounds(model, type),
+            settings.cellCount(), now);
         entries.add(created);
         return created;
     }
@@ -224,7 +232,7 @@ public final class DriveableImpostorCache
     {
         BoundsConsumer bounds = new BoundsConsumer();
         PoseStack poseStack = new PoseStack();
-        renderNeutralModel(model, type, poseStack, bounds, LightTexture.FULL_BRIGHT, 1F, 1F, 1F, EnumRenderPass.ORDER);
+        renderNeutralModel(model, type, poseStack, bounds, LightTexture.FULL_BRIGHT, 1F, 1F, 1F, ModelCache.getRenderPasses(model));
         return bounds.toBounds();
     }
 
@@ -242,21 +250,14 @@ public final class DriveableImpostorCache
         {
             ensureAtlas(entry);
             ensureCaptureTarget();
-            NativeImage captured = capture(entry, yawIndex, pitchIndex);
-
-            try (captured)
-            {
-                captured.flipY();
-                int x = yawIndex * settings.resolution();
-                int y = pitchIndex * settings.resolution();
-                captured.copyRect(entry.atlasPixels, 0, 0, x, y, settings.resolution(), settings.resolution(), false, false);
-                entry.dynamicTexture.bind();
-                entry.atlasPixels.upload(0, x, y, x, y, settings.resolution(), settings.resolution(), false, false);
-                entry.captured[cellIndex] = true;
-            }
+            capture(entry, yawIndex, pitchIndex);
+            entry.captured[cellIndex] = true;
         }
         catch (Exception | LinkageError e)
         {
+            // A custom model can fail midway through a batch. Do not reuse that
+            // incomplete buffer for the next atlas capture.
+            captureBuffer = null;
             entry.failed = true;
             release(entry);
             FlansMod.log.warn("Disabling generated LOD impostor for model {} and texture {}: {}",
@@ -264,18 +265,16 @@ public final class DriveableImpostorCache
         }
     }
 
-    @NotNull
-    private static NativeImage capture(Entry entry, int yawIndex, int pitchIndex)
+    private static void capture(Entry entry, int yawIndex, int pitchIndex)
     {
-        int restoreFramebuffer = GL11.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING);
+        int restoreDrawFramebuffer = GL11.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING);
+        int restoreReadFramebuffer = GL11.glGetInteger(GL30.GL_READ_FRAMEBUFFER_BINDING);
         int[] restoreViewport = new int[4];
         GL11.glGetIntegerv(GL11.GL_VIEWPORT, restoreViewport);
         Matrix4f restoreProjection = new Matrix4f(RenderSystem.getProjectionMatrix());
         VertexSorting restoreSorting = RenderSystem.getVertexSorting();
         PoseStack modelView = RenderSystem.getModelViewStack();
-        NativeImage pixels = new NativeImage(settings.resolution(), settings.resolution(), true);
         boolean modelViewPushed = false;
-        boolean readBound = false;
 
         try
         {
@@ -298,7 +297,8 @@ public final class DriveableImpostorCache
             capturePose.mulPose(Axis.YP.rotationDegrees(360F * yawIndex / settings.yawAngles()));
             capturePose.translate(-entry.bounds.centerX(), -entry.bounds.centerY(), -entry.bounds.centerZ());
 
-            MultiBufferSource.BufferSource captureBuffer = MultiBufferSource.immediate(new BufferBuilder(256));
+            if (captureBuffer == null)
+                captureBuffer = MultiBufferSource.immediate(new BufferBuilder(32_768));
             for (EnumRenderPass renderPass : ModelCache.getRenderPasses(entry.model))
             {
                 PoseStack layerPose = new PoseStack();
@@ -310,27 +310,19 @@ public final class DriveableImpostorCache
                 captureBuffer.endBatch();
             }
 
-            captureTarget.bindRead();
-            readBound = true;
-            pixels.downloadTexture(0, false);
-            return pixels;
-        }
-        catch (RuntimeException | LinkageError e)
-        {
-            pixels.close();
-            throw e;
+            atlasBlitter.copyFlipped(captureTarget.frameBufferId, entry.dynamicTexture.getId(),
+                settings.resolution(), yawIndex, pitchIndex);
         }
         finally
         {
-            if (readBound)
-                captureTarget.unbindRead();
             if (modelViewPushed)
             {
                 modelView.popPose();
                 RenderSystem.applyModelViewMatrix();
             }
             RenderSystem.setProjectionMatrix(restoreProjection, restoreSorting);
-            GlStateManager._glBindFramebuffer(GL30.GL_FRAMEBUFFER, restoreFramebuffer);
+            GlStateManager._glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, restoreReadFramebuffer);
+            GlStateManager._glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, restoreDrawFramebuffer);
             RenderSystem.viewport(restoreViewport[0], restoreViewport[1], restoreViewport[2], restoreViewport[3]);
         }
     }
@@ -355,8 +347,7 @@ public final class DriveableImpostorCache
             return;
         int width = settings.resolution() * settings.yawAngles();
         int height = settings.resolution() * PITCH_ANGLES;
-        entry.atlasPixels = new NativeImage(width, height, true);
-        entry.dynamicTexture = new DynamicTexture(entry.atlasPixels);
+        entry.dynamicTexture = new DynamicTexture(new NativeImage(width, height, true));
         entry.dynamicTexture.setFilter(true, false);
         entry.impostorTexture = Minecraft.getInstance().getTextureManager()
             .register("flans_driveable_impostor", entry.dynamicTexture);
@@ -439,6 +430,8 @@ public final class DriveableImpostorCache
         for (Entry entry : entries)
             release(entry);
         entries.clear();
+        captureBuffer = null;
+        atlasBlitter.close();
         if (captureTarget != null)
         {
             captureTarget.destroyBuffers();
@@ -454,7 +447,6 @@ public final class DriveableImpostorCache
             Minecraft.getInstance().getTextureManager().release(entry.impostorTexture);
         entry.impostorTexture = null;
         entry.dynamicTexture = null;
-        entry.atlasPixels = null;
     }
 
     private record Settings(int resolution, int yawAngles, int maxEntries)
@@ -477,7 +469,6 @@ public final class DriveableImpostorCache
         private final float blue;
         private final ModelBounds bounds;
         private final boolean[] captured;
-        private NativeImage atlasPixels;
         private DynamicTexture dynamicTexture;
         private ResourceLocation impostorTexture;
         private boolean failed;
@@ -500,11 +491,11 @@ public final class DriveableImpostorCache
             this.lastUsedMillis = lastUsedMillis;
         }
 
-        private boolean matches(ModelDriveable otherModel, ResourceLocation otherTexture,
+        private boolean matches(ModelDriveable otherModel, DriveableType otherType, ResourceLocation otherTexture,
                                 boolean otherTranslucent, boolean otherCull,
                                 float otherRed, float otherGreen, float otherBlue)
         {
-            return model == otherModel && sourceTexture.equals(otherTexture)
+            return model == otherModel && type == otherType && sourceTexture.equals(otherTexture)
                 && translucent == otherTranslucent && cull == otherCull
                 && Float.floatToIntBits(red) == Float.floatToIntBits(otherRed)
                 && Float.floatToIntBits(green) == Float.floatToIntBits(otherGreen)

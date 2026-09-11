@@ -2917,11 +2917,8 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
             return Collections.emptyList();
         Vec3 localOrigin = worldToLocal(origin);
         Vec3 localMotion = worldDirectionToLocal(motion);
-        DriveableType type = getConfigType();
-        Vec3 turretPivot = type == null || type.getTurretOrigin() == null ? Vec3.ZERO
-            : LegacyDriveableCoordinates.toLocal(type.getTurretOrigin());
-        Vec3 turretOffset = type == null || type.getTurretOriginOffset() == null ? Vec3.ZERO
-            : LegacyDriveableCoordinates.toLocal(type.getTurretOriginOffset());
+        Vec3 turretPivot = getCollisionTurretPivot();
+        Vec3 turretOffset = getCollisionTurretOffset();
         List<BulletHit> hits = new ArrayList<>();
         for (DriveablePart part : driveableData.getParts().values())
         {
@@ -3011,10 +3008,8 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         if (driveableData == null || configType == null)
             return Optional.empty();
         Vec3 hullLocalPoint = worldToLocal(worldPoint);
-        Vec3 turretPivot = configType.getTurretOrigin() == null ? Vec3.ZERO
-            : LegacyDriveableCoordinates.toLocal(configType.getTurretOrigin());
-        Vec3 turretOffset = configType.getTurretOriginOffset() == null ? Vec3.ZERO
-            : LegacyDriveableCoordinates.toLocal(configType.getTurretOriginOffset());
+        Vec3 turretPivot = getCollisionTurretPivot();
+        Vec3 turretOffset = getCollisionTurretOffset();
         VehicleExplosionTarget best = null;
         for (DriveablePart part : driveableData.getParts().values())
         {
@@ -3583,6 +3578,20 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         Vec3 up = forward.cross(horizontalRight).normalize();
         double roll = getRoll() * Mth.DEG_TO_RAD;
         return up.scale(Math.cos(roll)).subtract(horizontalRight.scale(Math.sin(roll))).normalize();
+    }
+
+    /** Hull-local pivot that turret-mounted part boxes rotate around during projectile collision. */
+    public Vec3 getCollisionTurretPivot()
+    {
+        return configType == null || configType.getTurretOrigin() == null ? Vec3.ZERO
+            : LegacyDriveableCoordinates.toLocal(configType.getTurretOrigin());
+    }
+
+    /** Hull-local offset that turret-mounted part boxes carry, yawed with the turret, during projectile collision. */
+    public Vec3 getCollisionTurretOffset()
+    {
+        return configType == null || configType.getTurretOriginOffset() == null ? Vec3.ZERO
+            : LegacyDriveableCoordinates.toLocal(configType.getTurretOriginOffset());
     }
 
     public Vec3 localToWorld(double x, double y, double z)

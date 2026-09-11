@@ -14,7 +14,6 @@ Driveables:
 - Differentiate reload time and shootdelay for vehicles (for example Panzer II C)
 - When a track is broken, the vehicle should be able to turn around itself but not move forward or backward. Forward or backward make the vehicle turn around itself.
 - See if shooting points on vehicles can be directly inferred from models
-- Display hitboxes for driveables in debug mode
 - Driveable item rendering in hand has not the same transformations
 - Check propeller speed at standby as well as when moving
 - Collisions with players

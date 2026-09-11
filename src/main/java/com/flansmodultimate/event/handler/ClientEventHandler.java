@@ -4,11 +4,13 @@ import com.flansmodultimate.FlansMod;
 import com.flansmodultimate.client.ModClient;
 import com.flansmodultimate.client.debug.DebugColor;
 import com.flansmodultimate.client.debug.DebugHelper;
+import com.flansmodultimate.client.debug.DriveableHitboxRenderer;
 import com.flansmodultimate.client.input.EnumMouseButton;
 import com.flansmodultimate.client.input.GunInputState;
 import com.flansmodultimate.client.input.KeyInputHandler;
 import com.flansmodultimate.client.particle.ParticleHelper;
 import com.flansmodultimate.client.render.ClientHudOverlays;
+import com.flansmodultimate.client.render.CustomRenderType;
 import com.flansmodultimate.client.render.InstantBulletRenderer;
 import com.flansmodultimate.client.render.KillMessageFeed;
 import com.flansmodultimate.client.render.MountedCameraView;
@@ -50,6 +52,7 @@ import org.joml.Vector3f;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -143,11 +146,15 @@ public final class ClientEventHandler
 
         if (ModClient.isDebug())
         {
+            MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
             for (DebugColor debugEntity : DebugHelper.getActiveDebugEntities())
             {
                 if (event.getFrustum().isVisible(debugEntity.getAABB()))
-                    debugEntity.render(event.getPoseStack(), Minecraft.getInstance().renderBuffers().bufferSource(), event.getCamera());
+                    debugEntity.render(event.getPoseStack(), bufferSource, event.getCamera());
             }
+            // Flush now, while everything drawn so far (entities included) is already on screen to draw over
+            bufferSource.endBatch(CustomRenderType.debugFilledBoxSeeThrough());
+            DriveableHitboxRenderer.renderAll(event.getPoseStack(), bufferSource, event.getCamera(), event.getFrustum(), event.getPartialTick());
         }
     }
 

@@ -210,4 +210,48 @@ public class CustomRenderType
     {
         return armorTranslucent(tex, false);
     }
+
+    /** Debug lines drawn over all geometry, like the legacy debug boxes rendered with depth testing disabled */
+    public static RenderType debugLinesSeeThrough()
+    {
+        return VanillaShardRenderTypes.DEBUG_LINES_SEE_THROUGH;
+    }
+
+    /** Vanilla debug filled box drawn over all geometry */
+    public static RenderType debugFilledBoxSeeThrough()
+    {
+        return VanillaShardRenderTypes.DEBUG_FILLED_BOX_SEE_THROUGH;
+    }
+
+    /** Never instantiated; extends RenderType only to reach the protected vanilla render state shards */
+    private abstract static class VanillaShardRenderTypes extends RenderType
+    {
+        /** Vanilla lines without depth testing or depth writes */
+        private static final RenderType DEBUG_LINES_SEE_THROUGH = RenderType.create("debug_lines_see_through",
+            DefaultVertexFormat.POSITION_COLOR_NORMAL, VertexFormat.Mode.LINES, 256, false, false,
+            RenderType.CompositeState.builder()
+                .setShaderState(RENDERTYPE_LINES_SHADER)
+                .setLineState(DEFAULT_LINE)
+                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                .setCullState(NO_CULL)
+                .setWriteMaskState(COLOR_WRITE)
+                .setDepthTestState(NO_DEPTH_TEST)
+                .createCompositeState(false));
+
+        /** Vanilla debug filled box without depth testing or depth writes */
+        private static final RenderType DEBUG_FILLED_BOX_SEE_THROUGH = RenderType.create("debug_filled_box_see_through",
+            DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLE_STRIP, 131072, false, true,
+            RenderType.CompositeState.builder()
+                .setShaderState(POSITION_COLOR_SHADER)
+                .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                .setWriteMaskState(COLOR_WRITE)
+                .setDepthTestState(NO_DEPTH_TEST)
+                .createCompositeState(false));
+
+        private VanillaShardRenderTypes(String name, VertexFormat format, VertexFormat.Mode mode, int bufferSize,
+                                        boolean affectsCrumbling, boolean sortOnUpload, Runnable setupState, Runnable clearState)
+        {
+            super(name, format, mode, bufferSize, affectsCrumbling, sortOnUpload, setupState, clearState);
+        }
+    }
 }

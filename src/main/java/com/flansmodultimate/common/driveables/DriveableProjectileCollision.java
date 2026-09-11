@@ -109,6 +109,16 @@ public final class DriveableProjectileCollision
             point.distanceTo(closest));
     }
 
+    /** Maps a point of a part box into hull-local space, the inverse of the transform {@link #trace} applies to rays. */
+    public static Vec3 partPointToHullLocal(Vec3 point, EnumDriveablePart part, float turretYawDeg,
+                                            float turretPitchDeg, Vec3 turretPivot, Vec3 turretOffset)
+    {
+        if (!DriveableCollisionProfile.isTurretMountedPart(part))
+            return point;
+        return transformPointFromPartFrame(point, turretYawDeg,
+            DriveableCollisionProfile.isBarrelPart(part) ? turretPitchDeg : 0F, turretPivot, turretOffset);
+    }
+
     static Vec3 transformPointFromPartFrame(Vec3 point, float yaw, float pitch, Vec3 pivot, Vec3 offset)
     {
         Vec3 safePivot = pivot == null ? Vec3.ZERO : pivot;

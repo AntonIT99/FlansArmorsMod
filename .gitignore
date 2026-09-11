@@ -30,3 +30,5 @@ src/*/resources/flan
 
 # AI agents
 .claude
+
+reports/temp

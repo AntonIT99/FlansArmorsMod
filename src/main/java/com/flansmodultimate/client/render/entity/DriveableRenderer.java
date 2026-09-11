@@ -5,7 +5,9 @@ import com.flansmod.client.model.ModelDriveable;
 import com.flansmod.client.model.ModelGun;
 import com.flansmod.client.model.ModelMecha;
 import com.flansmod.client.model.ModelMechaTool;
+import com.flansmod.client.model.ModelVehicle;
 import com.flansmod.client.model.TrackLinkAnimation;
+import com.flansmod.client.model.TrackLinkLod;
 import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.flansmodultimate.client.ModClient;
 import com.flansmodultimate.client.debug.DebugHelper;
@@ -201,6 +203,13 @@ public class DriveableRenderer<T extends Driveable> extends FlanEntityRenderer<T
                 (float)ModClientConfig.get().maximumDriveableLodPartPixelSize,
                 lodResult.projectedPixelDiameter(), (float)ModClientConfig.get().driveableImpostorPixelSize);
         }
+        boolean useTrackLinkLod = !preview && !locallyControlled && ModClientConfig.get().enableDriveableLod
+            && model instanceof ModelVehicle vehicleModel
+            && vehicleModel.selectTrackLinkLod(type, projectionPixels, modelOriginDistance(poseStack), modelScaleBound(poseStack),
+                (float)ModClientConfig.get().driveableTrackLinkLodPixelSize, history.usingTrackLinkLod);
+        history.usingTrackLinkLod = useTrackLinkLod;
+        boolean previousTrackLod = TrackLinkLod.active();
+        TrackLinkLod.setActive(useTrackLinkLod);
         boolean useScreenSpaceCulling = minimumPartPixels > 0F;
         if (useScreenSpaceCulling)
             ModelRendererTurbo.beginScreenSpaceCulling(minimumPartPixels, projectionPixels);
@@ -218,10 +227,30 @@ public class DriveableRenderer<T extends Driveable> extends FlanEntityRenderer<T
         }
         finally
         {
+            TrackLinkLod.setActive(previousTrackLod);
             if (useScreenSpaceCulling)
                 ModelRendererTurbo.endScreenSpaceCulling();
         }
         poseStack.popPose();
+    }
+
+    private static double modelOriginDistance(PoseStack pose)
+    {
+        var m = pose.last().pose();
+        return Math.sqrt(m.m30() * m.m30() + m.m31() * m.m31() + m.m32() * m.m32());
+    }
+
+    /** Includes constructor-time legacy scaling. Gershgorin bounds the largest singular value even with shear. */
+    static float modelScaleBound(PoseStack pose)
+    {
+        var m = pose.last().pose();
+        float xx = m.m00()*m.m00() + m.m01()*m.m01() + m.m02()*m.m02();
+        float yy = m.m10()*m.m10() + m.m11()*m.m11() + m.m12()*m.m12();
+        float zz = m.m20()*m.m20() + m.m21()*m.m21() + m.m22()*m.m22();
+        float xy = Math.abs(m.m00()*m.m10() + m.m01()*m.m11() + m.m02()*m.m12());
+        float xz = Math.abs(m.m00()*m.m20() + m.m01()*m.m21() + m.m02()*m.m22());
+        float yz = Math.abs(m.m10()*m.m20() + m.m11()*m.m21() + m.m12()*m.m22());
+        return Mth.sqrt(Math.max(xx + xy + xz, Math.max(yy + xy + yz, zz + xz + yz)));
     }
 
     @Override
@@ -433,6 +462,7 @@ public class DriveableRenderer<T extends Driveable> extends FlanEntityRenderer<T
         private DriveableType passengerPivotType;
         private ModelDriveable passengerPivotModel;
         private boolean usingImpostor;
+        private boolean usingTrackLinkLod;
 
         private void updatePassengerGunPivots(Driveable driveable, DriveableType type, ModelDriveable model)
         {

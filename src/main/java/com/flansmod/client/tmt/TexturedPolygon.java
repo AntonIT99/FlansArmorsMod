@@ -2,7 +2,6 @@ package com.flansmod.client.tmt;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import lombok.Setter;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -20,11 +19,11 @@ public class TexturedPolygon
     public PositionTextureVertex[] vertexPositions;
     public int nVertices;
 
-    @Setter
     private boolean invertNormal;
     private float[] normals;
     private List<Vec3> iNormals;
     private final boolean hasTransformVertices;
+    private long geometryRevision;
     private final int[] renderVertexIndices;
     private int[] legacyRenderVertexIndices;
     private float[] compiledStaticVertices;
@@ -62,6 +61,13 @@ public class TexturedPolygon
     public void setNormals(float x, float y, float z)
     {
         normals = new float[]{x, y, z};
+        geometryRevision++;
+    }
+
+    public void setInvertNormal(boolean invertNormal)
+    {
+        this.invertNormal = invertNormal;
+        geometryRevision++;
     }
 
     public void flipFace()
@@ -80,6 +86,7 @@ public class TexturedPolygon
     public void setNormals(List<Vec3> vec)
     {
         iNormals = vec;
+        geometryRevision++;
     }
 
     public void draw(PoseStack.Pose pose, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
@@ -167,9 +174,21 @@ public class TexturedPolygon
 
     void invalidateCompiledVertices()
     {
+        geometryRevision++;
         compiledStaticVertices = null;
         compiledTransformPositions = null;
         cachedFaceNormalValid = false;
+    }
+
+    /** Derived LOD geometry must not freeze legacy bone deformation. */
+    public boolean isRigidLodGeometry()
+    {
+        return getClass() == TexturedPolygon.class && !hasTransformVertices && !invertNormal && iNormals.isEmpty();
+    }
+
+    public long geometryRevision()
+    {
+        return geometryRevision;
     }
 
     /**

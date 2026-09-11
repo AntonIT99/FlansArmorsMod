@@ -32,6 +32,7 @@ public final class ModClientConfig
     public final double minimumDriveablePartPixelSize;
     public final boolean enableDriveableLod;
     public final double maximumDriveableLodPartPixelSize;
+    public final double driveableTrackLinkLodPixelSize;
     public final double driveableImpostorPixelSize;
     public final int driveableImpostorMinimumDistance;
     public final int driveableImpostorMaximumDistance;
@@ -93,6 +94,7 @@ public final class ModClientConfig
     private static final ForgeConfigSpec.DoubleValue MINIMUM_DRIVEABLE_PART_PIXEL_SIZE;
     private static final ForgeConfigSpec.BooleanValue ENABLE_DRIVEABLE_LOD;
     private static final ForgeConfigSpec.DoubleValue MAXIMUM_DRIVEABLE_LOD_PART_PIXEL_SIZE;
+    private static final ForgeConfigSpec.DoubleValue DRIVEABLE_TRACK_LINK_LOD_PIXEL_SIZE;
     private static final ForgeConfigSpec.DoubleValue DRIVEABLE_IMPOSTOR_PIXEL_SIZE;
     private static final ForgeConfigSpec.IntValue DRIVEABLE_IMPOSTOR_MINIMUM_DISTANCE;
     private static final ForgeConfigSpec.IntValue DRIVEABLE_IMPOSTOR_MAXIMUM_DISTANCE;
@@ -219,7 +221,7 @@ public final class ModClientConfig
             .comment("Skip individual driveable model parts whose projected bounding diameter is smaller than this many physical screen pixels. Set to 0 to disable. Only affects driveables rendered in the world.")
             .defineInRange("minimumDriveablePartPixelSize", 0.75D, 0D, 16D);
         ENABLE_DRIVEABLE_LOD = builder
-            .comment("Enable automatic world-rendered driveable LOD. Medium-distance models use stronger part culling and distant vehicles / planes may use generated impostors. Mechas retain exact rendering because held add-ons are not part of their base model.")
+            .comment("Enable automatic world-rendered driveable LOD. Medium-distance models use stronger part culling and supported tank track links use simplified geometry. Distant vehicles / planes may use generated impostors. Mechas retain exact rendering because held add-ons are not part of their base model.")
             .define("enableDriveableLod", true);
         MAXIMUM_DRIVEABLE_LOD_PART_PIXEL_SIZE = builder
             .comment("Maximum projected part diameter culled as a driveable approaches the far impostor LOD. Must be at least minimumDriveablePartPixelSize to have an effect.")
@@ -227,6 +229,9 @@ public final class ModClientConfig
         DRIVEABLE_IMPOSTOR_PIXEL_SIZE = builder
             .comment("Use a generated far-distance impostor when a vehicle or plane projects to at most this many physical screen pixels. Set to 0 to disable only impostors.")
             .defineInRange("driveableImpostorPixelSize", 32D, 0D, 256D);
+        DRIVEABLE_TRACK_LINK_LOD_PIXEL_SIZE = builder
+            .comment("Simplify supported multipart tank track links to textured envelopes when a link projects to at most this many physical screen pixels, beyond 32 blocks. Preserves link count and animation. Hysteresis retains the simplified mesh up to 25% above this size. Requires enableDriveableLod; 0 disables track geometry LOD. Previews and the locally controlled vehicle retain full detail.")
+            .defineInRange("driveableTrackLinkLodPixelSize", 8D, 0D, 32D);
         DRIVEABLE_IMPOSTOR_MINIMUM_DISTANCE = builder
             .comment("Minimum camera distance in blocks before a generated driveable impostor may be used. Tuned around tank-sized vehicles; scaled up automatically for physically larger driveables (e.g. battleships) so they keep their exact model much longer.")
             .defineInRange("driveableImpostorMinimumDistance", 64, 8, 4096);
@@ -340,6 +345,7 @@ public final class ModClientConfig
         minimumDriveablePartPixelSize = MINIMUM_DRIVEABLE_PART_PIXEL_SIZE.get();
         enableDriveableLod = ENABLE_DRIVEABLE_LOD.get();
         maximumDriveableLodPartPixelSize = MAXIMUM_DRIVEABLE_LOD_PART_PIXEL_SIZE.get();
+        driveableTrackLinkLodPixelSize = DRIVEABLE_TRACK_LINK_LOD_PIXEL_SIZE.get();
         driveableImpostorPixelSize = DRIVEABLE_IMPOSTOR_PIXEL_SIZE.get();
         driveableImpostorMinimumDistance = DRIVEABLE_IMPOSTOR_MINIMUM_DISTANCE.get();
         driveableImpostorMaximumDistance = DRIVEABLE_IMPOSTOR_MAXIMUM_DISTANCE.get();

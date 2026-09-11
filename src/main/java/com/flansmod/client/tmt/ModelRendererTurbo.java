@@ -2098,6 +2098,12 @@ public class ModelRendererTurbo extends ModelRenderer
         return currentTextureGroup;
     }
 
+    /** Existing geometry groups for derived render representations; callers must not modify them. */
+    public Iterable<TextureGroup> getTextureGroups()
+    {
+        return textureGroup.values();
+    }
+
     /**
      * Gets the texture group with the given name.
      *

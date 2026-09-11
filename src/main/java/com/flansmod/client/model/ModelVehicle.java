@@ -86,9 +86,23 @@ public class ModelVehicle extends ModelDriveable
     private transient DriveableType trackPathType;
     private transient TrackPath leftTrackPath = TrackPath.EMPTY;
     private transient TrackPath rightTrackPath = TrackPath.EMPTY;
+    private transient TrackLinkLod trackLinkLod;
+    private transient float trackPathRadius;
     private transient boolean barrelPitchPivotResolved;
     @Nullable
     private transient Vec3 primaryBarrelPitchPivot;
+
+    /** Called before world part culling begins, so the derived mesh contains the complete link. */
+    public boolean selectTrackLinkLod(DriveableType type, float projectionPixels, double distance, float modelScale,
+                                      float threshold, boolean previous)
+    {
+        if (distance < 32D || threshold <= 0F || fancyTrackModel == null || fancyTrackModel.length < 2)
+            return false;
+        if (trackLinkLod == null || !trackLinkLod.matches(fancyTrackModel, oldRotateOrder, type.getTrackLinkLength()))
+            trackLinkLod = TrackLinkLod.create(fancyTrackModel, oldRotateOrder, type.getTrackLinkLength());
+        ensureTrackPaths(type);
+        return trackLinkLod.select(projectionPixels, distance - trackPathRadius * Math.abs(modelScale), modelScale, threshold, previous);
+    }
 
     /**
      * Finds the pitch pivot of the barrel section that reaches furthest along
@@ -461,7 +475,17 @@ public class ModelVehicle extends ModelDriveable
             trackPathType = type;
             leftTrackPath = TrackPath.create(type.getLeftTrackPoints());
             rightTrackPath = TrackPath.create(type.getRightTrackPoints());
+            trackPathRadius = Math.max(pathRadius(leftTrackPath), pathRadius(rightTrackPath));
         }
+    }
+
+    private static float pathRadius(TrackPath path)
+    {
+        float squared = 0F;
+        for (int i = 0; i < path.size(); i++)
+            squared = Math.max(squared, path.pointX(i) * path.pointX(i)
+                + path.pointY(i) * path.pointY(i) + path.pointZ(i) * path.pointZ(i));
+        return Mth.sqrt(squared) * MODEL_SCALE;
     }
 
     private void renderFancyTrackPath(DriveableType type, TrackPath path, float movement, @Nullable float[] linkAngles,
@@ -473,6 +497,8 @@ public class ModelVehicle extends ModelDriveable
             return;
 
         int linkCount = Mth.clamp(Math.round(path.length() / spacing), 1, 512);
+        ModelRendererTurbo[] linkParts = TrackLinkLod.active() && scale == 1F && trackLinkLod != null
+            && trackLinkLod.parts() != null ? trackLinkLod.parts() : fancyTrackModel;
         float normalizedMovement = path.wrap(movement);
         for (int link = 0; link < linkCount; link++)
         {
@@ -490,7 +516,7 @@ public class ModelVehicle extends ModelDriveable
             poseStack.pushPose();
             poseStack.translate(x * MODEL_SCALE, y * MODEL_SCALE, z * MODEL_SCALE);
             poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));
-            renderPart(fancyTrackModel, poseStack, vertexConsumer, packedLight, packedOverlay,
+            renderPart(linkParts, poseStack, vertexConsumer, packedLight, packedOverlay,
                 red, green, blue, alpha, scale, renderPass);
             poseStack.popPose();
         }

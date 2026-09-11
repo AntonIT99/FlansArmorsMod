@@ -19,14 +19,4 @@ public class ModelSkullBoss extends ModelBase
 		jaw = new ModelRendererTurbo(this, 32, 0, textureX, textureY);
 		jaw.addBox(-3, -4, -3, 6, 4, 6);
 	}
-	
-	public void renderHead(float scale)
-	{
-		head.render(scale);
-	}
-	
-	public void renderJaw(float scale)
-	{
-		jaw.render(scale);
-	}
 }

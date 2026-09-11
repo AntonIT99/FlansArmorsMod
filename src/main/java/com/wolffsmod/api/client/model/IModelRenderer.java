@@ -1,5 +1,6 @@
 package com.wolffsmod.api.client.model;
 
+import com.flansmodultimate.client.model.ModelRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.jetbrains.annotations.NotNull;
@@ -8,6 +9,7 @@ import net.minecraft.client.model.geom.ModelPart;
 
 import java.util.List;
 
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public interface IModelRenderer
 {
     float getRotateAngleX();
@@ -64,6 +66,13 @@ public interface IModelRenderer
 
     void setHidden(boolean hidden);
 
+    default void setRotationPoint(float rotationPointXIn, float rotationPointYIn, float rotationPointZIn)
+    {
+        setRotationPointX(rotationPointXIn);
+        setRotationPointY(rotationPointYIn);
+        setRotationPointZ(rotationPointZIn);
+    }
+
     /**
      * Sets the current box's rotation points and rotation angles to another box.
      */
@@ -71,6 +80,19 @@ public interface IModelRenderer
     {
         getChildModels().add(renderer);
     }
+
+    ModelRenderer setTextureOffset(int x, int y);
+
+    /**
+     * Creates a textured box.
+     */
+    void addBox(float offX, float offY, float offZ, int width, int height, int depth, float scaleFactor);
+
+    IModelRenderer addBox(String partName, float offX, float offY, float offZ, int width, int height, int depth);
+
+    IModelRenderer addBox(float offX, float offY, float offZ, int width, int height, int depth);
+
+    IModelRenderer addBox(float offX, float offY, float offZ, int width, int height, int depth, boolean mirrored);
 
     void render(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, float scale);
 }

@@ -2267,17 +2267,6 @@ public class ModelRendererTurbo extends ModelRenderer
             render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, scale, oldRotateOrder);
         }
     }
-    
-    @Override
-    public void render(float worldScale)
-    {
-        render(worldScale, false);
-    }
-    
-    public void render(float worldScale, boolean oldRotateOrder)
-    {
-        // do nothing, only keep this method overload for compatibility when loading legacy classes
-    }
 
     /**
      * Translate and rotate the shape

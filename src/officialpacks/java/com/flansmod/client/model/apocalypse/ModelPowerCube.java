@@ -70,19 +70,4 @@ public class ModelPowerCube extends ModelBase
 		bodyModel[12].addBox(0F, 0F, 0F, 8, 8, 8, 0F); // Box 12
 		bodyModel[12].setRotationPoint(4F, -12F, 4F);
 	}
-	
-	public void render()
-	{
-		float f5 = 0.0625F;
-		
-		for(int i = 0; i < 12; i++)
-		{
-			bodyModel[i].render(f5);
-		}
-	}
-	
-	public void renderPower()
-	{
-		bodyModel[12].render(0.0625F);
-	}
 }

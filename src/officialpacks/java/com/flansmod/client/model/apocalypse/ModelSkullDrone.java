@@ -51,16 +51,4 @@ public class ModelSkullDrone extends ModelBase
 		propellerModel[0].addBox(-6F, -0.5F, -0.5F, 12, 1, 1, 0F); // Box 1
 		propellerModel[1].addBox(-0.5F, -0.5F, -6F, 1, 1, 12, 0F); // Box 2
 	}
-	
-	public void renderBase(float scale)
-	{
-		for(ModelRendererTurbo mr : baseModel)
-			mr.render(scale);
-	}
-	
-	public void renderPropeller(float scale)
-	{
-		for(ModelRendererTurbo mr : propellerModel)
-			mr.render(scale);
-	}
 }

@@ -14,9 +14,4 @@ public class ModelTeleporter extends ModelBase
 		model = new ModelRendererTurbo(this, 0, 0, textureX, textureY);
 		model.addSphere(0, 0, 0, 16, 16, 16, 64, 64);
 	}
-	
-	public void render(float f)
-	{
-		model.render(f);
-	}
 }

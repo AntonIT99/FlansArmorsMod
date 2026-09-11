@@ -39,19 +39,4 @@ public class ModelNukeDrop extends ModelBase
 		ballModel[1].flip = true;
 		ballModel[1].addSphere(0, 0, 0, 16, 16, 16, 32, 32);
 	}
-	
-	public void renderNuke(float scale)
-	{
-		for(ModelRendererTurbo aNukeModel : nukeModel) aNukeModel.render(scale);
-	}
-	
-	public void renderMushroomCloud(float scale)
-	{
-		
-	}
-	
-	public void renderBall(float scale)
-	{
-		for(ModelRendererTurbo aBallModel : ballModel) aBallModel.render(scale);
-	}
 }

@@ -110,6 +110,7 @@ public class ModelRenderer implements IModelRenderer
         childModels.add(renderer);
     }
 
+    @Override
     public ModelRenderer setTextureOffset(int x, int y)
     {
         textureOffsetX = x;
@@ -117,6 +118,7 @@ public class ModelRenderer implements IModelRenderer
         return this;
     }
 
+    @Override
     public ModelRenderer addBox(String partName, float offX, float offY, float offZ, int width, int height, int depth)
     {
         partName = boxName + "." + partName;
@@ -126,12 +128,14 @@ public class ModelRenderer implements IModelRenderer
         return this;
     }
 
+    @Override
     public ModelRenderer addBox(float offX, float offY, float offZ, int width, int height, int depth)
     {
         addBox(offX, offY, offZ, width, height, depth, 0.0F, mirror);
         return this;
     }
 
+    @Override
     public ModelRenderer addBox(float offX, float offY, float offZ, int width, int height, int depth, boolean mirrored)
     {
         addBox(offX, offY, offZ, width, height, depth, 0.0F, mirrored);
@@ -149,13 +153,6 @@ public class ModelRenderer implements IModelRenderer
     protected void addBox(float offX, float offY, float offZ, int width, int height, int depth, float scaleFactor, boolean mirrored)
     {
         cubeList.add(new ModelPart.Cube(textureOffsetX, textureOffsetY, offX, offY, offZ, width, height, depth, scaleFactor, scaleFactor, scaleFactor, mirrored, 1.0F, 1.0F, Set.of(Direction.values())));
-    }
-
-    public void setRotationPoint(float rotationPointXIn, float rotationPointYIn, float rotationPointZIn)
-    {
-        rotationPointX = rotationPointXIn;
-        rotationPointY = rotationPointYIn;
-        rotationPointZ = rotationPointZIn;
     }
 
     @Override
@@ -181,11 +178,6 @@ public class ModelRenderer implements IModelRenderer
 
         poseStack.translate(-offsetX, -offsetY, -offsetZ);
         poseStack.popPose();
-    }
-
-    public void render(float scale)
-    {
-        // ignore calls to legacy rendering,
     }
 
     public void translateAndRotate(PoseStack poseStack, float scale)

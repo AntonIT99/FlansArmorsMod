@@ -4,14 +4,12 @@ General:
 - Check if all FMU featues are implemented in the mod -> use the skills
 - Implement TaP Flan's Mod Features
 - Make SkinOverride compatible with old skin format
-- Check and Improve explosion visuals
+- Check and Improve explosion visuals (fine tune so that 50. cal and 20mm explosion are less persistent)
 - Autolength for loop sounds
 - Check penetrating power balance
 
 Driveables physics and logic:
-- Fix some turret hitboxes not moving
-- Collisions with other vehicles, less pushing (maybe proportional to the RealMassKg)
-- Less knockback (maybe proportional to the RealMassKg)
+- Fix some turret hitboxes not moving (TaP vehicles)
 - Vehicles with invisible drivers should make everything about the driver invisible (armor layer + held items)
 - Differentiate reload time and shootdelay for vehicles (for example Panzer II C)
 - See if shooting points on vehicles can be directly inferred from models

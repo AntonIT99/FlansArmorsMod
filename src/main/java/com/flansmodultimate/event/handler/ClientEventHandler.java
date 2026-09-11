@@ -19,6 +19,7 @@ import com.flansmodultimate.client.render.PlayerSkinOverrides;
 import com.flansmodultimate.client.teams.TeamsClientState;
 import com.flansmodultimate.common.entity.AAGun;
 import com.flansmodultimate.common.entity.DeployedGun;
+import com.flansmodultimate.common.entity.Driveable;
 import com.flansmodultimate.common.entity.Seat;
 import com.flansmodultimate.common.guns.EnumFunction;
 import com.flansmodultimate.common.item.GunItem;
@@ -194,6 +195,15 @@ public final class ClientEventHandler
     @SubscribeEvent
     public static void onRenderLivingPre(RenderLivingEvent.Pre<?, ?> event)
     {
+        // Vanilla invisibility only hides the body and still draws armor and held
+        // items. Canceling here skips every layer; Post is not fired, so do it
+        // before the render context is set.
+        if (Driveable.isRiderHiddenByDriveable(event.getEntity()))
+        {
+            event.setCanceled(true);
+            return;
+        }
+
         ModClient.entityRenderContext.set(event.getEntity());
 
         if (!(event.getEntity() instanceof Player player))

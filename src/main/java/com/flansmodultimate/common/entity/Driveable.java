@@ -2233,6 +2233,19 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         });
     }
 
+    /** Whether the rider sits in a driveable that hides its occupants, including their armor and held items. */
+    public static boolean isRiderHiddenByDriveable(Entity rider)
+    {
+        Entity vehicle = rider.getVehicle();
+        Driveable driveable = vehicle instanceof Seat seat ? seat.getDriveable() : null;
+        if (driveable == null && vehicle instanceof Driveable direct)
+            driveable = direct;
+        if (driveable == null)
+            return false;
+        DriveableType type = driveable.getConfigType();
+        return type != null && type.isSetPlayerInvisible();
+    }
+
     protected void restoreRiderVisibility()
     {
         for (Entity rider : ridersHiddenByDriveable.values())

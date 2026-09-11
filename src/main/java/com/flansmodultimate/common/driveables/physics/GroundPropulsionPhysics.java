@@ -80,6 +80,23 @@ public final class GroundPropulsionPhysics
     public static double decelerationBlocksPerTickSquared(double speedBlocksPerTick, double powerW, double massKg,
                                                           double terminalSpeedBlocksPerTick, boolean braking)
     {
+        return decelerationBlocksPerTickSquared(speedBlocksPerTick, powerW, massKg, terminalSpeedBlocksPerTick,
+            braking ? 1D : 0D);
+    }
+
+    /**
+     * As above, with the brake applied only in part.
+     *
+     * <p>Demanding the opposite direction while still rolling is a driver
+     * braking, and how hard follows how far the control was moved, so a full
+     * reversal of demand brakes exactly as the brake control itself does.
+     *
+     * @param brakeFraction how much of the brake allowance to add, from 0 to 1;
+     *                      anything outside that, or non-finite, is clamped
+     */
+    public static double decelerationBlocksPerTickSquared(double speedBlocksPerTick, double powerW, double massKg,
+                                                          double terminalSpeedBlocksPerTick, double brakeFraction)
+    {
         double resistance = VehiclePhysicsConstants.MIN_DERIVED_DECELERATION_MS2;
         double speedMs = VehiclePhysicsUnits.blocksPerTickToMetresPerSecond(speedBlocksPerTick);
         double terminalMs = VehiclePhysicsUnits.blocksPerTickToMetresPerSecond(terminalSpeedBlocksPerTick);
@@ -88,8 +105,8 @@ public final class GroundPropulsionPhysics
             double coefficient = powerW / (terminalMs * terminalMs * terminalMs);
             resistance = Math.max(resistance, coefficient * speedMs * speedMs / massKg);
         }
-        if (braking)
-            resistance += VehiclePhysicsConstants.BRAKING_DECELERATION_MS2;
+        double brake = Double.isFinite(brakeFraction) ? Math.max(0D, Math.min(1D, brakeFraction)) : 0D;
+        resistance += brake * VehiclePhysicsConstants.BRAKING_DECELERATION_MS2;
         resistance = Math.min(resistance, VehiclePhysicsConstants.MAX_DERIVED_ACCELERATION_MS2
             + VehiclePhysicsConstants.BRAKING_DECELERATION_MS2);
         return Math.max(0D, VehiclePhysicsUnits.metresPerSecondSquaredToBlocksPerTickSquared(resistance));

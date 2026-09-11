@@ -9,7 +9,6 @@ General:
 - Check penetrating power balance
 
 Driveables physics and logic:
-- The vehicle can not start to produce a reverse force until it stops first.
 - Fix some turret hitboxes not moving (TaP vehicles)
 - Differentiate reload time and shootdelay for vehicles (for example Panzer II C)
 - See if shooting points on vehicles can be directly inferred from models

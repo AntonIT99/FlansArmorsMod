@@ -8,10 +8,12 @@ import com.flansmodultimate.common.driveables.DriveablePosition;
 import com.flansmodultimate.common.driveables.EnumDriveablePart;
 import com.flansmodultimate.common.driveables.LegacyDriveableCoordinates;
 import com.flansmodultimate.common.driveables.ThrottleLeverRamp;
+import com.flansmodultimate.common.driveables.physics.DriveDirectionInterlock;
 import com.flansmodultimate.common.driveables.physics.GroundPropulsionPhysics;
 import com.flansmodultimate.common.driveables.physics.GroundSlopePhysics;
 import com.flansmodultimate.common.driveables.physics.ResolvedVehiclePhysics;
 import com.flansmodultimate.common.driveables.physics.VehiclePhysicsConstants;
+import com.flansmodultimate.common.driveables.physics.VehiclePhysicsUnits;
 import com.flansmodultimate.common.types.VehicleType;
 import com.flansmodultimate.config.ModCommonConfig;
 import com.flansmodultimate.network.PacketHandler;
@@ -47,6 +49,8 @@ public class Vehicle extends Driveable
     private boolean fixedThrottle;
     /** Progressive throttle lever state. Transient, and tracked per side. */
     private final ThrottleLeverRamp throttleRamp = new ThrottleLeverRamp();
+    /** Real-world gearbox direction state. Transient and server-side. */
+    private final DriveDirectionInterlock drivetrain = new DriveDirectionInterlock();
     private final List<PendingSmoke> pendingSmoke = new ArrayList<>();
 
     public Vehicle(EntityType<?> entityType, Level level)
@@ -190,7 +194,7 @@ public class Vehicle extends Driveable
         if (derivedPhysics)
         {
             velocity = derivedGroundVelocity(physics, current, forward, targetSpeed,
-                traction, grip, braking, speedScale, yawDelta);
+                traction, grip, braking, speedScale, yawDelta, normalizedThrottle);
         }
         else
         {
@@ -208,7 +212,8 @@ public class Vehicle extends Driveable
         velocity = velocity.multiply(horizontalDrag, 1D, horizontalDrag);
         if (!ModCommonConfig.forceLegacyVehiclePhysics())
             velocity = enforceSpeedCap(velocity, ModCommonConfig.maxVehicleSpeedKmh());
-        velocity = applyGroundFriction(current, velocity, effectiveThrottle, braking, tracked);
+        velocity = applyGroundFriction(current, velocity, effectiveThrottle, braking, tracked,
+            derivedPhysics && drivetrain.isShifting() ? Math.abs(normalizedThrottle) : 0F);
         moveWithCollisions(velocity);
         if (tickCount > 20 && verticalCollision && descent < -0.65D && !isInWater())
         {
@@ -352,10 +357,13 @@ public class Vehicle extends Driveable
      * authored top speed, so the vehicle approaches it without snapping and
      * without overshooting at 20 Hz. Lateral slip keeps decaying at the existing
      * grip constant, so terrain feel and drift are unchanged.
+     *
+     * @param demand the normalized driver demand, whose magnitude is how hard the
+     *               driver is braking while the gearbox sits in neutral
      */
     private Vec3 derivedGroundVelocity(ResolvedVehiclePhysics physics, Vec3 current, Vec3 forward,
                                        double targetSpeed, float traction, double grip,
-                                       boolean braking, double speedScale, float yawDelta)
+                                       boolean braking, double speedScale, float yawDelta, float demand)
     {
         Vec3 horizontal = new Vec3(current.x, 0D, current.z);
         double forwardSpeed = horizontal.dot(forward);
@@ -363,12 +371,26 @@ public class Vehicle extends Driveable
 
         double terminal = physics.maxSpeedBlocksPerTick(speedScale);
         double power = physics.effectivePowerWatts(getEngineSpeed());
+        // Demand against the direction still being travelled finds the gearbox
+        // in neutral: the vehicle sheds its momentum before the opposite gear
+        // engages, and that gear's clutch then takes up gradually.
+        double transmission = drivetrain.advance(targetSpeed,
+            VehiclePhysicsUnits.blocksPerTickToMetresPerSecond(forwardSpeed));
+        // Asking for the other direction is also asking to stop: the neutral
+        // gearbox coasts, and the driver's own demand works the brake as far as
+        // the control has been moved.
+        double brakeFraction = braking ? 1D : 0D;
+        if (drivetrain.isShifting())
+        {
+            targetSpeed = 0D;
+            brakeFraction = Math.max(brakeFraction, Float.isFinite(demand) ? Math.abs(demand) : 0D);
+        }
         double tractionFactor = physics.driveType().tractionFactor()
             * (isInWater() ? 0.35D : 1D) * Math.max(0F, traction);
         double acceleration = GroundPropulsionPhysics.accelerationBlocksPerTickSquared(
-            forwardSpeed, power, physics.massKg(), terminal, tractionFactor);
+            forwardSpeed, power, physics.massKg(), terminal, tractionFactor) * transmission;
         double deceleration = GroundPropulsionPhysics.decelerationBlocksPerTickSquared(
-            forwardSpeed, power, physics.massKg(), terminal, braking);
+            forwardSpeed, power, physics.massKg(), terminal, brakeFraction);
         double newForwardSpeed = GroundPropulsionPhysics.approach(forwardSpeed, targetSpeed,
             acceleration, deceleration);
         newForwardSpeed = GroundPropulsionPhysics.applyTurningLoss(newForwardSpeed, yawDelta);
@@ -398,18 +420,22 @@ public class Vehicle extends Driveable
     /**
      * Minimum slowing of a grounded vehicle without drive demand. Nobody at the
      * controls, the engine off or the brake held means locked wheels or tracks;
-     * a driver simply off the pedals still meets rolling resistance, which
-     * tracks have far more of than tyres.
+     * a driver simply off the pedals meets rolling resistance, which tracks have
+     * far more of than tyres. Asking for the opposite direction while the gearbox
+     * is in neutral is that same rolling resistance plus the brake the driver is
+     * standing on, so a full reversal of demand stops like the brake control.
      */
-    private Vec3 applyGroundFriction(Vec3 before, Vec3 after, float effectiveThrottle, boolean braking, boolean tracked)
+    private Vec3 applyGroundFriction(Vec3 before, Vec3 after, float effectiveThrottle, boolean braking, boolean tracked,
+                                     float neutralBrakeDemand)
     {
         double deceleration;
         if (getControllingEntity() == null || !isEngineActive() || braking)
             deceleration = VehiclePhysicsConstants.PARKED_GROUND_FRICTION_DECELERATION_MS2;
-        else if (Math.abs(effectiveThrottle) < 1.0E-3F
+        else if (neutralBrakeDemand > 0F || Math.abs(effectiveThrottle) < 1.0E-3F
             && !DriveableInput.isDown(getInputMask(), DriveableInput.FORWARD | DriveableInput.BACKWARD))
-            deceleration = tracked ? VehiclePhysicsConstants.TRACKED_IDLE_DECELERATION_MS2
-                : VehiclePhysicsConstants.WHEELED_IDLE_DECELERATION_MS2;
+            deceleration = Math.max(tracked ? VehiclePhysicsConstants.TRACKED_IDLE_DECELERATION_MS2
+                    : VehiclePhysicsConstants.WHEELED_IDLE_DECELERATION_MS2,
+                Math.min(1F, neutralBrakeDemand) * VehiclePhysicsConstants.PARKED_GROUND_FRICTION_DECELERATION_MS2);
         else
             return after;
         return applyMinimumGroundDeceleration(before, after, deceleration);

@@ -25,6 +25,16 @@ public final class VehiclePhysicsConstants
     public static final float REAL_THROTTLE_RAMP_TICKS = 20F;
     /** Per-tick throttle step derived from {@link #REAL_THROTTLE_RAMP_TICKS}. */
     public static final float REAL_THROTTLE_RAMP_PER_TICK = 1F / REAL_THROTTLE_RAMP_TICKS;
+    /**
+     * Longitudinal speed in m/s against the demanded direction above which a
+     * ground vehicle's gearbox cannot select that direction. Walking pace: the
+     * vehicle has to have all but stopped before reverse, or drive, engages.
+     */
+    public static final double DIRECTION_CHANGE_SPEED_MS = 0.5D;
+    /** Ticks spent in neutral near standstill before the opposite gear is selected. */
+    public static final int DIRECTION_CHANGE_TICKS = 8;
+    /** Ticks for a newly selected gear's clutch to take up full tractive force. */
+    public static final int CLUTCH_ENGAGE_TICKS = 20;
 
     // -------------------------------------------------------------- propulsion
 

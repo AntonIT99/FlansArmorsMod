@@ -146,6 +146,30 @@ class GroundPropulsionPhysicsTest
     }
 
     @Test
+    void aPartialBrakeDemandSitsBetweenCoastingAndTheFullBrake()
+    {
+        double terminal = VehiclePhysicsUnits.kmhToBlocksPerTick(113D, 1D);
+        double speed = terminal * 0.5D;
+        double coasting = GroundPropulsionPhysics.decelerationBlocksPerTickSquared(
+            speed, POWER_W, MASS_KG, terminal, false);
+        double full = GroundPropulsionPhysics.decelerationBlocksPerTickSquared(
+            speed, POWER_W, MASS_KG, terminal, true);
+        double half = GroundPropulsionPhysics.decelerationBlocksPerTickSquared(
+            speed, POWER_W, MASS_KG, terminal, 0.5D);
+        assertTrue(half > coasting && half < full, "half the demand is half the brake allowance");
+        // The fraction is the same control as the boolean at its two ends, and
+        // anything outside the range is clamped rather than scaling without bound.
+        assertEquals(coasting, GroundPropulsionPhysics.decelerationBlocksPerTickSquared(
+            speed, POWER_W, MASS_KG, terminal, 0D), 1.0E-9D);
+        assertEquals(full, GroundPropulsionPhysics.decelerationBlocksPerTickSquared(
+            speed, POWER_W, MASS_KG, terminal, 1D), 1.0E-9D);
+        assertEquals(full, GroundPropulsionPhysics.decelerationBlocksPerTickSquared(
+            speed, POWER_W, MASS_KG, terminal, 5D), 1.0E-9D);
+        assertEquals(coasting, GroundPropulsionPhysics.decelerationBlocksPerTickSquared(
+            speed, POWER_W, MASS_KG, terminal, Double.NaN), 1.0E-9D);
+    }
+
+    @Test
     void approachNeverOvershootsInEitherDirection()
     {
         assertEquals(1D, GroundPropulsionPhysics.approach(0D, 1D, 5D, 5D));

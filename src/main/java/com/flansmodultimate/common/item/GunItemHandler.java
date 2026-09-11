@@ -45,6 +45,7 @@ import lombok.Getter;
 import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
 import org.apache.commons.lang3.StringUtils;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import net.minecraft.core.BlockPos;
@@ -632,7 +633,7 @@ public class GunItemHandler
         }
 
         Optional<Vec3> clip = otherPlayer.getBoundingBox().clip(segment.start, segment.end);
-        clip.ifPresent(hit -> outHits.add(new PlayerBulletHit(new PlayerHitbox(otherPlayer, new RotatedAxes(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), EnumHitboxType.BODY), (float) segment.lambdaAt(hit))));
+        clip.ifPresent(hit -> outHits.add(new PlayerBulletHit(new PlayerHitbox(otherPlayer, new Matrix4f(), new Vector3f(), new Vector3f(), new Vector3f(), EnumHitboxType.BODY), (float) segment.lambdaAt(hit))));
     }
 
     private PlayerSnapshot selectSnapshot(Player attacker, PlayerData otherData)

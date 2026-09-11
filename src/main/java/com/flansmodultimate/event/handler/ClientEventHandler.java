@@ -5,6 +5,7 @@ import com.flansmodultimate.client.ModClient;
 import com.flansmodultimate.client.debug.DebugColor;
 import com.flansmodultimate.client.debug.DebugHelper;
 import com.flansmodultimate.client.debug.DriveableHitboxRenderer;
+import com.flansmodultimate.client.debug.PlayerHitboxRenderer;
 import com.flansmodultimate.client.input.EnumMouseButton;
 import com.flansmodultimate.client.input.GunInputState;
 import com.flansmodultimate.client.input.KeyInputHandler;
@@ -16,15 +17,11 @@ import com.flansmodultimate.client.render.KillMessageFeed;
 import com.flansmodultimate.client.render.MountedCameraView;
 import com.flansmodultimate.client.render.PlayerSkinOverrides;
 import com.flansmodultimate.client.teams.TeamsClientState;
-import com.flansmodultimate.common.PlayerData;
 import com.flansmodultimate.common.entity.AAGun;
 import com.flansmodultimate.common.entity.DeployedGun;
 import com.flansmodultimate.common.entity.Seat;
 import com.flansmodultimate.common.guns.EnumFunction;
 import com.flansmodultimate.common.item.GunItem;
-import com.flansmodultimate.common.raytracing.EnumHitboxType;
-import com.flansmodultimate.common.raytracing.PlayerHitbox;
-import com.flansmodultimate.common.raytracing.PlayerSnapshot;
 import com.flansmodultimate.config.ModClientConfig;
 import com.flansmodultimate.config.ModCommonConfig;
 import com.flansmodultimate.network.PacketHandler;
@@ -45,9 +42,7 @@ import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
-import org.joml.Vector3f;
 
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
@@ -155,6 +150,7 @@ public final class ClientEventHandler
             // Flush now, while everything drawn so far (entities included) is already on screen to draw over
             bufferSource.endBatch(CustomRenderType.debugFilledBoxSeeThrough());
             DriveableHitboxRenderer.renderAll(event.getPoseStack(), bufferSource, event.getCamera(), event.getFrustum(), event.getPartialTick());
+            PlayerHitboxRenderer.renderAll(event.getPoseStack(), bufferSource, event.getCamera(), event.getFrustum(), event.getPartialTick());
         }
     }
 
@@ -203,14 +199,6 @@ public final class ClientEventHandler
         if (!(event.getEntity() instanceof Player player))
             return;
 
-        // Render debug boxes for player snapshots
-        if (ModClient.isDebug())
-        {
-            PlayerData data = PlayerData.getInstance(player , LogicalSide.CLIENT);
-            if (data.getSnapshots()[0] != null)
-                renderSnapshot(data.getSnapshots()[0]);
-        }
-
         var model = event.getRenderer().getModel();
         if (!(model instanceof HumanoidModel<?> humanoid))
             return;
@@ -238,31 +226,6 @@ public final class ClientEventHandler
                 humanoid.leftArmPose  = HumanoidModel.ArmPose.BOW_AND_ARROW;
             else
                 humanoid.rightArmPose = HumanoidModel.ArmPose.BOW_AND_ARROW;
-        }
-    }
-
-    private static void renderSnapshot(PlayerSnapshot snapshot)
-    {
-        for (PlayerHitbox hitbox : snapshot.hitboxes)
-            renderHitbox(hitbox, snapshot.pos);
-    }
-
-    private static void renderHitbox(PlayerHitbox hitbox, Vector3f pos)
-    {
-        if (!ModClient.isDebug() || hitbox.type != EnumHitboxType.RIGHTARM)
-            return;
-
-        for (int i = 0; i < 3; i++)
-        {
-            for (int j = 0; j < 3; j++)
-            {
-                for(int k = 0; k < 3; k++)
-                {
-                    Vector3f point = new Vector3f(hitbox.o.x + hitbox.d.x * i / 2, hitbox.o.y + hitbox.d.y * j / 2, hitbox.o.z + hitbox.d.z * k / 2);
-                    point = hitbox.axes.findLocalVectorGlobally(point);
-                    DebugHelper.spawnDebugDot(new Vec3(pos.x + hitbox.rP.x + point.x, pos.y + hitbox.rP.y + point.y, pos.z + hitbox.rP.z + point.z), 1, 0F, 1F, 0F);
-                }
-            }
         }
     }
 

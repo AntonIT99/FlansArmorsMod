@@ -12,6 +12,7 @@ import com.flansmodultimate.common.types.ArmorType;
 import com.flansmodultimate.common.types.BulletType;
 import com.flansmodultimate.config.ModCommonConfig;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import net.minecraft.server.level.ServerPlayer;
@@ -30,13 +31,13 @@ public class PlayerHitbox
     /** */
     public Player player;
     /**
-     * The angles of this box
+     * Maps box-local coordinates to coordinates relative to the snapshot position
      */
-    public RotatedAxes axes;
+    public final Matrix4f transform;
     /**
-     * The origin of rotation for this box
+     * Inverse of {@link #transform}, used to bring rays into box-local coordinates
      */
-    public Vector3f rP;
+    private final Matrix4f inverseTransform;
     /**
      * The lower left corner of this box
      */
@@ -54,23 +55,23 @@ public class PlayerHitbox
      */
     public EnumHitboxType type;
 
-    public PlayerHitbox(Player player, RotatedAxes axes, Vector3f rotationPoint, Vector3f origin, Vector3f dimensions, Vector3f velocity, EnumHitboxType type)
+    public PlayerHitbox(Player player, Matrix4f transform, Vector3f origin, Vector3f dimensions, Vector3f velocity, EnumHitboxType type)
     {
         this.player = player;
-        this.axes = axes;
+        this.transform = transform;
+        this.inverseTransform = new Matrix4f(transform).invert();
         this.o = origin;
         this.d = dimensions;
         this.type = type;
         this.vel = velocity;
-        this.rP = rotationPoint;
     }
 
     public PlayerBulletHit raytrace(Vector3f origin, Vector3f motion)
     {
-        //Move to local coords for this hitbox, but don't modify the original "origin" vector
-        origin = new Vector3f(origin).sub(rP);
-        origin = axes.findGlobalVectorLocally(origin);
-        motion = axes.findGlobalVectorLocally(new Vector3f(motion).sub(vel));
+        //Move to local coords for this hitbox, but don't modify the original vectors.
+        //An affine transform keeps the ray parameter unchanged, so intersect times stay valid in world space
+        origin = inverseTransform.transformPosition(new Vector3f(origin));
+        motion = inverseTransform.transformDirection(new Vector3f(motion).sub(vel));
 
         //We now have an AABB starting at o and with dimensions d and our ray in the same coordinate system
         //We are looking for a point at which the ray enters the box, so we need only consider faces that the ray can see. Partition the space into 3 areas in each axis

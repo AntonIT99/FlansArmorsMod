@@ -1,28 +1,30 @@
 General:
-- Optimize skills for token consumption
-- Check if ConfigReference in Wiki is exhaustive / up to date
-- Check if all FMU featues are implemented in the mod
+- Optimize research categories skill for token consumption
+- Check if ConfigReference in Wiki is exhaustive / up to date -> create a skill for this
+- Check if all FMU featues are implemented in the mod -> use the skills
 - Implement TaP Flan's Mod Features
 - Make SkinOverride compatible with old skin format
 - Check and Improve explosion visuals
 
-Mechas:
-- Mecha categories?
-
-Driveables:
-- Vehicles should have very little to no recoil (maybe proportional to the realmass if any)
+Driveables physics and logic:
+- Fix hitboxes (position too high, not moving)
+- Collisions with other vehicles, less pushing (maybe proportional to the RealMassKg)
+- Less knockback (maybe proportional to the RealMassKg)
+- Vehicles with invisible drivers should make everything about the driver invisible (armor layer + held items)
 - Differentiate reload time and shootdelay for vehicles (for example Panzer II C)
-- When a track is broken, the vehicle should be able to turn around itself but not move forward or backward. Forward or backward make the vehicle turn around itself.
+- Optional Idee: When a track is broken, the vehicle should be able to turn around itself but not move forward or backward. Forward or backward make the vehicle turn around itself.
+
+Driveables Rendering / Placing:
 - See if shooting points on vehicles can be directly inferred from models
 - Driveable item rendering in hand has not the same transformations
 - Check propeller speed at standby as well as when moving
-- Collisions with players
 - y positioning of driveables (Check Tiger I of Warfare 44)
 
 UI:
-- LCTRL for ammo toolips for driveables + eventually for guns?
+- Ammo toolips in inventory for Driveables
 
 Categories:
+- mecha categories?
 - harmonize visuals for shootables?
 - harmonize sounds for vehicles / planes?
 - missing ammo groups for shells
@@ -30,8 +32,8 @@ Categories:
 Content Packs:
 - Rewrite the official packs with the new gun and vehicle systems
 WW2
-- Fix Scope Attachment Points
-- Fix Barrel Attachment and Muzzle Flash
+- Fix Scope Attachment Points -> to check
+- Fix Barrel Attachment and Muzzle Flash -> to check
 - Remove Minigun Mode for some guns
 Manus:
 - Sitting position too high (Flak 36)

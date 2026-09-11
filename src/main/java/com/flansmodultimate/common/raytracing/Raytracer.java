@@ -14,6 +14,7 @@ import com.flansmodultimate.util.ModUtils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import net.minecraft.core.BlockPos;
@@ -166,7 +167,7 @@ public class Raytracer
             return;
 
         Vec3 hitPoint = hitVec.subtract(origin);
-        hits.add(new PlayerBulletHit(new PlayerHitbox(player, new RotatedAxes(), new Vector3f(), new Vector3f(), new Vector3f(), new Vector3f(), EnumHitboxType.BODY), (float) computeHitLambda(hitPoint, motion)));
+        hits.add(new PlayerBulletHit(new PlayerHitbox(player, new Matrix4f(), new Vector3f(), new Vector3f(), new Vector3f(), EnumHitboxType.BODY), (float) computeHitLambda(hitPoint, motion)));
     }
 
     private static double computeHitLambda(Vec3 hitPoint, Vec3 motion)

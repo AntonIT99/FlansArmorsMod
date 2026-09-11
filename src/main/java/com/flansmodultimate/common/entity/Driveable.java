@@ -36,6 +36,7 @@ import com.flansmodultimate.common.guns.FireableGun;
 import com.flansmodultimate.common.guns.FiredShot;
 import com.flansmodultimate.common.guns.ShootingHelper;
 import com.flansmodultimate.common.inventory.DriveableInventoryMenu;
+import com.flansmodultimate.common.item.AmmoStatContext;
 import com.flansmodultimate.common.item.PartItem;
 import com.flansmodultimate.common.item.ShootableItem;
 import com.flansmodultimate.common.item.ToolItem;
@@ -100,7 +101,9 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.DismountHelper;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -1563,10 +1566,49 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
      */
     protected FireableGun resolveFireableGun(AmmoSelection selection, boolean secondary)
     {
+        return resolveFireableGun(selection.gunType(), secondary);
+    }
+
+    /**
+     * Display context for ammunition fired from a weapon bank, built exactly as {@link #fireFromPoint} builds the shot.
+     *
+     * @param gunType the pilot gun mounted on the bank, or null for the vehicle's own ordnance
+     */
+    public AmmoStatContext getBankAmmoStatContext(@Nullable GunType gunType, boolean secondary, ShootableType ammo)
+    {
+        int numBullets = gunType != null ? gunType.getNumBullets(null, ammo) : ammo.getNumBullets();
+        return new AmmoStatContext(() -> resolveFireableGun(gunType, secondary), this, numBullets);
+    }
+
+    /** Display context for ammunition fired from a passenger seat's gun, as {@link #tickPassengerGuns} fires it. */
+    public AmmoStatContext getPassengerAmmoStatContext(GunType gunType, ShootableType ammo)
+    {
+        return new AmmoStatContext(() -> new FireableGun(gunType), this, gunType.getNumBullets(null, ammo));
+    }
+
+    /** The weapon side of a shot from a weapon bank, for display; see {@link #resolveFireableGun(GunType, boolean)}. */
+    public FireableGun getWeaponBankFireableGun(@Nullable GunType gunType, boolean secondary)
+    {
+        return resolveFireableGun(gunType, secondary);
+    }
+
+    /** Ticks between shots of a weapon bank, as the bank is actually fired. */
+    public float getWeaponBankShootDelay(boolean secondary)
+    {
+        return getConfiguredShootDelay(secondary);
+    }
+
+    public EnumFireMode getWeaponBankFireMode(boolean secondary)
+    {
+        return secondary ? configType.getModeSecondary() : configType.getModePrimary();
+    }
+
+    protected FireableGun resolveFireableGun(@Nullable GunType gunType, boolean secondary)
+    {
         float damageMultiplier = secondary ? configType.getDamageMultiplierSecondary() : configType.getDamageMultiplierPrimary();
         boolean pureGunType = configType.isReadWeaponsFromGunTypes();
 
-        if (selection.gunType() == null)
+        if (gunType == null)
         {
             // Shells and other bank-fired ordnance: the vehicle is the weapon. Its BulletSpeed is a
             // fallback only, and the default keeps such rounds flying as projectiles rather than hitscan.
@@ -1575,7 +1617,7 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
                 Math.max(0F, configType.getBulletSpread()), speed, EnumSpreadPattern.CIRCLE);
         }
 
-        FireableGun fireable = new FireableGun(selection.gunType());
+        FireableGun fireable = new FireableGun(gunType);
 
         // A ranging gun spots for the main armament, so it borrows the vehicle's ballistics instead of
         // the mounted gun's - still only as the fallback the ammunition may override.
@@ -1658,17 +1700,70 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
     protected void consumeAmmo(AmmoSelection selection)
     {
         ItemStack stack = selection.stack();
+        // Read before consuming: a fully spent single-round stack reports air.
+        Item ammoItem = stack.getItem();
         if (!ShootableItem.consumeRound(stack))
             return;
-        if (!ShootableItem.hasRoundsLeft(stack))
+        boolean depleted = !ShootableItem.hasRoundsLeft(stack);
+        if (depleted)
             stack = ItemStack.EMPTY;
-        switch (selection.bank())
-        {
-            case AMMO -> driveableData.setAmmo(selection.slot(), stack);
-            case BOMB -> driveableData.setBomb(selection.slot(), stack);
-            case MISSILE -> driveableData.setMissile(selection.slot(), stack);
-        }
+        setWeaponSlot(selection.bank(), selection.slot(), stack);
+        if (depleted)
+            refillWeaponSlot(selection.bank(), selection.slot(), ammoItem);
         acknowledgeInternalWeaponInventoryChange();
+    }
+
+    /**
+     * Loads one more item of the ammunition a weapon slot just used up: from the driveable's cargo first,
+     * then from the driver's inventory. Server-side only, and only into a slot that is actually empty.
+     */
+    protected void refillWeaponSlot(AmmoBank bank, int slot, Item ammoItem)
+    {
+        if (level().isClientSide || driveableData == null || ammoItem == Items.AIR
+            || !ModCommonConfig.autoRefillVehicleAmmo() || !getWeaponSlot(bank, slot).isEmpty())
+            return;
+
+        int cargoStart = driveableData.getCargoInventoryStart();
+        ItemStack refill = takeOneAmmoItem(driveableData, cargoStart, cargoStart + driveableData.getNumCargoSlots(), ammoItem);
+        if (refill.isEmpty() && getControllingEntity() instanceof Player driver)
+            refill = takeOneAmmoItem(driver.getInventory(), 0, driver.getInventory().items.size(), ammoItem);
+        if (!refill.isEmpty())
+            setWeaponSlot(bank, slot, refill);
+    }
+
+    private ItemStack getWeaponSlot(AmmoBank bank, int slot)
+    {
+        return switch (bank)
+        {
+            case AMMO -> driveableData.getAmmo(slot);
+            case BOMB -> driveableData.getBomb(slot);
+            case MISSILE -> driveableData.getMissile(slot);
+        };
+    }
+
+    private void setWeaponSlot(AmmoBank bank, int slot, ItemStack stack)
+    {
+        switch (bank)
+        {
+            case AMMO -> driveableData.setAmmo(slot, stack);
+            case BOMB -> driveableData.setBomb(slot, stack);
+            case MISSILE -> driveableData.setMissile(slot, stack);
+        }
+    }
+
+    /** Splits a single loaded item of this ammunition off the first matching stack in the given slot range. */
+    private static ItemStack takeOneAmmoItem(Container container, int start, int end, Item ammoItem)
+    {
+        for (int index = start; index < end; index++)
+        {
+            ItemStack stack = container.getItem(index);
+            if (!stack.is(ammoItem) || !ShootableItem.hasRoundsLeft(stack))
+                continue;
+            ItemStack one = stack.split(1);
+            container.setItem(index, stack.isEmpty() ? ItemStack.EMPTY : stack);
+            return one;
+        }
+        return ItemStack.EMPTY;
     }
 
     protected Vec3 getShootOrigin(ShootPoint point)
@@ -1870,8 +1965,12 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
                 origin, direction, this, attacker, ShootableItem.getRoundsFired(ammo), () -> {
                     if (!creative)
                     {
+                        Item ammoItem = ammo.getItem();
                         ShootableItem.consumeRound(ammo);
-                        driveableData.setAmmo(ammoSlot, ShootableItem.hasRoundsLeft(ammo) ? ammo : ItemStack.EMPTY);
+                        boolean depleted = !ShootableItem.hasRoundsLeft(ammo);
+                        driveableData.setAmmo(ammoSlot, depleted ? ItemStack.EMPTY : ammo);
+                        if (depleted)
+                            refillWeaponSlot(AmmoBank.AMMO, ammoSlot, ammoItem);
                         acknowledgeInternalWeaponInventoryChange();
                     }
                 });

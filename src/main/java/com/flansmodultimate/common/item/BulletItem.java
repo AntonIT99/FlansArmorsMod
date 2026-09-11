@@ -45,51 +45,50 @@ public class BulletItem extends ShootableItem implements IFlanItem<BulletType>
         {
             super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
 
-            if (configType.hasDifferentRounds())
-            {
-                tooltipComponents.add(Component.translatable(TooltipKeys.ROUNDS_MIX).append(": ").withStyle(ChatFormatting.BLUE));
-                configType.getPeriod().forEach(round ->
-                    tooltipComponents.add(Component.literal("  " + round.name() + " (" + round.count() + ")").withStyle(ChatFormatting.DARK_AQUA)));
-            }
-
-            if (configType.hasDifferentRounds())
-            {
-                tooltipComponents.add(Component.translatable(TooltipKeys.MUZZLE_VELOCITY).append(":").withStyle(ChatFormatting.BLUE));
-                configType.getPeriod().forEach(round ->
-                    tooltipComponents.add(Component.literal("  " + round.name() + " " + IFlanItem.formatFloat(round.stats().bulletSpeed() * 20F) + " m/s").withStyle(ChatFormatting.GRAY)));
-            }
-            else if (configType.getBulletSpeed() > 0F)
-                tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.MUZZLE_VELOCITY), IFlanItem.formatFloat(configType.getBulletSpeed() * 20F, 3) + " m/s"));
-
-            if (configType.hasDifferentRounds() && configType.getPeriod().stream().anyMatch(round -> round.stats().penetrationAt100m() > 0F))
-            {
-                tooltipComponents.add(Component.translatable(TooltipKeys.PENETRATION_AT_100M).append(":").withStyle(ChatFormatting.BLUE));
-                configType.getPeriod().forEach(round -> {
-                    if (round.stats().penetrationAt100m() > 0)
-                        tooltipComponents.add(Component.literal("  " + round.name() + " " + IFlanItem.formatFloat(round.stats().penetrationAt100m()) + "mm").withStyle(ChatFormatting.GRAY));
-                });
-            }
-            else if (configType.getPenetrationAt100m() > 0F)
-                tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.PENETRATION_AT_100M), IFlanItem.formatFloat(configType.getPenetrationAt100m()) + "mm"));
-
-            tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.PENETRATING_POWER), IFlanItem.formatFloat(configType.getPenetratingPower())));
-
-            if (hasLockOn())
-                tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.GUIDANCE), Component.translatable(TooltipKeys.GUIDANCE_LOCK_ON)));
-            else if (configType.isManualGuidance())
-                tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.GUIDANCE), Component.translatable(TooltipKeys.GUIDANCE_MANUAL)));
-            else if (configType.isLaserGuidance())
-                tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.GUIDANCE), Component.translatable(TooltipKeys.GUIDANCE_LASER)));
-            else if (configType.getWeaponType() == EnumWeaponType.MISSILE)
-                tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.GUIDANCE), Component.translatable(TooltipKeys.GUIDANCE_UNGUIDED)));
-
-            if (hasLockOn() || configType.isLaserGuidance())
-            {
-                tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.TURNING_FORCE), IFlanItem.formatFloat(configType.getLockOnForce() * 10F) + "G"));
-            }
-
             if (StringUtils.isNotBlank(originGunbox))
                 tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.BOX), originGunbox));
+        }
+    }
+
+    @Override
+    public void appendAmmoStats(@NotNull List<Component> tooltipComponents, @Nullable AmmoStatContext context)
+    {
+        super.appendAmmoStats(tooltipComponents, context);
+
+        List<RoundView> rounds = roundViews(configType, context);
+        if (!rounds.isEmpty())
+        {
+            tooltipComponents.add(Component.translatable(TooltipKeys.ROUNDS_MIX).append(": ").withStyle(ChatFormatting.BLUE));
+            rounds.forEach(round ->
+                tooltipComponents.add(Component.literal("  " + round.name() + " (" + round.count() + ")").withStyle(ChatFormatting.DARK_AQUA)));
+        }
+
+        if (context == null || context.showLaunchStats())
+            appendPerRound(tooltipComponents, TooltipKeys.MUZZLE_VELOCITY, rounds, shot -> {
+            float velocity = muzzleVelocity(configType, shot, context);
+            return velocity > 0F ? IFlanItem.formatFloat(velocity * 20F, rounds.isEmpty() ? 3 : 2) + " m/s" : null;
+        });
+
+        appendPerRound(tooltipComponents, TooltipKeys.PENETRATION_AT_100M, rounds, shot -> {
+            float penetration = penetrationAt100m(configType, shot, context);
+            return penetration > 0F ? IFlanItem.formatFloat(penetration) + "mm" : null;
+        });
+
+        tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.PENETRATING_POWER),
+            IFlanItem.formatFloat(penetratingPower(configType, 0, context))));
+
+        if (hasLockOn())
+            tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.GUIDANCE), Component.translatable(TooltipKeys.GUIDANCE_LOCK_ON)));
+        else if (configType.isManualGuidance())
+            tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.GUIDANCE), Component.translatable(TooltipKeys.GUIDANCE_MANUAL)));
+        else if (configType.isLaserGuidance())
+            tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.GUIDANCE), Component.translatable(TooltipKeys.GUIDANCE_LASER)));
+        else if (configType.getWeaponType() == EnumWeaponType.MISSILE)
+            tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.GUIDANCE), Component.translatable(TooltipKeys.GUIDANCE_UNGUIDED)));
+
+        if (hasLockOn() || configType.isLaserGuidance())
+        {
+            tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.TURNING_FORCE), IFlanItem.formatFloat(configType.getLockOnForce() * 10F) + "G"));
         }
     }
 

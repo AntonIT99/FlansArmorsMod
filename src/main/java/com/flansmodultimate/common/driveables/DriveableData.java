@@ -133,6 +133,9 @@ public final class DriveableData implements Container
     public int getMechaInventoryStart() { return numAmmoSlots + numBombSlots + numMissileSlots + numCargoSlots; }
     public int getFuelSlot() { return getMechaInventoryStart() + numMechaSlots; }
 
+    /** Gun ammunition, bomb and missile slots, which each hold a single loaded item. */
+    public boolean isWeaponSlot(int slot) { return slot >= 0 && slot < getCargoInventoryStart(); }
+
     public int getRenderSlotCount()
     {
         int mechaSlots = Math.min(numMechaSlots, MAX_RENDER_SYNC_SLOTS);

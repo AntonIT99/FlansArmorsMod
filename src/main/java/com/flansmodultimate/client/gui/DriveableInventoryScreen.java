@@ -4,18 +4,32 @@ import com.flansmodultimate.FlansMod;
 import com.flansmodultimate.common.driveables.DriveableData;
 import com.flansmodultimate.common.driveables.DriveablePart;
 import com.flansmodultimate.common.driveables.EnumWeaponType;
+import com.flansmodultimate.common.driveables.PilotGun;
 import com.flansmodultimate.common.driveables.SeatInfo;
+import com.flansmodultimate.common.driveables.armor.ArmorPlate;
+import com.flansmodultimate.common.driveables.armor.EnumArmorFacing;
+import com.flansmodultimate.common.guns.EnumFireMode;
+import com.flansmodultimate.common.guns.FireableGun;
+import com.flansmodultimate.common.guns.FiredShot;
+import com.flansmodultimate.common.guns.ShootingHelper;
 import com.flansmodultimate.common.inventory.DriveableInventoryMenu;
 import com.flansmodultimate.common.inventory.DriveableInventoryMenu.Page;
+import com.flansmodultimate.common.item.AmmoStatContext;
+import com.flansmodultimate.common.item.IFlanItem;
+import com.flansmodultimate.common.item.ShootableItem;
+import com.flansmodultimate.common.item.TooltipKeys;
 import com.flansmodultimate.common.types.BulletType;
 import com.flansmodultimate.common.types.DriveableType;
 import com.flansmodultimate.common.types.GunType;
 import com.flansmodultimate.common.types.InfoType;
 import com.flansmodultimate.common.types.PlaneType;
 import com.flansmodultimate.common.types.ShootableType;
+import com.flansmodultimate.config.ModCommonConfig;
 import com.flansmodultimate.util.InventoryHelper;
 import com.flansmodultimate.util.ModUtils;
+import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -29,8 +43,10 @@ import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 /** 1.7.10-style driveable hub, inventory, fuel and repair interface. */
 public final class DriveableInventoryScreen extends AbstractContainerScreen<DriveableInventoryMenu>
@@ -42,8 +58,13 @@ public final class DriveableInventoryScreen extends AbstractContainerScreen<Driv
     private final Map<Page, Button> pageButtons = new EnumMap<>(Page.class);
     private final List<Button> repairButtons = new ArrayList<>();
     private int repairOffset;
+    private String ammoTooltipKey = "";
+    private int ammoTooltipPage;
+    private int ammoTooltipPageCount;
+    private boolean ammoTooltipPagesVisible;
 
-    private record GunRow(String name, GunType type) {}
+    /** @param pilotGun the bank-mounted driver gun, or null for a passenger seat's gun */
+    private record GunRow(String name, GunType type, @Nullable PilotGun pilotGun) {}
 
     public DriveableInventoryScreen(DriveableInventoryMenu menu, Inventory inventory, Component title)
     {
@@ -289,16 +310,17 @@ public final class DriveableInventoryScreen extends AbstractContainerScreen<Driv
         List<GunRow> rows = new ArrayList<>();
         for (int index = 0; index < type.getPilotGuns().size(); index++)
         {
-            GunType gun = type.getPilotGuns().get(index).getType();
+            PilotGun pilotGun = type.getPilotGuns().get(index);
+            GunType gun = pilotGun.getType();
             if (gun != null)
-                rows.add(new GunRow("Driver's gun " + (index + 1), gun));
+                rows.add(new GunRow("Driver's gun " + (index + 1), gun, pilotGun));
         }
         type.getSeats().stream()
             .filter(seat -> seat != null && seat.getGunType() != null && seat.getGunnerID() >= 0)
             .sorted(Comparator.comparingInt(SeatInfo::getGunnerID))
             .forEach(seat -> {
                 String name = seat.getGunName().isBlank() ? "Passenger gun " + (seat.getId() + 1) : seat.getGunName();
-                rows.add(new GunRow(name, seat.getGunType()));
+                rows.add(new GunRow(name, seat.getGunType(), null));
             });
         return rows;
     }
@@ -347,26 +369,27 @@ public final class DriveableInventoryScreen extends AbstractContainerScreen<Driv
 
     private void renderLegacyTooltip(GuiGraphics graphics, int mouseX, int mouseY)
     {
+        ammoTooltipPagesVisible = false;
         if (hoveredSlot != null && hoveredSlot.hasItem())
             return;
         int x = legacyLeft();
         int y = topPos;
         List<Component> lines = new ArrayList<>();
-        if (menu.getPage() == Page.MISSILES && mouseX >= x + 10 && mouseX < x + 166
+        if (menu.getPage() == Page.REPAIR)
+            lines.addAll(repairTooltip(mouseX, mouseY));
+        else if (menu.getPage() == Page.MISSILES && mouseX >= x + 10 && mouseX < x + 166
             && mouseY >= y + 20 && mouseY < y + 90)
         {
-            lines.add(Component.literal("[" + missilePageName() + "]"));
-            acceptedVehicleAmmo(EnumSet.of(EnumWeaponType.MISSILE, EnumWeaponType.SHELL)).stream()
-                .map(ammo -> Component.literal("> " + ammo.getName())).forEach(lines::add);
+            lines.addAll(ammoTooltip("missiles", Component.literal("[" + missilePageName() + "]"),
+                acceptedVehicleAmmo(EnumSet.of(EnumWeaponType.MISSILE, EnumWeaponType.SHELL)), bankContext(true)));
         }
         else if (menu.getPage() == Page.BOMBS && mouseX >= x + 10 && mouseX < x + 166
             && mouseY >= y + 20 && mouseY < y + 90)
         {
-            lines.add(Component.literal("[Bombs / Mines]"));
-            acceptedVehicleAmmo(EnumSet.of(EnumWeaponType.BOMB, EnumWeaponType.MINE)).stream()
-                .map(ammo -> Component.literal("> " + ammo.getName())).forEach(lines::add);
+            lines.addAll(ammoTooltip("bombs", Component.literal("[Bombs / Mines]"),
+                acceptedVehicleAmmo(EnumSet.of(EnumWeaponType.BOMB, EnumWeaponType.MINE)), bankContext(false)));
         }
-        else if (menu.getPage() == Page.GUNS)
+        else if (menu.getPage() == Page.GUNS && mouseY >= y + 25)
         {
             int row = (mouseY - (y + 25)) / 19;
             List<GunRow> rows = gunRows();
@@ -374,17 +397,304 @@ public final class DriveableInventoryScreen extends AbstractContainerScreen<Driv
             if (row >= 0 && row < VISIBLE_INVENTORY_ROWS && index < rows.size())
             {
                 GunRow gun = rows.get(index);
-                if (mouseX >= x + 10 && mouseX < x + 27)
-                    lines.add(Component.literal(gun.type().getName()));
+                List<ShootableType> ammo = gun.type().getAmmoTypes();
+                int ammoIcon = (mouseX - (x + 110)) / 16;
+                if (mouseX >= x + 10 && mouseX < x + 27 || mouseX >= x + 53 && mouseX < x + 108)
+                    lines.addAll(gunTooltip(gun));
                 else if (mouseX >= x + 28 && mouseX < x + 46)
-                {
-                    lines.add(Component.literal("[Ammo]"));
-                    gun.type().getAmmoTypes().stream().map(ammo -> Component.literal("> " + ammo.getName())).forEach(lines::add);
-                }
+                    lines.addAll(ammoTooltip("gun:" + index, Component.literal("[Ammo]"), ammo, gunContext(gun)));
+                else if (mouseX >= x + 110 && ammoIcon < Math.min(3, ammo.size()) && mouseY < y + 25 + row * 19 + 16)
+                    lines.addAll(ammoTooltip("gun:" + index + ":" + ammoIcon, Component.literal(gun.name()),
+                        List.of(ammo.get(ammoIcon)), gunContext(gun)));
             }
         }
         if (!lines.isEmpty())
             graphics.renderTooltip(font, lines, Optional.empty(), mouseX, mouseY);
+    }
+
+    /**
+     * Ammunition list tooltip. Holding Shift expands every entry with the same stats as the
+     * ammo item's own detailed tooltip; entries that do not fit on screen are paged with Shift + scroll.
+     */
+    private List<Component> ammoTooltip(String key, Component header, List<? extends ShootableType> ammo,
+                                        Function<ShootableType, AmmoStatContext> contexts)
+    {
+        if (!key.equals(ammoTooltipKey))
+        {
+            ammoTooltipKey = key;
+            ammoTooltipPage = 0;
+        }
+
+        List<Component> lines = new ArrayList<>();
+        lines.add(header);
+        if (!hasShiftDown())
+        {
+            ammo.forEach(type -> lines.add(Component.literal("> " + type.getName())));
+            if (!ammo.isEmpty() && minecraft != null)
+            {
+                Component keyName = minecraft.options.keyShift.getTranslatedKeyMessage().copy()
+                    .withStyle(ChatFormatting.AQUA, ChatFormatting.ITALIC);
+                lines.add(Component.translatable(TooltipKeys.HOLD_FOR_DETAILS, keyName).withStyle(ChatFormatting.GRAY));
+            }
+            return lines;
+        }
+
+        // Header and page footer take two lines; tooltip lines are 10 px tall.
+        int maxLines = Math.max(4, (height - 24) / 10 - 2);
+        List<List<Component>> pages = new ArrayList<>();
+        List<Component> page = new ArrayList<>();
+        List<List<Component>> blocks = new ArrayList<>();
+        for (ShootableType type : ammo)
+            blocks.addAll(ammoBlocks(type, contexts.apply(type)));
+        for (List<Component> block : blocks)
+        {
+            if (!page.isEmpty() && page.size() + block.size() > maxLines)
+            {
+                pages.add(page);
+                page = new ArrayList<>();
+            }
+            page.addAll(block);
+        }
+        if (!page.isEmpty())
+            pages.add(page);
+
+        ammoTooltipPageCount = pages.size();
+        ammoTooltipPagesVisible = pages.size() > 1;
+        if (pages.isEmpty())
+            return lines;
+        ammoTooltipPage = Mth.clamp(ammoTooltipPage, 0, pages.size() - 1);
+        lines.addAll(pages.get(ammoTooltipPage));
+        if (pages.size() > 1)
+            lines.add(Component.translatable("gui.flansmodultimate.driveable.ammo_page",
+                ammoTooltipPage + 1, pages.size()).withStyle(ChatFormatting.DARK_GRAY));
+        return lines;
+    }
+
+    /**
+     * One block per ammunition, or one per round when the weapon feeds a round mix,
+     * so each round pages with the mouse wheel as if it were its own ammunition.
+     */
+    private List<List<Component>> ammoBlocks(ShootableType type, @Nullable AmmoStatContext context)
+    {
+        if (context == null || !(type instanceof BulletType bullet))
+            return List.of(ammoDetails(type, context, null));
+        List<BulletType.RoundEntry> rounds = context.rounds(bullet);
+        if (rounds.isEmpty())
+            return List.of(ammoDetails(type, context, null));
+
+        List<List<Component>> blocks = new ArrayList<>();
+        int shot = 0;
+        for (BulletType.RoundEntry round : rounds)
+        {
+            blocks.add(ammoDetails(type, context.withFixedShot(shot), round.name() + " (" + round.count() + ")"));
+            shot += round.count();
+        }
+        return blocks;
+    }
+
+    /** Stats of one ammunition type as the vehicle in use fires it; a null context describes the ammo alone. */
+    private List<Component> ammoDetails(ShootableType type, @Nullable AmmoStatContext context, @Nullable String roundName)
+    {
+        List<Component> block = new ArrayList<>();
+        block.add(Component.literal("> " + type.getName() + (roundName == null ? "" : " - " + roundName))
+            .withStyle(ChatFormatting.YELLOW));
+
+        List<Component> stats = new ArrayList<>();
+        if (type.getRoundsPerItem() > 1)
+            stats.add(IFlanItem.statLine(Component.translatable(TooltipKeys.ROUNDS), String.valueOf(type.getRoundsPerItem())));
+        ModUtils.getItemStack(type)
+            .map(ItemStack::getItem)
+            .filter(ShootableItem.class::isInstance)
+            .map(ShootableItem.class::cast)
+            .ifPresent(item -> item.appendAmmoStats(stats, context));
+        stats.forEach(line -> block.add(Component.literal("  ").append(line)));
+        return block;
+    }
+
+    /**
+     * A mounted gun's stats as the vehicle in use fires it. Driver guns take their bank's fire rate, fire mode
+     * and damage multiplier (or the vehicle's ballistics for a ranging gun); passenger guns fire as the gun alone.
+     * Damage is listed per accepted ammunition, with the gun's and the vehicle's ammo overrides applied.
+     */
+    private List<Component> gunTooltip(GunRow row)
+    {
+        GunType gun = row.type();
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.literal(gun.getName()).withStyle(ChatFormatting.YELLOW));
+
+        if (!hasShiftDown())
+        {
+            if (minecraft != null)
+            {
+                Component keyName = minecraft.options.keyShift.getTranslatedKeyMessage().copy()
+                    .withStyle(ChatFormatting.AQUA, ChatFormatting.ITALIC);
+                lines.add(Component.translatable(TooltipKeys.HOLD_FOR_DETAILS, keyName).withStyle(ChatFormatting.GRAY));
+            }
+            return lines;
+        }
+
+        var driveable = menu.getDriveable();
+        if (driveable == null || driveable.getConfigType() == null)
+            return lines;
+
+        boolean bank = row.pilotGun() != null;
+        boolean secondary = bank && driveable.getConfigType().shootPoints(true).stream()
+            .anyMatch(point -> point.getRootPos() == row.pilotGun());
+        FireableGun fireable = bank ? driveable.getWeaponBankFireableGun(gun, secondary) : new FireableGun(gun);
+        float shootDelay = bank ? driveable.getWeaponBankShootDelay(secondary) : gun.getShootDelay(null);
+        EnumFireMode mode = bank ? driveable.getWeaponBankFireMode(secondary) : gun.getFireMode(null);
+
+        if (shootDelay > 0F)
+            lines.add(IFlanItem.statLine(Component.translatable(TooltipKeys.FIRE_RATE), IFlanItem.formatFloat(1200F / shootDelay) + " rpm"));
+        lines.add(IFlanItem.statLine(Component.translatable(TooltipKeys.MODE),
+            Component.translatable("tooltip.flansmodultimate.fire_mode." + mode.name().toLowerCase(Locale.ROOT))));
+        if (gun.getNumBullets() > 1)
+            lines.add(IFlanItem.statLine(Component.translatable(TooltipKeys.SHOT), String.valueOf(gun.getNumBullets())));
+
+        // The weapon's own velocity is only a fallback for ammunition that declares none; see the ammo tooltip.
+        float velocity = fireable.getBulletSpeed() * fireable.getBulletSpeedMultiplier();
+        lines.add(IFlanItem.statLine(Component.translatable(TooltipKeys.MUZZLE_VELOCITY),
+            velocity != 0F ? IFlanItem.formatFloat(velocity * 20F) + " m/s" : "∞"));
+
+        float dispersion = Mth.RAD_TO_DEG * ShootingHelper.ANGULAR_SPREAD_FACTOR * fireable.getSpread();
+        if (dispersion > 0F)
+            lines.add(IFlanItem.statLine(Component.translatable(TooltipKeys.DISPERSION), IFlanItem.formatFloat(dispersion) + "°"));
+
+        List<ShootableType> ammo = gun.getAmmoTypes();
+        if (!ammo.isEmpty())
+        {
+            Function<ShootableType, AmmoStatContext> contexts = gunContext(row);
+            lines.add(Component.translatable(TooltipKeys.DAMAGE).append(":").withStyle(ChatFormatting.BLUE));
+            for (ShootableType type : ammo)
+                lines.add(IFlanItem.indentedStatLine(type.getName(), mountedAmmoDamage(type, contexts.apply(type))));
+        }
+        return lines;
+    }
+
+    /** Damage of the first round of an ammunition fired through this context, following {@link ShootingHelper#getDamage}. */
+    private static String mountedAmmoDamage(ShootableType type, @Nullable AmmoStatContext context)
+    {
+        if (!(type instanceof BulletType bullet) || context == null)
+            return IFlanItem.formatFloat(type.getDamage().getDamage(), 1);
+        if (bullet.useKineticDamageSystem())
+        {
+            FiredShot shot = context.shot(bullet, 0);
+            float mass = shot.getProjectileMass();
+            if (mass > 0F)
+                return IFlanItem.formatFloat(ShootingHelper.getKineticDamage(mass, shot.getMuzzleVelocity()), 1);
+        }
+        return IFlanItem.formatFloat(bullet.getDamage().getDamage() * context.fireable(bullet).getDamage(), 1);
+    }
+
+    /** Resolves a gun row's ammunition the way that gun fires: from its weapon bank, or from a passenger seat. */
+    private Function<ShootableType, AmmoStatContext> gunContext(GunRow row)
+    {
+        var driveable = menu.getDriveable();
+        if (driveable == null || driveable.getConfigType() == null)
+            return ammo -> null;
+        if (row.pilotGun() == null)
+            return ammo -> driveable.getPassengerAmmoStatContext(row.type(), ammo);
+
+        boolean secondary = driveable.getConfigType().shootPoints(true).stream()
+            .anyMatch(point -> point.getRootPos() == row.pilotGun());
+        return ammo -> driveable.getBankAmmoStatContext(row.type(), secondary, ammo);
+    }
+
+    /**
+     * Resolves shells, missiles, bombs and mines through whichever weapon bank fires their weapon type.
+     *
+     * @param launchStats false for dropped ordnance, which has no meaningful muzzle velocity or dispersion
+     */
+    private Function<ShootableType, AmmoStatContext> bankContext(boolean launchStats)
+    {
+        var driveable = menu.getDriveable();
+        if (driveable == null || driveable.getConfigType() == null)
+            return ammo -> null;
+        DriveableType type = driveable.getConfigType();
+        return ammo -> {
+            EnumWeaponType weapon = ammo instanceof BulletType bullet ? bullet.getWeaponType() : EnumWeaponType.NONE;
+            boolean secondary = type.weaponType(true) == weapon && type.weaponType(false) != weapon;
+            return driveable.getBankAmmoStatContext(null, secondary, ammo).withLaunchStats(launchStats);
+        };
+    }
+
+    /** Tooltip for the repair row whose name or health bar is under the cursor. */
+    private List<Component> repairTooltip(int mouseX, int mouseY)
+    {
+        List<DriveablePart> parts = menu.getRepairParts();
+        int left = repairLeft();
+        int y = repairTop() + 23;
+        int end = visibleRepairEnd(parts);
+        for (int index = repairOffset; index < end; index++)
+        {
+            DriveablePart part = parts.get(index);
+            boolean broken = part.isDestroyed();
+            // Broken rows start the name after the repair button, so the button keeps its own hover.
+            int nameX = left + (broken ? 60 : 10);
+            if (mouseY >= y && mouseY < y + 20 && mouseX >= nameX && mouseX < left + 181)
+                return partTooltip(part);
+            y += broken ? 40 : 20;
+        }
+        return List.of();
+    }
+
+    private List<Component> partTooltip(DriveablePart part)
+    {
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.literal(part.getType().getName()).withStyle(ChatFormatting.YELLOW));
+        lines.add(Component.translatable("gui.flansmodultimate.driveable.part_health",
+            formatStat(part.getHealth()), formatStat(part.getMaxHealth())).withStyle(ChatFormatting.GRAY));
+
+        DriveableType type = menu.getDriveable() == null ? null : menu.getDriveable().getConfigType();
+        if (type != null && type.getResolvedArmor() != null)
+        {
+            List<Component> plates = new ArrayList<>();
+            for (EnumArmorFacing facing : EnumArmorFacing.values())
+            {
+                ArmorPlate plate = type.getResolvedArmor().plate(part.getType(), facing).authored();
+                if (!plate.isArmoured())
+                    continue;
+                Component facingName = Component.translatable(
+                    "gui.flansmodultimate.driveable.facing." + facing.name().toLowerCase(Locale.ROOT));
+                Component line = plate.slopeDeg() != 0F
+                    ? Component.translatable("gui.flansmodultimate.driveable.armor_plate_sloped",
+                        facingName, formatStat(plate.thicknessMm()), formatStat(plate.slopeDeg()),
+                        formatStat(lineOfSightArmor(plate)))
+                    : Component.translatable("gui.flansmodultimate.driveable.armor_plate",
+                        facingName, formatStat(plate.thicknessMm()));
+                plates.add(Component.literal("  ").append(line).withStyle(ChatFormatting.GRAY));
+            }
+            if (!plates.isEmpty())
+            {
+                lines.add(Component.translatable("gui.flansmodultimate.driveable.armor").withStyle(ChatFormatting.GRAY));
+                lines.addAll(plates);
+            }
+        }
+
+        if (part.getPenetrationResistance() > 0F)
+            lines.add(Component.translatable("gui.flansmodultimate.driveable.penetration_resistance",
+                formatStat(part.getPenetrationResistance())).withStyle(ChatFormatting.GRAY));
+        return lines;
+    }
+
+    /**
+     * Effective thickness against a level shot straight at the face, resolved the same way as
+     * {@code ResolvedVehicleArmor.resolveHit}: nominal thickness over the cosine of the slope,
+     * with the slope capped at the configured maximum impact angle.
+     */
+    private static float lineOfSightArmor(ArmorPlate plate)
+    {
+        double maxAngle = ModCommonConfig.maxArmorImpactAngleDeg();
+        double safeMaxAngle = Double.isFinite(maxAngle) ? Mth.clamp(maxAngle, 0D, 89.9D) : 80D;
+        double slope = Mth.clamp(Math.abs(plate.slopeDeg()), 0D, safeMaxAngle);
+        return (float) (plate.thicknessMm() / Math.cos(Math.toRadians(slope)));
+    }
+
+    private static String formatStat(float value)
+    {
+        return Math.abs(value - Math.round(value)) < 0.05F
+            ? Integer.toString(Math.round(value))
+            : String.format(Locale.ROOT, "%.1f", value);
     }
 
     private void renderFuel(GuiGraphics graphics, int x, int y)
@@ -509,6 +819,12 @@ public final class DriveableInventoryScreen extends AbstractContainerScreen<Driv
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta)
     {
+        if (ammoTooltipPagesVisible && hasShiftDown() && ammoTooltipPageCount > 1)
+        {
+            int step = delta < 0D ? 1 : -1;
+            ammoTooltipPage = Math.floorMod(ammoTooltipPage + step, ammoTooltipPageCount);
+            return true;
+        }
         if (menu.getPage() == Page.REPAIR)
         {
             List<DriveablePart> parts = menu.getRepairParts();

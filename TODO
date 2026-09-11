@@ -5,6 +5,8 @@ General:
 - Implement TaP Flan's Mod Features
 - Make SkinOverride compatible with old skin format
 - Check and Improve explosion visuals
+- Autolength for loop sounds
+- Check penetrating power balance
 
 Driveables physics and logic:
 - Fix some turret hitboxes not moving
@@ -12,16 +14,8 @@ Driveables physics and logic:
 - Less knockback (maybe proportional to the RealMassKg)
 - Vehicles with invisible drivers should make everything about the driver invisible (armor layer + held items)
 - Differentiate reload time and shootdelay for vehicles (for example Panzer II C)
-- Optional Idee: When a track is broken, the vehicle should be able to turn around itself but not move forward or backward. Forward or backward make the vehicle turn around itself.
-
-Driveables Rendering / Placing:
 - See if shooting points on vehicles can be directly inferred from models
-- Check propeller speed at standby as well as when moving
-
-UI:
-- Ammo toolips in inventory for Driveables
-- Driveable's name with special characters should be properly encoded in the HUD
-- Display HP in vehicle's inventory
+- Optional Idee: When a track is broken, the vehicle should be able to turn around itself but not move forward or backward. Forward or backward make the vehicle turn around itself.
 
 Categories:
 - mecha categories?

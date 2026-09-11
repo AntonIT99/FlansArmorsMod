@@ -27,6 +27,7 @@ import com.flansmodultimate.util.JavaModelCompiler;
 import com.flansmodultimate.util.LogUtils;
 import com.flansmodultimate.util.ResourceUtils;
 import com.flansmodultimate.util.SoundJsonProcessor;
+import com.flansmodultimate.util.TextDecoding;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -51,9 +52,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.lang.reflect.Constructor;
-import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
-import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
@@ -126,7 +124,8 @@ public class ContentManager
     private static final String ARMOR_TEXTURES_ALIAS_FILE = "armor_textures_alias.json";
     private static final String GUI_TEXTURES_ALIAS_FILE = "gui_textures_alias.json";
     private static final String GENERATED_ASSETS_VERSION_FILE = ".flans_generated_assets_version";
-    private static final String GENERATED_ASSETS_VERSION = "2";
+    // 3: regenerate lang JSON baked with names mis-decoded as GB18030.
+    private static final String GENERATED_ASSETS_VERSION = "3";
     private static final String SKINS_TEXTURES_ALIAS_FILE = "skins_textures_alias.json";
     private static final String GENERATED_TEXTURES_MANIFEST_FILE = ".flansmod_generated_textures.json";
     private static final String CONTENT_STARTUP_LOCK_FILE = ".flansmod-content.lock";
@@ -150,12 +149,6 @@ public class ContentManager
     private static final Map<ResourceLocation, Set<TextureOrigin>> modelTextureOrigins = new HashMap<>();
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    // Latin-1 must stay last because it can decode every byte sequence.
-    private static final List<Charset> TYPE_FILE_CHARSETS = List.of(
-        StandardCharsets.UTF_8,
-        Charset.forName("GB18030"),
-        StandardCharsets.ISO_8859_1
-    );
 
     private record TextureFile(String name, IContentProvider contentPack) {}
     private record FileContentSignature(long size, String sha256) {}
@@ -630,24 +623,7 @@ public class ContentManager
 
     private static List<String> readTypeFileLines(Path file) throws IOException
     {
-        CharacterCodingException firstDecodeFailure = null;
-
-        for (Charset charset : TYPE_FILE_CHARSETS)
-        {
-            try
-            {
-                return Files.readAllLines(file, charset);
-            }
-            catch (CharacterCodingException e)
-            {
-                if (firstDecodeFailure == null)
-                    firstDecodeFailure = e;
-                else
-                    firstDecodeFailure.addSuppressed(e);
-            }
-        }
-
-        throw firstDecodeFailure != null ? firstDecodeFailure : new IOException("No charset configured for " + file);
+        return TextDecoding.readLines(file);
     }
 
     private static void stripBomIfPresent(List<String> lines)
@@ -1444,18 +1420,8 @@ public class ContentManager
     }
 
     private static List<String> readLinesUtf8OrUtf16(Path file) throws IOException {
-        List<String> lines;
-        try
-        {
-            lines = Files.readAllLines(file, StandardCharsets.UTF_8);
-            stripBomIfPresent(lines);
-        }
-        catch (MalformedInputException ex)
-        {
-            // UTF-8 failed: try UTF-16
-            lines = Files.readAllLines(file, StandardCharsets.UTF_16);
-            stripBomIfPresent(lines);
-        }
+        List<String> lines = TextDecoding.readLines(file);
+        stripBomIfPresent(lines);
         return lines;
     }
 

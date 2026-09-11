@@ -110,6 +110,7 @@ public final class ModCommonConfig
     private static final ForgeConfigSpec.DoubleValue LEGSHOT_MODIFIER;
     private static final ForgeConfigSpec.DoubleValue VEHICLE_WHEEL_SEAT_EXPLOSION_MODIFIER;
     private static final ForgeConfigSpec.BooleanValue DRIVEABLE_COLLISIONS_BREAK_BLOCKS;
+    private static final ForgeConfigSpec.BooleanValue AUTO_REFILL_VEHICLE_AMMO;
 
     private static final ForgeConfigSpec.IntValue BREAKABLE_ARMOR;
     private static final ForgeConfigSpec.IntValue DEFAULT_ARMOR_DURABILITY;
@@ -267,6 +268,10 @@ public final class ModCommonConfig
             .comment("Whether driveables may destroy blocks when collision points strike them.",
                 "Disabled by default so aircraft crashes damage the aircraft without altering terrain.")
             .define("driveableCollisionsBreakBlocks", false);
+        AUTO_REFILL_VEHICLE_AMMO = builder
+            .comment("Whether an emptied gun, shell, missile or bomb slot of a driveable is reloaded with one more item",
+                "of the same ammunition, taken from the driveable's cargo first and then from the driver's inventory.")
+            .define("autoRefillVehicleAmmo", true);
         builder.pop();
 
         builder.push("Armor Settings");
@@ -585,6 +590,7 @@ public final class ModCommonConfig
             LEGSHOT_MODIFIER.get().floatValue(),
             VEHICLE_WHEEL_SEAT_EXPLOSION_MODIFIER.get().floatValue(),
             DRIVEABLE_COLLISIONS_BREAK_BLOCKS.get(),
+            AUTO_REFILL_VEHICLE_AMMO.get(),
 
             BREAKABLE_ARMOR.get(),
             DEFAULT_ARMOR_DURABILITY.get(),
@@ -760,6 +766,12 @@ public final class ModCommonConfig
     {
         CommonConfigSnapshot config = get();
         return config != null && config.driveableCollisionsBreakBlocks();
+    }
+
+    public static boolean autoRefillVehicleAmmo()
+    {
+        CommonConfigSnapshot config = get();
+        return config == null || config.autoRefillVehicleAmmo();
     }
 
     public static double maxArmorImpactAngleDeg()

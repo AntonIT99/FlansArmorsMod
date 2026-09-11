@@ -32,6 +32,7 @@ public record CommonConfigSnapshot(
     float legshotModifier,
     float vehicleWheelSeatExplosionModifier,
     boolean driveableCollisionsBreakBlocks,
+    boolean autoRefillVehicleAmmo,
 
     int breakableArmor,
     int defaultArmorDurability,
@@ -136,6 +137,7 @@ public record CommonConfigSnapshot(
         buf.writeFloat(s.legshotModifier);
         buf.writeFloat(s.vehicleWheelSeatExplosionModifier);
         buf.writeBoolean(s.driveableCollisionsBreakBlocks);
+        buf.writeBoolean(s.autoRefillVehicleAmmo);
 
         buf.writeVarInt(s.breakableArmor);
         buf.writeVarInt(s.defaultArmorDurability);
@@ -242,6 +244,7 @@ public record CommonConfigSnapshot(
             buf.readFloat(),
             buf.readFloat(),
             buf.readFloat(),
+            buf.readBoolean(),
             buf.readBoolean(),
 
             buf.readVarInt(),

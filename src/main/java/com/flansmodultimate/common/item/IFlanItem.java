@@ -52,26 +52,34 @@ public interface IFlanItem<T extends InfoType> extends ItemLike
      */
     static void appendDamageStats(List<Component> tooltip, DamageStats damageStats, String labelBaseKey)
     {
+        appendDamageStats(tooltip, damageStats, labelBaseKey, 1F);
+    }
+
+    /**
+     * @param multiplier factor applied to every displayed value, such as the firing weapon's damage
+     */
+    static void appendDamageStats(List<Component> tooltip, DamageStats damageStats, String labelBaseKey, float multiplier)
+    {
         final float EPS = 0.0001f;
 
         // Always show base explosion damage if it's meaningful
-        tooltip.add(IFlanItem.statLine(Component.translatable(labelBaseKey), formatFloat(damageStats.getDamage(), 1)));
+        tooltip.add(IFlanItem.statLine(Component.translatable(labelBaseKey), formatFloat(damageStats.getDamage() * multiplier, 1)));
 
         // vs Living: only show if explicitly configured AND different from base
         if (damageStats.isReadDamageVsLiving() && Math.abs(damageStats.getDamageVsLiving() - damageStats.getDamage()) > EPS)
-            tooltip.add(IFlanItem.indentedStatLine(Component.translatable(TooltipKeys.VS_LIVING), formatFloat(damageStats.getDamageVsLiving(), 1)));
+            tooltip.add(IFlanItem.indentedStatLine(Component.translatable(TooltipKeys.VS_LIVING), formatFloat(damageStats.getDamageVsLiving() * multiplier, 1)));
 
         // vs Player: inherits from vsLiving
         if (damageStats.isReadDamageVsPlayer() && Math.abs(damageStats.getDamageVsPlayer() - damageStats.getDamageVsLiving()) > EPS)
-            tooltip.add(IFlanItem.indentedStatLine(Component.translatable(TooltipKeys.VS_PLAYERS), formatFloat(damageStats.getDamageVsPlayer(), 1)));
+            tooltip.add(IFlanItem.indentedStatLine(Component.translatable(TooltipKeys.VS_PLAYERS), formatFloat(damageStats.getDamageVsPlayer() * multiplier, 1)));
 
         // vs Vehicle: inherits from base
         if (damageStats.isReadDamageVsVehicles() && Math.abs(damageStats.getDamageVsVehicles() - damageStats.getDamage()) > EPS)
-            tooltip.add(IFlanItem.indentedStatLine(Component.translatable(TooltipKeys.VS_VEHICLES), formatFloat(damageStats.getDamageVsVehicles(), 1)));
+            tooltip.add(IFlanItem.indentedStatLine(Component.translatable(TooltipKeys.VS_VEHICLES), formatFloat(damageStats.getDamageVsVehicles() * multiplier, 1)));
 
         // vs Plane: inherits from vsVehicle
         if (damageStats.isReadDamageVsPlanes() && Math.abs(damageStats.getDamageVsPlanes() - damageStats.getDamageVsVehicles()) > EPS)
-            tooltip.add(IFlanItem.indentedStatLine(Component.translatable(TooltipKeys.VS_PLANES), formatFloat(damageStats.getDamageVsPlanes(), 1)));
+            tooltip.add(IFlanItem.indentedStatLine(Component.translatable(TooltipKeys.VS_PLANES), formatFloat(damageStats.getDamageVsPlanes() * multiplier, 1)));
     }
 
     /**

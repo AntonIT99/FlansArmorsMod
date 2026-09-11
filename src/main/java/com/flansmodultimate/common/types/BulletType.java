@@ -493,6 +493,17 @@ public class BulletType extends ShootableType
         return super.getExplosionStats(explosiveEntity);
     }
 
+    /**
+     * Explosion profile of a shot resolved through the weapon firing it, so a per-weapon charge override
+     * or a belt round's own charge is reflected without a projectile entity.
+     */
+    public FlanExplosion.Stats getExplosionStatsForShot(FiredShot shot)
+    {
+        if (!shot.getAmmoOverride().isEmpty() || hasDifferentRounds())
+            return explosionStatsForCharge(shot.getExplosiveMass());
+        return super.getExplosionStats(null);
+    }
+
     /** Derives the whole explosion profile from one bursting charge in kg TNT equivalent. */
     private FlanExplosion.Stats explosionStatsForCharge(float explosiveCharge)
     {

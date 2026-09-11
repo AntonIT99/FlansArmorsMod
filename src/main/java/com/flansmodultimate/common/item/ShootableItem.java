@@ -17,7 +17,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.IntFunction;
 
 public abstract class ShootableItem extends Item
 {
@@ -223,15 +225,32 @@ public abstract class ShootableItem extends Item
             tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.ROUNDS), String.valueOf(stack.getCount())));
         }
 
-        if (configType.getNumBullets() > 1)
-            tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.SHOT), String.valueOf(configType.getNumBullets())));
+        appendAmmoStats(tooltipComponents, null);
+    }
 
-        // What loading this round does to the weapon, read the same way as an
-        // attachment's modifiers so the two are directly comparable.
-        if (configType.getDamageMultiplier() != 1F)
+    /**
+     * Stack-independent ammunition stats, shared by the item tooltip and the driveable ammo tooltips.
+     *
+     * @param context the weapon the round is shown for, whose multipliers and per-ammunition overrides are
+     *                resolved into the values; null to describe the ammunition on its own
+     */
+    public void appendAmmoStats(@NotNull List<Component> tooltipComponents, @Nullable AmmoStatContext context)
+    {
+        ShootableType configType = getConfigType();
+        BulletType bulletType = configType instanceof BulletType type ? type : null;
+        List<RoundView> rounds = bulletType == null ? List.of() : roundViews(bulletType, context);
+
+        int numBullets = context != null ? context.numBullets() : configType.getNumBullets();
+        if (numBullets > 1)
+            tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.SHOT), String.valueOf(numBullets)));
+
+        // What loading this round does to the weapon, read the same way as an attachment's
+        // modifiers so the two are directly comparable. With a weapon context, damage and
+        // spread are already folded into the resolved values below.
+        if (context == null && configType.getDamageMultiplier() != 1F)
             tooltipComponents.add(IFlanItem.modifierLine(Component.translatable(TooltipKeys.DAMAGE), configType.getDamageMultiplier(), false));
 
-        if (configType.getSpreadMultiplier() != 1F)
+        if (context == null && configType.getSpreadMultiplier() != 1F)
             tooltipComponents.add(IFlanItem.modifierLine(Component.translatable(TooltipKeys.BULLET_SPREAD), configType.getSpreadMultiplier(), true));
 
         if (configType.getRecoilMultiplier() != 1F)
@@ -242,37 +261,16 @@ public abstract class ShootableItem extends Item
 
         if (configType.useKineticDamageSystem())
         {
-            if (configType instanceof BulletType bulletType)
+            if (bulletType != null)
             {
-                boolean hasDifferentRounds = bulletType.hasDifferentRounds();
-                boolean hasRoundKineticDamage = hasDifferentRounds && bulletType.getPeriod().stream()
-                    .anyMatch(round -> round.stats().mass() > 0F && round.stats().bulletSpeed() > 0F);
-
-                if (hasDifferentRounds)
-                {
-                    tooltipComponents.add(Component.translatable(TooltipKeys.MASS).append(":").withStyle(ChatFormatting.BLUE));
-                    bulletType.getPeriod().forEach(round ->
-                        tooltipComponents.add(Component.literal("  " + round.name() + " " + IFlanItem.formatFloat(round.stats().mass()) + " g").withStyle(ChatFormatting.GRAY)));
-                }
-                else
-                {
-                    tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.MASS), IFlanItem.formatFloat(configType.getMass()) + " g"));
-                }
-
-                if (hasRoundKineticDamage)
-                {
-                    tooltipComponents.add(Component.translatable(TooltipKeys.DAMAGE).append(":").withStyle(ChatFormatting.BLUE));
-                    bulletType.getPeriod().forEach(round ->
-                    {
-                        if (round.stats().mass() > 0F && round.stats().bulletSpeed() > 0F)
-                            tooltipComponents.add(Component.literal("  " + round.name() + " " + IFlanItem.formatFloat(ShootingHelper.getKineticDamage(round.stats().mass(), round.stats().bulletSpeed()), 1)).withStyle(ChatFormatting.GRAY));
-                    });
-                }
-                else if (bulletType.getBulletSpeed() > 0F)
-                {
-                    tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.DAMAGE), IFlanItem.formatFloat(ShootingHelper.getKineticDamage(configType.getMass(), bulletType.getBulletSpeed()), 1)));
-                }
-
+                appendPerRound(tooltipComponents, TooltipKeys.MASS, rounds,
+                    shot -> IFlanItem.formatFloat(projectileMass(bulletType, shot, context)) + " g");
+                appendPerRound(tooltipComponents, TooltipKeys.DAMAGE, rounds, shot -> {
+                    float mass = projectileMass(bulletType, shot, context);
+                    float velocity = muzzleVelocity(bulletType, shot, context);
+                    return mass > 0F && velocity > 0F
+                        ? IFlanItem.formatFloat(ShootingHelper.getKineticDamage(mass, velocity), 1) : null;
+                });
             }
             else
             {
@@ -280,16 +278,17 @@ public abstract class ShootableItem extends Item
             }
         }
         else
-            IFlanItem.appendDamageStats(tooltipComponents, configType.getDamage(), TooltipKeys.DAMAGE);
+        {
+            // Legacy damage is scaled by the firing weapon's damage, e.g. a vehicle's DamageMultiplierPrimary.
+            float weaponDamage = context != null && bulletType != null ? context.fireable(bulletType).getDamage() : 1F;
+            IFlanItem.appendDamageStats(tooltipComponents, configType.getDamage(), TooltipKeys.DAMAGE, weaponDamage);
+        }
 
         if (configType.useNewExplosionSystem())
         {
-            if (configType instanceof BulletType bulletType && bulletType.hasDifferentRounds())
-            {
-                tooltipComponents.add(Component.translatable(TooltipKeys.EXPLOSIVE_MASS_TNT).append(":").withStyle(ChatFormatting.BLUE));
-                bulletType.getPeriod().forEach(round ->
-                    tooltipComponents.add(Component.literal("  " + round.name() + " " + IFlanItem.formatMassKg(round.stats().explosiveMass())).withStyle(ChatFormatting.GRAY)));
-            }
+            if (bulletType != null)
+                appendPerRound(tooltipComponents, TooltipKeys.EXPLOSIVE_MASS_TNT, rounds,
+                    shot -> IFlanItem.formatMassKg(explosiveMass(bulletType, shot, context)));
             else
                 tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.EXPLOSIVE_MASS_TNT), IFlanItem.formatMassKg(configType.getExplosiveMass())));
         }
@@ -299,7 +298,9 @@ public abstract class ShootableItem extends Item
             // Pulled from a real Stats object rather than the individual raw getters, so the
             // tooltip shows exactly what FlanExplosion will simulate: the crater cap, and the
             // blast/frag flattening curve for heavy charges, both applied.
-            FlanExplosion.Stats stats = configType.getExplosionStats(null);
+            FlanExplosion.Stats stats = context != null && bulletType != null
+                ? bulletType.getExplosionStatsForShot(context.shot(bulletType, 0))
+                : configType.getExplosionStats(null);
 
             tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.EXPLOSION_RADIUS), IFlanItem.formatFloat(stats.explosionRadius(), 1)));
             tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.EXPLOSION_POWER), IFlanItem.formatFloat(stats.explosionPower(), 1)));
@@ -322,7 +323,79 @@ public abstract class ShootableItem extends Item
         if (configType.getFallSpeed() > 1F || configType.getFallSpeed() < 1F)
             tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.GRAVITY_FACTOR), IFlanItem.formatFloat(configType.getFallSpeed())));
 
-        if (configType.getBulletSpread() > 0F)
-            tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.DISPERSION), IFlanItem.formatFloat(configType.getDispersionForDisplay()) + "°"));
+        float dispersion = context != null && bulletType != null
+            ? Mth.RAD_TO_DEG * ShootingHelper.ANGULAR_SPREAD_FACTOR * context.shot(bulletType, 0).getSpread()
+            : configType.getBulletSpread() > 0F ? configType.getDispersionForDisplay() : 0F;
+        if (dispersion > 0F && (context == null || context.showLaunchStats()))
+            tooltipComponents.add(IFlanItem.statLine(Component.translatable(TooltipKeys.DISPERSION), IFlanItem.formatFloat(dispersion) + "°"));
+    }
+
+    /** A round of the belt a weapon feeds, with the magazine position its stats are resolved at. */
+    protected record RoundView(String name, int count, int shot) {}
+
+    protected static List<RoundView> roundViews(BulletType type, @Nullable AmmoStatContext context)
+    {
+        List<BulletType.RoundEntry> entries = context != null ? context.rounds(type)
+            : type.hasDifferentRounds() ? type.getPeriod() : List.of();
+        List<RoundView> views = new ArrayList<>(entries.size());
+        int shot = 0;
+        for (BulletType.RoundEntry entry : entries)
+        {
+            views.add(new RoundView(entry.name(), entry.count(), shot));
+            shot += entry.count();
+        }
+        return views;
+    }
+
+    /** One stat line, or a labelled list with one line per belt round; null values are skipped. */
+    protected static void appendPerRound(List<Component> tooltip, String labelKey, List<RoundView> rounds, IntFunction<String> valueAtShot)
+    {
+        if (rounds.isEmpty())
+        {
+            String value = valueAtShot.apply(0);
+            if (value != null)
+                tooltip.add(IFlanItem.statLine(Component.translatable(labelKey), value));
+            return;
+        }
+
+        List<Component> lines = new ArrayList<>();
+        for (RoundView round : rounds)
+        {
+            String value = valueAtShot.apply(round.shot());
+            if (value != null)
+                lines.add(Component.literal("  " + round.name() + " " + value).withStyle(ChatFormatting.GRAY));
+        }
+        if (lines.isEmpty())
+            return;
+        tooltip.add(Component.translatable(labelKey).append(":").withStyle(ChatFormatting.BLUE));
+        tooltip.addAll(lines);
+    }
+
+    protected static float projectileMass(BulletType type, int shot, @Nullable AmmoStatContext context)
+    {
+        return context != null ? context.shot(type, shot).getProjectileMass() : type.getMass(shot);
+    }
+
+    /** Muzzle velocity in blocks per tick; without a weapon, zero when the ammunition declares none. */
+    protected static float muzzleVelocity(BulletType type, int shot, @Nullable AmmoStatContext context)
+    {
+        return context != null ? context.shot(type, shot).getMuzzleVelocity() : type.getBulletSpeed(shot, 0F, false);
+    }
+
+    protected static float explosiveMass(BulletType type, int shot, @Nullable AmmoStatContext context)
+    {
+        if (context != null)
+            return context.shot(type, shot).getExplosiveMass();
+        return type.hasDifferentRounds() ? type.statsForShot(shot).explosiveMass() : type.getExplosiveMass();
+    }
+
+    protected static float penetrationAt100m(BulletType type, int shot, @Nullable AmmoStatContext context)
+    {
+        return context != null ? context.shot(type, shot).getPenetrationAt100m() : type.getPenetrationAt100m(shot);
+    }
+
+    protected static float penetratingPower(BulletType type, int shot, @Nullable AmmoStatContext context)
+    {
+        return context != null ? context.shot(type, shot).getPenetratingPower() : type.getPenetratingPower();
     }
 }

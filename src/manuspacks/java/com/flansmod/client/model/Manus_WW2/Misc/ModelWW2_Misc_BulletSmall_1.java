@@ -11,8 +11,8 @@ public class ModelWW2_Misc_BulletSmall_1 extends ModelBase {
    public ModelRendererTurbo[] bulletsmallModel = new ModelRendererTurbo[1];
 
    public ModelWW2_Misc_BulletSmall_1() {
-      this.bulletsmallModel[0] = new ModelRendererTurbo(this, 0, 0, this.textureX, this.textureY);
-      this.bulletsmallModel[0].addTrapezoid(0.0F, 0.0F, 0.0F, 4, 1, 1, 0.0F, -0.5F, 3);
-      this.bulletsmallModel[0].setRotationPoint(-4.0F, -0.5F, -0.5F);
+      bulletsmallModel[0] = new ModelRendererTurbo(this, 0, 0, textureX, textureY);
+      bulletsmallModel[0].addTrapezoid(0.0F, 0.0F, 0.0F, 4, 1, 1, 0.0F, -0.5F, 3);
+      bulletsmallModel[0].setRotationPoint(-4.0F, -0.5F, -0.5F);
    }
 }

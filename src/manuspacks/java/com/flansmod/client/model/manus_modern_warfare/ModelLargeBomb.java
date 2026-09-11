@@ -11,20 +11,20 @@ public class ModelLargeBomb extends ModelBase {
    public ModelRendererTurbo[] missleModel = new ModelRendererTurbo[5];
 
    public ModelLargeBomb() {
-      this.missleModel[0] = new ModelRendererTurbo(this, 9, 0, this.textureX, this.textureY);
-      this.missleModel[1] = new ModelRendererTurbo(this, 0, 0, this.textureX, this.textureY);
-      this.missleModel[2] = new ModelRendererTurbo(this, 18, 0, this.textureX, this.textureY);
-      this.missleModel[3] = new ModelRendererTurbo(this, 18, 10, this.textureX, this.textureY);
-      this.missleModel[4] = new ModelRendererTurbo(this, 18, 15, this.textureX, this.textureY);
-      this.missleModel[0].addTrapezoid(-3.0F, 0.0F, -3.0F, 6, 10, 6, 0.0F, -2.0F, 4);
-      this.missleModel[1].addBox(-3.0F, 10.0F, -3.0F, 6, 16, 6, 0.0F);
-      this.missleModel[2].addTrapezoid(-3.0F, 26.0F, -3.0F, 6, 3, 6, 0.0F, -1.5F, 4);
-      this.missleModel[3].addShapeBox(0.0F, 0.0F, 0.0F, 10, 4, 1, 0.0F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F);
-      this.missleModel[3].setRotationPoint(0.0F, 0.0F, 0.0F);
-      this.missleModel[3].rotateAngleY = (float) (-Math.PI / 4);
-      this.missleModel[4].addShapeBox(0.0F, 0.0F, 0.0F, 10, 4, 1, 0.0F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F);
-      this.missleModel[4].setRotationPoint(0.0F, 0.0F, 0.0F);
-      this.missleModel[4].rotateAngleY = (float) (Math.PI / 4);
+      missleModel[0] = new ModelRendererTurbo(this, 9, 0, textureX, textureY);
+      missleModel[1] = new ModelRendererTurbo(this, 0, 0, textureX, textureY);
+      missleModel[2] = new ModelRendererTurbo(this, 18, 0, textureX, textureY);
+      missleModel[3] = new ModelRendererTurbo(this, 18, 10, textureX, textureY);
+      missleModel[4] = new ModelRendererTurbo(this, 18, 15, textureX, textureY);
+      missleModel[0].addTrapezoid(-3.0F, 0.0F, -3.0F, 6, 10, 6, 0.0F, -2.0F, 4);
+      missleModel[1].addBox(-3.0F, 10.0F, -3.0F, 6, 16, 6, 0.0F);
+      missleModel[2].addTrapezoid(-3.0F, 26.0F, -3.0F, 6, 3, 6, 0.0F, -1.5F, 4);
+      missleModel[3].addShapeBox(0.0F, 0.0F, 0.0F, 10, 4, 1, 0.0F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F);
+      missleModel[3].setRotationPoint(0.0F, 0.0F, 0.0F);
+      missleModel[3].rotateAngleY = (float) (-Math.PI / 4);
+      missleModel[4].addShapeBox(0.0F, 0.0F, 0.0F, 10, 4, 1, 0.0F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F, 0.0F, 0.0F, -0.3F);
+      missleModel[4].setRotationPoint(0.0F, 0.0F, 0.0F);
+      missleModel[4].rotateAngleY = (float) (Math.PI / 4);
    }
 
 }

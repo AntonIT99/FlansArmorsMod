@@ -11,11 +11,11 @@ public class ModelWH40K_Misc_TitanLaser_1 extends ModelBase {
    public ModelRendererTurbo[] titanlaserModel = new ModelRendererTurbo[2];
 
    public ModelWH40K_Misc_TitanLaser_1() {
-      this.titanlaserModel[0] = new ModelRendererTurbo(this, 0, 0, this.textureX, this.textureY);
-      this.titanlaserModel[1] = new ModelRendererTurbo(this, 16, 0, this.textureX, this.textureY);
-      this.titanlaserModel[0].addShapeBox(0.0F, 0.0F, 0.0F, 1, 50, 7, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F);
-      this.titanlaserModel[0].setRotationPoint(-0.5F, 0.0F, -3.5F);
-      this.titanlaserModel[1].addShapeBox(0.0F, 0.0F, 0.0F, 7, 50, 1, 0.0F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F);
-      this.titanlaserModel[1].setRotationPoint(-3.5F, 0.0F, -0.5F);
+      titanlaserModel[0] = new ModelRendererTurbo(this, 0, 0, textureX, textureY);
+      titanlaserModel[1] = new ModelRendererTurbo(this, 16, 0, textureX, textureY);
+      titanlaserModel[0].addShapeBox(0.0F, 0.0F, 0.0F, 1, 50, 7, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F);
+      titanlaserModel[0].setRotationPoint(-0.5F, 0.0F, -3.5F);
+      titanlaserModel[1].addShapeBox(0.0F, 0.0F, 0.0F, 7, 50, 1, 0.0F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F, 0.0F, 0.0F, -0.49F);
+      titanlaserModel[1].setRotationPoint(-3.5F, 0.0F, -0.5F);
    }
 }

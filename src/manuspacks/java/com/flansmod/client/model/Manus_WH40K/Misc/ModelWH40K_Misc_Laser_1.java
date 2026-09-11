@@ -14,7 +14,7 @@ public class ModelWH40K_Misc_Laser_1 extends ModelBase {
    public ModelRenderer laserModel = new ModelRenderer(this, 0, 0);
 
    public ModelWH40K_Misc_Laser_1() {
-      this.laserModel.addBox(-1.5F, -16.0F, -1.5F, 3, 32, 3);
+      laserModel.addBox(-1.5F, -16.0F, -1.5F, 3, 32, 3);
    }
 
    @Override

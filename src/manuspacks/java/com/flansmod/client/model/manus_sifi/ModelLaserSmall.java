@@ -13,7 +13,7 @@ public class ModelLaserSmall extends ModelBase {
    public ModelRenderer laserSmallModel = new ModelRenderer(this, 0, 0);
 
    public ModelLaserSmall() {
-      this.laserSmallModel.addBox(-1.0F, -8.0F, -1.0F, 2, 16, 2);
+      laserSmallModel.addBox(-1.0F, -8.0F, -1.0F, 2, 16, 2);
    }
 
    @Override

@@ -11,11 +11,11 @@ public class ModelWH40K_Misc_TitanBolt_1 extends ModelBase {
    public ModelRendererTurbo[] titanboltModel = new ModelRendererTurbo[2];
 
    public ModelWH40K_Misc_TitanBolt_1() {
-      this.titanboltModel[0] = new ModelRendererTurbo(this, 1, 1, this.textureX, this.textureY);
-      this.titanboltModel[1] = new ModelRendererTurbo(this, 17, 1, this.textureX, this.textureY);
-      this.titanboltModel[0].addBox(0.0F, 0.0F, 0.0F, 2, 4, 2, 0.0F);
-      this.titanboltModel[0].setRotationPoint(-1.0F, 0.0F, -1.0F);
-      this.titanboltModel[1].addTrapezoid(0.0F, 0.0F, 0.0F, 2, 2, 2, 0.0F, -0.75F, 5);
-      this.titanboltModel[1].setRotationPoint(-1.0F, 4.0F, -1.0F);
+      titanboltModel[0] = new ModelRendererTurbo(this, 1, 1, textureX, textureY);
+      titanboltModel[1] = new ModelRendererTurbo(this, 17, 1, textureX, textureY);
+      titanboltModel[0].addBox(0.0F, 0.0F, 0.0F, 2, 4, 2, 0.0F);
+      titanboltModel[0].setRotationPoint(-1.0F, 0.0F, -1.0F);
+      titanboltModel[1].addTrapezoid(0.0F, 0.0F, 0.0F, 2, 2, 2, 0.0F, -0.75F, 5);
+      titanboltModel[1].setRotationPoint(-1.0F, 4.0F, -1.0F);
    }
 }

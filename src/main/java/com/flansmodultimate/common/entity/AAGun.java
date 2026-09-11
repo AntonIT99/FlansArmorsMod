@@ -60,6 +60,7 @@ public class AAGun extends Entity implements IEntityAdditionalSpawnData, IFlanEn
     public static final float DEFAULT_HITBOX_SIZE = 2F;
 
     private static final double SENTRY_ORIGIN_Y_OFFSET = 1.5D;
+    private static final double LEGACY_PLAYER_EYE_HEIGHT = 1.62D;
     private static final int TARGET_ACQUIRE_INTERVAL = 10;
 
     public static final String NBT_TYPE_NAME = "type";
@@ -981,7 +982,8 @@ public class AAGun extends Entity implements IEntityAdditionalSpawnData, IFlanEn
         double x2 = x * cosYaw + z * sinYaw;
         double z2 = -x * sinYaw + z * cosYaw;
 
-        return new Vec3(getX() + x2, getY() + y - 1.5, getZ() + z2);
+        // 1.7.10 placed the local player's eye point (feet + 1.62) at the gunner position.
+        return new Vec3(getX() + x2, getY() + y - LEGACY_PLAYER_EYE_HEIGHT, getZ() + z2);
     }
 
     public Vec3 getBarrelOrigin(int barrel, boolean sentryShot)

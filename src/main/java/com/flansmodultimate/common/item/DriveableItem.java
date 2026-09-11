@@ -2,9 +2,11 @@ package com.flansmodultimate.common.item;
 
 import com.flansmodultimate.common.driveables.DriveableData;
 import com.flansmodultimate.common.driveables.DriveablePart;
+import com.flansmodultimate.common.driveables.LegacyDriveableCoordinates;
 import com.flansmodultimate.common.entity.Driveable;
 import com.flansmodultimate.common.teams.TeamsManager;
 import com.flansmodultimate.common.types.DriveableType;
+import com.flansmodultimate.common.types.PlaneType;
 import com.flansmodultimate.hooks.ClientHooks;
 import lombok.Getter;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
@@ -72,7 +74,9 @@ public abstract class DriveableItem<T extends DriveableType, D extends Driveable
 
         if (!level.isClientSide)
         {
-            float yaw = snapPlacementYaw(player.getYRot());
+            // Driveable yaw keeps the legacy model basis; convert so the model's
+            // front ends up facing where the placing player looks.
+            float yaw = LegacyDriveableCoordinates.driveableYawFromRenderedForward(player.getYRot(), configType instanceof PlaneType);
             D driveable = spawnDriveable(level, placement.x(), placement.y() + configType.getYOffset(), placement.z(), yaw, player, heldStack);
             if (driveable == null)
                 return InteractionResultHolder.fail(heldStack);
@@ -209,11 +213,6 @@ public abstract class DriveableItem<T extends DriveableType, D extends Driveable
         if (!configType.isPlaceableOnLand() || !state.isFaceSturdy(level, hitPos, Direction.UP))
             return null;
         return new Placement(hitPos.getX() + 0.5D, hitPos.getY() + 1D, hitPos.getZ() + 0.5D);
-    }
-
-    private static float snapPlacementYaw(float yaw)
-    {
-        return Math.round(yaw / 90F) * 90F;
     }
 
     private record Placement(double x, double y, double z) {}

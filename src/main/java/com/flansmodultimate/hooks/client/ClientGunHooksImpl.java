@@ -407,7 +407,10 @@ public class ClientGunHooksImpl implements IClientGunHooks
         }
 
         if (!sentry)
+        {
             DebugHelper.spawnDebugDot(gunnerSeat, 2, 0F, 0.45F, 1F);
+            DebugHelper.spawnDebugVector(gunnerSeat, new Vec3(0D, 2D, 0D), 2, 0F, 0.45F, 1F);
+        }
     }
 
     private static Vec3 getAAGunDebugBarrelOrigin(AAGun aaGun, int barrel, boolean sentryShot, @Nullable ModelAAGun.BarrelOriginData barrelOriginData)

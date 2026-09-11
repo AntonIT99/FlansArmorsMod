@@ -102,6 +102,13 @@ public final class DriveableCollisionWorld
         return hulls != null && !hulls.isEmpty() && collidesWithHulls(entity) && hulls.intersects(entity, box);
     }
 
+    /** Whether a box overlaps any active hull in the level, regardless of which entity would occupy it. */
+    public static boolean intersectsAnyHull(@NotNull Level level, @NotNull AABB box)
+    {
+        LevelHulls hulls = hulls(level);
+        return hulls != null && !hulls.isEmpty() && hulls.intersects(null, box);
+    }
+
     /** Whether the entity stands on a hull, by the same probe the server's floating check uses for blocks. */
     public static boolean isStandingOnHull(@NotNull Entity entity)
     {
@@ -250,7 +257,7 @@ public final class DriveableCollisionWorld
             return nearby;
         }
 
-        private boolean intersects(Entity entity, AABB box)
+        private boolean intersects(@Nullable Entity entity, AABB box)
         {
             for (int index = helpers.size() - 1; index >= 0; index--)
             {

@@ -99,6 +99,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -199,6 +200,9 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
     private static final int CHILD_REPAIR_INTERVAL = 20;
     private static final int RELOAD_SOUND_TICK_UNSET = 15_214_541;
     private static final double MAX_SPAWN_COORDINATE = 29_999_984D;
+    private static final double MAX_DISMOUNT_DISTANCE = 12D;
+    private static final double DISMOUNT_DISTANCE_STEP = 0.5D;
+    private static final int[] DISMOUNT_HEIGHT_OFFSETS = { 0, 1, -1, 2, -2, 3 };
 
     @Nullable
     protected DriveableType configType;
@@ -2498,17 +2502,54 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         return configType == null ? 1D : Math.max(1.0E-4D, configType.getModelScale());
     }
 
+    /**
+     * Exit spot beside the driveable, preferring the side of the seat being left.
+     *
+     * <p>Candidates are tested against the shaped hulls as well as blocks:
+     * a fixed offset probed only against blocks put riders of anything wider
+     * than a few blocks inside their own hull, where they stayed stuck.</p>
+     */
     public Vec3 getSafeDismountPosition(@NotNull LivingEntity passenger, int seatIndex)
     {
-        Vec3 right = getRightVector();
-        for (double side : new double[] { 1.5D, -1.5D, 2.5D, -2.5D })
+        Vec3 origin = position();
+        Vec3 right = getRightVector().multiply(1D, 0D, 1D);
+        right = right.lengthSqr() < 1.0E-6D ? new Vec3(1D, 0D, 0D) : right.normalize();
+        Vec3 forward = new Vec3(-right.z, 0D, right.x);
+        Vec3 nearSide = getSeatWorldPosition(seatIndex).subtract(origin).dot(right) < 0D ? right.reverse() : right;
+
+        double minDistance = Math.max(1.5D, (getBbWidth() + passenger.getBbWidth()) * 0.5D + 0.1D);
+        for (Vec3 direction : new Vec3[] { nearSide, nearSide.reverse(), forward, forward.reverse() })
         {
-            Vec3 candidate = position().add(right.scale(side)).add(0D, 0.25D, 0D);
-            AABB moved = passenger.getBoundingBox().move(candidate.subtract(passenger.position()));
-            if (level().noCollision(passenger, moved))
-                return candidate;
+            for (double distance = minDistance; distance <= MAX_DISMOUNT_DISTANCE; distance += DISMOUNT_DISTANCE_STEP)
+            {
+                Vec3 spot = findDismountSpot(passenger, origin.add(direction.scale(distance)));
+                if (spot != null)
+                    return spot;
+            }
         }
-        return position().add(0D, getBbHeight() + 0.5D, 0D);
+        return origin.add(0D, getBbHeight() + 0.5D, 0D);
+    }
+
+    @Nullable
+    private Vec3 findDismountSpot(@NotNull LivingEntity passenger, @NotNull Vec3 column)
+    {
+        int baseY = Mth.floor(getY());
+        for (int dy : DISMOUNT_HEIGHT_OFFSETS)
+        {
+            Vec3 spot = DismountHelper.findSafeDismountLocation(passenger.getType(), level(),
+                BlockPos.containing(column.x, baseY + dy, column.z), true);
+            if (spot != null && isClearOfHulls(passenger, spot))
+                return spot;
+        }
+        // No floor in reach (water, or an aircraft over a drop): stay level with the driveable.
+        Vec3 spot = new Vec3(column.x, getY(), column.z);
+        return level().noCollision(passenger, passenger.getDimensions(Pose.STANDING).makeBoundingBox(spot))
+            && isClearOfHulls(passenger, spot) ? spot : null;
+    }
+
+    private boolean isClearOfHulls(@NotNull LivingEntity passenger, @NotNull Vec3 feet)
+    {
+        return !DriveableCollisionWorld.intersectsAnyHull(level(), passenger.getDimensions(Pose.STANDING).makeBoundingBox(feet));
     }
 
     @Nullable

@@ -54,8 +54,7 @@ public class Seat extends Entity implements IControllable
      * {@code 1.62F}, and 1.7.10 hung a bounding box from {@code posY - yOffset},
      * so the feet landed at {@code seat.posY + 1.12 - 1.62}. Modern {@code
      * setPos} places the feet directly, which makes the same placement a flat
-     * -0.5. The vehicle model correction cancels: it is applied to the seat
-     * anchor and to the rendered model alike.</p>
+     * -0.5.</p>
      */
     static final double LEGACY_PLAYER_RIDING_OFFSET = -0.5D;
     /**

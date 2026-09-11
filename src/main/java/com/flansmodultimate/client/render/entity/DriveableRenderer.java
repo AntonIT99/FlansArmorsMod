@@ -189,11 +189,6 @@ public class DriveableRenderer<T extends Driveable> extends FlanEntityRenderer<T
         poseStack.mulPose(Axis.XP.rotationDegrees(roll));
         LegacyTransformApplier.applyModelTransform(model, type, poseStack);
 
-        // Keep this in model space so the correction follows terrain pitch and roll,
-        // and is scaled along with legacy models that use ModelScale.
-        if (driveable instanceof Vehicle)
-            poseStack.translate(0F, Vehicle.scaledModelVerticalOffset(scale), 0F);
-
         // Legacy driveable renderers applied ModelScale to the complete model
         // hierarchy. Keep pivots, attachment points and procedural track paths
         // under the same transform instead of scaling every mesh independently.

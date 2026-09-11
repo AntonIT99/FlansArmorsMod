@@ -1673,13 +1673,13 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         Vec3 offset = attachmentModelLocal(point.getOffPos());
         EnumDriveablePart part = point.getRootPos().getPart();
         if (!isTurretMountedPart(part))
-            return applyVehicleModelVerticalOffset(modelLocalToWorld(root.add(offset)));
+            return modelLocalToWorld(root.add(offset));
 
         // Root and offset together describe the actual muzzle point. Rotating
         // only the offset leaves the root yaw-only and makes the projectile
         // origin detach from the barrel as its pitch changes.
         Vec3 muzzle = root.add(offset);
-        return applyVehicleModelVerticalOffset(turretPointToWorld(muzzle, getTurretYaw(), getTurretPitch()));
+        return turretPointToWorld(muzzle, getTurretYaw(), getTurretPitch());
     }
 
     /** Returns the model-aligned muzzle position for client-side diagnostics. */
@@ -1692,15 +1692,6 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
     public Vec3 getDebugShootDirection(@NotNull ShootPoint point, boolean secondary)
     {
         return getShootDirection(point, secondary);
-    }
-
-    /** Aligns model-anchored positions with the visual offset used by vehicles. */
-    protected Vec3 applyVehicleModelVerticalOffset(@NotNull Vec3 position)
-    {
-        if (!(this instanceof Vehicle) || configType == null)
-            return position;
-        return position.add(modelLocalDirectionToWorld(new Vec3(0D,
-            Vehicle.scaledModelVerticalOffset(configType.getModelScale()), 0D)));
     }
 
     protected Vec3 getShootDirection(ShootPoint point, boolean secondary)
@@ -1920,7 +1911,7 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
     private Vec3 getPassengerShootOrigin(@NotNull SeatInfo info)
     {
         Vec3 local = attachmentModelLocal(info.getGunOrigin()).add(0D, PASSENGER_GUN_MOUNTED_OFFSET, 0D);
-        return applyVehicleModelVerticalOffset(position().add(modelLocalDirectionToWorld(local)));
+        return position().add(modelLocalDirectionToWorld(local));
     }
 
     protected enum AmmoBank { AMMO, BOMB, MISSILE }
@@ -2471,12 +2462,6 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
             localPosition = turretPointToLocal(localPosition, turretYaw,
                 info.getPart() == EnumDriveablePart.BARREL ? turretPitch : 0F);
 
-        // The renderer lowers the complete vehicle model, so every seat anchor
-        // needs the same model-space correction, not only the driver.
-        if (this instanceof Vehicle)
-            localPosition = localPosition.add(0D,
-                Vehicle.scaledModelVerticalOffset(configType.getModelScale()), 0D);
-
         Vec3 rotatedOffset = attachmentModelLocal(info.getRotatedOffset());
         if (rotatedOffset.lengthSqr() > 1.0E-8D)
         {
@@ -2497,13 +2482,14 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         // half-turn; using the generic physics basis put their rear gear at
         // the nose and also rotated wheel anchors incorrectly with pitch.
         Vec3 local = configuredModelLocal(wheel.getPosition());
-        if (this instanceof Vehicle)
-            local = local.add(0D, Vehicle.VEHICLE_MODEL_VERTICAL_OFFSET, 0D);
-        // The renderer lowers the model and then scales the whole hierarchy, so
-        // a rendered wheel ends up at ModelScale times its authored offset from
-        // the entity origin. An unscaled anchor therefore rests the vehicle too
-        // low for a scale above 1 and too high for one below it.
-        return modelLocalToWorld(local.scale(modelScale()));
+        double scale = modelScale();
+        return modelLocalToWorld(new Vec3(local.x * scale, local.y * wheelAnchorHeightScale(), local.z * scale));
+    }
+
+    /** Factor applied to authored wheel anchor heights and ground clearance. */
+    protected double wheelAnchorHeightScale()
+    {
+        return modelScale();
     }
 
     /** ModelScale as the renderer applies it, guarded against degenerate values. */
@@ -3763,6 +3749,7 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         // Anchors are scaled with the model, so every distance derived from the
         // authored wheel coordinates has to be scaled alongside them.
         double scale = modelScale();
+        double heightScale = wheelAnchorHeightScale();
         double suspensionDroop = 0.35D + (1D - spring) * 0.2D;
         double maximumCompression = Math.max(0.15D, step + 0.1D);
         double minimumMountHeight = Double.POSITIVE_INFINITY;
@@ -3771,8 +3758,8 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         {
             if (definition != null && isPartIntact(definition.getPart()))
             {
-                minimumMountHeight = Math.min(minimumMountHeight, definition.getPosition().y * scale);
-                maximumMountHeight = Math.max(maximumMountHeight, definition.getPosition().y * scale);
+                minimumMountHeight = Math.min(minimumMountHeight, definition.getPosition().y * heightScale);
+                maximumMountHeight = Math.max(maximumMountHeight, definition.getPosition().y * heightScale);
             }
         }
         double mountHeightRange = Double.isFinite(minimumMountHeight)
@@ -3811,7 +3798,7 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
             if (hit.getType() != HitResult.Type.BLOCK)
                 continue;
             double surface = hit.getLocation().y;
-            double desiredWheelY = surface + wheelGroundClearance() * scale;
+            double desiredWheelY = surface + wheelGroundClearance() * heightScale;
             double error = desiredWheelY - wheel.y;
             if (error < -poseProbeDroop || error > maximumCompression)
                 continue;
@@ -3824,7 +3811,7 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
             Vec3 local = LegacyDriveableCoordinates.toLocal(definition.getPosition()).scale(scale);
             double forwardPosition = LegacyDriveableCoordinates.legacyForwardCoordinate(local);
             double rightPosition = LegacyDriveableCoordinates.legacyRightCoordinate(local);
-            double mountHeight = definition.getPosition().y * scale;
+            double mountHeight = definition.getPosition().y * heightScale;
             if (forwardPosition > 1.0E-4D)
             {
                 frontHeight += surface;

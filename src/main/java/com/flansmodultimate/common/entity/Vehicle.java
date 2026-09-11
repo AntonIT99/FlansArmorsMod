@@ -37,15 +37,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Vehicle extends Driveable
 {
-    /** Model-space correction for legacy vehicle models, expressed in blocks. */
-    public static final float VEHICLE_MODEL_VERTICAL_OFFSET = -5.5F / 16F;
-
-    /** World-space correction after the complete legacy model hierarchy is scaled. */
-    public static float scaledModelVerticalOffset(float modelScale)
-    {
-        return VEHICLE_MODEL_VERTICAL_OFFSET * modelScale;
-    }
-
     @Getter protected float wheelYaw;
     @Getter protected float prevWheelYaw;
     @Getter protected float wheelAngle;
@@ -76,14 +67,33 @@ public class Vehicle extends Driveable
     }
 
     /**
-     * A ground vehicle with no wheel or track collision box to measure falls
-     * back to the official-pack convention, which puts WheelPosition on the
-     * contact plane itself rather than at an axle height above it.
+     * 1.7.10 vehicles rested their origin at a fixed height above the ground:
+     * the root bounding box hung {@code YOffset} below the origin, and each
+     * wheel entity stood on the ground at its unscaled WheelPosition. ModelScale
+     * only scaled the rendered model around that origin. Models were authored
+     * against this contact plane, so scaling it with the model instead
+     * multiplies each model's authored track height error by ModelScale.
      */
     @Override
-    protected double fallbackWheelGroundClearance()
+    protected double wheelAnchorHeightScale()
     {
-        return 0D;
+        return 1D;
+    }
+
+    /** Clearance that places the origin at {@code max(YOffset, -lowest wheel anchor)}. */
+    @Override
+    protected double wheelGroundClearance()
+    {
+        VehicleType type = getVehicleType();
+        if (type == null)
+            return super.wheelGroundClearance();
+        double lowestAnchor = Double.NaN;
+        for (DriveablePosition wheel : type.getWheelPositions())
+        {
+            if (wheel != null && (Double.isNaN(lowestAnchor) || wheel.getPosition().y < lowestAnchor))
+                lowestAnchor = wheel.getPosition().y;
+        }
+        return Double.isNaN(lowestAnchor) ? 0D : Math.max(0D, type.getYOffset() + lowestAnchor);
     }
 
     @Override

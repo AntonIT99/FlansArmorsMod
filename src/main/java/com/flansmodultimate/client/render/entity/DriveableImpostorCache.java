@@ -8,9 +8,7 @@ import com.flansmodultimate.FlansMod;
 import com.flansmodultimate.client.model.ModelCache;
 import com.flansmodultimate.client.render.EnumRenderPass;
 import com.flansmodultimate.client.render.LegacyTransformApplier;
-import com.flansmodultimate.common.entity.Vehicle;
 import com.flansmodultimate.common.types.DriveableType;
-import com.flansmodultimate.common.types.VehicleType;
 import com.flansmodultimate.config.ModClientConfig;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -331,8 +329,6 @@ public final class DriveableImpostorCache
     {
         poseStack.pushPose();
         LegacyTransformApplier.applyModelTransform(model, type, poseStack);
-        if (type instanceof VehicleType)
-            poseStack.translate(0F, Vehicle.scaledModelVerticalOffset(type.getModelScale()), 0F);
         float scale = type.getModelScale();
         poseStack.scale(scale, scale, scale);
         for (EnumRenderPass renderPass : passes)

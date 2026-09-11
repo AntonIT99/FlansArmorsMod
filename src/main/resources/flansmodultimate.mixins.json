@@ -5,6 +5,10 @@
   "refmap": "flansmodultimate.refmap.json",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+      "EntityDriveableCollisionMixin",
+      "LevelDriveableHullsMixin",
+      "PlayerDriveableEdgeMixin",
+      "ServerGamePacketListenerDriveableMixin"
   ],
   "client": [
       "DriveableCameraMixin",

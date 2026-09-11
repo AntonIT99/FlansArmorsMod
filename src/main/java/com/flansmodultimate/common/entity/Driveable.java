@@ -6,6 +6,7 @@ import com.flansmodultimate.common.FlanExplosion;
 import com.flansmodultimate.common.FlanParticles;
 import com.flansmodultimate.common.driveables.CollisionBox;
 import com.flansmodultimate.common.driveables.DriveableCollisionHelper;
+import com.flansmodultimate.common.driveables.DriveableCollisionWorld;
 import com.flansmodultimate.common.driveables.DriveableControlPhysics;
 import com.flansmodultimate.common.driveables.DriveableData;
 import com.flansmodultimate.common.driveables.DriveableExplosion;
@@ -340,6 +341,8 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
     protected final void initialize(@NotNull DriveableType type, @NotNull ItemStack stack)
     {
         configType = type;
+        if (collisionHelper != null)
+            collisionHelper.unregister();
         collisionHelper = new DriveableCollisionHelper(type.getCollisionProfile());
         getPersistentData().putBoolean("CanMountEntity", type.isCanMountEntity());
         engineStartTicks = Math.max(0, type.getEngineStartTime());
@@ -3545,6 +3548,8 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
     public void remove(@NotNull RemovalReason reason)
     {
         restoreRiderVisibility();
+        if (collisionHelper != null)
+            collisionHelper.unregister();
         for (Seat seat : seats)
         {
             if (seat != null && !seat.isRemoved())
@@ -3962,10 +3967,11 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         AABB impactBox = getBoundingBox().inflate(Math.min(1.5D, horizontalSpeed + 0.25D), 0.25D, Math.min(1.5D, horizontalSpeed + 0.25D));
         for (Entity entity : level().getEntities(this, impactBox, candidate -> candidate.isAlive() && !isPartOfThis(candidate)))
         {
-            // Shaped collision resolves living entities against actual hull
+            // Shaped collision resolves these entities against actual hull
             // surfaces. Applying this old coarse AABB push as well dislodges
-            // players who are already supported by a deck, even while parked.
-            if (entity instanceof LivingEntity && collisionHelper != null && collisionHelper.hasGeometry())
+            // anything already supported by a deck, even while parked.
+            if (collisionHelper != null && collisionHelper.hasGeometry()
+                && DriveableCollisionWorld.collidesWithHulls(entity))
                 continue;
             if (squash && entity instanceof LivingEntity && horizontalSpeed > 0.12D)
                 entity.hurt(level().damageSources().flyIntoWall(), (float) Math.min(40D, 2D + horizontalSpeed * 12D));

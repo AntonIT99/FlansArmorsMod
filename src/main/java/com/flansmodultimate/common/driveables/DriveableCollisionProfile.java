@@ -18,8 +18,6 @@ import java.util.Map;
  */
 public final class DriveableCollisionProfile
 {
-    /** Two triangles per face, in the legacy shaped-box corner order. */
-    static final int[][] TOP_TRIANGLES = {{2, 1, 0}, {3, 2, 0}};
     static final int[][] FACE_QUADS = {
         {0, 1, 2, 3}, // top
         {4, 7, 6, 5}, // bottom
@@ -102,7 +100,14 @@ public final class DriveableCollisionProfile
         return allFinite(points) ? new Shape(mesh.part(), points) : null;
     }
 
-    private static Shape compilePartBox(EnumDriveablePart part, CollisionBox box)
+    /** Package-visible for focused geometry tests. */
+    static DriveableCollisionProfile of(List<Shape> shapes)
+    {
+        return new DriveableCollisionProfile(shapes, false);
+    }
+
+    /** Package-visible for focused geometry tests. */
+    static Shape compilePartBox(EnumDriveablePart part, CollisionBox box)
     {
         if (box == null || box.getWidth() <= 0F || box.getHeight() <= 0F || box.getDepth() <= 0F)
             return null;

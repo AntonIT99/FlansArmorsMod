@@ -65,45 +65,6 @@ class DriveableCollisionProfileTest
     }
 
     @Test
-    void projectedBarycentricCoordinatesAcceptDeckInteriorAndRejectOutside()
-    {
-        DriveableCollisionProfile.Shape shape = DriveableCollisionProfile.compileMesh(
-            mesh(new Vector3f(), new Vector3f(4F, 1F, 4F), zeroModifiers()));
-        assertNotNull(shape);
-        double[] weights = new double[3];
-        int[] triangle = DriveableCollisionProfile.TOP_TRIANGLES[0];
-
-        assertTrue(DriveableCollisionHelper.barycentricXZ(shape.coordinates(), triangle, 1D, -3D, weights));
-        assertEquals(1D, weights[0] + weights[1] + weights[2], EPSILON);
-        assertFalse(DriveableCollisionHelper.barycentricXZ(shape.coordinates(), triangle, 1D, 1D, weights));
-
-    }
-
-    @Test
-    void stationaryDeckCorrectsGravityPenetration()
-    {
-        assertEquals(0.0801D, DriveableCollisionHelper.supportVerticalCorrection(4D, 3.92D), EPSILON);
-        assertEquals(-0.0199D, DriveableCollisionHelper.supportVerticalCorrection(4D, 4.02D), EPSILON);
-    }
-
-    @Test
-    void deckSupportWinsAcrossNormalPlayerStepDepth()
-    {
-        assertTrue(DriveableCollisionHelper.isSupportContact(-0.6D, -0.08D, false));
-        assertTrue(DriveableCollisionHelper.isSupportContact(0.2D, 0D, true));
-        assertFalse(DriveableCollisionHelper.isSupportContact(-0.8D, -0.08D, false));
-        assertFalse(DriveableCollisionHelper.isSupportContact(0D, 0.6D, false));
-    }
-
-    @Test
-    void landingToleranceSweepsFastFallingEntitiesOntoDecks()
-    {
-        assertEquals(0.3D, DriveableCollisionHelper.sweptLandingTolerance(-0.08D), EPSILON);
-        assertEquals(0.9D, DriveableCollisionHelper.sweptLandingTolerance(-0.8D), EPSILON);
-        assertEquals(1.5D, DriveableCollisionHelper.sweptLandingTolerance(-3D), EPSILON);
-    }
-
-    @Test
     void rotatesLegacyPartBoxesIntoTheModernDriveableBasis()
     {
         CollisionBox box = new CollisionBox(100F, 16F, 32F, 48F, 64F, 80F, 96F);

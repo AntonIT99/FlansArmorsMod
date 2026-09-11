@@ -208,6 +208,7 @@ public class Vehicle extends Driveable
         velocity = velocity.multiply(horizontalDrag, 1D, horizontalDrag);
         if (!ModCommonConfig.forceLegacyVehiclePhysics())
             velocity = enforceSpeedCap(velocity, ModCommonConfig.maxVehicleSpeedKmh());
+        velocity = applyGroundFriction(current, velocity, effectiveThrottle, braking, tracked);
         moveWithCollisions(velocity);
         if (tickCount > 20 && verticalCollision && descent < -0.65D && !isInWater())
         {
@@ -392,6 +393,26 @@ public class Vehicle extends Driveable
         float forwardPower = Math.max(1.0E-4F, type.getMaxThrottle());
         float reversePower = Math.max(0F, type.getMaxNegativeThrottle());
         return physics.maxSpeedBlocksPerTick(speedScale) * Math.min(1D, reversePower / forwardPower);
+    }
+
+    /**
+     * Minimum slowing of a grounded vehicle without drive demand. Nobody at the
+     * controls, the engine off or the brake held means locked wheels or tracks;
+     * a driver simply off the pedals still meets rolling resistance, which
+     * tracks have far more of than tyres.
+     */
+    private Vec3 applyGroundFriction(Vec3 before, Vec3 after, float effectiveThrottle, boolean braking, boolean tracked)
+    {
+        double deceleration;
+        if (getControllingEntity() == null || !isEngineActive() || braking)
+            deceleration = VehiclePhysicsConstants.PARKED_GROUND_FRICTION_DECELERATION_MS2;
+        else if (Math.abs(effectiveThrottle) < 1.0E-3F
+            && !DriveableInput.isDown(getInputMask(), DriveableInput.FORWARD | DriveableInput.BACKWARD))
+            deceleration = tracked ? VehiclePhysicsConstants.TRACKED_IDLE_DECELERATION_MS2
+                : VehiclePhysicsConstants.WHEELED_IDLE_DECELERATION_MS2;
+        else
+            return after;
+        return applyMinimumGroundDeceleration(before, after, deceleration);
     }
 
     /** Per-tick downward velocity gravity contributes, shared with the suspension. */

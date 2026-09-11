@@ -2,6 +2,7 @@ package com.flansmodultimate.common.types;
 
 import com.flansmodultimate.common.driveables.armor.VehicleHealthScaler;
 import com.flansmodultimate.common.driveables.physics.RealWorldSpecReader;
+import com.flansmodultimate.common.driveables.physics.VehicleImpulsePhysics;
 import com.flansmodultimate.common.guns.AmmoOverrides;
 import com.flansmodultimate.common.guns.EnumSpreadPattern;
 import com.flansmodultimate.common.guns.RemovedAmmo;
@@ -170,6 +171,12 @@ public class AAGunType extends InfoType implements IAmmoGroupUser, IAmmoOverride
         realisticVehicleHealthEnabled = result.enabled();
         if (result.enabled())
             health = Math.max(1, Math.round(result.health()));
+    }
+
+    /** Mass outside pushes and collisions are weighed against: RealMassKg, else the configured AA gun fallback. */
+    public VehicleImpulsePhysics.ImpulseMass getImpulseMass()
+    {
+        return VehicleImpulsePhysics.resolveMass(realMassKg, null, ModCommonConfig.fallbackAAGunMassKg());
     }
 
     private void readBarrels(TypeFile file)

@@ -25,6 +25,7 @@ import com.flansmodultimate.common.driveables.physics.RealWorldSpecReader;
 import com.flansmodultimate.common.driveables.physics.RealWorldVehicleSpec;
 import com.flansmodultimate.common.driveables.physics.ResolvedVehiclePhysics;
 import com.flansmodultimate.common.driveables.physics.VehicleGeometry;
+import com.flansmodultimate.common.driveables.physics.VehicleImpulsePhysics;
 import com.flansmodultimate.common.driveables.physics.VehiclePhysicsResolver;
 import com.flansmodultimate.common.guns.AmmoOverrides;
 import com.flansmodultimate.common.guns.EnumFireMode;
@@ -259,6 +260,14 @@ public class DriveableType extends PaintableType implements IAmmoGroupUser, IAmm
      */
     protected RealWorldVehicleSpec realWorldSpec = RealWorldVehicleSpec.EMPTY;
     /**
+     * The legacy {@code Mass} key converted to kilograms with
+     * {@link #legacyMassKilogramsPerUnit()}, or null when the definition does not
+     * declare it. Only a fallback for the impulse mass, and a discouraged one; the
+     * legacy propulsion fields of the subclasses keep their own reading.
+     */
+    @Nullable
+    protected Float authoredMassKg;
+    /**
      * Minecraft-scaled physics resolved from {@link #realWorldSpec}, existing
      * geometry and the legacy fields. Never null: runtime code branches on
      * {@link ResolvedVehiclePhysics#mode()} instead of null-checking.
@@ -305,6 +314,7 @@ public class DriveableType extends PaintableType implements IAmmoGroupUser, IAmm
         realWorldSpec = result.spec();
         for (String warning : result.warnings())
             logError(warning, file);
+        authoredMassKg = file.hasConfigLine("Mass") ? readValue("Mass", 0F, file) * legacyMassKilogramsPerUnit() : null;
     }
 
     private void readArmorAndHealthSpec(TypeFile file)
@@ -813,6 +823,28 @@ public class DriveableType extends PaintableType implements IAmmoGroupUser, IAmm
                 total += box.getHealth();
         }
         return total;
+    }
+
+    /**
+     * Mass outside pushes, knockback and collisions are weighed against:
+     * {@code RealMassKg}, then a plausible legacy {@code Mass} in kilograms, then
+     * the configured fallback for the class. Resolved on each call so a server
+     * override of the fallback applies without reloading content.
+     */
+    public VehicleImpulsePhysics.ImpulseMass getImpulseMass()
+    {
+        return VehicleImpulsePhysics.resolveMass(realWorldSpec.massKg(), authoredMassKg,
+            ModCommonConfig.fallbackImpulseMassKg(physicsCategory()));
+    }
+
+    /**
+     * Kilograms per unit of the legacy {@code Mass} key. Aircraft definitions
+     * descend from packs that authored it in kilograms, so that is the default;
+     * vehicle packs used tonnes and override it.
+     */
+    protected float legacyMassKilogramsPerUnit()
+    {
+        return 1F;
     }
 
     /** Which coupled real-world profile this type can qualify for. */

@@ -198,6 +198,39 @@ public final class VehiclePhysicsConstants
     /** Maximum blocks a draft probe will search upward for the water surface. */
     public static final int DRAFT_SURFACE_PROBE_BLOCKS = 8;
 
+    // --------------------------------------------------------------- knockback
+
+    /**
+     * Lowest legacy {@code Mass}, after conversion to kilograms, accepted as a
+     * real weight. Aircraft packs that meant kilograms author hundreds or
+     * thousands; their copied placeholders such as 2.7 or 16.7 fall below it.
+     */
+    public static final float MIN_PLAUSIBLE_LEGACY_MASS_KG = 100F;
+    /** Floor on any resolved impulse mass, so no value can make a driveable lighter than a person. */
+    public static final float MIN_IMPULSE_MASS_KG = 50F;
+    /**
+     * Outside velocity changes that are still below this after being weighed
+     * against mass, in blocks per tick (0.1 m/s), are discarded, so a heavy hull
+     * does not jitter under every small push.
+     */
+    public static final double EXTERNAL_IMPULSE_DEAD_ZONE_BLOCKS_PER_TICK = 0.005D;
+    /** Coefficient of restitution between two driveables. Hulls crumple far more than they bounce. */
+    public static final double DRIVEABLE_COLLISION_RESTITUTION = 0.1D;
+    /** Horizontal speed in blocks per tick below which contact with another driveable is not resolved. */
+    public static final double MIN_DRIVEABLE_CONTACT_SPEED_BLOCKS_PER_TICK = 1.0E-3D;
+    /**
+     * Minimum deceleration in m/s² of a grounded vehicle nobody is driving, whose
+     * engine is off or whose brake is held: locked wheels or tracks sliding on
+     * the ground, roughly a friction coefficient of 0.6.
+     */
+    public static final double PARKED_GROUND_FRICTION_DECELERATION_MS2 = 6D;
+    /** Minimum coasting deceleration in m/s² of a driven tracked vehicle with no drive demand. */
+    public static final double TRACKED_IDLE_DECELERATION_MS2 = 4D;
+    /** Minimum coasting deceleration in m/s² of a driven wheeled vehicle with no drive demand. */
+    public static final double WHEELED_IDLE_DECELERATION_MS2 = MIN_DERIVED_DECELERATION_MS2;
+    /** Horizontal speed in blocks per tick below which a grounded vehicle without drive demand comes to rest. */
+    public static final double GROUND_REST_SPEED_BLOCKS_PER_TICK = 0.002D;
+
     // ------------------------------------------------------------------ safety
 
     /**

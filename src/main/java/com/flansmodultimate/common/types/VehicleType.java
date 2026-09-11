@@ -4,6 +4,7 @@ import com.flansmod.common.vector.Vector3f;
 import com.flansmodultimate.common.driveables.EnumDriveablePart;
 import com.flansmodultimate.common.driveables.physics.EnumVehicleCategory;
 import com.flansmodultimate.common.driveables.physics.LegacyPhysicsHints;
+import com.flansmodultimate.config.ModCommonConfig;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -113,6 +114,13 @@ public class VehicleType extends DriveableType
     protected EnumVehicleCategory physicsCategory()
     {
         return EnumVehicleCategory.GROUND;
+    }
+
+    /** Vehicle packs authored the legacy Mass in tonnes, as their template comment says. */
+    @Override
+    protected float legacyMassKilogramsPerUnit()
+    {
+        return (float) ModCommonConfig.KILOGRAMS_PER_TON;
     }
 
     @Override

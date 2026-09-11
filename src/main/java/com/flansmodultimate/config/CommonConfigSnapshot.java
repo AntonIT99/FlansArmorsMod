@@ -97,6 +97,11 @@ public record CommonConfigSnapshot(
     double realisticGroundVehicleSpeedScale,
     double maxPlaneSpeedKmh,
     double maxVehicleSpeedKmh,
+    boolean forceLegacyVehicleKnockback,
+    double vehicleKnockbackReferenceMassKg,
+    double fallbackGroundVehicleMassTons,
+    double fallbackAircraftMassTons,
+    double fallbackAAGunMassTons,
     double realisticVehicleHealthScale,
     double maxArmorImpactAngleDeg,
     double armoredBlastResistanceKPaPerMm,
@@ -107,7 +112,7 @@ public record CommonConfigSnapshot(
     boolean enchantmentModuleEnabled
 )
 {
-    public static final int CURRENT_VERSION = 23;
+    public static final int CURRENT_VERSION = 24;
 
     public static void write(FriendlyByteBuf buf, CommonConfigSnapshot s)
     {
@@ -206,6 +211,11 @@ public record CommonConfigSnapshot(
         buf.writeDouble(s.realisticGroundVehicleSpeedScale);
         buf.writeDouble(s.maxPlaneSpeedKmh);
         buf.writeDouble(s.maxVehicleSpeedKmh);
+        buf.writeBoolean(s.forceLegacyVehicleKnockback);
+        buf.writeDouble(s.vehicleKnockbackReferenceMassKg);
+        buf.writeDouble(s.fallbackGroundVehicleMassTons);
+        buf.writeDouble(s.fallbackAircraftMassTons);
+        buf.writeDouble(s.fallbackAAGunMassTons);
         buf.writeDouble(s.realisticVehicleHealthScale);
         buf.writeDouble(s.maxArmorImpactAngleDeg);
         buf.writeDouble(s.armoredBlastResistanceKPaPerMm);
@@ -306,6 +316,11 @@ public record CommonConfigSnapshot(
             buf.readBoolean(),
             buf.readDouble(),
             buf.readDouble(),
+            buf.readDouble(),
+            buf.readDouble(),
+            buf.readDouble(),
+            buf.readDouble(),
+            buf.readBoolean(),
             buf.readDouble(),
             buf.readDouble(),
             buf.readDouble(),

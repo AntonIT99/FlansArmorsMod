@@ -1,6 +1,7 @@
 package com.flansmodultimate.common.entity;
 
 import com.flansmodultimate.FlansMod;
+import com.flansmodultimate.common.driveables.physics.ExternalImpulseTracker;
 import com.flansmodultimate.common.guns.FireableGun;
 import com.flansmodultimate.common.guns.FiredShot;
 import com.flansmodultimate.common.guns.ShootingHelper;
@@ -10,6 +11,7 @@ import com.flansmodultimate.common.types.AAGunType;
 import com.flansmodultimate.common.types.BulletType;
 import com.flansmodultimate.common.types.InfoType;
 import com.flansmodultimate.config.ModClientConfig;
+import com.flansmodultimate.config.ModCommonConfig;
 import com.flansmodultimate.hooks.ClientHooks;
 import com.flansmodultimate.network.client.PacketPlaySound;
 import com.flansmodultimate.util.ModUtils;
@@ -53,7 +55,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
-public class AAGun extends Entity implements IEntityAdditionalSpawnData, IFlanEntity<AAGunType>
+public class AAGun extends Entity implements IEntityAdditionalSpawnData, IFlanEntity<AAGunType>, IMassiveEntity
 {
     private boolean suppressRemovalDrops;
     public static final int RENDER_DISTANCE = 128;
@@ -108,6 +110,8 @@ public class AAGun extends Entity implements IEntityAdditionalSpawnData, IFlanEn
     protected UUID placerId;
     @Nullable
     protected Entity target;
+    /** Tells the gun's own motion apart from outside pushes, which are weighed against its mass. Server only. */
+    private final ExternalImpulseTracker externalImpulses = new ExternalImpulseTracker();
 
     public AAGun(EntityType<?> entityType, Level level)
     {
@@ -656,7 +660,38 @@ public class AAGun extends Entity implements IEntityAdditionalSpawnData, IFlanEn
             fireGun(level, getPlacer(level).orElse(null), false);
         }
 
+        absorbExternalImpulses();
         applyMotion();
+        externalImpulses.settle(getDeltaMovement());
+    }
+
+    /** Weighs every velocity change the gun did not make itself since its last tick against its mass. */
+    private void absorbExternalImpulses()
+    {
+        Vec3 current = getDeltaMovement();
+        if (ModCommonConfig.forceLegacyVehicleKnockback())
+        {
+            externalImpulses.settle(current);
+            return;
+        }
+        Vec3 absorbed = externalImpulses.absorb(current, getImpulseMassKg(),
+            ModCommonConfig.vehicleKnockbackReferenceMassKg());
+        if (absorbed != current)
+            setDeltaMovement(absorbed);
+    }
+
+    @Override
+    public double getImpulseMassKg()
+    {
+        AAGunType type = getConfigType();
+        return type == null ? ModCommonConfig.fallbackAAGunMassKg() : type.getImpulseMass().massKg();
+    }
+
+    @Override
+    public void applyResolvedImpulse(@NotNull Vec3 impulse)
+    {
+        setDeltaMovement(getDeltaMovement().add(impulse));
+        externalImpulses.addResolvedImpulse(impulse);
     }
 
     private void updateAimFromPassenger(LivingEntity passenger)

@@ -23,8 +23,6 @@ RollRightSpeed 2
 Drag 0.98
 //Lift (A lift : mass ratio of 1 : 1 should keep the plane perfectly level at full throttle
 Lift 3.2
-//Mass (In tons)
-Mass 2.7
 //Moment of Inertia (in crazy units. Just fiddle with this until you find something nice)
 MomentOfInertia 10.0
 //More bounciness means the vehicle will bounce more upon going up slopes, but fall through the ground less

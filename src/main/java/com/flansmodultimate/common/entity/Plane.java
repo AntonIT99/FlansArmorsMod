@@ -289,6 +289,7 @@ public class Plane extends Driveable
         PlaneType type = getPlaneType();
         if (type == null)
             return;
+        Vec3 startVelocity = getDeltaMovement();
         if (crashImpactCooldown > 0)
             --crashImpactCooldown;
         advanceAnimations();
@@ -332,6 +333,11 @@ public class Plane extends Driveable
             // the next tick from reading a stale contact from the takeoff roll
             // and treating an airborne aircraft as still rolling.
             clearWheelContact();
+        // An aircraft on the ground with nobody flying it, or its engine off, is
+        // chocked and braked rather than free to roll away from a push.
+        if (getControllingEntity() == null || !isEngineActive())
+            velocity = applyMinimumGroundDeceleration(startVelocity, velocity,
+                VehiclePhysicsConstants.PARKED_GROUND_FRICTION_DECELERATION_MS2);
         moveWithCollisions(velocity);
         handleGroundImpact(type, impactVelocity);
         if (isEngineActive() && hasWorkingPropeller(type))

@@ -8,6 +8,7 @@ import com.flansmodultimate.common.driveables.physics.RealWorldSpecReader;
 import com.flansmodultimate.common.driveables.physics.RealWorldVehicleSpec;
 import com.flansmodultimate.common.driveables.physics.ResolvedVehiclePhysics;
 import com.flansmodultimate.common.driveables.physics.VehicleGeometry;
+import com.flansmodultimate.common.driveables.physics.VehicleImpulsePhysics;
 import com.flansmodultimate.common.entity.Driveable;
 import com.flansmodultimate.common.item.DriveableItem;
 import com.flansmodultimate.common.types.DriveableType;
@@ -133,6 +134,16 @@ public final class VehiclePhysicsCommand
         send(context, ChatFormatting.GRAY, "  movementClamp = " + format(resolved.movementClampBlocksPerTick())
             + " blocks/tick, wheelProbe = " + format(resolved.wheelPredictionBlocks(speedScale)) + " blocks");
 
+        VehicleImpulsePhysics.ImpulseMass impulseMass = type.getImpulseMass();
+        double referenceMass = ModCommonConfig.vehicleKnockbackReferenceMassKg();
+        send(context, ChatFormatting.AQUA, "-- knockback --");
+        send(context, ChatFormatting.GRAY, "  impulseMass = " + format(impulseMass.massKg()) + " kg ("
+            + impulseMassSource(impulseMass.source(), type) + ")");
+        send(context, ChatFormatting.GRAY, "  knockbackScale = "
+            + format(VehicleImpulsePhysics.knockbackScale(impulseMass.massKg(), referenceMass))
+            + " (reference " + format(referenceMass) + " kg"
+            + (ModCommonConfig.forceLegacyVehicleKnockback() ? ", inactive: forceLegacyVehicleKnockback)" : ")"));
+
         VehicleGeometry geometry = resolved.geometry();
         send(context, ChatFormatting.AQUA, "-- derived geometry --");
         send(context, ChatFormatting.GRAY, "  length = " + format(geometry.lengthM())
@@ -216,6 +227,19 @@ public final class VehiclePhysicsCommand
                     + ", MaxThrust " + format(plane.getMaxThrust()) + ")"
                 : "legacy flight model, MaxThrottle " + format(type.getMaxThrottle());
         return "legacy";
+    }
+
+    private static String impulseMassSource(VehicleImpulsePhysics.MassSource source, DriveableType type)
+    {
+        return switch (source)
+        {
+            case REAL_MASS -> "real-world mass, " + RealWorldSpecReader.KEY_MASS;
+            case LEGACY_MASS -> "legacy Mass, read in " + (type instanceof VehicleType ? "tonnes" : "kg");
+            case FALLBACK -> type.getAuthoredMassKg() == null
+                ? "class fallback: no RealMassKg or Mass"
+                : "class fallback: legacy Mass resolves to " + format(type.getAuthoredMassKg())
+                    + " kg, below the plausible minimum";
+        };
     }
 
     private static void appendMissing(StringBuilder builder, @Nullable Float value, String key)

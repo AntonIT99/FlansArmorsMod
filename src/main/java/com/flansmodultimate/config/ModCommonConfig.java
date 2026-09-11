@@ -36,6 +36,13 @@ public final class ModCommonConfig
     /** Absolute speed ceilings, high enough by default to be inert until an operator lowers them. */
     public static final double DEFAULT_MAX_PLANE_SPEED_KMH = 10000.0D;
     public static final double DEFAULT_MAX_VEHICLE_SPEED_KMH = 10000.0D;
+    /** Knockback is tuned for a player, so a body of about a player's mass keeps all of it. */
+    public static final double DEFAULT_VEHICLE_KNOCKBACK_REFERENCE_MASS_KG = 100.0D;
+    /** Masses assumed for definitions that declare no usable RealMassKg or Mass. */
+    public static final double DEFAULT_FALLBACK_GROUND_VEHICLE_MASS_TONS = 10.0D;
+    public static final double DEFAULT_FALLBACK_AIRCRAFT_MASS_TONS = 5.0D;
+    public static final double DEFAULT_FALLBACK_AA_GUN_MASS_TONS = 1.0D;
+    public static final double KILOGRAMS_PER_TON = 1000.0D;
     public static final double DEFAULT_REALISTIC_VEHICLE_HEALTH_SCALE = 5.0D;
     public static final double DEFAULT_MAX_ARMOR_IMPACT_ANGLE_DEG = 80.0D;
     /**
@@ -76,6 +83,10 @@ public final class ModCommonConfig
     private static final double MAX_HARD_SPEED_CAP_KMH = 100000.0D;
     private static final double MIN_REALISTIC_AIRCRAFT_THROTTLE_RESPONSE = 1.0D;
     private static final double MAX_REALISTIC_AIRCRAFT_THROTTLE_RESPONSE = 5.0D;
+    private static final double MIN_KNOCKBACK_REFERENCE_MASS_KG = 1.0D;
+    private static final double MAX_KNOCKBACK_REFERENCE_MASS_KG = 1000000.0D;
+    private static final double MIN_FALLBACK_MASS_TONS = 0.05D;
+    private static final double MAX_FALLBACK_MASS_TONS = 100000.0D;
 
     private static final int DEFAULT_BULLET_TRACKING_RANGE = 128;
     private static final int DEFAULT_GRENADE_TRACKING_RANGE = 64;
@@ -175,6 +186,11 @@ public final class ModCommonConfig
     private static final ForgeConfigSpec.DoubleValue REALISTIC_GROUND_VEHICLE_SPEED_SCALE;
     private static final ForgeConfigSpec.DoubleValue MAX_PLANE_SPEED_KMH;
     private static final ForgeConfigSpec.DoubleValue MAX_VEHICLE_SPEED_KMH;
+    private static final ForgeConfigSpec.BooleanValue FORCE_LEGACY_VEHICLE_KNOCKBACK;
+    private static final ForgeConfigSpec.DoubleValue VEHICLE_KNOCKBACK_REFERENCE_MASS_KG;
+    private static final ForgeConfigSpec.DoubleValue FALLBACK_GROUND_VEHICLE_MASS_TONS;
+    private static final ForgeConfigSpec.DoubleValue FALLBACK_AIRCRAFT_MASS_TONS;
+    private static final ForgeConfigSpec.DoubleValue FALLBACK_AA_GUN_MASS_TONS;
     private static final ForgeConfigSpec.DoubleValue REALISTIC_VEHICLE_HEALTH_SCALE;
     private static final ForgeConfigSpec.DoubleValue MAX_ARMOR_IMPACT_ANGLE_DEG;
     private static final ForgeConfigSpec.DoubleValue ARMORED_BLAST_RESISTANCE_KPA_PER_MM;
@@ -519,6 +535,31 @@ public final class ModCommonConfig
                 "but for vehicles, and independent of it.")
             .defineInRange("maxVehicleSpeedKmh", DEFAULT_MAX_VEHICLE_SPEED_KMH,
                 MIN_HARD_SPEED_CAP_KMH, MAX_HARD_SPEED_CAP_KMH);
+        FORCE_LEGACY_VEHICLE_KNOCKBACK = builder
+            .comment("Restore the historical push behaviour of vehicles, planes, mechas and AA guns.",
+                "When false, every outside push (explosions of any origin, melee knockback, flowing water, other mods)",
+                "is weighed against the driveable's mass, driveables exchange momentum on contact instead of shoving",
+                "each other aside, and a grounded vehicle that is parked or idling resists sliding.")
+            .define("forceLegacyVehicleKnockback", false);
+        VEHICLE_KNOCKBACK_REFERENCE_MASS_KG = builder
+            .comment("Mass in kg that keeps an outside push in full. Heavier driveables keep reference / mass of it,",
+                "as momentum conservation would. Vanilla knockback is tuned for a player, hence about 100 kg:",
+                "a 2.4 t HMMWV keeps about 4% of a push and a 64 t tank about 0.16%.")
+            .defineInRange("vehicleKnockbackReferenceMassKg", DEFAULT_VEHICLE_KNOCKBACK_REFERENCE_MASS_KG,
+                MIN_KNOCKBACK_REFERENCE_MASS_KG, MAX_KNOCKBACK_REFERENCE_MASS_KG);
+        FALLBACK_GROUND_VEHICLE_MASS_TONS = builder
+            .comment("Mass in tonnes assumed for a vehicle or mecha whose definition has no RealMassKg and no plausible Mass.",
+                "The legacy Mass key is read as tonnes for vehicles and kilograms for planes, and ignored below 100 kg.")
+            .defineInRange("fallbackGroundVehicleMassTons", DEFAULT_FALLBACK_GROUND_VEHICLE_MASS_TONS,
+                MIN_FALLBACK_MASS_TONS, MAX_FALLBACK_MASS_TONS);
+        FALLBACK_AIRCRAFT_MASS_TONS = builder
+            .comment("As fallbackGroundVehicleMassTons, but for planes, helicopters and other aircraft.")
+            .defineInRange("fallbackAircraftMassTons", DEFAULT_FALLBACK_AIRCRAFT_MASS_TONS,
+                MIN_FALLBACK_MASS_TONS, MAX_FALLBACK_MASS_TONS);
+        FALLBACK_AA_GUN_MASS_TONS = builder
+            .comment("As fallbackGroundVehicleMassTons, but for AA guns without a RealMassKg.")
+            .defineInRange("fallbackAAGunMassTons", DEFAULT_FALLBACK_AA_GUN_MASS_TONS,
+                MIN_FALLBACK_MASS_TONS, MAX_FALLBACK_MASS_TONS);
         builder.pop();
 
         builder.push("Vehicle Damage Settings");
@@ -655,6 +696,11 @@ public final class ModCommonConfig
             REALISTIC_GROUND_VEHICLE_SPEED_SCALE.get(),
             MAX_PLANE_SPEED_KMH.get(),
             MAX_VEHICLE_SPEED_KMH.get(),
+            FORCE_LEGACY_VEHICLE_KNOCKBACK.get(),
+            VEHICLE_KNOCKBACK_REFERENCE_MASS_KG.get(),
+            FALLBACK_GROUND_VEHICLE_MASS_TONS.get(),
+            FALLBACK_AIRCRAFT_MASS_TONS.get(),
+            FALLBACK_AA_GUN_MASS_TONS.get(),
             REALISTIC_VEHICLE_HEALTH_SCALE.get(),
             MAX_ARMOR_IMPACT_ANGLE_DEG.get(),
             ARMORED_BLAST_RESISTANCE_KPA_PER_MM.get(),
@@ -754,6 +800,39 @@ public final class ModCommonConfig
     {
         CommonConfigSnapshot config = get();
         return config == null ? DEFAULT_MAX_VEHICLE_SPEED_KMH : config.maxVehicleSpeedKmh();
+    }
+
+    /** Whether driveables and AA guns keep the historical, mass-blind push and collision behaviour. */
+    public static boolean forceLegacyVehicleKnockback()
+    {
+        CommonConfigSnapshot config = get();
+        return config != null && config.forceLegacyVehicleKnockback();
+    }
+
+    /** Mass in kg that keeps an outside push in full. */
+    public static double vehicleKnockbackReferenceMassKg()
+    {
+        CommonConfigSnapshot config = get();
+        return config == null ? DEFAULT_VEHICLE_KNOCKBACK_REFERENCE_MASS_KG : config.vehicleKnockbackReferenceMassKg();
+    }
+
+    /** Impulse mass in kg assumed for a driveable of this class that declares no usable mass. */
+    public static double fallbackImpulseMassKg(@Nullable EnumVehicleCategory category)
+    {
+        CommonConfigSnapshot config = get();
+        double tons;
+        if (category == EnumVehicleCategory.AIRCRAFT)
+            tons = config == null ? DEFAULT_FALLBACK_AIRCRAFT_MASS_TONS : config.fallbackAircraftMassTons();
+        else
+            tons = config == null ? DEFAULT_FALLBACK_GROUND_VEHICLE_MASS_TONS : config.fallbackGroundVehicleMassTons();
+        return tons * KILOGRAMS_PER_TON;
+    }
+
+    /** Impulse mass in kg assumed for an AA gun that declares no RealMassKg. */
+    public static double fallbackAAGunMassKg()
+    {
+        CommonConfigSnapshot config = get();
+        return (config == null ? DEFAULT_FALLBACK_AA_GUN_MASS_TONS : config.fallbackAAGunMassTons()) * KILOGRAMS_PER_TON;
     }
 
     public static double realisticVehicleHealthScale()

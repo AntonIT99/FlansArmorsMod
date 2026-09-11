@@ -26,8 +26,10 @@ import com.flansmodultimate.common.driveables.SuspensionPhysics;
 import com.flansmodultimate.common.driveables.armor.ResolvedArmorHit;
 import com.flansmodultimate.common.driveables.armor.VehicleExplosionTarget;
 import com.flansmodultimate.common.driveables.armor.VehicleProjectileDamageResolver;
+import com.flansmodultimate.common.driveables.physics.ExternalImpulseTracker;
 import com.flansmodultimate.common.driveables.physics.MarineDraftPhysics;
 import com.flansmodultimate.common.driveables.physics.ResolvedVehiclePhysics;
+import com.flansmodultimate.common.driveables.physics.VehicleImpulsePhysics;
 import com.flansmodultimate.common.driveables.physics.VehiclePhysicsConstants;
 import com.flansmodultimate.common.driveables.physics.VehiclePhysicsUnits;
 import com.flansmodultimate.common.guns.EnumFireMode;
@@ -133,7 +135,7 @@ import java.util.UUID;
  * transforms, fuel, inventory, weapon delays and damage are owned by the
  * server and replicated through normal entity data/position tracking.</p>
  */
-public abstract class Driveable extends Entity implements IEntityAdditionalSpawnData, IFlanEntity<DriveableType>, IControllable
+public abstract class Driveable extends Entity implements IEntityAdditionalSpawnData, IFlanEntity<DriveableType>, IControllable, IMassiveEntity
 {
     public static final String NBT_TYPE = "driveable_type";
     public static final String NBT_YAW = "driveable_yaw";
@@ -236,6 +238,8 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
 
     protected Wheel[] wheels = new Wheel[0];
     protected int groundedWheelCount;
+    /** Tells this driveable's own motion apart from outside pushes, which are weighed against its mass. Server only. */
+    private final ExternalImpulseTracker externalImpulses = new ExternalImpulseTracker();
     @Getter
     protected final RotatedAxes axes = new RotatedAxes();
 
@@ -960,9 +964,11 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         updateRiderVisibility();
         updateEngineState();
         updateLockOnTargeting();
+        absorbExternalImpulses();
         tickDriveable();
         if (collisionHelper != null)
             collisionHelper.tick(this);
+        externalImpulses.settle(getDeltaMovement());
         tickWeapons();
         updateCurrentAmmoNames();
         tickWeaponAnimations();
@@ -4077,9 +4083,106 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         return false;
     }
 
+    /**
+     * Weighs every velocity change this driveable did not make itself since its
+     * last tick against its mass: explosions of any origin, melee knockback,
+     * flowing water and pushes from other mods alike. Runs on the server, which
+     * owns driveable motion; clients only interpolate it.
+     */
+    private void absorbExternalImpulses()
+    {
+        Vec3 current = getDeltaMovement();
+        if (ModCommonConfig.forceLegacyVehicleKnockback())
+        {
+            externalImpulses.settle(current);
+            return;
+        }
+        Vec3 absorbed = externalImpulses.absorb(current, getImpulseMassKg(),
+            ModCommonConfig.vehicleKnockbackReferenceMassKg());
+        if (absorbed != current)
+            setDeltaMovement(absorbed);
+    }
+
+    @Override
+    public double getImpulseMassKg()
+    {
+        return configType == null ? ModCommonConfig.fallbackImpulseMassKg(null) : configType.getImpulseMass().massKg();
+    }
+
+    @Override
+    public void applyResolvedImpulse(@NotNull Vec3 impulse)
+    {
+        setDeltaMovement(getDeltaMovement().add(impulse));
+        externalImpulses.addResolvedImpulse(impulse);
+    }
+
+    /**
+     * Holds a grounded driveable to at least {@code decelerationMs2} of
+     * horizontal slowing this tick and brings it to rest once it is crawling,
+     * so a push leaves a parked or idling vehicle standing after a short slide
+     * instead of coasting away. Afloat, airborne or on the legacy knockback
+     * switch, the movement model's own result stands.
+     */
+    protected Vec3 applyMinimumGroundDeceleration(@NotNull Vec3 before, @NotNull Vec3 after, double decelerationMs2)
+    {
+        if (ModCommonConfig.forceLegacyVehicleKnockback() || isInWater() || !isSupportedByGround())
+            return after;
+        return VehicleImpulsePhysics.enforceMinimumDeceleration(before, after,
+            VehiclePhysicsUnits.metresPerSecondSquaredToBlocksPerTickSquared(decelerationMs2),
+            VehiclePhysicsConstants.GROUND_REST_SPEED_BLOCKS_PER_TICK);
+    }
+
+    /**
+     * Resolves contact with other driveables and AA guns as an inelastic
+     * collision along the line between their centres, weighed by both masses.
+     *
+     * <p>Hulls do not collide with each other as solids, so this is what stops a
+     * jeep from shoving a tank aside and a tank from stopping for a jeep. It runs
+     * at any speed, since a vehicle creeping below the impact threshold would
+     * otherwise drive into the other hull, and only while the two are closing,
+     * so vehicles resting against each other exchange nothing.
+     */
+    private void resolveHeavyContacts()
+    {
+        Vec3 velocity = getDeltaMovement();
+        double horizontalSpeed = velocity.horizontalDistance();
+        if (!(horizontalSpeed >= VehiclePhysicsConstants.MIN_DRIVEABLE_CONTACT_SPEED_BLOCKS_PER_TICK))
+            return;
+        double reach = Math.min(1.5D, horizontalSpeed + 0.25D);
+        AABB contactBox = getBoundingBox().inflate(reach, 0.25D, reach);
+        double selfMass = getImpulseMassKg();
+        for (Entity entity : level().getEntities(this, contactBox,
+            candidate -> candidate instanceof IMassiveEntity && candidate.isAlive() && !isPartOfThis(candidate)))
+        {
+            Vec3 normal = new Vec3(entity.getX() - getX(), 0D, entity.getZ() - getZ());
+            if (normal.lengthSqr() < 1.0E-6D)
+                normal = new Vec3(velocity.x, 0D, velocity.z);
+            normal = normal.normalize();
+            IMassiveEntity other = (IMassiveEntity) entity;
+            double closingSpeed = getDeltaMovement().subtract(entity.getDeltaMovement()).dot(normal);
+            VehicleImpulsePhysics.CollisionImpulse impulse = VehicleImpulsePhysics.collision(selfMass,
+                other.getImpulseMassKg(), closingSpeed, VehiclePhysicsConstants.DRIVEABLE_COLLISION_RESTITUTION);
+            if (impulse.isNone())
+                continue;
+            setDeltaMovement(getDeltaMovement().add(normal.scale(impulse.selfDelta())));
+            other.applyResolvedImpulse(normal.scale(impulse.otherDelta()));
+        }
+    }
+
+    /** Bodies whose contact is resolved by momentum exchange: other heavy entities, and the seats and wheels that follow their hulls. */
+    private static boolean isHeavyContactBody(Entity entity)
+    {
+        return entity instanceof IMassiveEntity || entity instanceof Seat || entity instanceof Wheel;
+    }
+
     protected void handleCollisionConsequences(@NotNull Vec3 requestedVelocity)
     {
-        if (configType == null || requestedVelocity.lengthSqr() < 0.0025D)
+        if (configType == null)
+            return;
+        boolean legacyKnockback = ModCommonConfig.forceLegacyVehicleKnockback();
+        if (!legacyKnockback)
+            resolveHeavyContacts();
+        if (requestedVelocity.lengthSqr() < 0.0025D)
             return;
         double horizontalSpeed = requestedVelocity.horizontalDistance();
         if (horizontalCollision && configType.isCollisionDamageEnable()
@@ -4099,6 +4202,8 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
             // anything already supported by a deck, even while parked.
             if (collisionHelper != null && collisionHelper.hasGeometry()
                 && DriveableCollisionWorld.collidesWithHulls(entity))
+                continue;
+            if (!legacyKnockback && isHeavyContactBody(entity))
                 continue;
             if (squash && entity instanceof LivingEntity && horizontalSpeed > 0.12D)
                 entity.hurt(level().damageSources().flyIntoWall(), (float) Math.min(40D, 2D + horizontalSpeed * 12D));

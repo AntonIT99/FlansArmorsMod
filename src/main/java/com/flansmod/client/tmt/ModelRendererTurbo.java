@@ -61,6 +61,7 @@ public class ModelRendererTurbo extends ModelRenderer
     private PositionTextureVertex[] vertices;
     private TexturedPolygon[] faces;
     private TexturedPolygon[] renderFaces;
+    private RenderPoseCache renderPoseCache;
     private boolean boundsDirty = true;
     private boolean hasStaticBounds;
     private float boundsCenterX;
@@ -2213,6 +2214,19 @@ public class ModelRendererTurbo extends ModelRenderer
             || rotationPointX != 0F || rotationPointY != 0F || rotationPointZ != 0F
             || rotateAngleX != 0F || rotateAngleY != 0F || rotateAngleZ != 0F
             || scale != 1F;
+        // Most legacy parts are leaves. Reuse their local transform and composed
+        // pose instead of allocating a Pose plus two matrices on every submission.
+        // Parents retain the stack path so children inherit exactly the same pose.
+        // Nonpositive scales retain vanilla's special normal-matrix handling.
+        if (hasTransform && childModels.isEmpty() && scale > 0F && Float.isFinite(scale))
+        {
+            if (renderPoseCache == null)
+                renderPoseCache = new RenderPoseCache();
+            PoseStack.Pose pose = renderPoseCache.compose(poseStack.last(), scale, oldRotateOrder);
+            if (!isBelowScreenSize(pose))
+                compile(pose, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+            return;
+        }
         if (hasTransform)
         {
             poseStack.pushPose();
@@ -2413,5 +2427,50 @@ public class ModelRendererTurbo extends ModelRenderer
     {
         private float minimumPixelDiameter;
         private float projectionPixels;
+    }
+
+    /** Render-thread cache; public legacy angle/pivot mutations are checked every draw. */
+    private final class RenderPoseCache
+    {
+        private final PoseStack local = new PoseStack();
+        private final PoseStack.Pose composed = new PoseStack().last();
+        private float lastOffsetX = Float.NaN;
+        private float lastOffsetY;
+        private float lastOffsetZ;
+        private float lastPivotX;
+        private float lastPivotY;
+        private float lastPivotZ;
+        private float lastAngleX;
+        private float lastAngleY;
+        private float lastAngleZ;
+        private float lastScale;
+        private boolean lastOldRotateOrder;
+
+        private PoseStack.Pose compose(PoseStack.Pose parent, float scale, boolean oldRotateOrder)
+        {
+            if (lastOffsetX != offsetX || lastOffsetY != offsetY || lastOffsetZ != offsetZ
+                || lastPivotX != rotationPointX || lastPivotY != rotationPointY || lastPivotZ != rotationPointZ
+                || lastAngleX != rotateAngleX || lastAngleY != rotateAngleY || lastAngleZ != rotateAngleZ
+                || lastScale != scale || lastOldRotateOrder != oldRotateOrder)
+            {
+                local.setIdentity();
+                local.translate(offsetX, offsetY, offsetZ);
+                translateAndRotate(local, scale, oldRotateOrder);
+                lastOffsetX = offsetX;
+                lastOffsetY = offsetY;
+                lastOffsetZ = offsetZ;
+                lastPivotX = rotationPointX;
+                lastPivotY = rotationPointY;
+                lastPivotZ = rotationPointZ;
+                lastAngleX = rotateAngleX;
+                lastAngleY = rotateAngleY;
+                lastAngleZ = rotateAngleZ;
+                lastScale = scale;
+                lastOldRotateOrder = oldRotateOrder;
+            }
+            composed.pose().set(parent.pose()).mul(local.last().pose());
+            composed.normal().set(parent.normal()).mul(local.last().normal());
+            return composed;
+        }
     }
 }

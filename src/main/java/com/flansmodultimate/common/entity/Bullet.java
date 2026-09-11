@@ -28,6 +28,7 @@ import net.minecraftforge.common.MinecraftForge;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -438,6 +439,12 @@ public class Bullet extends Shootable implements IFlanEntity<BulletType>
         Level level = level();
         try
         {
+            if (isLeavingEntityTickingArea(level))
+            {
+                discard();
+                return;
+            }
+
             resolveUUIDs(level);
             setInitialSpeed();
             updatePreviousPosition();
@@ -482,6 +489,23 @@ public class Bullet extends Shootable implements IFlanEntity<BulletType>
             FlansMod.log.error("Error ticking bullet {}", shortname, ex);
             discard();
         }
+    }
+
+    /**
+     * Entities outside the simulation distance stop ticking, which would leave the bullet frozen in mid-air
+     * with no drag, gravity, hit detection or lifetime. Remove it before it gets stuck there.
+     */
+    protected boolean isLeavingEntityTickingArea(Level level)
+    {
+        return level instanceof ServerLevel serverLevel
+            && !serverLevel.isPositionEntityTicking(BlockPos.containing(position().add(velocity)));
+    }
+
+    /** Bullets are transient: never write them to chunk data, where they would come back frozen after a reload */
+    @Override
+    public boolean shouldBeSaved()
+    {
+        return false;
     }
 
     protected void setInitialSpeed()

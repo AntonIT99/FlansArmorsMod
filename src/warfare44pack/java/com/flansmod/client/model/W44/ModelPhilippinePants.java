@@ -10,13 +10,13 @@ public class ModelPhilippinePants extends ModelCustomArmour {
    int textureY = 128;
 
    public ModelPhilippinePants() {
-      this.leftLegModel = new ModelRendererTurbo[1];
-      this.leftLegModel[0] = new ModelRendererTurbo(this, 25, 25, this.textureX, this.textureY);
-      this.leftLegModel[0].addShapeBox(-2.0F, -0.1F, -2.0F, 4, 5, 4, 0.0F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, -0.5F, 0.1F, 0.1F, -0.5F, 0.1F, 0.1F, -0.5F, 0.1F, 0.1F, -0.5F, 0.1F);
-      this.leftLegModel[0].setRotationPoint(0.0F, 0.0F, 0.0F);
-      this.rightLegModel = new ModelRendererTurbo[1];
-      this.rightLegModel[0] = new ModelRendererTurbo(this, 1, 25, this.textureX, this.textureY);
-      this.rightLegModel[0].addShapeBox(-2.0F, -0.1F, -2.0F, 4, 5, 4, 0.0F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, -0.5F, 0.1F, 0.1F, -0.5F, 0.1F, 0.1F, -0.5F, 0.1F, 0.1F, -0.5F, 0.1F);
-      this.rightLegModel[0].setRotationPoint(0.0F, 0.0F, 0.0F);
+      leftLegModel = new ModelRendererTurbo[1];
+      leftLegModel[0] = new ModelRendererTurbo(this, 25, 25, textureX, textureY);
+      leftLegModel[0].addShapeBox(-2.0F, -0.1F, -2.0F, 4, 5, 4, 0.0F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, -0.5F, 0.1F, 0.1F, -0.5F, 0.1F, 0.1F, -0.5F, 0.1F, 0.1F, -0.5F, 0.1F);
+      leftLegModel[0].setRotationPoint(0.0F, 0.0F, 0.0F);
+      rightLegModel = new ModelRendererTurbo[1];
+      rightLegModel[0] = new ModelRendererTurbo(this, 1, 25, textureX, textureY);
+      rightLegModel[0].addShapeBox(-2.0F, -0.1F, -2.0F, 4, 5, 4, 0.0F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, 0.0F, 0.1F, 0.1F, -0.5F, 0.1F, 0.1F, -0.5F, 0.1F, 0.1F, -0.5F, 0.1F, 0.1F, -0.5F, 0.1F);
+      rightLegModel[0].setRotationPoint(0.0F, 0.0F, 0.0F);
    }
 }

@@ -8,7 +8,7 @@ public class ModelBarrel extends ModelAttachment {
    int textureY = 64;
 
    public ModelBarrel() {
-      this.attachmentFlashOffset = new Vector3f(0.0F, 0.0F, 0.0F);
-      this.flipAll();
+      attachmentFlashOffset = new Vector3f(0.0F, 0.0F, 0.0F);
+      flipAll();
    }
 }

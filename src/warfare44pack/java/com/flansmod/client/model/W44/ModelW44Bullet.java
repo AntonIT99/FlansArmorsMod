@@ -11,17 +11,17 @@ public class ModelW44Bullet extends ModelBase {
    public ModelRendererTurbo[] w44bulletModel = new ModelRendererTurbo[3];
 
    public ModelW44Bullet() {
-      this.w44bulletModel[0] = new ModelRendererTurbo(this, 9, 12, this.textureX, this.textureY);
-      this.w44bulletModel[1] = new ModelRendererTurbo(this, 9, 8, this.textureX, this.textureY);
-      this.w44bulletModel[2] = new ModelRendererTurbo(this, 18, 10, this.textureX, this.textureY);
-      this.w44bulletModel[0].addShapeBox(-0.5F, 5.0F, -0.5F, 1, 5, 1, 0.0F, -0.15F, 2.0F, -0.15F, -0.15F, 2.0F, -0.15F, -0.15F, 2.0F, -0.15F, -0.15F, 2.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F);
-      this.w44bulletModel[0].setRotationPoint(0.0F, 20.0F, 0.0F);
-      this.w44bulletModel[1].addShapeBox(-0.5F, 10.0F, -0.5F, 1, 1, 1, 0.0F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.45F, 0.0F, -0.45F, -0.45F, 0.0F, -0.45F, -0.45F, 0.0F, -0.45F, -0.45F, 0.0F, -0.45F);
-      this.w44bulletModel[1].setRotationPoint(0.0F, 20.0F, 0.0F);
-      this.w44bulletModel[2].addShapeBox(-0.5F, -4.0F, -0.5F, 1, 7, 1, 0.0F, -0.45F, 0.0F, -0.45F, -0.45F, 0.0F, -0.45F, -0.45F, 0.0F, -0.45F, -0.45F, 0.0F, -0.45F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F);
-      this.w44bulletModel[2].setRotationPoint(0.0F, 20.0F, 0.0F);
-      this.w44bulletModel[0].glow = true;
-      this.w44bulletModel[1].glow = true;
-      this.w44bulletModel[2].glow = true;
+      w44bulletModel[0] = new ModelRendererTurbo(this, 9, 12, textureX, textureY);
+      w44bulletModel[1] = new ModelRendererTurbo(this, 9, 8, textureX, textureY);
+      w44bulletModel[2] = new ModelRendererTurbo(this, 18, 10, textureX, textureY);
+      w44bulletModel[0].addShapeBox(-0.5F, 5.0F, -0.5F, 1, 5, 1, 0.0F, -0.15F, 2.0F, -0.15F, -0.15F, 2.0F, -0.15F, -0.15F, 2.0F, -0.15F, -0.15F, 2.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F);
+      w44bulletModel[0].setRotationPoint(0.0F, 20.0F, 0.0F);
+      w44bulletModel[1].addShapeBox(-0.5F, 10.0F, -0.5F, 1, 1, 1, 0.0F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.45F, 0.0F, -0.45F, -0.45F, 0.0F, -0.45F, -0.45F, 0.0F, -0.45F, -0.45F, 0.0F, -0.45F);
+      w44bulletModel[1].setRotationPoint(0.0F, 20.0F, 0.0F);
+      w44bulletModel[2].addShapeBox(-0.5F, -4.0F, -0.5F, 1, 7, 1, 0.0F, -0.45F, 0.0F, -0.45F, -0.45F, 0.0F, -0.45F, -0.45F, 0.0F, -0.45F, -0.45F, 0.0F, -0.45F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F, -0.15F, 0.0F, -0.15F);
+      w44bulletModel[2].setRotationPoint(0.0F, 20.0F, 0.0F);
+      w44bulletModel[0].glow = true;
+      w44bulletModel[1].glow = true;
+      w44bulletModel[2].glow = true;
    }
 }

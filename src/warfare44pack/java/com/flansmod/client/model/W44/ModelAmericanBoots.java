@@ -10,13 +10,13 @@ public class ModelAmericanBoots extends ModelCustomArmour {
    int textureY = 128;
 
    public ModelAmericanBoots() {
-      this.leftLegModel = new ModelRendererTurbo[1];
-      this.leftLegModel[0] = new ModelRendererTurbo(this, 33, 73, this.textureX, this.textureY);
-      this.leftLegModel[0].addShapeBox(-2.0F, 8.1F, -2.3F, 4, 4, 5, 0.0F, 0.41F, 0.0F, 0.0F, 0.41F, 0.0F, 0.0F, 0.41F, 0.0F, -0.39F, 0.41F, 0.0F, -0.39F, 0.41F, 0.0F, 0.0F, 0.41F, 0.0F, 0.0F, 0.41F, 0.0F, -0.39F, 0.41F, 0.0F, -0.39F);
-      this.leftLegModel[0].setRotationPoint(0.0F, 0.0F, 0.0F);
-      this.rightLegModel = new ModelRendererTurbo[1];
-      this.rightLegModel[0] = new ModelRendererTurbo(this, 57, 73, this.textureX, this.textureY);
-      this.rightLegModel[0].addShapeBox(-2.0F, 8.1F, -2.3F, 4, 4, 5, 0.0F, 0.4F, 0.0F, 0.0F, 0.4F, 0.0F, 0.0F, 0.4F, 0.0F, -0.4F, 0.4F, 0.0F, -0.4F, 0.4F, 0.0F, 0.0F, 0.4F, 0.0F, 0.0F, 0.4F, 0.0F, -0.4F, 0.4F, 0.0F, -0.4F);
-      this.rightLegModel[0].setRotationPoint(0.0F, 0.0F, 0.0F);
+      leftLegModel = new ModelRendererTurbo[1];
+      leftLegModel[0] = new ModelRendererTurbo(this, 33, 73, textureX, textureY);
+      leftLegModel[0].addShapeBox(-2.0F, 8.1F, -2.3F, 4, 4, 5, 0.0F, 0.41F, 0.0F, 0.0F, 0.41F, 0.0F, 0.0F, 0.41F, 0.0F, -0.39F, 0.41F, 0.0F, -0.39F, 0.41F, 0.0F, 0.0F, 0.41F, 0.0F, 0.0F, 0.41F, 0.0F, -0.39F, 0.41F, 0.0F, -0.39F);
+      leftLegModel[0].setRotationPoint(0.0F, 0.0F, 0.0F);
+      rightLegModel = new ModelRendererTurbo[1];
+      rightLegModel[0] = new ModelRendererTurbo(this, 57, 73, textureX, textureY);
+      rightLegModel[0].addShapeBox(-2.0F, 8.1F, -2.3F, 4, 4, 5, 0.0F, 0.4F, 0.0F, 0.0F, 0.4F, 0.0F, 0.0F, 0.4F, 0.0F, -0.4F, 0.4F, 0.0F, -0.4F, 0.4F, 0.0F, 0.0F, 0.4F, 0.0F, 0.0F, 0.4F, 0.0F, -0.4F, 0.4F, 0.0F, -0.4F);
+      rightLegModel[0].setRotationPoint(0.0F, 0.0F, 0.0F);
    }
 }

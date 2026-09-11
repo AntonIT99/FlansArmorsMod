@@ -63,7 +63,7 @@ StartSoundLength 7
 EngineSound JeepMove
 EngineSoundLength 61
 ShootSound bullet
-ShellSound shell
+ShellSound bullet
 //Recipe
 //Each section of the plane may have many parts
 //The sections are tailWheel, tail, bay, topWing, leftWingWheel, leftWing, rightWingWheel,

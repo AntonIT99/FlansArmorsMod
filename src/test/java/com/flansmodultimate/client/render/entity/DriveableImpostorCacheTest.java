@@ -2,34 +2,11 @@ package com.flansmodultimate.client.render.entity;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DriveableImpostorCacheTest
 {
-    private static final float EPSILON = 1.0E-5F;
-
-    @Test
-    void adaptivePartThresholdTransitionsTowardFarLod()
-    {
-        assertEquals(0.75F,
-            DriveableImpostorCache.adaptivePartThreshold(0.75F, 2F, 96F, 32F), EPSILON);
-        assertEquals(1.375F,
-            DriveableImpostorCache.adaptivePartThreshold(0.75F, 2F, 64F, 32F), EPSILON);
-        assertEquals(2F,
-            DriveableImpostorCache.adaptivePartThreshold(0.75F, 2F, 32F, 32F), EPSILON);
-    }
-
-    @Test
-    void adaptivePartThresholdRetainsExplicitOffAndInvalidRanges()
-    {
-        assertEquals(0F,
-            DriveableImpostorCache.adaptivePartThreshold(0F, 2F, 32F, 32F), EPSILON);
-        assertEquals(2F,
-            DriveableImpostorCache.adaptivePartThreshold(2F, 1F, 32F, 32F), EPSILON);
-        assertEquals(0.75F,
-            DriveableImpostorCache.adaptivePartThreshold(0.75F, 2F, 32F, 0F), EPSILON);
-    }
-
     @Test
     void impostorActivatesByProjectedSizeOrMaximumDistance()
     {

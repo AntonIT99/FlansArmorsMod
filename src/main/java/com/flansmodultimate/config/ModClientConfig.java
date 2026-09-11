@@ -32,6 +32,9 @@ public final class ModClientConfig
     public final double minimumDriveablePartPixelSize;
     public final boolean enableDriveableLod;
     public final double maximumDriveableLodPartPixelSize;
+    public final double driveableLodDetailMultiplier;
+    public final double groundVehicleLodDistanceFactor;
+    public final int driveableImpostorQualityMultiplier;
     public final double driveableTrackLinkLodPixelSize;
     public final double driveableImpostorPixelSize;
     public final int driveableImpostorMinimumDistance;
@@ -94,6 +97,9 @@ public final class ModClientConfig
     private static final ForgeConfigSpec.DoubleValue MINIMUM_DRIVEABLE_PART_PIXEL_SIZE;
     private static final ForgeConfigSpec.BooleanValue ENABLE_DRIVEABLE_LOD;
     private static final ForgeConfigSpec.DoubleValue MAXIMUM_DRIVEABLE_LOD_PART_PIXEL_SIZE;
+    private static final ForgeConfigSpec.DoubleValue DRIVEABLE_LOD_DETAIL_MULTIPLIER;
+    private static final ForgeConfigSpec.DoubleValue GROUND_VEHICLE_LOD_DISTANCE_FACTOR;
+    private static final ForgeConfigSpec.IntValue DRIVEABLE_IMPOSTOR_QUALITY_MULTIPLIER;
     private static final ForgeConfigSpec.DoubleValue DRIVEABLE_TRACK_LINK_LOD_PIXEL_SIZE;
     private static final ForgeConfigSpec.DoubleValue DRIVEABLE_IMPOSTOR_PIXEL_SIZE;
     private static final ForgeConfigSpec.IntValue DRIVEABLE_IMPOSTOR_MINIMUM_DISTANCE;
@@ -221,22 +227,31 @@ public final class ModClientConfig
             .comment("Skip individual driveable model parts whose projected bounding diameter is smaller than this many physical screen pixels. Set to 0 to disable. Only affects driveables rendered in the world.")
             .defineInRange("minimumDriveablePartPixelSize", 0.75D, 0D, 16D);
         ENABLE_DRIVEABLE_LOD = builder
-            .comment("Enable automatic world-rendered driveable LOD. Medium-distance models use stronger part culling and supported tank track links use simplified geometry. Distant vehicles / planes may use generated impostors. Mechas retain exact rendering because held add-ons are not part of their base model.")
+            .comment("Enable automatic world-rendered driveable LOD. Medium-distance models use stronger part culling and supported tank track links use simplified geometry. Distant vehicles / planes may use generated impostors. Mechas do not use impostors because held add-ons are not part of their base model.")
             .define("enableDriveableLod", true);
         MAXIMUM_DRIVEABLE_LOD_PART_PIXEL_SIZE = builder
-            .comment("Maximum projected part diameter culled as a driveable approaches the far impostor LOD. Must be at least minimumDriveablePartPixelSize to have an effect.")
+            .comment("Base far-distance projected part diameter for whole-model LOD, before driveableLodDetailMultiplier. Must exceed minimumDriveablePartPixelSize to have an effect.")
             .defineInRange("maximumDriveableLodPartPixelSize", 2D, 0D, 32D);
+        DRIVEABLE_LOD_DETAIL_MULTIPLIER = builder
+            .comment("Multiply the far-distance part-culling threshold for the whole vehicle, including hull/turret details. Ramps smoothly from 24 to 80 size-scaled blocks, independently of impostor eligibility. 1 keeps the configured far threshold; 2 doubles it. Does not change the near threshold or enable explicitly disabled part culling.")
+            .defineInRange("driveableLodDetailMultiplier", 2D, 1D, 4D);
+        GROUND_VEHICLE_LOD_DISTANCE_FACTOR = builder
+            .comment("Distance multiplier for earlier whole-model LOD and impostors on small land vehicles. 0.5 halves their size-scaled distances; 1 removes the discount. Boats/aircraft are excluded. The discount fades out between model radii of 6 and 12 blocks, protecting very large ground models too.")
+            .defineInRange("groundVehicleLodDistanceFactor", 0.5D, 0.25D, 1D);
+        DRIVEABLE_IMPOSTOR_QUALITY_MULTIPLIER = builder
+            .comment("Multiply impostor capture resolution and yaw-view count, capped at 256 pixels and 16 yaw views. Default 2 upgrades existing 64px/8-view configs to 128px/16 views for earlier impostors. 1 uses the configured values directly. Higher quality uses more atlas memory. Screen-size quality limits can delay distance-triggered impostors.")
+            .defineInRange("driveableImpostorQualityMultiplier", 2, 1, 2);
         DRIVEABLE_IMPOSTOR_PIXEL_SIZE = builder
-            .comment("Use a generated far-distance impostor when a vehicle or plane projects to at most this many physical screen pixels. Set to 0 to disable only impostors.")
+            .comment("Use a generated far-distance impostor when a vehicle or plane projects to at most this many physical screen pixels. Small land vehicles gradually increase this allowance toward the image-quality limit with distance. Set this and driveableImpostorMaximumDistance to 0 to disable impostors.")
             .defineInRange("driveableImpostorPixelSize", 32D, 0D, 256D);
         DRIVEABLE_TRACK_LINK_LOD_PIXEL_SIZE = builder
             .comment("Simplify supported multipart tank track links to textured envelopes when a link projects to at most this many physical screen pixels, beyond 32 blocks. Preserves link count and animation. Hysteresis retains the simplified mesh up to 25% above this size. Requires enableDriveableLod; 0 disables track geometry LOD. Previews and the locally controlled vehicle retain full detail.")
             .defineInRange("driveableTrackLinkLodPixelSize", 8D, 0D, 32D);
         DRIVEABLE_IMPOSTOR_MINIMUM_DISTANCE = builder
-            .comment("Minimum camera distance in blocks before a generated driveable impostor may be used. Tuned around tank-sized vehicles; scaled up automatically for physically larger driveables (e.g. battleships) so they keep their exact model much longer.")
+            .comment("Base minimum camera distance in blocks before a generated driveable impostor may be used. Small land vehicles also apply groundVehicleLodDistanceFactor; scaled up automatically for physically larger driveables (e.g. battleships) so they keep their exact model much longer.")
             .defineInRange("driveableImpostorMinimumDistance", 64, 8, 4096);
         DRIVEABLE_IMPOSTOR_MAXIMUM_DISTANCE = builder
-            .comment("Always use a ready generated driveable impostor at or beyond this camera distance. Tuned around tank-sized vehicles; scaled up automatically for physically larger driveables (e.g. battleships) so they don't switch to an impostor while still filling the screen. Set to 0 to use only the projected-pixel threshold.")
+            .comment("Prefer a ready generated driveable impostor at or beyond this camera distance, subject to the capture's screen-size quality limit. Distances scale with model size without an upper size cap; small land vehicles also use groundVehicleLodDistanceFactor and gradually promote impostors as this distance approaches. Set to 0 to use only the configured projected-pixel threshold.")
             .defineInRange("driveableImpostorMaximumDistance", 128, 0, 4096);
         DRIVEABLE_IMPOSTOR_RESOLUTION = builder
             .comment("Resolution of each generated driveable impostor view. Changing this clears and regenerates the runtime cache.")
@@ -345,6 +360,9 @@ public final class ModClientConfig
         minimumDriveablePartPixelSize = MINIMUM_DRIVEABLE_PART_PIXEL_SIZE.get();
         enableDriveableLod = ENABLE_DRIVEABLE_LOD.get();
         maximumDriveableLodPartPixelSize = MAXIMUM_DRIVEABLE_LOD_PART_PIXEL_SIZE.get();
+        driveableLodDetailMultiplier = DRIVEABLE_LOD_DETAIL_MULTIPLIER.get();
+        groundVehicleLodDistanceFactor = GROUND_VEHICLE_LOD_DISTANCE_FACTOR.get();
+        driveableImpostorQualityMultiplier = DRIVEABLE_IMPOSTOR_QUALITY_MULTIPLIER.get();
         driveableTrackLinkLodPixelSize = DRIVEABLE_TRACK_LINK_LOD_PIXEL_SIZE.get();
         driveableImpostorPixelSize = DRIVEABLE_IMPOSTOR_PIXEL_SIZE.get();
         driveableImpostorMinimumDistance = DRIVEABLE_IMPOSTOR_MINIMUM_DISTANCE.get();
@@ -462,6 +480,7 @@ public final class ModClientConfig
             ModelCache.reload();
 
         if (old.enableDriveableLod != get().enableDriveableLod
+            || old.driveableImpostorQualityMultiplier != get().driveableImpostorQualityMultiplier
             || old.driveableImpostorResolution != get().driveableImpostorResolution
             || old.driveableImpostorYawAngles != get().driveableImpostorYawAngles
             || old.driveableImpostorCacheEntries != get().driveableImpostorCacheEntries)

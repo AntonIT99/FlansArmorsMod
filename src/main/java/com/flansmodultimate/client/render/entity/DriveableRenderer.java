@@ -138,7 +138,7 @@ public class DriveableRenderer<T extends Driveable> extends FlanEntityRenderer<T
         // the origin, which those measurements read as vanishingly small.
         boolean preview = isRenderingPreview();
         DriveableImpostorCache.Result lodResult = DriveableImpostorCache.Result.notRendered();
-        if (!preview)
+        if (!preview && !locallyControlled)
         {
             lodResult = DriveableImpostorCache.renderOrPrepare(
                 model, type, texture, translucent, cull, red, green, blue,
@@ -197,11 +197,13 @@ public class DriveableRenderer<T extends Driveable> extends FlanEntityRenderer<T
         poseStack.pushPose();
         poseStack.scale(scale, scale, scale);
         float minimumPartPixels = preview ? 0F : (float)ModClientConfig.get().minimumDriveablePartPixelSize;
-        if (!preview && ModClientConfig.get().enableDriveableLod)
+        if (!preview && !locallyControlled && ModClientConfig.get().enableDriveableLod)
         {
-            minimumPartPixels = DriveableImpostorCache.adaptivePartThreshold(minimumPartPixels,
+            float distanceScale = DriveableLodPolicy.distanceScale(lodResult.modelRadius(),
+                type instanceof VehicleType && !type.isFloatOnWater(), (float)ModClientConfig.get().groundVehicleLodDistanceFactor);
+            minimumPartPixels = DriveableLodPolicy.partThreshold(minimumPartPixels,
                 (float)ModClientConfig.get().maximumDriveableLodPartPixelSize,
-                lodResult.projectedPixelDiameter(), (float)ModClientConfig.get().driveableImpostorPixelSize);
+                (float)ModClientConfig.get().driveableLodDetailMultiplier, cameraDistance, distanceScale);
         }
         boolean useTrackLinkLod = !preview && !locallyControlled && ModClientConfig.get().enableDriveableLod
             && model instanceof ModelVehicle vehicleModel

@@ -9,6 +9,7 @@ import com.flansmodultimate.client.model.ModelCache;
 import com.flansmodultimate.client.render.EnumRenderPass;
 import com.flansmodultimate.client.render.LegacyTransformApplier;
 import com.flansmodultimate.common.types.DriveableType;
+import com.flansmodultimate.common.types.VehicleType;
 import com.flansmodultimate.config.ModClientConfig;
 import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -36,6 +37,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
 
 /**
@@ -56,21 +58,20 @@ public final class DriveableImpostorCache
     private static final float HYSTERESIS = 1.2F;
     private static final float PREWARM_MULTIPLIER = 2F;
     private static final long CACHE_RETENTION_MILLIS = 2_000L;
-    /** Configured impostor distances are tuned around roughly tank-sized vehicles; larger driveables push them out. */
-    private static final float REFERENCE_VEHICLE_RADIUS = 3F;
-    private static final float MAX_SIZE_DISTANCE_SCALE = 8F;
 
     /** Small MRU list; reverse lookup avoids allocating a cache key for every rendered entity. */
     private static final List<Entry> entries = new ArrayList<>(16);
+    // Geometry LOD must also work for damaged vehicles and when the atlas cache is full.
+    private static final IdentityHashMap<ModelDriveable, IdentityHashMap<DriveableType, ModelBounds>> boundsCache = new IdentityHashMap<>();
     private static TextureTarget captureTarget;
     private static MultiBufferSource.BufferSource captureBuffer;
     private static final ImpostorAtlasBlitter atlasBlitter = new ImpostorAtlasBlitter();
     private static Settings settings;
     private static long lastCaptureTick = Long.MIN_VALUE;
 
-    public record Result(boolean rendered, boolean usingImpostor, float projectedPixelDiameter)
+    public record Result(boolean rendered, boolean usingImpostor, float projectedPixelDiameter, float modelRadius)
     {
-        private static final Result EXACT_UNKNOWN = new Result(false, false, Float.POSITIVE_INFINITY);
+        private static final Result EXACT_UNKNOWN = new Result(false, false, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
 
         /** The exact model must be drawn, with no distance measurement to base a threshold on. */
         public static Result notRendered()
@@ -78,11 +79,11 @@ public final class DriveableImpostorCache
             return EXACT_UNKNOWN;
         }
 
-        private static Result exact(float projectedPixelDiameter)
+        private static Result exact(float projectedPixelDiameter, float radius)
         {
             if (projectedPixelDiameter == Float.POSITIVE_INFINITY)
                 return EXACT_UNKNOWN;
-            return new Result(false, false, projectedPixelDiameter);
+            return new Result(false, false, projectedPixelDiameter, radius);
         }
     }
 
@@ -95,10 +96,32 @@ public final class DriveableImpostorCache
     {
         ModClientConfig config = ModClientConfig.get();
         if (config == null || !config.enableDriveableLod || projectionPixels <= 0F || cameraDistance <= 0D)
-            return Result.exact(Float.POSITIVE_INFINITY);
-        if (!wasUsingImpostor && cameraDistance < config.driveableImpostorMinimumDistance * 0.75D)
-            return Result.exact(Float.POSITIVE_INFINITY);
+            return Result.notRendered();
 
+        ensureSettings(config);
+        ModelBounds bounds = cachedBounds(model, type);
+        if (!bounds.valid())
+            return Result.notRendered();
+        float projectedPixels = projectedDiameter(bounds.radius(), projectionPixels, cameraDistance);
+        Result exact = Result.exact(projectedPixels, bounds.radius());
+        if (!allowImpostor)
+            return exact;
+
+        boolean groundVehicle = type instanceof VehicleType && !type.isFloatOnWater();
+        float sizeDistanceScale = DriveableLodPolicy.distanceScale(bounds.radius(), groundVehicle,
+            (float)config.groundVehicleLodDistanceFactor);
+        float minimumDistance = config.driveableImpostorMinimumDistance * sizeDistanceScale;
+        float maximumDistance = config.driveableImpostorMaximumDistance > 0F
+            ? config.driveableImpostorMaximumDistance * sizeDistanceScale : 0F;
+        float impostorThreshold = DriveableLodPolicy.impostorThreshold((float)config.driveableImpostorPixelSize,
+            cameraDistance, minimumDistance, maximumDistance, groundVehicle, settings.resolution());
+        if ((impostorThreshold <= 0F && maximumDistance <= 0F)
+            || cameraDistance < minimumDistance / PREWARM_MULTIPLIER)
+            return exact;
+
+        Entry entry = getOrCreate(model, type, sourceTexture, translucent, cull, red, green, blue, bounds);
+        if (entry == null || entry.failed)
+            return exact;
         Quaternionf entityRotation = new Quaternionf()
             .rotateY(entityYaw * Mth.DEG_TO_RAD)
             .rotateZ(entityPitch * Mth.DEG_TO_RAD)
@@ -107,26 +130,6 @@ public final class DriveableImpostorCache
         poseStack.last().pose().transformDirection(viewForward).normalize();
         float viewYaw = (float) Math.toDegrees(Math.atan2(viewForward.x(), viewForward.z()));
         float viewPitch = (float) Math.toDegrees(Math.asin(Mth.clamp(viewForward.y(), -1F, 1F)));
-
-        ensureSettings(config);
-        if (!allowImpostor)
-            return Result.exact(Float.POSITIVE_INFINITY);
-        Entry entry = getOrCreate(model, type, sourceTexture, translucent, cull, red, green, blue);
-        if (entry == null)
-            return Result.exact(Float.POSITIVE_INFINITY);
-        if (!entry.bounds.valid())
-            return Result.exact(Float.POSITIVE_INFINITY);
-
-        float projectedPixels = projectedDiameter(entry.bounds.radius(), projectionPixels, cameraDistance);
-        float sizeDistanceScale = sizeDistanceScale(entry.bounds.radius());
-        float impostorThreshold = (float)config.driveableImpostorPixelSize;
-        float minimumDistance = config.driveableImpostorMinimumDistance * sizeDistanceScale;
-        float maximumDistance = config.driveableImpostorMaximumDistance > 0F
-            ? config.driveableImpostorMaximumDistance * sizeDistanceScale : 0F;
-        if ((impostorThreshold <= 0F && maximumDistance <= 0F)
-            || cameraDistance < minimumDistance || entry.failed)
-            return Result.exact(projectedPixels);
-
         int yawIndex = yawIndex(viewYaw, settings.yawAngles());
         int pitchIndex = pitchIndex(viewPitch);
         int cellIndex = pitchIndex * settings.yawAngles() + yawIndex;
@@ -137,25 +140,15 @@ public final class DriveableImpostorCache
         if (!entry.captured[cellIndex] && withinPrewarmRange)
             captureOneCell(entry, yawIndex, pitchIndex, cellIndex);
 
-        if (!entry.captured[cellIndex] || !shouldUseImpostor(projectedPixels, cameraDistance,
-            impostorThreshold, maximumDistance, wasUsingImpostor))
-            return Result.exact(projectedPixels);
+        if (!entry.captured[cellIndex] || cameraDistance < minimumDistance
+            || !DriveableLodPolicy.withinImageQuality(projectedPixels, settings.resolution(), wasUsingImpostor)
+            || !shouldUseImpostor(projectedPixels, cameraDistance,
+                impostorThreshold, maximumDistance, wasUsingImpostor))
+            return exact;
 
         renderBillboard(entry, yawIndex, pitchIndex, entityRotation, cameraOrientation,
             poseStack, buffer, packedLight);
-        return new Result(true, true, projectedPixels);
-    }
-
-    public static float adaptivePartThreshold(float baseThreshold, float maximumThreshold,
-                                              float projectedPixelDiameter, float impostorPixelThreshold)
-    {
-        if (baseThreshold <= 0F || maximumThreshold <= baseThreshold
-            || !Float.isFinite(projectedPixelDiameter) || impostorPixelThreshold <= 0F)
-            return baseThreshold;
-
-        float start = impostorPixelThreshold * 3F;
-        float blend = Mth.clamp((start - projectedPixelDiameter) / (start - impostorPixelThreshold), 0F, 1F);
-        return Mth.lerp(blend, baseThreshold, maximumThreshold);
+        return new Result(true, true, projectedPixels, bounds.radius());
     }
 
     static boolean shouldUseImpostor(float projectedPixels, double cameraDistance,
@@ -179,8 +172,8 @@ public final class DriveableImpostorCache
 
     private static void ensureSettings(ModClientConfig config)
     {
-        Settings requested = new Settings(config.driveableImpostorResolution,
-            config.driveableImpostorYawAngles, config.driveableImpostorCacheEntries);
+        Settings requested = new Settings(DriveableLodPolicy.resolution(config.driveableImpostorResolution, config.driveableImpostorQualityMultiplier),
+            DriveableLodPolicy.yawAngles(config.driveableImpostorYawAngles, config.driveableImpostorQualityMultiplier), config.driveableImpostorCacheEntries);
         if (requested.equals(settings))
             return;
         clearNow();
@@ -188,17 +181,12 @@ public final class DriveableImpostorCache
     }
 
     @Nullable
-    private static Entry getOrCreate(ModelDriveable model, DriveableType type, ResourceLocation sourceTexture, boolean translucent, boolean cull, float red, float green, float blue)
+    private static Entry getOrCreate(ModelDriveable model, DriveableType type, ResourceLocation sourceTexture, boolean translucent, boolean cull, float red, float green, float blue, ModelBounds bounds)
     {
         long now = net.minecraft.Util.getMillis();
-        ModelBounds sharedBounds = null;
         for (int index = entries.size() - 1; index >= 0; index--)
         {
             Entry existing = entries.get(index);
-            // Geometry bounds are independent of paint, tint and material settings.
-            // Reuse only the same model AND type, since the type supplies its scale.
-            if (existing.model == model && existing.type == type)
-                sharedBounds = existing.bounds;
             if (!existing.matches(model, type, sourceTexture, translucent, cull, red, green, blue))
                 continue;
             existing.lastUsedMillis = now;
@@ -220,7 +208,7 @@ public final class DriveableImpostorCache
         }
 
         Entry created = new Entry(model, type, sourceTexture, translucent, cull,
-            red, green, blue, sharedBounds != null ? sharedBounds : measureBounds(model, type),
+            red, green, blue, bounds,
             settings.cellCount(), now);
         entries.add(created);
         return created;
@@ -232,6 +220,23 @@ public final class DriveableImpostorCache
         PoseStack poseStack = new PoseStack();
         renderNeutralModel(model, type, poseStack, bounds, LightTexture.FULL_BRIGHT, 1F, 1F, 1F, ModelCache.getRenderPasses(model));
         return bounds.toBounds();
+    }
+
+    private static ModelBounds cachedBounds(ModelDriveable model, DriveableType type)
+    {
+        IdentityHashMap<DriveableType, ModelBounds> byType = boundsCache.get(model);
+        if (byType == null)
+        {
+            byType = new IdentityHashMap<>();
+            boundsCache.put(model, byType);
+        }
+        ModelBounds bounds = byType.get(type);
+        if (bounds == null)
+        {
+            bounds = measureBounds(model, type);
+            byType.put(type, bounds);
+        }
+        return bounds;
     }
 
     private static void captureOneCell(Entry entry, int yawIndex, int pitchIndex, int cellIndex)
@@ -400,14 +405,6 @@ public final class DriveableImpostorCache
         return Mth.floor(normalized / 360F * yawAngles + 0.5F) % yawAngles;
     }
 
-    /** Scales configured impostor distances up for driveables larger than a typical tank, so battleships keep their exact model much longer than the tuned base distance would allow. */
-    private static float sizeDistanceScale(float radius)
-    {
-        if (!Float.isFinite(radius) || radius <= REFERENCE_VEHICLE_RADIUS)
-            return 1F;
-        return Math.min(MAX_SIZE_DISTANCE_SCALE, radius / REFERENCE_VEHICLE_RADIUS);
-    }
-
     private static int pitchIndex(float viewPitch)
     {
         if (viewPitch < -15F)
@@ -426,6 +423,7 @@ public final class DriveableImpostorCache
         for (Entry entry : entries)
             release(entry);
         entries.clear();
+        boundsCache.clear();
         captureBuffer = null;
         atlasBlitter.close();
         if (captureTarget != null)

@@ -5,7 +5,6 @@ import com.flansmodultimate.client.render.EnumRenderPass;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.wolffsmod.api.client.model.IModelBase;
-import com.wolffsmod.api.client.model.ModelRenderer;
 import com.wolffsmod.api.client.model.TextureOffset;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,7 +23,7 @@ import java.util.Map;
 import java.util.Random;
 
 @SuppressWarnings({"unused", "java:S1104"})
-public abstract class ModelBase extends Model implements IModelBase
+public abstract class ModelBase extends Model implements IModelBase<ModelRenderer>
 {
     public int textureWidth = TEXTURE_WIDTH;
     public int textureHeight = TEXTURE_HEIGHT;
@@ -88,7 +87,7 @@ public abstract class ModelBase extends Model implements IModelBase
     @Override
     public ModelRenderer getRandomModelBox(Random rand)
     {
-        return IModelBase.super.getRandomModelBox(rand);
+        return boxList.get(rand.nextInt(boxList.size()));
     }
 
     @Override
@@ -97,7 +96,6 @@ public abstract class ModelBase extends Model implements IModelBase
         renderToBuffer(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, EnumRenderPass.DEFAULT);
     }
 
-    @Override
     public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, EnumRenderPass renderPass)
     {
         for (ModelRenderer modelRenderer : boxList)

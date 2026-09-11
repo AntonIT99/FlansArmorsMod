@@ -21,11 +21,9 @@ import com.flansmodultimate.config.ModClientConfig;
 import com.flansmodultimate.util.ClassLoaderUtils;
 import com.flansmodultimate.util.LogUtils;
 import com.wolffsmod.api.client.model.IModelBase;
-import com.wolffsmod.api.client.model.ModelRenderer;
+import com.wolffsmod.api.client.model.IModelRenderer;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +38,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-@OnlyIn(Dist.CLIENT)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ModelCache
 {
@@ -64,8 +61,8 @@ public final class ModelCache
         }
     }
 
-    private static final Map<ModelCacheKey, Optional<IModelBase>> cache = new ConcurrentHashMap<>();
-    private static final Map<IModelBase, List<EnumRenderPass>> renderPassCache = new ConcurrentHashMap<>();
+    private static final Map<ModelCacheKey, Optional<IModelBase<?>>> cache = new ConcurrentHashMap<>();
+    private static final Map<IModelBase<?>, List<EnumRenderPass>> renderPassCache = new ConcurrentHashMap<>();
 
     public static void reload()
     {
@@ -98,13 +95,13 @@ public final class ModelCache
     }
 
     @Nullable
-    public static IModelBase getOrLoadTypeModel(InfoType type)
+    public static IModelBase<?> getOrLoadTypeModel(InfoType type)
     {
         return getOrLoadModel(new ModelCacheKey(type.getModelClassName(), type.getShortName(), type.getContentPack().getName()), type, null, type.getTexture());
     }
 
     @Nullable
-    public static IModelBase getOrLoadTypeModel(ArmorType type)
+    public static IModelBase<?> getOrLoadTypeModel(ArmorType type)
     {
         return getOrLoadModel(new ModelCacheKey(type.getModelClassName(), type.getShortName(), type.getContentPack().getName()), type, new ModelDefaultArmor(type.getArmorItemType()), type.getTexture());
     }
@@ -150,7 +147,7 @@ public final class ModelCache
     }
 
     @Nullable
-    public static IModelBase getOrLoadModel(ModelCacheKey modelCacheKey, InfoType type, @Nullable IModelBase defaultModel)
+    public static IModelBase<?> getOrLoadModel(ModelCacheKey modelCacheKey, InfoType type, @Nullable IModelBase<?> defaultModel)
     {
         return getOrLoadModel(modelCacheKey, type, defaultModel, type.getTexture());
     }
@@ -160,7 +157,7 @@ public final class ModelCache
      *                texture size that does not match it. Pass {@code null} to skip that correction.
      */
     @Nullable
-    public static IModelBase getOrLoadModel(ModelCacheKey modelCacheKey, InfoType type, @Nullable IModelBase defaultModel, @Nullable ResourceLocation texture)
+    public static IModelBase<?> getOrLoadModel(ModelCacheKey modelCacheKey, InfoType type, @Nullable IModelBase<?> defaultModel, @Nullable ResourceLocation texture)
     {
         if (StringUtils.isBlank(modelCacheKey.modelClassName()))
         {
@@ -171,7 +168,7 @@ public final class ModelCache
         }
 
         return cache.computeIfAbsent(modelCacheKey, key -> {
-            IModelBase model = loadModel(key.modelClassName(), type, defaultModel);
+            IModelBase<?> model = loadModel(key.modelClassName(), type, defaultModel);
             ModelTextureFitter.fitToTexture(model, texture);
             return Optional.ofNullable(model);
         }).orElse(null);
@@ -182,12 +179,12 @@ public final class ModelCache
      * Legacy renderers previously traversed the complete model four times even when it
      * contained no glow geometry.
      */
-    public static List<EnumRenderPass> getRenderPasses(IModelBase model)
+    public static List<EnumRenderPass> getRenderPasses(IModelBase<?> model)
     {
         return renderPassCache.computeIfAbsent(model, ModelCache::findRenderPasses);
     }
 
-    private static List<EnumRenderPass> findRenderPasses(IModelBase model)
+    private static List<EnumRenderPass> findRenderPasses(IModelBase<?> model)
     {
         EnumSet<EnumRenderPass> passes = EnumSet.noneOf(EnumRenderPass.class);
 
@@ -196,7 +193,7 @@ public final class ModelCache
         if (model instanceof ModelGun gun && (gun.isBulletCounterActive() || gun.isAdvBulletCounterActive()))
             passes.add(EnumRenderPass.GLOW_ALPHA);
 
-        for (ModelRenderer modelRenderer : model.getBoxList())
+        for (IModelRenderer modelRenderer : model.getBoxList())
         {
             if (modelRenderer instanceof ModelRendererTurbo turbo)
             {
@@ -221,11 +218,10 @@ public final class ModelCache
     }
 
     @SuppressWarnings("unchecked")
-    @OnlyIn(Dist.CLIENT)
     @Nullable
-    public static IModelBase loadModel(String modelClassName, InfoType type, @Nullable IModelBase defaultModel)
+    public static IModelBase<?> loadModel(String modelClassName, InfoType type, @Nullable IModelBase<?> defaultModel)
     {
-        IModelBase model = null;
+        IModelBase<?> model = null;
         if (StringUtils.isNotBlank(modelClassName))
         {
             if (modelClassName.equalsIgnoreCase(ModelBullet.class.getName()))
@@ -244,7 +240,7 @@ public final class ModelCache
                 boolean preferContentPackClass = modelLocation.ownClassFile() && !ModClientConfig.get().preferBuiltInModelClasses;
                 try
                 {
-                    model = (IModelBase) ClassLoaderUtils.loadModelClass(modelLocation.contentPack(), modelLocation.className(), preferContentPackClass)
+                    model = (IModelBase<?>) ClassLoaderUtils.loadModelClass(modelLocation.contentPack(), modelLocation.className(), preferContentPackClass)
                         .getConstructor().newInstance();
                     if (!modelLocation.contentPack().equals(type.getContentPack()))
                         FlansMod.log.debug("Loaded model class {} for {} from fallback content pack [{}].", modelLocation.className(), type, modelLocation.contentPack().getName());
@@ -270,7 +266,7 @@ public final class ModelCache
 
         if (model != null && type.getRenderOptions().additiveBlending())
         {
-            for (ModelRenderer modelRenderer : model.getBoxList())
+            for (IModelRenderer modelRenderer : model.getBoxList())
             {
                 if (modelRenderer instanceof ModelRendererTurbo modelRendererTurbo && modelRendererTurbo.glow)
                 {

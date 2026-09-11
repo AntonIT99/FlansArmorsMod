@@ -6,8 +6,6 @@ import com.flansmodultimate.config.ModClientConfig;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
@@ -22,7 +20,6 @@ public final class GunInputState
     @Getter
     private static ButtonState secondaryFunctionState = new ButtonState(false, false);
 
-    @OnlyIn(Dist.CLIENT)
     public static void tick()
     {
         Minecraft mc = Minecraft.getInstance();

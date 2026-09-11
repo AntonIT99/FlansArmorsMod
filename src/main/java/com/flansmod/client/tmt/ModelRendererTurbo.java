@@ -1,12 +1,12 @@
 package com.flansmod.client.tmt;
 
 import com.flansmodultimate.client.model.ModelBase;
+import com.flansmodultimate.client.model.ModelRenderer;
 import com.flansmodultimate.client.render.EnumRenderPass;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.wolffsmod.api.client.model.IModelBase;
-import com.wolffsmod.api.client.model.ModelRenderer;
 import com.wolffsmod.api.client.model.TexturedQuad;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -76,7 +76,7 @@ public class ModelRendererTurbo extends ModelRenderer
     private final Map<String, TransformGroup> transformGroup;
     private final Map<String, TextureGroup> textureGroup;
 
-    public ModelRendererTurbo(IModelBase modelbase, String s)
+    public ModelRendererTurbo(IModelBase<? super ModelRenderer> modelbase, String s)
     {
         super(modelbase, s);
         flip = false;
@@ -96,7 +96,7 @@ public class ModelRendererTurbo extends ModelRenderer
         useLegacyCompiler = false;
     }
 
-    public ModelRendererTurbo(IModelBase modelbase)
+    public ModelRendererTurbo(IModelBase<? super ModelRenderer> modelbase)
     {
         this(modelbase, null);
     }
@@ -108,7 +108,7 @@ public class ModelRendererTurbo extends ModelRenderer
      * @param textureX  the x-coordinate on the texture
      * @param textureY  the y-coordinate on the texture
      */
-    public ModelRendererTurbo(IModelBase modelbase, int textureX, int textureY)
+    public ModelRendererTurbo(IModelBase<? super ModelRenderer> modelbase, int textureX, int textureY)
     {
         this(modelbase, textureX, textureY, 64, 32);
     }
@@ -118,7 +118,7 @@ public class ModelRendererTurbo extends ModelRenderer
      * position of the texture, but also allows you to specify the width and height
      * of the texture, allowing you to use bigger textures instead.
      */
-    public ModelRendererTurbo(IModelBase modelbase, int textureX, int textureY, int textureU, int textureV)
+    public ModelRendererTurbo(IModelBase<? super ModelRenderer> modelbase, int textureX, int textureY, int textureU, int textureV)
     {
         this(modelbase);
         textureOffsetX = textureX;
@@ -129,22 +129,22 @@ public class ModelRendererTurbo extends ModelRenderer
 
     public ModelRendererTurbo(ModelBase modelbase)
     {
-        this((IModelBase) modelbase);
+        this((IModelBase<? super ModelRenderer>) modelbase);
     }
 
     public ModelRendererTurbo(ModelBase modelbase, String s)
     {
-        this((IModelBase) modelbase, s);
+        this((IModelBase<? super ModelRenderer>) modelbase, s);
     }
 
     public ModelRendererTurbo(ModelBase modelbase, int textureX, int textureY)
     {
-        this((IModelBase) modelbase, textureX, textureY);
+        this((IModelBase<? super ModelRenderer>) modelbase, textureX, textureY);
     }
 
     public ModelRendererTurbo(ModelBase modelbase, int textureX, int textureY, int textureU, int textureV)
     {
-        this((IModelBase) modelbase, textureX, textureY, textureU, textureV);
+        this((IModelBase<? super ModelRenderer>) modelbase, textureX, textureY, textureU, textureV);
     }
 
     /**

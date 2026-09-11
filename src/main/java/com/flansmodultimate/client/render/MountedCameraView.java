@@ -7,8 +7,6 @@ import com.flansmodultimate.common.entity.Plane;
 import com.flansmodultimate.common.entity.Seat;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.Mth;
@@ -24,7 +22,6 @@ import net.minecraft.world.entity.player.Player;
  * roll describing the same orientation instead of drifting apart by whatever
  * mouse movement vanilla folded into the rider's rotation this frame.</p>
  */
-@OnlyIn(Dist.CLIENT)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MountedCameraView
 {

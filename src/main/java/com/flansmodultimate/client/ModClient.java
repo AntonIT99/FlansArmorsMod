@@ -37,8 +37,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.fml.LogicalSide;
 import org.apache.commons.lang3.StringUtils;
@@ -77,7 +75,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-@OnlyIn(Dist.CLIENT)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ModClient
 {
@@ -247,7 +244,6 @@ public class ModClient
     }
 
     @NotNull
-    @OnlyIn(Dist.CLIENT)
     public static GunAnimations getGunAnimations(LivingEntity living, InteractionHand hand)
     {
         Map<LivingEntity, GunAnimations> map = (hand == InteractionHand.OFF_HAND) ? gunAnimationsLeft : gunAnimationsRight;
@@ -255,7 +251,6 @@ public class ModClient
     }
 
     @NotNull
-    @OnlyIn(Dist.CLIENT)
     public static GunAnimations getGunAnimations(ItemDisplayContext context)
     {
         LivingEntity living;
@@ -293,7 +288,6 @@ public class ModClient
         return Objects.requireNonNullElse(animations, new GunAnimations());
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void updateScope(@Nullable IScope desiredScope, ItemStack gunStack, GunItem gunItem)
     {
         Minecraft mc = Minecraft.getInstance();
@@ -359,7 +353,6 @@ public class ModClient
         PacketHandler.sendToServer(new PacketGunSpread(gunStack, spread));
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void tick()
     {
         Minecraft mc = Minecraft.getInstance();
@@ -878,7 +871,6 @@ public class ModClient
 
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void updateCameraZoom(ViewportEvent.ComputeFov event)
     {
         // If the zoom has changed sufficiently, update it
@@ -899,7 +891,6 @@ public class ModClient
         }
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void renderTick()
     {
         Minecraft mc = Minecraft.getInstance();

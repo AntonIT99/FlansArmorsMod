@@ -3,11 +3,9 @@ package com.flansmodultimate.client.model;
 import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.flansmodultimate.FlansMod;
 import com.wolffsmod.api.client.model.IModelBase;
-import com.wolffsmod.api.client.model.ModelRenderer;
+import com.wolffsmod.api.client.model.IModelRenderer;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.Minecraft;
@@ -34,7 +32,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @see ModelRendererTurbo#applyActualTextureSize(float, float)
  */
-@OnlyIn(Dist.CLIENT)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ModelTextureFitter
 {
@@ -53,7 +50,7 @@ public final class ModelTextureFitter
      * @param model   the model to correct, may be {@code null}
      * @param texture the texture the model is rendered with, may be {@code null} or empty
      */
-    public static void fitToTexture(@Nullable IModelBase model, @Nullable ResourceLocation texture)
+    public static void fitToTexture(@Nullable IModelBase<?> model, @Nullable ResourceLocation texture)
     {
         if (model == null || texture == null || texture.getPath().isEmpty())
             return;
@@ -63,7 +60,8 @@ public final class ModelTextureFitter
             return;
 
         boolean rescaled = false;
-        for (ModelRenderer modelRenderer : model.getBoxList())
+
+        for (IModelRenderer modelRenderer : model.getBoxList())
         {
             if (modelRenderer instanceof ModelRendererTurbo modelRendererTurbo
                 && modelRendererTurbo.applyActualTextureSize(size.width(), size.height()))
@@ -74,8 +72,7 @@ public final class ModelTextureFitter
 
         if (rescaled)
         {
-            FlansMod.log.warn("Model {} declares a texture size that does not match {} ({}x{}). Its texture coordinates have been rescaled.",
-                model.getClass().getName(), texture, size.width(), size.height());
+            FlansMod.log.warn("Model {} declares a texture size that does not match {} ({}x{}). Its texture coordinates have been rescaled.", model.getClass().getName(), texture, size.width(), size.height());
         }
     }
 

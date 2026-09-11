@@ -3,8 +3,6 @@ package com.flansmodultimate.client.input;
 import com.flansmodultimate.FlansMod;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.settings.IKeyConflictContext;
 import net.minecraftforge.client.settings.KeyConflictContext;
 
@@ -32,7 +30,6 @@ import net.minecraft.client.Options;
  * in the game, the row colouring in {@code KeyBindsList}, so nothing here can
  * change what a key does.</p>
  */
-@OnlyIn(Dist.CLIENT)
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class KeyConflictFilter
 {

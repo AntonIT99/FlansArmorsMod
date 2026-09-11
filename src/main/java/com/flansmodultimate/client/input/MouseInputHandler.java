@@ -7,8 +7,6 @@ import com.flansmodultimate.common.entity.Seat;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
@@ -36,7 +34,6 @@ public final class MouseInputHandler
     private static float flightRollControl;
 
     /** Recentres the virtual flight stick and validates its current mount once per client tick. */
-    @OnlyIn(Dist.CLIENT)
     public static void beginTick(Player player)
     {
         Driveable driveable = KeyInputHandler.resolveDriveable(player);
@@ -71,7 +68,6 @@ public final class MouseInputHandler
     }
 
     /** Records the exact view restored after vanilla mouse input so the next tick can recover its delta. */
-    @OnlyIn(Dist.CLIENT)
     public static void endTick(Player player)
     {
         Driveable driveable = KeyInputHandler.resolveDriveable(player);
@@ -85,7 +81,6 @@ public final class MouseInputHandler
         flightViewSynchronized = true;
     }
 
-    @OnlyIn(Dist.CLIENT)
     public static void handleMouseMove(double dx, double dy)
     {
         if (Minecraft.getInstance().screen != null)
@@ -122,7 +117,6 @@ public final class MouseInputHandler
      *
      * @return whether the seat consumed the input and vanilla must not turn the rider
      */
-    @OnlyIn(Dist.CLIENT)
     public static boolean turnMountedRider(Player player, double yawDelta, double pitchDelta)
     {
         if (!(player.getVehicle() instanceof Seat seat) || seat.getRiddenByEntity() != player

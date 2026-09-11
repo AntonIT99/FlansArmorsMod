@@ -1,10 +1,10 @@
 package com.flansmod.client.model;
 
 import com.flansmodultimate.client.model.ModelBase;
+import com.flansmodultimate.client.model.ModelRenderer;
 import com.flansmodultimate.client.render.EnumRenderPass;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsmod.api.client.model.ModelRenderer;
 import org.jetbrains.annotations.NotNull;
 
 public class ModelBullet extends ModelBase

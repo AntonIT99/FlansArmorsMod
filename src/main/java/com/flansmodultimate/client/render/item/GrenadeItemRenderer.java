@@ -19,7 +19,7 @@ public class GrenadeItemRenderer
     {
         if (stack.getItem() instanceof GrenadeItem grenadeItem && grenadeItem.useCustomRenderer(context))
         {
-            IModelBase model = ModelCache.getOrLoadTypeModel(grenadeItem.getConfigType());
+            IModelBase<?> model = ModelCache.getOrLoadTypeModel(grenadeItem.getConfigType());
             if (model != null)
             {
                 int color = grenadeItem.getConfigType().getColour();

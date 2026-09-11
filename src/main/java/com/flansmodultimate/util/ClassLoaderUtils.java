@@ -88,7 +88,7 @@ public final class ClassLoaderUtils
     );
 
     private static final Map<String, String> classMappings = Map.ofEntries(
-        Map.entry("net/minecraft/client/model/ModelRenderer", "com/wolffsmod/api/client/model/ModelRenderer"),
+        Map.entry("net/minecraft/client/model/ModelRenderer", "com/flansmodultimate/client/model/ModelRenderer"),
         Map.entry("net/minecraft/entity/Entity", "net/minecraft/world/entity/Entity"),
         Map.entry("net/minecraft/entity/EntityLivingBase", "net/minecraft/world/entity/LivingEntity")
     );

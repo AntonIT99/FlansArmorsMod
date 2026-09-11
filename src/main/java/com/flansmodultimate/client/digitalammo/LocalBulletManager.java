@@ -1,11 +1,7 @@
 package com.flansmodultimate.client.digitalammo;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
 import java.util.Arrays;
 
-@OnlyIn(Dist.CLIENT)
 public final class LocalBulletManager
 {
     private static final int DEFAULT_NUM_TYPES = 7;

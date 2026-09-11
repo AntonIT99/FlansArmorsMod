@@ -1,10 +1,12 @@
-package com.wolffsmod.api.client.model;
+package com.flansmodultimate.client.model;
 
-import com.flansmodultimate.client.model.ModelBase;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import com.wolffsmod.api.client.model.IModelBase;
+import com.wolffsmod.api.client.model.IModelRenderer;
+import com.wolffsmod.api.client.model.TextureOffset;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 
@@ -16,42 +18,51 @@ import java.util.List;
 import java.util.Set;
 
 @SuppressWarnings({"unused", "UnusedReturnValue", "BooleanMethodIsAlwaysInverted", "java:S1104"})
-public class ModelRenderer
+public class ModelRenderer implements IModelRenderer
 {
     /** The size of the texture file's width in pixels. */
     public float textureWidth;
-
     /** The size of the texture file's height in pixels. */
     public float textureHeight;
-
+    @Getter @Setter
     public float rotationPointX;
+    @Getter @Setter
     public float rotationPointY;
+    @Getter @Setter
     public float rotationPointZ;
+    @Getter @Setter
     public float rotateAngleX;
+    @Getter @Setter
     public float rotateAngleY;
+    @Getter @Setter
     public float rotateAngleZ;
+    @Getter @Setter
     public float offsetX;
+    @Getter @Setter
     public float offsetY;
+    @Getter @Setter
     public float offsetZ;
+    @Getter @Setter
     public boolean mirror;
+    @Getter @Setter
     public boolean showModel;
-
     /** Hides the model. */
+    @Getter @Setter
     public boolean isHidden;
-
+    @Getter
+    public final String boxName;
+    @Getter
     public final List<ModelPart.Cube> cubeList = new ArrayList<>();
     public final List<ModelRenderer> childModels = new ArrayList<>();
-    public final String boxName;
+
+    protected final IModelBase<? super ModelRenderer> baseModel;
 
     /** The X offset into the texture used for displaying this model */
     private int textureOffsetX;
-
     /** The Y offset into the texture used for displaying this model */
     private int textureOffsetY;
 
-    protected final IModelBase baseModel;
-
-    public ModelRenderer(IModelBase model, String boxNameIn)
+    public ModelRenderer(IModelBase<? super ModelRenderer> model, String boxNameIn)
     {
         textureWidth = 64.0F;
         textureHeight = 32.0F;
@@ -62,12 +73,12 @@ public class ModelRenderer
         setTextureSize(model.getTextureWidth(), model.getTextureHeight());
     }
 
-    public ModelRenderer(IModelBase model)
+    public ModelRenderer(IModelBase<? super ModelRenderer> model)
     {
         this(model, "");
     }
 
-    public ModelRenderer(IModelBase model, int texOffX, int texOffY)
+    public ModelRenderer(IModelBase<? super ModelRenderer> model, int texOffX, int texOffY)
     {
         this(model);
         setTextureOffset(texOffX, texOffY);
@@ -75,22 +86,25 @@ public class ModelRenderer
 
     public ModelRenderer(ModelBase model)
     {
-        this((IModelBase)model);
+        this((IModelBase<? super ModelRenderer>)model);
     }
 
     public ModelRenderer(ModelBase model, String boxNameIn)
     {
-        this((IModelBase)model, boxNameIn);
+        this((IModelBase<? super ModelRenderer>)model, boxNameIn);
     }
 
     public ModelRenderer(ModelBase model, int texOffX, int texOffY)
     {
-        this((IModelBase)model, texOffX, texOffY);
+        this((IModelBase<? super ModelRenderer>)model, texOffX, texOffY);
     }
 
-    /**
-     * Sets the current box's rotation points and rotation angles to another box.
-     */
+    @Override
+    public List<IModelRenderer> getChildModels()
+    {
+        return new ArrayList<>(childModels);
+    }
+
     public void addChild(ModelRenderer renderer)
     {
         childModels.add(renderer);
@@ -144,7 +158,12 @@ public class ModelRenderer
         rotationPointZ = rotationPointZIn;
     }
 
-    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void addChild(IModelRenderer renderer)
+    {
+        IModelRenderer.super.addChild(renderer);
+    }
+
     public void render(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, float scale)
     {
         if (!isVisible() || (cubeList.isEmpty() && childModels.isEmpty()))
@@ -164,7 +183,6 @@ public class ModelRenderer
         poseStack.popPose();
     }
 
-    @OnlyIn(Dist.CLIENT)
     public void render(float scale)
     {
         // ignore calls to legacy rendering,

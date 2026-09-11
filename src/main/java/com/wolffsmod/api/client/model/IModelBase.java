@@ -1,6 +1,5 @@
 package com.wolffsmod.api.client.model;
 
-import com.flansmodultimate.client.render.EnumRenderPass;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +13,7 @@ import java.util.Map;
 import java.util.Random;
 
 @SuppressWarnings("unused")
-public interface IModelBase
+public interface IModelBase<T extends IModelRenderer>
 {
     int TEXTURE_WIDTH = 64;
     int TEXTURE_HEIGHT = 32;
@@ -23,7 +22,7 @@ public interface IModelBase
 
     void setTexture(ResourceLocation texture);
 
-    List<ModelRenderer> getBoxList();
+    List<T> getBoxList();
 
     Map<String, TextureOffset> getModelTextureMap();
 
@@ -34,7 +33,7 @@ public interface IModelBase
 
     default void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
     {
-        for (ModelRenderer modelRenderer : getBoxList())
+        for (IModelRenderer modelRenderer : getBoxList())
         {
             modelRenderer.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, getScale());
         }
@@ -66,20 +65,18 @@ public interface IModelBase
 
     default void setLivingAnimations(LivingEntity entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTickTime) {}
 
-    default ModelRenderer getRandomModelBox(Random rand)
+    default T getRandomModelBox(Random rand)
     {
         return getBoxList().get(rand.nextInt(getBoxList().size()));
     }
 
-    static void copyModelAngles(ModelRenderer source, ModelRenderer dest)
+    static void copyModelAngles(IModelRenderer source, IModelRenderer dest)
     {
-        dest.rotateAngleX = source.rotateAngleX;
-        dest.rotateAngleY = source.rotateAngleY;
-        dest.rotateAngleZ = source.rotateAngleZ;
-        dest.rotationPointX = source.rotationPointX;
-        dest.rotationPointY = source.rotationPointY;
-        dest.rotationPointZ = source.rotationPointZ;
+        dest.setRotateAngleX(source.getRotateAngleX());
+        dest.setRotateAngleY(source.getRotateAngleY());
+        dest.setRotateAngleZ(source.getRotateAngleZ());
+        dest.setRotationPointX(source.getRotationPointX());
+        dest.setRotationPointY(source.getRotationPointY());
+        dest.setRotationPointZ(source.getRotationPointZ());
     }
-
-    void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, EnumRenderPass renderPass);
 }

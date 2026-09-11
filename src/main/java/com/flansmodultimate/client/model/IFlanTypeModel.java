@@ -3,7 +3,7 @@ package com.flansmodultimate.client.model;
 import com.flansmodultimate.common.types.InfoType;
 import com.wolffsmod.api.client.model.IModelBase;
 
-public interface IFlanTypeModel<T extends InfoType> extends IModelBase
+public interface IFlanTypeModel<T extends InfoType> extends IModelBase<ModelRenderer>
 {
     T getType();
 

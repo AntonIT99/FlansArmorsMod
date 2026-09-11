@@ -42,7 +42,7 @@ public class FlanEntityRenderer<T extends Entity> extends EntityRenderer<T>
         if (type == null)
             return;
 
-        IModelBase model = ModelCache.getOrLoadTypeModel(type);
+        IModelBase<?> model = ModelCache.getOrLoadTypeModel(type);
         if (model == null)
             return;
 
@@ -68,7 +68,7 @@ public class FlanEntityRenderer<T extends Entity> extends EntityRenderer<T>
         renderFlanModel(model, type, texture, poseStack, buffer, packedLight, OverlayTexture.NO_OVERLAY, red, green, blue, alpha);
     }
 
-    protected void renderFlanModel(@NotNull IModelBase model, @NotNull InfoType type, @NotNull ResourceLocation texture, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
+    protected void renderFlanModel(@NotNull IModelBase<?> model, @NotNull InfoType type, @NotNull ResourceLocation texture, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
     {
         LegacyTransformApplier.renderModel(model, type, texture, poseStack, buffer, packedLight, packedOverlay, red, green, blue, alpha);
     }

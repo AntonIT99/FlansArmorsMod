@@ -21,7 +21,19 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class LegacyTransformApplier
 {
-    public static void renderModel(IModelBase model, InfoType infoType, ResourceLocation texture, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
+    public static void renderModel(IModelBase<?> model, InfoType infoType, ResourceLocation texture, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
+    {
+        poseStack.pushPose();
+        applyModelTransform(model, infoType, poseStack);
+
+        boolean translucent = ModClientConfig.get().useTranslucentRendering(infoType);
+        boolean cull = ModClientConfig.get().useCullingRendering(infoType);
+        VertexConsumer vertexConsumer = buffer.getBuffer(EnumRenderPass.DEFAULT.getRenderType(texture, translucent, cull));
+        model.renderToBuffer(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha);
+        poseStack.popPose();
+    }
+
+    public static void renderModel(ModelBase model, InfoType infoType, ResourceLocation texture, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
     {
         poseStack.pushPose();
         applyModelTransform(model, infoType, poseStack);
@@ -43,7 +55,7 @@ public final class LegacyTransformApplier
      * Animated renderers use this entry point before drawing selected model
      * parts instead of asking {@link #renderModel} to draw the entire model.
      */
-    public static void applyModelTransform(IModelBase model, InfoType infoType, PoseStack poseStack)
+    public static void applyModelTransform(IModelBase<?> model, InfoType infoType, PoseStack poseStack)
     {
         applyForClass(poseStack, model.getClass());
         if (model instanceof ModelBase modelBase)

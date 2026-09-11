@@ -6,8 +6,6 @@ import com.flansmodultimate.common.item.CustomArmorItem;
 import com.flansmodultimate.common.types.ArmorType;
 import com.flansmodultimate.config.ModClientConfig;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.client.model.HumanoidModel;
@@ -23,7 +21,6 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-@OnlyIn(Dist.CLIENT)
 public class CustomArmorLayer<T extends LivingEntity, M extends HumanoidModel<T>> extends RenderLayer<T, M>
 {
     public CustomArmorLayer(RenderLayerParent<T, M> parent)

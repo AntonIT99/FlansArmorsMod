@@ -1,7 +1,7 @@
 package com.flansmod.client.model.nerf;
 
 import com.flansmodultimate.client.model.ModelBase;
-import com.wolffsmod.api.client.model.ModelRenderer;
+import com.flansmodultimate.client.model.ModelRenderer;
 
 
 public class ModelDisc extends ModelBase

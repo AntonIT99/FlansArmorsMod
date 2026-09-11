@@ -435,6 +435,13 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
+// The Warfare 44 pack ships some very large generated model classes (~1MB each) and runs out of
+// heap in-process alongside the Gradle daemon. Fork it into its own javac process with a bigger heap.
+tasks.named('compileWarfare44packJava', JavaCompile).configure {
+    options.fork = true
+    options.forkOptions.jvmArgs << '-Xmx4g'
+}
+
 idea {
     module {
         downloadSources = true

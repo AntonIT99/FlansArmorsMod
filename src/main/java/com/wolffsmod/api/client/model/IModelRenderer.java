@@ -1,0 +1,76 @@
+package com.wolffsmod.api.client.model;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.jetbrains.annotations.NotNull;
+
+import net.minecraft.client.model.geom.ModelPart;
+
+import java.util.List;
+
+public interface IModelRenderer
+{
+    float getRotateAngleX();
+
+    float getRotateAngleY();
+
+    float getRotateAngleZ();
+
+    float getRotationPointX();
+
+    float getRotationPointY();
+
+    float getRotationPointZ();
+
+    float getOffsetX();
+
+    float getOffsetY();
+
+    float getOffsetZ();
+
+    boolean isMirror();
+
+    boolean isShowModel();
+
+    boolean isHidden();
+
+    String getBoxName();
+
+    List<ModelPart.Cube> getCubeList();
+
+    List<IModelRenderer> getChildModels();
+
+    void setRotateAngleX(float angle);
+
+    void setRotateAngleY(float angle);
+
+    void setRotateAngleZ(float angle);
+
+    void setRotationPointX(float point);
+
+    void setRotationPointY(float point);
+
+    void setRotationPointZ(float point);
+
+    void setOffsetX(float offset);
+
+    void setOffsetY(float offset);
+
+    void setOffsetZ(float offset);
+
+    void setMirror(boolean mirror);
+
+    void setShowModel(boolean showModel);
+
+    void setHidden(boolean hidden);
+
+    /**
+     * Sets the current box's rotation points and rotation angles to another box.
+     */
+    default void addChild(IModelRenderer renderer)
+    {
+        getChildModels().add(renderer);
+    }
+
+    void render(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha, float scale);
+}

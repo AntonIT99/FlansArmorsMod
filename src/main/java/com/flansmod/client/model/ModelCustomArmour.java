@@ -2,11 +2,11 @@ package com.flansmod.client.model;
 
 import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.flansmodultimate.client.model.IFlanTypeModel;
+import com.flansmodultimate.client.model.ModelRenderer;
 import com.flansmodultimate.client.render.EnumRenderPass;
 import com.flansmodultimate.common.types.ArmorType;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.wolffsmod.api.client.model.ModelRenderer;
 import com.wolffsmod.api.client.model.TextureOffset;
 import lombok.Getter;
 import lombok.Setter;

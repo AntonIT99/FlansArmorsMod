@@ -34,7 +34,7 @@ public class ModelLightSaber_A extends ModelGun {
       this.gunModel[19] = new ModelRendererTurbo(this, 0, 409, this.textureX, this.textureY);
       this.gunModel[0].addShapeBox(0.0F, 0.0F, 0.0F, 35, 208, 35, 0.0F, 0.0F, 0.0F, 0.0F, -30.0F, 0.0F, 0.0F, -30.0F, 0.0F, -30.0F, 0.0F, 0.0F, -30.0F, 0.0F, 0.0F, 0.0F, -30.0F, 0.0F, 0.0F, -30.0F, 0.0F, -30.0F, 0.0F, 0.0F, -30.0F);
       this.gunModel[0].setRotationPoint(-2.5F, -215.0F, -2.5F);
-      this.gunModel[1].glow = true;
+      this.gunModel[0].glow = true;
       this.gunModel[1].addBox(0.0F, 0.0F, 0.0F, 9, 4, 9, 0.0F);
       this.gunModel[1].setRotationPoint(-4.5F, -7.0F, -4.5F);
       this.gunModel[2].addBox(0.0F, 0.0F, 0.0F, 9, 2, 9, 0.0F);

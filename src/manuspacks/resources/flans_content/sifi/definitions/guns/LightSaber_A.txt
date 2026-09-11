@@ -18,7 +18,7 @@ ShootSound lightsaber_swing
 ReloadSound boltgun_reload
 MeleeSound lightsaber_swing
 IdleSound lightsaber_idle
-IdleSoundLength 16
+IdleSoundLength 15
 Mode SemiAuto
 //Default scope settings. Usually for aiming down sights. In which case, use FOVZoomLevel, not ZoomLevel
 Scope None
@@ -41,3 +41,11 @@ NumGenericAttachmentSlots 1
 ModelScale 0.11
 MeleeDamage 20
 OneHanded true
+OneHanded True
+ShowDamage False
+ShowRecoil False
+ShowAccuracy False
+ShowReloadTime False
+ShowShootDelay False
+ShowBulletSpeed False
+ShowMode False

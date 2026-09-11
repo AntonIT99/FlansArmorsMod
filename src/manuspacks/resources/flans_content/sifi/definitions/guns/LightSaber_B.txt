@@ -41,3 +41,11 @@ NumGenericAttachmentSlots 1
 ModelScale 0.11
 MeleeDamage 20
 OneHanded true
+OneHanded True
+ShowDamage False
+ShowRecoil False
+ShowAccuracy False
+ShowReloadTime False
+ShowShootDelay False
+ShowBulletSpeed False
+ShowMode False

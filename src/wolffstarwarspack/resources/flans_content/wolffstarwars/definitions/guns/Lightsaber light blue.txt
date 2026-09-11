@@ -17,6 +17,8 @@ ShootDelay 15
 ShootSound lightsaber_swing
 ReloadSound lugerReload
 MeleeSound lightsaber_swing
+IdleSound lightsaber_idle
+IdleSoundLength 15
 Mode SemiAuto
 //Default scope settings. Usually for aiming down sights. In which case, use FOVZoomLevel, not ZoomLevel
 Scope None

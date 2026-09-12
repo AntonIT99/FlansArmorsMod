@@ -12,9 +12,11 @@
   ],
   "client": [
       "DriveableCameraMixin",
+      "EntityNameTagRenderDistanceMixin",
       "ForceDarkLightMixin",
       "HumanoidArmorLayerMixin",
       "KeyMappingConflictMixin",
+      "LivingEntityNameTagRangeMixin",
       "MountedRiderTurnMixin",
       "PlayerSkinOverrideMixin",
       "SeatedPlayerRendererMixin"

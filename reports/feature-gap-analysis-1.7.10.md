@@ -6,7 +6,7 @@ Initial audit: 2026-09-10. Last updated: 2026-09-12. Direction is strictly refer
 - Target initially audited: `C:/Users/alpha/Documents/Minecraft-Development/Flans-Mod-Ultimate-2.0`, HEAD `08494f8a4972c249feb4e7d8522e981547439c4e`.
 - Sources inspected were the current working trees, not pristine commit snapshots. Existing staged reference texture deletions and the target's unrelated `warfare44/pack_names.json` change were left untouched.
 - Completed findings are removed as they are implemented, so the report remains a backlog rather than a historical snapshot.
-- Remaining: **6 MISSING, 4 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
+- Remaining: **5 MISSING, 4 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
 
 ## Scope and evidence conventions
 
@@ -122,16 +122,6 @@ The target draws an ammo HUD but exposes neither an independent ammo-HUD toggle 
 
 Missing: Independent ammo-HUD visibility and user-selectable legacy ammo-HUD layouts.
 
-### Configurable normal and sneaking name-tag render ranges — MISSING
-
-Reference: `R/client/FlansModClient.java` (assignments to `RendererLivingEntity.NAME_TAG_RANGE` and `NAME_TAG_RANGE_SNEAK`), `R/common/FlansMod.java` (`nameTagRenderRange`, `nameTagSneakRenderRange`).
-The mod supplies independent configurable distances for ordinary and sneaking name tags.
-
-Target checked: `T/config/ModClientConfig.java`, `T/config/CommonConfigSnapshot.java`, `T/event/handler/ClientEventHandler.java`, `T/client/teams/TeamsClientState.java`, and target name-tag/render-range searches.
-Team-dependent player visibility and vanilla renderer behavior do not expose the reference's independently configurable name-tag distances.
-
-Missing: Mod-level normal/sneaking name-tag distance controls.
-
 ## Findings table
 
 | Subsystem | Feature | Status | Confidence |
@@ -145,7 +135,6 @@ Missing: Mod-level normal/sneaking name-tag distance controls.
 | Vehicles | Driver zoom and permission | MISSING | HIGH |
 | Administration | Explosion-kill audit/spawn-kill warning | MISSING | HIGH |
 | HUD | Ammo-HUD visibility/layout controls | PARTIAL | HIGH |
-| Rendering | Normal/sneaking name-tag range controls | MISSING | HIGH |
 
 ## Areas requiring deeper audit
 

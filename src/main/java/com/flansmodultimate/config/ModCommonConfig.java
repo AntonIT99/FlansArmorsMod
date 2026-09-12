@@ -103,6 +103,8 @@ public final class ModCommonConfig
     private static final ForgeConfigSpec.ConfigValue<String> DEFAULT_VEHICLE_ENGINE;
     private static final ForgeConfigSpec.ConfigValue<String> DEFAULT_PLANE_ENGINE;
     private static final ForgeConfigSpec.ConfigValue<String> DEFAULT_MECHA_ENGINE;
+    private static final ForgeConfigSpec.DoubleValue NAME_TAG_RENDER_RANGE;
+    private static final ForgeConfigSpec.DoubleValue NAME_TAG_SNEAK_RENDER_RANGE;
 
     private static final ForgeConfigSpec.BooleanValue DISABLE_CROSSHAIR_FOR_GUNS;
     private static final ForgeConfigSpec.BooleanValue EXPLOSIONS_BREAK_BLOCKS;
@@ -232,6 +234,12 @@ public final class ModCommonConfig
         DEFAULT_MECHA_ENGINE = builder
             .comment("Optional default mecha engine item shortname or item ID. Empty uses automatic selection.")
             .define("defaultMechaEngine", "");
+        NAME_TAG_RENDER_RANGE = builder
+            .comment("Maximum distance in blocks from which living-entity name tags can be seen.")
+            .defineInRange("nameTagRenderRange", 64D, 0D, 1000D);
+        NAME_TAG_SNEAK_RENDER_RANGE = builder
+            .comment("Maximum distance in blocks from which sneaking living-entity name tags can be seen.")
+            .defineInRange("nameTagSneakRenderRange", 32D, 0D, 1000D);
         DISABLE_CROSSHAIR_FOR_GUNS = builder
             .comment("Disables crosshair for guns except melee weapons")
             .define("disableCrosshairForGuns", false);
@@ -625,6 +633,8 @@ public final class ModCommonConfig
             DEFAULT_VEHICLE_ENGINE.get(),
             DEFAULT_PLANE_ENGINE.get(),
             DEFAULT_MECHA_ENGINE.get(),
+            NAME_TAG_RENDER_RANGE.get().floatValue(),
+            NAME_TAG_SNEAK_RENDER_RANGE.get().floatValue(),
 
             DISABLE_CROSSHAIR_FOR_GUNS.get(),
             EXPLOSIONS_BREAK_BLOCKS.get(),
@@ -736,6 +746,14 @@ public final class ModCommonConfig
     public static boolean addGunpowderRecipe()
     {
         return ADD_GUNPOWDER_RECIPE.get();
+    }
+
+    public static float nameTagRenderRange(boolean sneaking)
+    {
+        CommonConfigSnapshot config = get();
+        if (config == null)
+            return sneaking ? 32F : 64F;
+        return sneaking ? config.nameTagSneakRenderRange() : config.nameTagRenderRange();
     }
 
     /** Whether all aircraft movement must ignore the real-world profile and global movement tuning. */

@@ -6,7 +6,7 @@ Initial audit: 2026-09-10. Last updated: 2026-09-12. Direction is strictly refer
 - Target initially audited: `C:/Users/alpha/Documents/Minecraft-Development/Flans-Mod-Ultimate-2.0`, HEAD `08494f8a4972c249feb4e7d8522e981547439c4e`.
 - Sources inspected were the current working trees, not pristine commit snapshots. Existing staged reference texture deletions and the target's unrelated `warfare44/pack_names.json` change were left untouched.
 - Completed findings are removed as they are implemented, so the report remains a backlog rather than a historical snapshot.
-- Remaining: **6 MISSING, 6 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
+- Remaining: **6 MISSING, 4 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
 
 ## Scope and evidence conventions
 
@@ -100,26 +100,6 @@ Missing: A vehicle driver's zoom toggle, sensitivity adjustment, and server enab
 
 ## Teams and administration
 
-### Separate, configurable results and voting phases — PARTIAL
-
-Reference: `R/common/teams/TeamsManager.java#tick`, `#displayScoreboardGUI`, `#displayVotingGUI`, world save/load methods; `R/common/teams/CommandTeams.java` (`scoreDisplayTime`, `votingTime`).
-Round completion first displays results, then opens voting after the results interval. Administrators can set both durations independently, and those durations are persisted as `ScoreTime` and `VotingTime`.
-
-Target checked: `T/common/teams/TeamsManager.java#finishRound`, `#tick`, saved runtime state, `T/common/command/TeamsCommand.java`, `T/common/teams/GameType*.java#setVariable`, and teams screens.
-With voting enabled, the target opens voting immediately and sets one 400-tick intermission. Without voting, it uses a fixed 200-tick intermission. Runtime countdown persistence and an optional results screen do not restore independently configurable, sequential results/voting phases.
-
-Missing: The guaranteed results-before-voting sequence, separate duration controls, and persistence of those configurable durations.
-
-### Configurable autobalance interval and advance warning — PARTIAL
-
-Reference: `R/common/teams/TeamsManager.java#tick`, `R/common/teams/CommandTeams.java` (`autobalancetime`).
-Autobalancing uses an administrator-selected interval. When imbalance is detected, the tick path can broadcast an advance warning 200 ticks before the scheduled balance.
-
-Target checked: `T/common/teams/TeamsManager.java#tick`, `#autoBalanceIfNeeded`, `T/common/teams/GameTypeTDM.java#setVariable`, and `T/common/command/TeamsCommand.java`.
-Automatic balancing exists, including its enabled/disabled setting. It is invoked every 200 elapsed round ticks and informs the moved player afterward. The interval is fixed and there is no corresponding advance-warning phase.
-
-Missing: Administrator-selected balancing frequency and the reference's advance broadcast before a scheduled balance.
-
 ### Detailed explosion-kill audit and spawn-kill warning log — MISSING
 
 Reference: `R/common/eventhandlers/PlayerDeathEventListener.java#PlayerDied`, `#logKillMessage`, instantiated in `R/common/FlansMod.java`.
@@ -163,8 +143,6 @@ Missing: Mod-level normal/sneaking name-tag distance controls.
 | Driveables | BuildCraft oil/fuel bucket integration | MISSING | HIGH |
 | Driveables | Passenger guns on destroyed parts override | PARTIAL | HIGH |
 | Vehicles | Driver zoom and permission | MISSING | HIGH |
-| Teams | Separate configurable results/voting phases | PARTIAL | HIGH |
-| Teams | Autobalance interval and advance warning | PARTIAL | HIGH |
 | Administration | Explosion-kill audit/spawn-kill warning | MISSING | HIGH |
 | HUD | Ammo-HUD visibility/layout controls | PARTIAL | HIGH |
 | Rendering | Normal/sneaking name-tag range controls | MISSING | HIGH |

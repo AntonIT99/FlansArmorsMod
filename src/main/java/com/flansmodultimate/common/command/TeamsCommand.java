@@ -110,6 +110,24 @@ public final class TeamsCommand
                 manager(context).setVoting(enabled);
                 return success(context, "Round voting " + (enabled ? "enabled" : "disabled"));
             })))
+            .then(Commands.literal("scoreDisplayTime")
+                .then(Commands.argument("seconds", IntegerArgumentType.integer(0, 86400)).executes(context -> {
+                    int seconds = IntegerArgumentType.getInteger(context, "seconds");
+                    manager(context).setScoreDisplayTimeSeconds(seconds);
+                    return success(context, "Round results will be displayed for " + seconds + " seconds");
+                })))
+            .then(Commands.literal("votingTime")
+                .then(Commands.argument("seconds", IntegerArgumentType.integer(0, 86400)).executes(context -> {
+                    int seconds = IntegerArgumentType.getInteger(context, "seconds");
+                    manager(context).setVotingTimeSeconds(seconds);
+                    return success(context, "Round voting will last " + seconds + " seconds");
+                })))
+            .then(Commands.literal("autobalancetime")
+                .then(Commands.argument("seconds", IntegerArgumentType.integer(11, 86400)).executes(context -> {
+                    int seconds = IntegerArgumentType.getInteger(context, "seconds");
+                    manager(context).setAutoBalanceIntervalSeconds(seconds);
+                    return success(context, "Autobalance will run every " + seconds + " seconds with a 10-second warning");
+                })))
             .then(Commands.literal("roundsGenerator").then(Commands.argument("value", BoolArgumentType.bool()).executes(context -> {
                 boolean enabled = BoolArgumentType.getBool(context, "value");
                 manager(context).setRoundsGenerator(enabled);
@@ -174,7 +192,7 @@ public final class TeamsCommand
     {
         context.getSource().sendSuccess(() -> Component.literal("/teams loadouts, /teams join <team>, /teams class <class>, /teams vote <number>, /teams score, /teams stats, /teams list <gametypes|teams|classes|loadouts|rewardboxes|maps|rounds>"), false);
         if (context.getSource().hasPermission(2))
-            context.getSource().sendSuccess(() -> Component.literal("Administration: /teams <explosions|forceAdventure|fuelNeeded> <true|false>, /teams admin <loadoutpool|xpmultiplier|xp|resetrank|giverewardbox|enabled|voting|roundsGenerator|start|next|stop|arena|survival|kit|map|round|setvariable>"), false);
+            context.getSource().sendSuccess(() -> Component.literal("Administration: /teams <explosions|forceAdventure|fuelNeeded> <true|false>, /teams admin <loadoutpool|xpmultiplier|xp|resetrank|giverewardbox|enabled|voting|scoreDisplayTime|votingTime|autobalancetime|roundsGenerator|start|next|stop|arena|survival|kit|map|round|setvariable>"), false);
         return 1;
     }
 

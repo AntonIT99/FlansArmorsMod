@@ -58,6 +58,10 @@ public final class TeamsManager
     private static final String NBT_TIME_LEFT = "time_left";
     private static final String NBT_ELAPSED = "elapsed";
     private static final String NBT_INTERMISSION = "intermission";
+    private static final String NBT_INTERMISSION_VOTING_PHASE = "intermission_voting_phase";
+    private static final String NBT_SCORE_DISPLAY_TIME = "score_display_time";
+    private static final String NBT_VOTING_TIME = "voting_time";
+    private static final String NBT_AUTO_BALANCE_INTERVAL = "auto_balance_interval";
     private static final String NBT_VOTE_OPTIONS = "vote_options";
     private static final String NBT_ID = "id";
     private static final String NBT_EXPLOSIONS = "explosions";
@@ -84,6 +88,9 @@ public final class TeamsManager
     private static final String NBT_LOADOUT_POOL = "loadout_pool";
     private static final String NBT_EXPERIENCE_MULTIPLIER = "experience_multiplier";
     private static final String NBT_SCORES = "scores";
+    private static final int DEFAULT_INTERMISSION_PHASE_TICKS = 200;
+    private static final int DEFAULT_AUTO_BALANCE_INTERVAL_TICKS = 400;
+    private static final int AUTO_BALANCE_WARNING_TICKS = 200;
     
     public enum EnumWeaponDrop
     { 
@@ -168,6 +175,13 @@ public final class TeamsManager
     private int roundElapsedTicks;
     @Getter
     private int intermissionTicks;
+    @Getter
+    private int scoreDisplayTimeTicks = DEFAULT_INTERMISSION_PHASE_TICKS;
+    @Getter
+    private int votingTimeTicks = DEFAULT_INTERMISSION_PHASE_TICKS;
+    @Getter
+    private int autoBalanceIntervalTicks = DEFAULT_AUTO_BALANCE_INTERVAL_TICKS;
+    private boolean intermissionVotingPhase;
     private final List<UUID> voteOptionIds = new ArrayList<>();
 
     public TeamsManager()
@@ -232,6 +246,29 @@ public final class TeamsManager
     {
         this.voting = voting;
         saveRuntime();
+    }
+
+    public void setScoreDisplayTimeSeconds(int seconds)
+    {
+        scoreDisplayTimeTicks = secondsToTicks(seconds);
+        saveRuntime();
+    }
+
+    public void setVotingTimeSeconds(int seconds)
+    {
+        votingTimeTicks = secondsToTicks(seconds);
+        saveRuntime();
+    }
+
+    public void setAutoBalanceIntervalSeconds(int seconds)
+    {
+        autoBalanceIntervalTicks = secondsToTicks(seconds);
+        saveRuntime();
+    }
+
+    private static int secondsToTicks(int seconds)
+    {
+        return Math.multiplyExact(seconds, 20);
     }
 
     public void setExplosionsBreakBlocks(boolean explosionsBreakBlocks)
@@ -431,6 +468,7 @@ public final class TeamsManager
         roundTimeLeftTicks = next.getTimeLimitTicks();
         roundElapsedTicks = 0;
         intermissionTicks = 0;
+        intermissionVotingPhase = false;
         roundRunning = true;
         voteOptionIds.clear();
         resetScores();
@@ -475,6 +513,7 @@ public final class TeamsManager
         roundTimeLeftTicks = 0;
         roundElapsedTicks = 0;
         intermissionTicks = 0;
+        intermissionVotingPhase = false;
         voteOptionIds.clear();
         resetScores();
         saveRuntime();
@@ -498,9 +537,9 @@ public final class TeamsManager
         if (intermissionTicks > 0)
         {
             if (--intermissionTicks == 0)
-            {
-                if (voteOptionIds.isEmpty()) startNextRound(); else startVotedRound();
-            }
+                advanceIntermission();
+            else if (intermissionTicks % 20 == 0)
+                saveRuntime();
             return;
         }
         if (!roundRunning)
@@ -509,7 +548,10 @@ public final class TeamsManager
         roundElapsedTicks++;
         roundTimeLeftTicks = Math.max(0, roundTimeLeftTicks - 1);
         getCurrentGameType().ifPresent(type -> type.tick(this));
-        if (roundElapsedTicks % 200 == 0)
+        int autoBalancePhase = roundElapsedTicks % autoBalanceIntervalTicks;
+        if (autoBalancePhase == autoBalanceIntervalTicks - AUTO_BALANCE_WARNING_TICKS && needsAutoBalance())
+            broadcast(Component.literal("Autobalancing teams in 10 seconds..."));
+        if (autoBalancePhase == 0)
             autoBalanceIfNeeded();
 
         boolean winner = getCurrentRound().stream().flatMap(round -> round.getTeamIds().stream())
@@ -528,28 +570,54 @@ public final class TeamsManager
         roundRunning = false;
         getCurrentGameType().ifPresent(type -> type.roundEnded(this));
         awardRoundStats();
-        if (voting)
-        {
-            pickVoteOptions();
-            broadcast(Component.literal("Round over. Vote with /teams vote <number>."));
-            List<TeamsRound> options = getVoteOptions();
-            for (int i = 0; i < options.size(); i++)
-            {
-                TeamsRound option = options.get(i);
-                broadcast(Component.literal((i + 1) + ". " + option.getGameTypeId() + " @ " + option.getMapId()));
-            }
-            intermissionTicks = 20 * 20;
-        }
-        else
-        {
-            broadcast(Component.literal("Round over. Next round starts in 10 seconds."));
-            intermissionTicks = 200;
-        }
+        voteOptionIds.clear();
+        intermissionVotingPhase = false;
+        intermissionTicks = scoreDisplayTimeTicks;
+        broadcast(Component.literal(voting
+            ? "Round over. Voting begins in " + scoreDisplayTimeTicks / 20 + " seconds."
+            : "Round over. Next round starts in " + scoreDisplayTimeTicks / 20 + " seconds."));
         saveRuntime();
-        if (!voting && getCurrentLoadoutPool().isPresent())
+        if (intermissionTicks == 0)
+        {
+            advanceIntermission();
+            return;
+        }
+        if (getCurrentLoadoutPool().isPresent())
             getServer().getPlayerList().getPlayers().forEach(player -> syncLoadouts(player, PacketLoadoutState.OpenScreen.MISSION_RESULTS, 0, ""));
         else
-            syncAll(voting ? PacketTeamsState.OpenScreen.VOTING : PacketTeamsState.OpenScreen.SCOREBOARD);
+            syncAll(PacketTeamsState.OpenScreen.SCOREBOARD);
+    }
+
+    private void advanceIntermission()
+    {
+        if (!intermissionVotingPhase && voting)
+        {
+            beginVoting();
+            return;
+        }
+        if (intermissionVotingPhase)
+            startVotedRound();
+        else
+            startNextRound();
+    }
+
+    private void beginVoting()
+    {
+        intermissionVotingPhase = true;
+        pickVoteOptions();
+        intermissionTicks = votingTimeTicks;
+        broadcast(Component.literal("Vote for the next round with /teams vote <number>."));
+        List<TeamsRound> options = getVoteOptions();
+        for (int i = 0; i < options.size(); i++)
+        {
+            TeamsRound option = options.get(i);
+            broadcast(Component.literal((i + 1) + ". " + option.getGameTypeId() + " @ " + option.getMapId()));
+        }
+        saveRuntime();
+        if (intermissionTicks == 0)
+            startVotedRound();
+        else
+            syncAll(PacketTeamsState.OpenScreen.VOTING);
     }
 
     private void pickVoteOptions()
@@ -566,7 +634,7 @@ public final class TeamsManager
 
     public boolean castVote(ServerPlayer player, int option)
     {
-        if (intermissionTicks <= 0 || option < 1 || option > voteOptionIds.size())
+        if (!intermissionVotingPhase || intermissionTicks <= 0 || option < 1 || option > voteOptionIds.size())
             return false;
         PlayerData.getInstance(player).setVote(option);
         syncAll(PacketTeamsState.OpenScreen.NONE);
@@ -679,20 +747,12 @@ public final class TeamsManager
 
     private void autoBalanceIfNeeded()
     {
-        if (getCurrentGameType().map(type -> !type.isAutoBalanceEnabled()).orElse(true))
+        if (!needsAutoBalance())
             return;
 
-        List<Team> teams = getCurrentRound().stream().flatMap(round -> round.getTeamIds().stream())
-            .map(Team::getTeam).filter(java.util.Objects::nonNull).toList();
-
-        if (teams.size() < 2)
-            return;
-
+        List<Team> teams = currentRoundTeams();
         Team largest = teams.stream().max(Comparator.comparingInt(team -> getPlayersOnTeam(team).size())).orElse(null);
         Team smallest = teams.stream().min(Comparator.comparingInt(team -> getPlayersOnTeam(team).size())).orElse(null);
-
-        if (getPlayersOnTeam(largest).size() - getPlayersOnTeam(smallest).size() <= 1)
-            return;
 
         getPlayersOnTeam(largest).stream().min(Comparator.comparingInt(player -> PlayerData.getInstance(player).getScore())).ifPresent(player -> {
             selectTeam(player, smallest, true);
@@ -700,6 +760,24 @@ public final class TeamsManager
             respawnPlayer(player, false);
             player.sendSystemMessage(Component.literal("You were moved to balance the teams"));
         });
+    }
+
+    private boolean needsAutoBalance()
+    {
+        if (getCurrentGameType().map(type -> !type.isAutoBalanceEnabled()).orElse(true))
+            return false;
+        List<Team> teams = currentRoundTeams();
+        if (teams.size() < 2)
+            return false;
+        int largest = teams.stream().mapToInt(team -> getPlayersOnTeam(team).size()).max().orElse(0);
+        int smallest = teams.stream().mapToInt(team -> getPlayersOnTeam(team).size()).min().orElse(0);
+        return largest - smallest > 1;
+    }
+
+    private List<Team> currentRoundTeams()
+    {
+        return getCurrentRound().stream().flatMap(round -> round.getTeamIds().stream())
+            .map(Team::getTeam).filter(java.util.Objects::nonNull).toList();
     }
 
     public void playerLoggedIn(ServerPlayer player)
@@ -1146,6 +1224,12 @@ public final class TeamsManager
         roundTimeLeftTicks = tag.getInt(NBT_TIME_LEFT);
         roundElapsedTicks = tag.getInt(NBT_ELAPSED);
         intermissionTicks = tag.getInt(NBT_INTERMISSION);
+        intermissionVotingPhase = tag.contains(NBT_INTERMISSION_VOTING_PHASE)
+            ? tag.getBoolean(NBT_INTERMISSION_VOTING_PHASE) : !tag.getList(NBT_VOTE_OPTIONS, Tag.TAG_COMPOUND).isEmpty();
+        scoreDisplayTimeTicks = tag.contains(NBT_SCORE_DISPLAY_TIME) ? Math.max(0, tag.getInt(NBT_SCORE_DISPLAY_TIME)) : DEFAULT_INTERMISSION_PHASE_TICKS;
+        votingTimeTicks = tag.contains(NBT_VOTING_TIME) ? Math.max(0, tag.getInt(NBT_VOTING_TIME)) : DEFAULT_INTERMISSION_PHASE_TICKS;
+        autoBalanceIntervalTicks = tag.contains(NBT_AUTO_BALANCE_INTERVAL)
+            ? Math.max(AUTO_BALANCE_WARNING_TICKS + 20, tag.getInt(NBT_AUTO_BALANCE_INTERVAL)) : DEFAULT_AUTO_BALANCE_INTERVAL_TICKS;
         voteOptionIds.clear();
 
         for (Tag value : tag.getList(NBT_VOTE_OPTIONS, Tag.TAG_COMPOUND))
@@ -1217,6 +1301,10 @@ public final class TeamsManager
         tag.putInt(NBT_TIME_LEFT, roundTimeLeftTicks);
         tag.putInt(NBT_ELAPSED, roundElapsedTicks);
         tag.putInt(NBT_INTERMISSION, intermissionTicks);
+        tag.putBoolean(NBT_INTERMISSION_VOTING_PHASE, intermissionVotingPhase);
+        tag.putInt(NBT_SCORE_DISPLAY_TIME, scoreDisplayTimeTicks);
+        tag.putInt(NBT_VOTING_TIME, votingTimeTicks);
+        tag.putInt(NBT_AUTO_BALANCE_INTERVAL, autoBalanceIntervalTicks);
         ListTag voteOptions = new ListTag();
 
         for (UUID id : voteOptionIds)

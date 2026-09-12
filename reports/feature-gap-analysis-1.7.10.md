@@ -6,7 +6,7 @@ Initial audit: 2026-09-10. Last updated: 2026-09-12. Direction is strictly refer
 - Target initially audited: `C:/Users/alpha/Documents/Minecraft-Development/Flans-Mod-Ultimate-2.0`, HEAD `08494f8a4972c249feb4e7d8522e981547439c4e`.
 - Sources inspected were the current working trees, not pristine commit snapshots. Existing staged reference texture deletions and the target's unrelated `warfare44/pack_names.json` change were left untouched.
 - Completed findings are removed as they are implemented, so the report remains a backlog rather than a historical snapshot.
-- Remaining: **7 MISSING, 9 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
+- Remaining: **7 MISSING, 8 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
 
 ## Scope and evidence conventions
 
@@ -174,16 +174,6 @@ The target draws an ammo HUD but exposes neither an independent ammo-HUD toggle 
 
 Missing: Independent ammo-HUD visibility and user-selectable legacy ammo-HUD layouts.
 
-### Independent casing-ejection visibility toggle — PARTIAL
-
-Reference: `R/client/model/RenderGun.java` (first-person casing branch), `R/common/FlansMod.java` (`casingEnable`).
-The client can disable first-person casing rendering globally even when the pack supplies a casing model.
-
-Target checked: `T/client/render/item/GunItemRenderer.java#renderCasingEjection`, its caller, and `T/config/ModClientConfig.java`.
-Casing animation/rendering exists, but the path checks for a casing model without an equivalent global visibility setting. General rendering/culling options do not selectively disable this effect.
-
-Missing: A global client toggle hiding casing ejections without changing pack models.
-
 ### Configurable normal and sneaking name-tag render ranges — MISSING
 
 Reference: `R/client/FlansModClient.java` (assignments to `RendererLivingEntity.NAME_TAG_RANGE` and `NAME_TAG_RANGE_SNEAK`), `R/common/FlansMod.java` (`nameTagRenderRange`, `nameTagSneakRenderRange`).
@@ -212,7 +202,6 @@ Missing: Mod-level normal/sneaking name-tag distance controls.
 | Administration | Explosion-kill audit/spawn-kill warning | MISSING | HIGH |
 | Crafting | Charcoal/glowstone gunpowder recipe | MISSING | HIGH |
 | HUD | Ammo-HUD visibility/layout controls | PARTIAL | HIGH |
-| Rendering | Casing visibility toggle | PARTIAL | HIGH |
 | Rendering | Normal/sneaking name-tag range controls | MISSING | HIGH |
 
 ## Areas requiring deeper audit

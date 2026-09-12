@@ -56,6 +56,7 @@ public final class ModClientConfig
     public final boolean enableGunAnimationsInThirdPerson;
     public final boolean enableWeaponSprintStance;
     public final boolean enableRandomSprintStance;
+    public final boolean showCasingEjections;
 
     public final boolean enableFastTranslucentRendering;
     public final boolean alwaysEnableArmorTranslucentRenderingByDefault;
@@ -121,6 +122,7 @@ public final class ModClientConfig
     private static final ForgeConfigSpec.BooleanValue ENABLE_GUN_ANIMATIONS_IN_THIRD_PERSON;
     private static final ForgeConfigSpec.BooleanValue ENABLE_WEAPON_SPRINT_STANCE;
     private static final ForgeConfigSpec.BooleanValue ENABLE_RANDOM_SPRINT_STANCE;
+    private static final ForgeConfigSpec.BooleanValue SHOW_CASING_EJECTIONS;
 
     private static final ForgeConfigSpec.BooleanValue ENABLE_FAST_TRANSLUCENT_RENDERING;
     private static final ForgeConfigSpec.BooleanValue ALWAYS_ENABLE_ARMOR_TRANSLUCENT_RENDERING_BY_DEFAULT;
@@ -307,6 +309,9 @@ public final class ModClientConfig
         ENABLE_RANDOM_SPRINT_STANCE = builder
             .comment("This will randomly generate unique positions for each weapon using the weapon name as a seed")
             .define("enableRandomSprintStance", false);
+        SHOW_CASING_EJECTIONS = builder
+            .comment("Render animated casing ejections for guns that provide a casing model")
+            .define("showCasingEjections", true);
         builder.pop();
 
         builder.push("Translucent Rendering Defaults");
@@ -384,6 +389,7 @@ public final class ModClientConfig
         enableGunAnimationsInThirdPerson = ENABLE_GUN_ANIMATIONS_IN_THIRD_PERSON.get();
         enableWeaponSprintStance = ENABLE_WEAPON_SPRINT_STANCE.get();
         enableRandomSprintStance = ENABLE_RANDOM_SPRINT_STANCE.get();
+        showCasingEjections = SHOW_CASING_EJECTIONS.get();
 
         enableFastTranslucentRendering = ENABLE_FAST_TRANSLUCENT_RENDERING.get();
         alwaysEnableArmorTranslucentRenderingByDefault = ALWAYS_ENABLE_ARMOR_TRANSLUCENT_RENDERING_BY_DEFAULT.get();

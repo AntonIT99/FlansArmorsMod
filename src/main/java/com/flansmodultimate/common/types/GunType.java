@@ -259,7 +259,6 @@ public class GunType extends PaintableType implements IScope, IAmmoGroupUser, IA
     /**
      * If true, then this gun can be dual wielded
      */
-    @Getter
     protected boolean oneHanded;
     /**
      * For one shot items like a panzerfaust
@@ -1068,6 +1067,17 @@ public class GunType extends PaintableType implements IScope, IAmmoGroupUser, IA
     public boolean isAllowAllAttachments()
     {
         return allowAllAttachments || ModCommonConfig.forceAllowAllAttachments();
+    }
+
+    /** Whether this gun is currently allowed to occupy one hand under the server's gameplay policy. */
+    public boolean isOneHanded()
+    {
+        return effectiveOneHanded(oneHanded, ModCommonConfig.disableDualWielding());
+    }
+
+    static boolean effectiveOneHanded(boolean definitionAllows, boolean globallyDisabled)
+    {
+        return definitionAllows && !globallyDisabled;
     }
 
     public Optional<ShootableType> getDefaultAmmo()

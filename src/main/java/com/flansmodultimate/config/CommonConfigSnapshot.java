@@ -41,6 +41,7 @@ public record CommonConfigSnapshot(
 
     boolean gunsAlwaysUsableByPlayersInCreativeMode,
     boolean forceAllowAllAttachments,
+    boolean disableDualWielding,
     float gunDamageModifier,
     float gunRecoilModifier,
     float gunDispersionModifier,
@@ -112,7 +113,7 @@ public record CommonConfigSnapshot(
     boolean enchantmentModuleEnabled
 )
 {
-    public static final int CURRENT_VERSION = 24;
+    public static final int CURRENT_VERSION = 25;
 
     public static void write(FriendlyByteBuf buf, CommonConfigSnapshot s)
     {
@@ -151,6 +152,7 @@ public record CommonConfigSnapshot(
 
         buf.writeBoolean(s.gunsAlwaysUsableByPlayersInCreativeMode);
         buf.writeBoolean(s.forceAllowAllAttachments);
+        buf.writeBoolean(s.disableDualWielding);
         buf.writeFloat(s.gunDamageModifier);
         buf.writeFloat(s.gunRecoilModifier);
         buf.writeFloat(s.gunDispersionModifier);
@@ -262,6 +264,7 @@ public record CommonConfigSnapshot(
             buf.readVarInt(),
             buf.readBoolean(),
 
+            buf.readBoolean(),
             buf.readBoolean(),
             buf.readBoolean(),
             buf.readFloat(),

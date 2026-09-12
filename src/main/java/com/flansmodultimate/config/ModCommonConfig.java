@@ -130,6 +130,7 @@ public final class ModCommonConfig
 
     private static final ForgeConfigSpec.BooleanValue GUNS_ALWAYS_USABLE_BY_PLAYERS_IN_CREATIVE_MODE;
     private static final ForgeConfigSpec.BooleanValue FORCE_ALLOW_ALL_ATTACHMENTS;
+    private static final ForgeConfigSpec.BooleanValue DISABLE_DUAL_WIELDING;
     private static final ForgeConfigSpec.DoubleValue GUN_DAMAGE_MODIFIER;
     private static final ForgeConfigSpec.DoubleValue GUN_RECOIL_MODIFIER;
     private static final ForgeConfigSpec.DoubleValue GUN_DISPERSION_MODIFIER;
@@ -313,6 +314,9 @@ public final class ModCommonConfig
         FORCE_ALLOW_ALL_ATTACHMENTS = builder
             .comment("Always allow all attachments on all guns, regardless of the 'AllowAllAttachments' value in gun configs.")
             .define("forceAllowAllAttachments", false);
+        DISABLE_DUAL_WIELDING = builder
+            .comment("Treat all guns as two-handed, overriding the 'OneHanded' value in gun configs.")
+            .define("disableDualWielding", false);
         GUN_DAMAGE_MODIFIER = builder
             .comment("All gun damage will be modified by this amount")
             .defineInRange("gunDamageModifier", 1.0, 0.0, 100.0);
@@ -640,6 +644,7 @@ public final class ModCommonConfig
 
             GUNS_ALWAYS_USABLE_BY_PLAYERS_IN_CREATIVE_MODE.get(),
             FORCE_ALLOW_ALL_ATTACHMENTS.get(),
+            DISABLE_DUAL_WIELDING.get(),
             GUN_DAMAGE_MODIFIER.get().floatValue(),
             GUN_RECOIL_MODIFIER.get().floatValue(),
             GUN_DISPERSION_MODIFIER.get().floatValue(),
@@ -916,6 +921,12 @@ public final class ModCommonConfig
     {
         CommonConfigSnapshot config = get();
         return config != null && config.forceAllowAllAttachments();
+    }
+
+    public static boolean disableDualWielding()
+    {
+        CommonConfigSnapshot config = get();
+        return config != null && config.disableDualWielding();
     }
 
     public static int aaGunTrackingRange()

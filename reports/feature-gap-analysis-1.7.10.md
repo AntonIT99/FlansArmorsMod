@@ -1,11 +1,12 @@
 # Feature gap analysis: Ultimate 1.7.10 → Ultimate 2.0
 
-Date: 2026-09-10. Direction is strictly reference → target.
+Initial audit: 2026-09-10. Last updated: 2026-09-12. Direction is strictly reference → target.
 
 - Reference: `C:/Users/alpha/Documents/Minecraft-Development/Flans-Mod-Ultimate-1.7.10`, HEAD `9b669b12149c3c9fa3a69f1a4ac5d8a55367506d`.
-- Target: `C:/Users/alpha/Documents/Minecraft-Development/Flans-Mod-Ultimate-2.0`, HEAD `08494f8a4972c249feb4e7d8522e981547439c4e`.
+- Target initially audited: `C:/Users/alpha/Documents/Minecraft-Development/Flans-Mod-Ultimate-2.0`, HEAD `08494f8a4972c249feb4e7d8522e981547439c4e`.
 - Sources inspected were the current working trees, not pristine commit snapshots. Existing staged reference texture deletions and the target's unrelated `warfare44/pack_names.json` change were left untouched.
-- Result: **8 MISSING, 11 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
+- Completed findings are removed as they are implemented, so the report remains a backlog rather than a historical snapshot.
+- Remaining: **7 MISSING, 10 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
 
 ## Scope and evidence conventions
 
@@ -55,16 +56,6 @@ Missing: The global zero-enchantability rule blocking anvil operations with a se
 
 ## Handheld weapons and inventory preferences
 
-### Global disable switch for dual wielding — PARTIAL
-
-Reference: `R/common/guns/GunType.java#getOneHanded`, `R/common/FlansMod.java` (`masterDualWieldDisable`), `R/common/network/PacketModConfig.java`.
-The server can force every gun to cease being treated as one-handed without editing its content definition. That rule is synchronized to clients.
-
-Target checked: `T/common/types/GunType.java` (`oneHanded`), `T/common/item/GunItemHandler.java#gunCanBeHandled`, `T/config/CommonConfigSnapshot.java`, and client one-handed input checks.
-Per-type one-handed behavior exists. `gunCanBeHandled` immediately accepts a one-handed gun; no global override is applied there or in the type/configuration layer.
-
-Missing: A synchronized server option disabling dual wielding across all otherwise one-handed guns.
-
 ### Disabling empty-gun reloads triggered by firing — PARTIAL
 
 Reference: `R/common/guns/ItemGun.java` (empty `bulletStack` branch guarded by `FlansMod.reloadOnRightClick`), `R/common/FlansMod.java`, `R/common/network/PacketModConfig.java`.
@@ -94,16 +85,6 @@ Target checked: `T/event/handler/ClientEventHandler.java` (interaction-key handl
 Input suppression depends on the bound button, selected gun function, and hit result. Sneak bypass uses menu-provider detection. These mechanisms do not supply the two configurable reference policies and do not consistently apply a gun-held inventory-block/all-block rule.
 
 Missing: Separate configurable inventory-block and all-block interaction suppression while armed.
-
-### Querying the held gun's allowed attachment list — MISSING
-
-Reference: `R/common/CommandFlans.java#processCommand` (`/flans allowedAttachments`).
-An ordinary player holding a gun can list the explicit allowed attachments, including their names and item identifiers, in chat.
-
-Target checked: `T/event/handler/CommonEventHandler.java#onRegisterCommands`, `T/common/command/`, `T/client/gui/GunWorkbenchScreen.java`, `T/common/inventory/GunWorkbenchSlot.java`, `T/common/item/GunItem.java`.
-The workbench checks allowed attachments and displays slot categories, but does not enumerate the held gun's explicit allowed attachment list. No equivalent command or tooltip query was found.
-
-Missing: A player-facing enumeration of explicitly allowed attachments for the held gun. Numeric legacy item IDs need not be preserved to restore the capability.
 
 ## Vehicles, aircraft, and mechas
 
@@ -230,11 +211,9 @@ Missing: Mod-level normal/sneaking name-tag distance controls.
 | Multiplayer | Content-definition mismatch enforcement | MISSING | HIGH |
 | Armor/mobs | Ambient zombie/skeleton pack armor | MISSING | HIGH |
 | Armor | Zero-enchantability anvil restriction | PARTIAL | MEDIUM |
-| Weapons | Global dual-wield disable | PARTIAL | HIGH |
 | Weapons | Disable fire-triggered automatic reload | PARTIAL | HIGH |
 | Inventory | Per-player reload preferences | PARTIAL | HIGH |
 | Interactions | Configurable armed block-use suppression | PARTIAL | HIGH |
-| Commands | Held-gun attachment enumeration | MISSING | HIGH |
 | Driveables | Fuel cans consumed from cargo | PARTIAL | HIGH |
 | Driveables | BuildCraft oil/fuel bucket integration | MISSING | HIGH |
 | Driveables | Passenger guns on destroyed parts override | PARTIAL | HIGH |

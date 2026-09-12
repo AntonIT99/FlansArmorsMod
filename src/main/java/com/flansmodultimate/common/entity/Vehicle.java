@@ -14,6 +14,7 @@ import com.flansmodultimate.common.driveables.physics.GroundSlopePhysics;
 import com.flansmodultimate.common.driveables.physics.ResolvedVehiclePhysics;
 import com.flansmodultimate.common.driveables.physics.VehiclePhysicsConstants;
 import com.flansmodultimate.common.driveables.physics.VehiclePhysicsUnits;
+import com.flansmodultimate.common.driveables.physics.WheelAnimationPhysics;
 import com.flansmodultimate.common.types.VehicleType;
 import com.flansmodultimate.config.ModCommonConfig;
 import com.flansmodultimate.network.PacketHandler;
@@ -465,7 +466,13 @@ public class Vehicle extends Driveable
     {
         prevWheelAngle = wheelAngle;
         if (type.isRotateWheels() || type.isTank())
-            wheelAngle = Mth.wrapDegrees(wheelAngle + getThrottle() * 18F);
+        {
+            Vec3 legacyForward = LegacyDriveableCoordinates.toLocal(new Vec3(1D, 0D, 0D));
+            Vec3 forward = localDirectionToWorld(legacyForward);
+            Vec3 velocity = getDeltaMovement();
+            wheelAngle = Mth.wrapDegrees(wheelAngle + WheelAnimationPhysics.angularStepDegrees(
+                velocity.x, velocity.z, forward.x, forward.z));
+        }
         leftTrackProgress += getThrottle() * 0.075F - wheelYaw * 0.0025F;
         rightTrackProgress += getThrottle() * 0.075F + wheelYaw * 0.0025F;
         leftTrackProgress -= Mth.floor(leftTrackProgress);

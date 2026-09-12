@@ -1,5 +1,6 @@
 package com.flansmodultimate.network.client;
 
+import com.flansmodultimate.common.ExplosionVisuals;
 import com.flansmodultimate.common.FlanParticles;
 import com.flansmodultimate.hooks.ClientHooks;
 import com.flansmodultimate.network.IClientPacket;
@@ -76,14 +77,20 @@ public class PacketFlanExplosionBlockParticles implements IClientPacket
         float particleScale = 1.0F + t * (MAX_PARTICLE_SCALE - 1.0F);
         String smokeParticle = radius >= BIG_SMOKE_RADIUS ? FlanParticles.FM_BIG_SMOKE : FlanParticles.SMOKE;
 
+        // The debris thrown out of the crater clears on the same schedule as the rest of the
+        // explosion: a cannon round kicking up a single block should not leave smoke hanging
+        // around for as long as a demolition charge does.
+        float lifetimeScale = ExplosionVisuals.lifetimeScale(radius);
+
         for (long l : blockPosLongs)
         {
             BlockPos pos = BlockPos.of(l);
-            spawnBlockBurst(level, center, pos, radius, particleScale, smokeParticle);
+            spawnBlockBurst(level, center, pos, radius, particleScale, smokeParticle, lifetimeScale);
         }
     }
 
-    private void spawnBlockBurst(Level level, Vec3 center, BlockPos pos, float radius, float particleScale, String smokeParticle)
+    private void spawnBlockBurst(Level level, Vec3 center, BlockPos pos, float radius, float particleScale,
+                                 String smokeParticle, float lifetimeScale)
     {
         double px = pos.getX() + level.random.nextDouble();
         double py = pos.getY() + level.random.nextDouble();
@@ -109,7 +116,7 @@ public class PacketFlanExplosionBlockParticles implements IClientPacket
         double vy = dy * scale;
         double vz = dz * scale;
 
-        ClientHooks.RENDER.spawnParticle(FlanParticles.LARGE_EXPLODE, (px + center.x) / 2.0D, (py + center.y) / 2.0D, (pz + center.z) / 2.0D, vx, vy, vz, particleScale);
-        ClientHooks.RENDER.spawnParticle(smokeParticle, px, py, pz, vx, vy, vz, particleScale);
+        ClientHooks.RENDER.spawnParticle(FlanParticles.LARGE_EXPLODE, (px + center.x) / 2.0D, (py + center.y) / 2.0D, (pz + center.z) / 2.0D, vx, vy, vz, particleScale, lifetimeScale);
+        ClientHooks.RENDER.spawnParticle(smokeParticle, px, py, pz, vx, vy, vz, particleScale, lifetimeScale);
     }
 }

@@ -35,6 +35,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
@@ -92,7 +93,7 @@ public final class DriveableImpostorCache
      * threshold. Returning {@code rendered == false} always means the exact model
      * must be rendered by the caller.
      */
-    public static Result renderOrPrepare(ModelDriveable model, DriveableType type, ResourceLocation sourceTexture, boolean translucent, boolean cull, float red, float green, float blue, PoseStack poseStack, MultiBufferSource buffer, int packedLight, float projectionPixels, double cameraDistance, float entityYaw, float entityPitch, float entityRoll, Quaternionf cameraOrientation, boolean allowImpostor, boolean wasUsingImpostor)
+    public static Result renderOrPrepare(ModelDriveable model, DriveableType type, ResourceLocation sourceTexture, boolean translucent, boolean cull, float red, float green, float blue, PoseStack poseStack, MultiBufferSource buffer, int packedLight, float projectionPixels, double cameraDistance, Vec3 cameraOffset, float entityYaw, float entityPitch, float entityRoll, Quaternionf cameraOrientation, boolean allowImpostor, boolean wasUsingImpostor)
     {
         ModClientConfig config = ModClientConfig.get();
         if (config == null || !config.enableDriveableLod || projectionPixels <= 0F || cameraDistance <= 0D)
@@ -126,12 +127,10 @@ public final class DriveableImpostorCache
             .rotateY(entityYaw * Mth.DEG_TO_RAD)
             .rotateZ(entityPitch * Mth.DEG_TO_RAD)
             .rotateX(entityRoll * Mth.DEG_TO_RAD);
-        Vector3f viewForward = new Vector3f(0F, 0F, 1F).rotate(entityRotation);
-        poseStack.last().pose().transformDirection(viewForward).normalize();
-        float viewYaw = (float) Math.toDegrees(Math.atan2(viewForward.x(), viewForward.z()));
-        float viewPitch = (float) Math.toDegrees(Math.asin(Mth.clamp(viewForward.y(), -1F, 1F)));
-        int yawIndex = yawIndex(viewYaw, settings.yawAngles());
-        int pitchIndex = pitchIndex(viewPitch);
+        ViewSelection view = selectView(cameraOffset, entityRotation, bounds.centerX(), bounds.centerY(),
+            bounds.centerZ(), settings.yawAngles());
+        int yawIndex = view.yawIndex();
+        int pitchIndex = view.pitchIndex();
         int cellIndex = pitchIndex * settings.yawAngles() + yawIndex;
         boolean withinPrewarmRange = impostorThreshold > 0F
             && projectedPixels <= impostorThreshold * PREWARM_MULTIPLIER;
@@ -410,6 +409,34 @@ public final class DriveableImpostorCache
         if (viewPitch < -15F)
             return 0;
         return viewPitch > 15F ? 2 : 1;
+    }
+
+    /**
+     * Selects an atlas view from the camera's position in model space. Looking in
+     * another direction without moving the camera must not make a different side
+     * of the vehicle appear. The inverse entity rotation also handles pitched and
+     * rolled aircraft without relying on the world render pose's Euler angles.
+     */
+    static ViewSelection selectView(Vec3 cameraOffset, Quaternionf entityRotation,
+                                    float centerX, float centerY, float centerZ, int yawAngles)
+    {
+        Vector3f localCamera = new Vector3f((float)cameraOffset.x(), (float)cameraOffset.y(),
+            (float)cameraOffset.z());
+        new Quaternionf(entityRotation).conjugate().transform(localCamera);
+        localCamera.sub(centerX, centerY, centerZ);
+        if (!Float.isFinite(localCamera.lengthSquared()) || localCamera.lengthSquared() <= 1.0E-6F)
+            return new ViewSelection(0, 1);
+
+        localCamera.normalize();
+        // Capturing rotates the model, so its yaw is opposite the model-space
+        // azimuth from the model towards the camera.
+        float captureYaw = -(float)Math.toDegrees(Math.atan2(localCamera.x(), localCamera.z()));
+        float capturePitch = (float)Math.toDegrees(Math.asin(Mth.clamp(localCamera.y(), -1F, 1F)));
+        return new ViewSelection(yawIndex(captureYaw, yawAngles), pitchIndex(capturePitch));
+    }
+
+    record ViewSelection(int yawIndex, int pitchIndex)
+    {
     }
 
     private static float projectedDiameter(float radius, float projectionPixels, double cameraDistance)

@@ -34,7 +34,13 @@ public final class ClientRenderHooksNoop implements IClientRenderHooks
     }
 
     @Override
-    public void spawnSustainedParticles(String particleType, double x, double y, double z, double spread, double drift, float scale, int burstSize, int durationTicks)
+    public void spawnParticle(String s, double x, double y, double z, double vx, double vy, double vz, float scale, float lifetimeScale)
+    {
+        /* no-op */
+    }
+
+    @Override
+    public void spawnSustainedParticles(String particleType, double x, double y, double z, double spread, double drift, float scale, int burstSize, int durationTicks, float lifetimeScale)
     {
         /* no-op */
     }

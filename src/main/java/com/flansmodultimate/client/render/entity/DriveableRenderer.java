@@ -117,7 +117,9 @@ public class DriveableRenderer<T extends Driveable> extends FlanEntityRenderer<T
         float blue = getBlue(type);
         float scale = type.getModelScale();
         float projectionPixels = Math.abs(RenderSystem.getProjectionMatrix().m11()) * Minecraft.getInstance().getWindow().getHeight() * 0.5F;
-        double cameraDistance = Math.sqrt(entityRenderDispatcher.distanceToSqr(driveable));
+        Vec3 cameraOffset = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition()
+            .subtract(driveable.getPosition(partialTick));
+        double cameraDistance = cameraOffset.length();
 
         float entityYawRotation = driveable instanceof Plane || driveable instanceof Vehicle || driveable instanceof Mecha
             ? 180F - yaw : -yaw;
@@ -143,7 +145,7 @@ public class DriveableRenderer<T extends Driveable> extends FlanEntityRenderer<T
             lodResult = DriveableImpostorCache.renderOrPrepare(
                 model, type, texture, translucent, cull, red, green, blue,
                 poseStack, buffer, packedLight, projectionPixels, cameraDistance,
-                entityYawRotation, pitch, roll, entityRenderDispatcher.cameraOrientation(),
+                cameraOffset, entityYawRotation, pitch, roll, entityRenderDispatcher.cameraOrientation(),
                 !(driveable instanceof Mecha) && !locallyControlled && intact, history.usingImpostor);
             history.usingImpostor = lodResult.usingImpostor();
             if (lodResult.rendered())

@@ -381,9 +381,12 @@ public final class KeyInputHandler
         if (noScreen && debugKey.consumeClick())
         {
             if (ModClient.isDebug())
+            {
                 ModClient.setDebug(false);
+                PacketHandler.sendToServer(new PacketRequestDebug(false));
+            }
             else
-                PacketHandler.sendToServer(new PacketRequestDebug());
+                PacketHandler.sendToServer(new PacketRequestDebug(true));
         }
 
         if (noScreen && teamsMenuKey.consumeClick())

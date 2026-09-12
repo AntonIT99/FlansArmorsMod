@@ -134,6 +134,7 @@ public class PlaneType extends DriveableType
         engineSound = readSound("PropSound", engineSound, file);
         shootSoundPrimary = readSound("ShootSound", shootSoundPrimary, file);
         shootSoundSecondary = readSound("BombSound", shootSoundSecondary, file);
+        registerSoundTimer("PropSoundLength", () -> engineSound, () -> engineSoundLength, length -> engineSoundLength = length);
 
         hasGear = readValue("HasGear", hasGear, file);
         hasGear = readValue("HasLandingGear", hasGear, file);

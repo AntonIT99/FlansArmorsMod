@@ -746,6 +746,17 @@ public class DriveableType extends PaintableType implements IAmmoGroupUser, IAmm
         lockOnSound = readSound("LockOnSound", lockOnSound, file);
         lockingOnSound = readSound("LockingOnSound", lockingOnSound, file);
         flareSound = readSound("FlareSound", flareSound, file);
+
+        registerSoundTimer("StartSoundLength", () -> startSound, () -> startSoundLength, length -> startSoundLength = length);
+        registerSoundTimer("EngineSoundLength", () -> engineSound, () -> engineSoundLength, length -> engineSoundLength = length);
+        registerSoundTimer("IdleSoundLength", () -> idleSound, () -> idleSoundLength, length -> idleSoundLength = length);
+        registerSoundTimer("ExitSoundLength", () -> exitSound, () -> exitSoundLength, length -> exitSoundLength = length);
+        registerSoundTimer("BackSoundLength", () -> backSound, () -> backSoundLength, length -> backSoundLength = length);
+        if (driver != null)
+        {
+            registerSoundTimer("YawSoundLength", driver::getYawSound, driver::getYawSoundLength, driver::setYawSoundLength);
+            registerSoundTimer("PitchSoundLength", driver::getPitchSound, driver::getPitchSoundLength, driver::setPitchSoundLength);
+        }
     }
 
     private void readCollisionMeshes(TypeFile file)

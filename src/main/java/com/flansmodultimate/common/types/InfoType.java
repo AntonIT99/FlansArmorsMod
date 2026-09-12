@@ -9,6 +9,7 @@ import com.flansmodultimate.util.DynamicReference;
 import com.flansmodultimate.util.FileUtils;
 import com.flansmodultimate.util.ModUtils;
 import com.flansmodultimate.util.ResourceUtils;
+import com.flansmodultimate.util.SoundLengthIndex;
 import com.flansmodultimate.util.TypeReaderUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -47,6 +48,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.function.IntConsumer;
+import java.util.function.IntSupplier;
+import java.util.function.Supplier;
 
 import static com.flansmodultimate.util.TypeReaderUtils.*;
 
@@ -54,6 +59,12 @@ import static com.flansmodultimate.util.TypeReaderUtils.*;
 public abstract class InfoType
 {
     private static final String LOOT_POOL_NAME = "FlansMod";
+
+    /** A timer telling the mod when to play a sound again, paired with the sound it plays. */
+    private record SoundTimer(String parameterName, Supplier<String> sound, IntSupplier length, IntConsumer applyLength) {}
+
+    /** Populated while reading a type and cleared once the measured sound lengths have been applied. */
+    private final List<SoundTimer> soundTimers = new ArrayList<>();
 
     @Getter
     private static final Map<String, InfoType> infoTypes = new HashMap<>();
@@ -382,6 +393,54 @@ public abstract class InfoType
                 + configuredLength + "'", file);
             return defaultValue;
         }
+    }
+
+    /**
+     * Declares that a sound timer plays the given sound, so it can be replaced with the measured
+     * length of that sound file once every content pack has been read.
+     *
+     * @param parameterName the config parameter the timer is read from, for logging
+     * @param sound         the sound the timer plays, read at resolution time
+     * @param length        reads the configured timer value
+     * @param applyLength   replaces the timer value
+     */
+    protected void registerSoundTimer(String parameterName, Supplier<String> sound, IntSupplier length, IntConsumer applyLength)
+    {
+        soundTimers.add(new SoundTimer(parameterName, sound, length, applyLength));
+    }
+
+    /**
+     * Replaces every registered sound timer with the real length of the sound it plays.
+     * <p>
+     * Only timers that a content pack actually configured are touched. A timer left at zero means the
+     * sound is not repeated at all, either because the pack disabled it with {@code None} or because
+     * the parameter defaults to zero, and filling one in would start repeating a sound that is meant
+     * to play once.
+     *
+     * @return how many timers were replaced
+     */
+    public int resolveSoundLengths()
+    {
+        int resolved = 0;
+        for (SoundTimer timer : soundTimers)
+        {
+            String sound = timer.sound().get();
+            int configuredLength = timer.length().getAsInt();
+            if (StringUtils.isBlank(sound) || configuredLength <= 0)
+                continue;
+
+            OptionalInt measuredLength = SoundLengthIndex.getSoundLength(sound);
+            if (measuredLength.isEmpty() || measuredLength.getAsInt() == configuredLength)
+                continue;
+
+            timer.applyLength().accept(measuredLength.getAsInt());
+            resolved++;
+            FlansMod.log.debug("{}: {} of sound '{}' changed from {} to the measured {} tick(s)",
+                originalShortName, timer.parameterName(), sound, configuredLength, measuredLength.getAsInt());
+        }
+
+        soundTimers.clear();
+        return resolved;
     }
 
     protected static void addEffects(String key, List<MobEffectInstance> effects, TypeFile file, boolean ambient, boolean visible)

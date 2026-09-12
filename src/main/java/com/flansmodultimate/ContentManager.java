@@ -27,6 +27,7 @@ import com.flansmodultimate.util.JavaModelCompiler;
 import com.flansmodultimate.util.LogUtils;
 import com.flansmodultimate.util.ResourceUtils;
 import com.flansmodultimate.util.SoundJsonProcessor;
+import com.flansmodultimate.util.SoundLengthIndex;
 import com.flansmodultimate.util.TextDecoding;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -400,6 +401,7 @@ public class ContentManager
             FlansMod.log.info("Loaded content pack {} in {} ms.", provider.getName(), endTime - startTime);
         }
 
+        applyMeasuredSoundLengths();
         resolveDeferredContentReferences();
 
         FileUtils.deleteDirectoryIfEmpty(tempRoot);
@@ -426,6 +428,49 @@ public class ContentManager
     private static String formatMilliseconds(long nanoseconds)
     {
         return String.format(Locale.ROOT, "%.3f", nanoseconds / 1_000_000.0);
+    }
+
+    /**
+     * Replaces the sound timers configured in the content packs with the real length of the sound
+     * files they play. This runs once every pack has been read, because a type may well play a sound
+     * that another pack provides.
+     */
+    private static void applyMeasuredSoundLengths()
+    {
+        long startTime = System.currentTimeMillis();
+        boolean overrideConfiguredLengths = ContentLoadingConfig.isOverrideConfiguredSoundLengths();
+
+        // With no measured length loaded, resolving leaves every timer as the content pack configured it.
+        SoundLengthIndex.clear();
+        if (overrideConfiguredLengths)
+        {
+            for (IContentProvider provider : contentPacks)
+                loadSoundLengthIndex(provider);
+        }
+
+        int resolved = 0;
+        for (ArrayList<InfoType> providerConfigs : configs.values())
+        {
+            for (InfoType config : providerConfigs)
+                resolved += config.resolveSoundLengths();
+        }
+
+        if (!overrideConfiguredLengths)
+        {
+            FlansMod.log.info("Keeping the sound lengths configured in the content packs because overrideConfiguredSoundLengths is disabled.");
+            return;
+        }
+
+        FlansMod.log.info("Replaced {} configured sound length(s) with the measured length of the sound file in {} ms. "
+            + "Enable debug logging to see them, or set overrideConfiguredSoundLengths to false to keep the configured values.",
+            resolved, System.currentTimeMillis() - startTime);
+    }
+
+    private static void loadSoundLengthIndex(IContentProvider provider)
+    {
+        FileSystem fs = FileUtils.createFileSystem(provider);
+        SoundLengthIndex.load(provider.getAssetsPath(fs).resolve(SoundLengthIndex.FILE_NAME));
+        FileUtils.closeFileSystem(fs, provider);
     }
 
     private static void resolveDeferredContentReferences()
@@ -956,6 +1001,7 @@ public class ContentManager
             || !Files.exists(provider.getAssetsPath(fs).resolve(FOLDER_MODELS).resolve(FOLDER_MODELS_ITEM))
             || !Files.exists(provider.getAssetsPath(fs).resolve(FOLDER_MODELS).resolve(FOLDER_MODELS_BLOCK))
             || shouldUpdateGeneratedTextureFiles(provider, fs)
+            || isSoundLengthIndexOutdated(provider, fs)
             || (!Files.exists(provider.getAssetsPath(fs).resolve(FOLDER_TEXTURES).resolve(FOLDER_TEXTURES_ITEM)) && Files.exists(provider.getAssetsPath(fs).resolve(FOLDER_TEXTURES).resolve(FOLDER_TEXTURES_ITEMS)))
             || (!Files.exists(provider.getAssetsPath(fs).resolve(FOLDER_TEXTURES).resolve(FOLDER_TEXTURES_BLOCK)) && Files.exists(provider.getAssetsPath(fs).resolve(FOLDER_TEXTURES).resolve(FOLDER_TEXTURES_BLOCKS)))
             || (!Files.exists(provider.getAssetsPath(fs).resolve(FOLDER_TEXTURES).resolve(FOLDER_TEXTURES_ARMOR)) && Files.exists(provider.getAssetsPath(fs).resolve(FOLDER_TEXTURES_ARMOR)))
@@ -984,6 +1030,25 @@ public class ContentManager
         {
             return true;
         }
+    }
+
+    /**
+     * The sound length index is generated while reprocessing a pack, so a pack whose sounds changed
+     * since the index was written has to be reprocessed again.
+     */
+    private static boolean isSoundLengthIndexOutdated(IContentProvider provider, @Nullable FileSystem fs)
+    {
+        if (provider.isArchive() && fs == null)
+            return true;
+
+        Path assetsPath = provider.getAssetsPath(fs);
+        Path soundsDir = assetsPath.resolve(FOLDER_SOUNDS);
+
+        // A pack still using the legacy sound folder has nothing to index until it has been normalized.
+        if (!Files.exists(soundsDir) && Files.exists(assetsPath.resolve(FOLDER_SOUND)))
+            return true;
+
+        return SoundLengthIndex.isOutdated(soundsDir, assetsPath.resolve(SoundLengthIndex.FILE_NAME));
     }
 
     private static void writeGeneratedAssetsVersion(IContentProvider provider)
@@ -1806,6 +1871,8 @@ public class ContentManager
         Path soundsJsonFile = provider.getAssetsPath().resolve("sounds.json");
         if (Files.isRegularFile(soundsJsonFile))
             SoundJsonProcessor.process(soundsJsonFile, FlansMod.FLANSMOD_ID, soundsDir);
+
+        SoundLengthIndex.generate(soundsDir, assetsDir.resolve(SoundLengthIndex.FILE_NAME));
     }
 
     private static void copyLegacySoundFolder(Path soundDir, Path soundsDir)

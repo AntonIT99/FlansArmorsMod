@@ -8,6 +8,7 @@ import com.flansmodultimate.common.driveables.CollisionBox;
 import com.flansmodultimate.common.driveables.DriveableCollisionHelper;
 import com.flansmodultimate.common.driveables.DriveableCollisionWorld;
 import com.flansmodultimate.common.driveables.DriveableControlPhysics;
+import com.flansmodultimate.common.driveables.DriveableDamageDebug;
 import com.flansmodultimate.common.driveables.DriveableData;
 import com.flansmodultimate.common.driveables.DriveableExplosion;
 import com.flansmodultimate.common.driveables.DriveableImpactDamage;
@@ -3038,7 +3039,16 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
             && !resolvedDamage.penetration().penetrated();
         if (!level().isClientSide)
         {
+            float previousHealth = part.getHealth();
             part.damage(resolvedDamage.damage(), bulletType.isSetEntitiesOnFire() && !armourBlocked);
+            float appliedDamage = Math.max(0F, previousHealth - part.getHealth());
+            var debugPlayer = shot == null ? null : shot.getPlayerAttacker().orElse(null);
+            if (armourBlocked)
+                DriveableDamageDebug.reportArmorBlock(debugPlayer, this, hit.getPart(),
+                    resolvedDamage.penetration().penetrationMm(),
+                    resolvedDamage.penetration().effectiveArmorMm());
+            else
+                DriveableDamageDebug.reportDamage(debugPlayer, this, hit.getPart(), appliedDamage);
             if (part.isDestroyed())
                 onPartDestroyed(part.getType());
         }
@@ -3099,7 +3109,10 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         if (source != null)
             lastAtkEntity = source.getEntity();
         boolean fire = source != null && source.is(DamageTypeTags.IS_FIRE);
+        float previousHealth = part.getHealth();
         boolean newlyDestroyed = !part.isDestroyed() && part.damage(amount, fire);
+        DriveableDamageDebug.reportDamage(DriveableDamageDebug.playerFrom(source), this, target,
+            Math.max(0F, previousHealth - part.getHealth()));
         if (newlyDestroyed)
             onPartDestroyed(target);
         return true;

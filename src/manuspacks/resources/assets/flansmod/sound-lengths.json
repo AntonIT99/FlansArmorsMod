@@ -1,0 +1,275 @@
+{
+  "version": 1,
+  "sounds": {
+    "152mmshoot.ogg": {
+      "key": "152mmshoot",
+      "size": 61106,
+      "ticks": 452
+    },
+    "88mmshoot.ogg": {
+      "key": "88mmshoot",
+      "size": 45144,
+      "ticks": 260
+    },
+    "aafire.ogg": {
+      "key": "aafire",
+      "size": 15488,
+      "ticks": 27
+    },
+    "barreload.ogg": {
+      "key": "barreload",
+      "size": 46352,
+      "ticks": 81
+    },
+    "bazookareload.ogg": {
+      "key": "bazookareload",
+      "size": 60508,
+      "ticks": 117
+    },
+    "boltgun_fire.ogg": {
+      "key": "boltgun_fire",
+      "size": 15258,
+      "ticks": 19
+    },
+    "boltgun_fire2.ogg": {
+      "key": "boltgun_fire2",
+      "size": 11215,
+      "ticks": 21
+    },
+    "boltgun_reload.ogg": {
+      "key": "boltgun_reload",
+      "size": 36587,
+      "ticks": 48
+    },
+    "bomb.ogg": {
+      "key": "bomb",
+      "size": 8023,
+      "ticks": 8
+    },
+    "browningreload.ogg": {
+      "key": "browningreload",
+      "size": 43480,
+      "ticks": 106
+    },
+    "browningshoot.ogg": {
+      "key": "browningshoot",
+      "size": 8377,
+      "ticks": 2
+    },
+    "bullet.ogg": {
+      "key": "bullet",
+      "size": 11025,
+      "ticks": 14
+    },
+    "bullethit.ogg": {
+      "key": "bullethit",
+      "size": 11025,
+      "ticks": 14
+    },
+    "chainsword_idle.ogg": {
+      "key": "chainsword_idle",
+      "size": 28631,
+      "ticks": 60
+    },
+    "chainsword_swing.ogg": {
+      "key": "chainsword_swing",
+      "size": 14982,
+      "ticks": 28
+    },
+    "colonialblaster_fire.ogg": {
+      "key": "colonialblaster_fire",
+      "size": 6673,
+      "ticks": 16
+    },
+    "cylonblaster_fire.ogg": {
+      "key": "cylonblaster_fire",
+      "size": 7001,
+      "ticks": 9
+    },
+    "engine.ogg": {
+      "key": "engine",
+      "size": 14198,
+      "ticks": 23
+    },
+    "flak.ogg": {
+      "key": "flak",
+      "size": 8916,
+      "ticks": 10
+    },
+    "flakvierlingshoot.ogg": {
+      "key": "flakvierlingshoot",
+      "size": 19834,
+      "ticks": 29
+    },
+    "gatling.ogg": {
+      "key": "gatling",
+      "size": 20392,
+      "ticks": 18
+    },
+    "grenadelauncherreload.ogg": {
+      "key": "grenadelauncherreload",
+      "size": 29135,
+      "ticks": 54
+    },
+    "grenadelaunchershoot.ogg": {
+      "key": "grenadelaunchershoot",
+      "size": 10676,
+      "ticks": 13
+    },
+    "helo.ogg": {
+      "key": "helo",
+      "size": 12358,
+      "ticks": 57
+    },
+    "imperiallaser_fire.ogg": {
+      "key": "imperiallaser_fire",
+      "size": 9364,
+      "ticks": 11
+    },
+    "lancasterprop.ogg": {
+      "key": "lancasterprop",
+      "size": 21143,
+      "ticks": 49
+    },
+    "lasgun_fire.ogg": {
+      "key": "lasgun_fire",
+      "size": 17298,
+      "ticks": 22
+    },
+    "laspistol_fire.ogg": {
+      "key": "laspistol_fire",
+      "size": 17587,
+      "ticks": 21
+    },
+    "lightsaber_idle.ogg": {
+      "key": "lightsaber_idle",
+      "size": 18378,
+      "ticks": 15
+    },
+    "lightsaber_swing.ogg": {
+      "key": "lightsaber_swing",
+      "size": 8109,
+      "ticks": 11
+    },
+    "lkw_lauf.ogg": {
+      "key": "lkw_lauf",
+      "size": 29762,
+      "ticks": 121
+    },
+    "lkw_start.ogg": {
+      "key": "lkw_start",
+      "size": 10537,
+      "ticks": 34
+    },
+    "m1887reload.ogg": {
+      "key": "m1887reload",
+      "size": 65391,
+      "ticks": 101
+    },
+    "m1887shoot.ogg": {
+      "key": "m1887shoot",
+      "size": 14740,
+      "ticks": 27
+    },
+    "mg42reload.ogg": {
+      "key": "mg42reload",
+      "size": 26327,
+      "ticks": 107
+    },
+    "mg42shoot.ogg": {
+      "key": "mg42shoot",
+      "size": 15654,
+      "ticks": 11
+    },
+    "mp44reload.ogg": {
+      "key": "mp44reload",
+      "size": 16207,
+      "ticks": 54
+    },
+    "planeshoot.ogg": {
+      "key": "planeshoot",
+      "size": 5770,
+      "ticks": 2
+    },
+    "propsound.ogg": {
+      "key": "propsound",
+      "size": 23304,
+      "ticks": 40
+    },
+    "propstart.ogg": {
+      "key": "propstart",
+      "size": 18167,
+      "ticks": 29
+    },
+    "rebellaser_fire.ogg": {
+      "key": "rebellaser_fire",
+      "size": 7608,
+      "ticks": 5
+    },
+    "rocketfire1.ogg": {
+      "key": "rocketfire1",
+      "size": 13614,
+      "ticks": 19
+    },
+    "rocketfire2.ogg": {
+      "key": "rocketfire2",
+      "size": 27047,
+      "ticks": 50
+    },
+    "rpgshoot.ogg": {
+      "key": "rpgshoot",
+      "size": 19843,
+      "ticks": 31
+    },
+    "tank1shoot.ogg": {
+      "key": "tank1shoot",
+      "size": 34827,
+      "ticks": 93
+    },
+    "tank2shoot.ogg": {
+      "key": "tank2shoot",
+      "size": 60099,
+      "ticks": 104
+    },
+    "tank3shoot.ogg": {
+      "key": "tank3shoot",
+      "size": 41385,
+      "ticks": 100
+    },
+    "tank4shoot.ogg": {
+      "key": "tank4shoot",
+      "size": 42124,
+      "ticks": 70
+    },
+    "tankidle.ogg": {
+      "key": "tankidle",
+      "size": 11266,
+      "ticks": 20
+    },
+    "tankmove.ogg": {
+      "key": "tankmove",
+      "size": 27180,
+      "ticks": 62
+    },
+    "tankshell.ogg": {
+      "key": "tankshell",
+      "size": 9126,
+      "ticks": 8
+    },
+    "turbolaser.ogg": {
+      "key": "turbolaser",
+      "size": 7007,
+      "ticks": 9
+    },
+    "turbolaser_fire.ogg": {
+      "key": "turbolaser_fire",
+      "size": 7007,
+      "ticks": 9
+    },
+    "viper.ogg": {
+      "key": "viper",
+      "size": 40566,
+      "ticks": 100
+    }
+  }
+}

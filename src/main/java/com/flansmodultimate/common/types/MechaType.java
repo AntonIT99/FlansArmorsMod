@@ -68,6 +68,7 @@ public class MechaType extends DriveableType
         rotateSpeed = readValue("RotateSpeed", rotateSpeed, file);
         stompSound = readSound("StompSound", stompSound, file);
         stompSoundLength = Math.max(0, readSoundLength("StompSoundLength", stompSoundLength, file));
+        registerSoundTimer("StompSoundLength", () -> stompSound, () -> stompSoundLength, length -> stompSoundLength = length);
         stompRangeLower = readValue("StompRangeLower", stompRangeLower, file);
         stompRangeUpper = readValue("StompRangeUpper", stompRangeUpper, file);
         leftArmOrigin = modelVector("LeftArmOrigin", leftArmOrigin, file);

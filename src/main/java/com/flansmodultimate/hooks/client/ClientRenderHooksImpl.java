@@ -66,9 +66,15 @@ public final class ClientRenderHooksImpl implements IClientRenderHooks
     }
 
     @Override
-    public void spawnSustainedParticles(String particleType, double x, double y, double z, double spread, double drift, float scale, int burstSize, int durationTicks)
+    public void spawnParticle(String s, double x, double y, double z, double vx, double vy, double vz, float scale, float lifetimeScale)
     {
-        ParticleHelper.spawnSustained(particleType, x, y, z, spread, drift, scale, burstSize, durationTicks);
+        ParticleHelper.spawnFromString(s, x, y, z, vx, vy, vz, scale, lifetimeScale);
+    }
+
+    @Override
+    public void spawnSustainedParticles(String particleType, double x, double y, double z, double spread, double drift, float scale, int burstSize, int durationTicks, float lifetimeScale)
+    {
+        ParticleHelper.spawnSustained(particleType, x, y, z, spread, drift, scale, burstSize, durationTicks, lifetimeScale);
     }
 
     @Override

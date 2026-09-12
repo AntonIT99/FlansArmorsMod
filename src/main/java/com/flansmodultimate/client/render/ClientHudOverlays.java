@@ -422,8 +422,6 @@ public final class ClientHudOverlays
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
         g.blit(texture, sw / 2 - 2 * sh, 0, 0, 0, 4 * sh, sh, 4 * sh, sh);
-
-        //TODO: compare with renderArmorOverlay()
     }
 
     private static boolean renderDamageAbsorptionArmorBar(LocalPlayer player, GuiGraphics g, int left, int top)

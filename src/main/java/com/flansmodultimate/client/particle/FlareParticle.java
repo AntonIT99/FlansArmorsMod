@@ -66,7 +66,7 @@ public class FlareParticle extends ParticleBase
             double py = yo + dy * i;
             double pz = zo + dz * i;
             
-            level.addParticle(FlansMod.fmFlameParticle.get(), px, py, pz, 0.0D, 0.0D, 0.0D);
+            ParticleHelper.spawnSubParticle(FlansMod.fmFlameParticle.get(), px, py, pz);
         }
 
         if (onGround)

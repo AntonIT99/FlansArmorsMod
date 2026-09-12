@@ -3,6 +3,7 @@ package com.flansmod.client.model;
 import com.flansmod.client.tmt.ModelRendererTurbo;
 import com.flansmod.common.vector.Vector3f;
 import com.flansmodultimate.client.render.EnumRenderPass;
+import com.flansmodultimate.common.driveables.CollisionBox;
 import com.flansmodultimate.common.driveables.DriveableData;
 import com.flansmodultimate.common.driveables.EnumDriveablePart;
 import com.flansmodultimate.common.entity.Driveable;
@@ -15,6 +16,8 @@ import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
 
 /** Extensible, pass-aware model base for legacy ground vehicles. */
 @SuppressWarnings({"unused", "java:S1104"})
@@ -84,6 +87,9 @@ public class ModelVehicle extends ModelDriveable
     public boolean legSpeedChange = true;
 
     private transient DriveableType trackPathType;
+    @Nullable private transient DriveableType trackSideType;
+    private transient boolean trackMeshSidesSwapped;
+    private transient boolean trackPathSidesSwapped;
     private transient TrackPath leftTrackPath = TrackPath.EMPTY;
     private transient TrackPath rightTrackPath = TrackPath.EMPTY;
     private transient TrackLinkLod trackLinkLod;
@@ -165,13 +171,13 @@ public class ModelVehicle extends ModelDriveable
         renderWheelIfIntact(driveable, EnumDriveablePart.FRONT_WHEEL, frontWheelModel, wheelSpin, steering, poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
         renderWheelIfIntact(driveable, EnumDriveablePart.BACK_WHEEL, backWheelModel, wheelSpin, 0F, poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
 
-        if (driveable.isPartIntact(EnumDriveablePart.LEFT_TRACK))
+        if (driveable.isPartIntact(trackPartForDrawnSide(driveable.getConfigType(), true, true)))
         {
             renderPart(leftTrackModel, poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
             renderWheel(leftTrackWheelModels, wheelSpin, 0F, poseStack, vertexConsumer, packedLight, packedOverlay,
                 red, green, blue, alpha, scale, renderPass);
         }
-        if (driveable.isPartIntact(EnumDriveablePart.RIGHT_TRACK))
+        if (driveable.isPartIntact(trackPartForDrawnSide(driveable.getConfigType(), false, true)))
         {
             renderPart(rightTrackModel, poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
             renderWheel(rightTrackWheelModels, wheelSpin, 0F, poseStack, vertexConsumer, packedLight, packedOverlay,
@@ -425,6 +431,108 @@ public class ModelVehicle extends ModelDriveable
             poseStack.translate(point.x, point.y, point.z);
     }
 
+    /**
+     * Resolves which track part gates the track drawn on a given side.
+     *
+     * <p>Type files and models disagree about which sign of the legacy lateral
+     * axis is the left side, and they disagree per vehicle rather than per pack:
+     * some author {@code leftTrack} at the coordinate the model uses for
+     * {@code leftTrackModel}, others at the mirrored one. Comparing the two
+     * authored sides against each other settles it per model instead of trusting
+     * either name, so destroying a track always hides the track that was hit.</p>
+     *
+     * <p>Meshes carry the lateral mirror {@code flipAll()} applies and link
+     * points are translated unmirrored, so in both cases a drawn track and the
+     * part box covering it hold lateral coordinates of opposite sign.</p>
+     */
+    private EnumDriveablePart trackPartForDrawnSide(@Nullable DriveableType type, boolean leftSide, boolean meshes)
+    {
+        if (trackSideType != type)
+        {
+            trackSideType = type;
+            Float boxes = boxLateralDelta(type);
+            trackMeshSidesSwapped = sidesSwapped(meshLateralDelta(), boxes);
+            trackPathSidesSwapped = sidesSwapped(pathLateralDelta(type), boxes);
+        }
+        return trackPart(leftSide, meshes ? trackMeshSidesSwapped : trackPathSidesSwapped);
+    }
+
+    /** Drawn geometry and its part box mirror each other, so matching signs mean the names are swapped. */
+    static boolean sidesSwapped(@Nullable Float drawn, @Nullable Float boxes)
+    {
+        return drawn != null && boxes != null && drawn * boxes > 0F;
+    }
+
+    static EnumDriveablePart trackPart(boolean leftSide, boolean swapped)
+    {
+        return leftSide != swapped ? EnumDriveablePart.LEFT_TRACK : EnumDriveablePart.RIGHT_TRACK;
+    }
+
+    /** Lateral offset of the left track meshes from the right ones, or null when either side is empty. */
+    @Nullable
+    private Float meshLateralDelta()
+    {
+        Float left = meshLateral(leftTrackModel, leftTrackWheelModels, leftAnimTrackModel1, leftAnimTrackModel2,
+            leftAnimTrackModel3);
+        Float right = meshLateral(rightTrackModel, rightTrackWheelModels, rightAnimTrackModel1, rightAnimTrackModel2,
+            rightAnimTrackModel3);
+        return left == null || right == null ? null : left - right;
+    }
+
+    @Nullable
+    private static Float meshLateral(ModelRendererTurbo[]... groups)
+    {
+        float total = 0F;
+        int count = 0;
+        for (ModelRendererTurbo[] group : groups)
+        {
+            if (group == null)
+                continue;
+            for (ModelRendererTurbo part : group)
+            {
+                if (part == null)
+                    continue;
+                total += part.rotationPointZ;
+                count++;
+            }
+        }
+        return count == 0 ? null : total / count;
+    }
+
+    @Nullable
+    private static Float boxLateralDelta(@Nullable DriveableType type)
+    {
+        CollisionBox left = type == null ? null : type.getHealth().get(EnumDriveablePart.LEFT_TRACK);
+        CollisionBox right = type == null ? null : type.getHealth().get(EnumDriveablePart.RIGHT_TRACK);
+        return left == null || right == null ? null
+            : left.getX() + left.getWidth() * 0.5F - (right.getX() + right.getWidth() * 0.5F);
+    }
+
+    @Nullable
+    private static Float pathLateralDelta(@Nullable DriveableType type)
+    {
+        Float left = pathLateral(type == null ? null : type.getLeftTrackPoints());
+        Float right = pathLateral(type == null ? null : type.getRightTrackPoints());
+        return left == null || right == null ? null : left - right;
+    }
+
+    @Nullable
+    private static Float pathLateral(@Nullable List<Vector3f> points)
+    {
+        if (points == null || points.isEmpty())
+            return null;
+        float total = 0F;
+        int count = 0;
+        for (Vector3f point : points)
+        {
+            if (point == null)
+                continue;
+            total += point.z;
+            count++;
+        }
+        return count == 0 ? null : total / count;
+    }
+
     private void renderTrackFrame(Driveable driveable, RenderState state, PoseStack poseStack, VertexConsumer vertexConsumer,
                                   int packedLight, int packedOverlay, float red, float green, float blue, float alpha,
                                   float scale, EnumRenderPass renderPass)
@@ -435,17 +543,18 @@ public class ModelVehicle extends ModelDriveable
         int rightFrame = frameIndex(rightAnimTrackModel.length, configuredFrames, state.rightTrackProgress());
         animFrameLeft = leftFrame;
         animFrameRight = rightFrame;
-        if (leftFrame >= 0 && driveable.isPartIntact(EnumDriveablePart.LEFT_TRACK))
+        DriveableType type = driveable.getConfigType();
+        if (leftFrame >= 0 && driveable.isPartIntact(trackPartForDrawnSide(type, true, true)))
             renderPart(leftAnimTrackModel[leftFrame], poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
-        if (rightFrame >= 0 && driveable.isPartIntact(EnumDriveablePart.RIGHT_TRACK))
+        if (rightFrame >= 0 && driveable.isPartIntact(trackPartForDrawnSide(type, false, true)))
             renderPart(rightAnimTrackModel[rightFrame], poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
 
         int legacyFrameLeft = Mth.clamp((int) Math.floor(state.leftTrackProgress() * 3F), 0, 2);
         int legacyFrameRight = Mth.clamp((int) Math.floor(state.rightTrackProgress() * 3F), 0, 2);
-        if (driveable.isPartIntact(EnumDriveablePart.LEFT_TRACK))
+        if (driveable.isPartIntact(trackPartForDrawnSide(type, true, true)))
             renderPart(selectFrame(legacyFrameLeft, leftAnimTrackModel1, leftAnimTrackModel2, leftAnimTrackModel3),
                 poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
-        if (driveable.isPartIntact(EnumDriveablePart.RIGHT_TRACK))
+        if (driveable.isPartIntact(trackPartForDrawnSide(type, false, true)))
             renderPart(selectFrame(legacyFrameRight, rightAnimTrackModel1, rightAnimTrackModel2, rightAnimTrackModel3),
                 poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
     }
@@ -458,11 +567,11 @@ public class ModelVehicle extends ModelDriveable
         // A live vehicle carries eased per-link angles that FixTrackLink steers;
         // without them the links fall back to the static pose.
         TrackLinkAnimation links = state.trackLinks() != null && state.trackLinks().isActive() ? state.trackLinks() : null;
-        if (driveable.isPartIntact(EnumDriveablePart.LEFT_TRACK))
+        if (driveable.isPartIntact(trackPartForDrawnSide(type, true, false)))
             renderFancyTrackPath(type, leftTrackPath, state.leftTrackProgress() * leftTrackPath.length(),
                 links == null ? null : links.angles(true), poseStack, vertexConsumer,
                 packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
-        if (driveable.isPartIntact(EnumDriveablePart.RIGHT_TRACK))
+        if (driveable.isPartIntact(trackPartForDrawnSide(type, false, false)))
             renderFancyTrackPath(type, rightTrackPath, state.rightTrackProgress() * rightTrackPath.length(),
                 links == null ? null : links.angles(false), poseStack, vertexConsumer,
                 packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);

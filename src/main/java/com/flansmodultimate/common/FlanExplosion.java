@@ -217,13 +217,12 @@ public class FlanExplosion extends Explosion
         // Sound broadcast (server-side playSound with null player broadcasts)
         level.playSound(null, center.x, center.y, center.z, SoundEvents.GENERIC_EXPLODE, SoundSource.BLOCKS, ModCommonConfig.get().explosionSoundRange() / 16F, (1.0F + (level.random.nextFloat() - level.random.nextFloat()) * 0.2F) * 0.7F);
 
-        if (spawnParticles)
-        {
-            if (stats.explosionRadius >= 2.0F)
-                sl.sendParticles(ParticleTypes.EXPLOSION_EMITTER, center.x, center.y, center.z, 1, 0, 0, 0, 0.0);
-            else
-                sl.sendParticles(ParticleTypes.EXPLOSION, center.x, center.y, center.z, 1, 0, 0, 0, 0.0);
-        }
+        // The vanilla emitter is a fixed size whatever the charge, so it only helps where the
+        // explosion is at least as big as the puffs it scatters. Below that it was the single
+        // loudest thing on screen for a round that carries a few grams of filler, and it drowned
+        // out the scaled flash and fireball that PacketFlanExplosionParticles now sends instead.
+        if (spawnParticles && stats.explosionRadius >= 2.0F)
+            sl.sendParticles(ParticleTypes.EXPLOSION_EMITTER, center.x, center.y, center.z, 1, 0, 0, 0, 0.0);
 
         if (interactsWithBlocks())
         {
@@ -260,7 +259,9 @@ public class FlanExplosion extends Explosion
         if (spawnParticles)
         {
             PacketHandler.sendToAllAround(new PacketFlanExplosionBlockParticles(center, stats.explosionRadius, sampleBlockBurstPositions(affectedBlockPositions)), center, Math.max(EXPLOSION_PARTICLE_RANGE, stats.explosionRadius), level.dimension());
-            PacketHandler.sendToAllAround(new PacketFlanExplosionParticles(center, smokeCount, debrisCount, stats.blastRadius, stats.explosionRadius), center, Math.max(EXPLOSION_PARTICLE_RANGE, stats.blastRadius), level.dimension());
+            PacketHandler.sendToAllAround(new PacketFlanExplosionParticles(center, smokeCount, debrisCount,
+                stats.blastRadius, stats.explosionRadius, stats.fragRadius, stats.fragIntensity),
+                center, Math.max(EXPLOSION_PARTICLE_RANGE, stats.blastRadius), level.dimension());
         }
     }
 

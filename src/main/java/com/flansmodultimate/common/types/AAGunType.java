@@ -143,6 +143,8 @@ public class AAGunType extends InfoType implements IAmmoGroupUser, IAmmoOverride
         gunSoundRange = readValue("GunSoundRange", gunSoundRange, file);
         reloadSoundRange = readValue("ReloadSoundRange", reloadSoundRange, file);
 
+        registerSoundTimer("ShootSoundLength", () -> shootSound, () -> shootSoundLength, length -> shootSoundLength = length);
+
         numBarrels = Math.max(1, Math.min(MAX_BARRELS, readValue("NumBarrels", numBarrels, file)));
         barrelX = new int[numBarrels];
         barrelY = new int[numBarrels];

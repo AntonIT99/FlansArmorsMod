@@ -840,6 +840,11 @@ public class GunType extends PaintableType implements IScope, IAmmoGroupUser, IA
         distantSoundRange = readValue("DistantSoundRange", distantSoundRange, file);
         useLoopingSounds = StringUtils.isNotBlank(loopedSound);
 
+        registerSoundTimer("SoundLength", () -> shootSound, () -> shootSoundLength, length -> shootSoundLength = length);
+        registerSoundTimer("IdleSoundLength", () -> idleSound, () -> idleSoundLength, length -> idleSoundLength = length);
+        registerSoundTimer("WarmupSoundLength", () -> warmupSound, () -> warmupSoundLength, length -> warmupSoundLength = length);
+        registerSoundTimer("LoopedSoundLength", () -> loopedSound, () -> loopedSoundLength, length -> loopedSoundLength = length);
+
         // Mode. Legacy content permits multiple values here (for example
         // "Mode FullAuto Burst SemiAuto"). Do not use readValue: it correctly
         // warns about additional values for scalar fields, but Mode is a list.

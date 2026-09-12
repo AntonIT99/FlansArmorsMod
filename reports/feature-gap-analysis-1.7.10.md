@@ -6,7 +6,7 @@ Initial audit: 2026-09-10. Last updated: 2026-09-12. Direction is strictly refer
 - Target initially audited: `C:/Users/alpha/Documents/Minecraft-Development/Flans-Mod-Ultimate-2.0`, HEAD `08494f8a4972c249feb4e7d8522e981547439c4e`.
 - Sources inspected were the current working trees, not pristine commit snapshots. Existing staged reference texture deletions and the target's unrelated `warfare44/pack_names.json` change were left untouched.
 - Completed findings are removed as they are implemented, so the report remains a backlog rather than a historical snapshot.
-- Remaining: **5 MISSING, 4 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
+- Remaining: **4 MISSING, 4 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
 
 ## Scope and evidence conventions
 
@@ -31,18 +31,6 @@ Target checked: `T/network/PacketHandler.java`, `T/event/handler/CommonEventHand
 Configuration synchronization and protocol registration do not compare client/server content-definition hashes. ContentManager's file hashing concerns generated texture handling, not a login handshake. No definition fingerprint exchange or configurable mismatch disconnect was found.
 
 Missing: Optional enforcement that clients and the server loaded matching content definitions.
-
-## Armor and ambient mobs
-
-### Random pack armor on naturally spawning zombies and skeletons — MISSING
-
-Reference: `R/common/eventhandlers/LivingSpawnEventListener.java#onLivingSpecialSpawn`, registered in `R/common/FlansMod.java`.
-The configured `armourSpawnRate` gates armor assignment to spawning zombies/skeletons. The handler chooses either a random eligible armor item or pieces from a random team outfit. Its legacy slot choices are part of the implementation; this finding does not assume it equips a complete modern armor set.
-
-Target checked: `T/event/handler/CommonEventHandler.java`, `T/config/ModCommonConfig.java`, `T/common/types/ArmorType.java`, `T/common/types/Team.java`, and spawn-event/equipment searches across target Java sources.
-There is no corresponding ambient spawn handler or armor-spawn probability setting. Apocalypse skeleton-display world generation does not equip naturally spawning mobs.
-
-Missing: Configurable ambient zombie/skeleton equipment drawn from loaded armor and team definitions.
 
 ## Handheld weapons and inventory preferences
 
@@ -127,7 +115,6 @@ Missing: Independent ammo-HUD visibility and user-selectable legacy ammo-HUD lay
 | Subsystem | Feature | Status | Confidence |
 | --------- | ------- | ------ | ---------- |
 | Multiplayer | Content-definition mismatch enforcement | MISSING | HIGH |
-| Armor/mobs | Ambient zombie/skeleton pack armor | MISSING | HIGH |
 | Inventory | Per-player reload preferences | PARTIAL | HIGH |
 | Interactions | Configurable armed block-use suppression | PARTIAL | HIGH |
 | Driveables | BuildCraft oil/fuel bucket integration | MISSING | HIGH |

@@ -130,6 +130,7 @@ public final class ModCommonConfig
     private static final ForgeConfigSpec.IntValue DEFAULT_ARMOR_DURABILITY;
     private static final ForgeConfigSpec.IntValue DEFAULT_ARMOR_ENCHANTABILITY;
     private static final ForgeConfigSpec.BooleanValue FORCE_DEFENSE_AS_MODERN_ARMOR;
+    private static final ForgeConfigSpec.IntValue AMBIENT_MOB_ARMOR_SPAWN_RATE;
 
     private static final ForgeConfigSpec.BooleanValue GUNS_ALWAYS_USABLE_BY_PLAYERS_IN_CREATIVE_MODE;
     private static final ForgeConfigSpec.BooleanValue FORCE_ALLOW_ALL_ATTACHMENTS;
@@ -319,6 +320,9 @@ public final class ModCommonConfig
             .comment("Force Defence / Defense values to be interpreted as vanilla Minecraft armor points instead of legacy ratio-based armor reduction.",
                 "DamageReduction and OtherDefence always remain legacy ratio-based values.")
             .define("forceDefenseAsModernArmor", false);
+        AMBIENT_MOB_ARMOR_SPAWN_RATE = builder
+            .comment("Percentage chance for naturally spawning zombies and skeletons to receive armor from loaded Flan content packs or team outfits.")
+            .defineInRange("ambientMobArmorSpawnRate", 20, 0, 100);
         builder.pop();
 
         builder.push("Gun Settings");
@@ -660,6 +664,7 @@ public final class ModCommonConfig
             DEFAULT_ARMOR_DURABILITY.get(),
             DEFAULT_ARMOR_ENCHANTABILITY.get(),
             FORCE_DEFENSE_AS_MODERN_ARMOR.get(),
+            AMBIENT_MOB_ARMOR_SPAWN_RATE.get(),
 
             GUNS_ALWAYS_USABLE_BY_PLAYERS_IN_CREATIVE_MODE.get(),
             FORCE_ALLOW_ALL_ATTACHMENTS.get(),

@@ -2,6 +2,7 @@ package com.flansmodultimate.event.handler;
 
 import com.flansmodultimate.ContentManager;
 import com.flansmodultimate.FlansMod;
+import com.flansmodultimate.common.AmbientMobArmor;
 import com.flansmodultimate.common.FlanDamageSources;
 import com.flansmodultimate.common.KillMessageData;
 import com.flansmodultimate.common.PlayerData;
@@ -36,12 +37,14 @@ import net.minecraftforge.event.AnvilUpdateEvent;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.living.MobSpawnEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.LevelEvent;
@@ -61,17 +64,22 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.monster.AbstractSkeleton;
+import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Mod.EventBusSubscriber(modid = FlansMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
@@ -92,7 +100,29 @@ public final class CommonEventHandler
     @Getter
     private static final Set<UUID> nightVisionPlayers = new HashSet<>();
     private static final Map<UUID, Integer> regenTimers = new HashMap<>();
+    private static final Set<Mob> AMBIENT_ARMOR_SPAWNS = Collections.newSetFromMap(new WeakHashMap<>());
     private static boolean contentReferencesValidated;
+
+    @SubscribeEvent
+    public static void onMobFinalizeSpawn(MobSpawnEvent.FinalizeSpawn event)
+    {
+        Mob mob = event.getEntity();
+        MobSpawnType spawnType = event.getSpawnType();
+        if (!(mob instanceof Zombie) && !(mob instanceof AbstractSkeleton)
+            || spawnType != MobSpawnType.NATURAL && spawnType != MobSpawnType.CHUNK_GENERATION)
+            return;
+
+        int spawnRate = ModCommonConfig.get().ambientMobArmorSpawnRate();
+        if (spawnRate > 0 && mob.getRandom().nextInt(100) < spawnRate)
+            AMBIENT_ARMOR_SPAWNS.add(mob);
+    }
+
+    @SubscribeEvent
+    public static void onEntityJoinLevel(EntityJoinLevelEvent event)
+    {
+        if (!event.getLevel().isClientSide && event.getEntity() instanceof Mob mob && AMBIENT_ARMOR_SPAWNS.remove(mob))
+            AmbientMobArmor.equip(mob);
+    }
 
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event)

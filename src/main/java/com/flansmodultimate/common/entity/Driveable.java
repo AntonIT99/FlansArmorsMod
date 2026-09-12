@@ -3379,25 +3379,41 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
             refuelFromEnergyItems(engine);
             return;
         }
-        ItemStack stack = driveableData.getFuelStack();
-        if (!(stack.getItem() instanceof PartItem partItem) || partItem.getConfigType().getCategory() != PartType.Category.FUEL)
+        if (refuelFromFuelSlot(driveableData.getFuelSlot()))
             return;
+
+        int cargoStart = driveableData.getCargoInventoryStart();
+        int cargoEnd = cargoStart + driveableData.getNumCargoSlots();
+        for (int slot = cargoStart; slot < cargoEnd; slot++)
+        {
+            if (refuelFromFuelSlot(slot))
+                return;
+        }
+    }
+
+    /** Transfers fuel from one inventory slot, preserving partial-can damage and stack state. */
+    private boolean refuelFromFuelSlot(int slot)
+    {
+        ItemStack stack = driveableData.getItem(slot);
+        if (!(stack.getItem() instanceof PartItem partItem) || partItem.getConfigType().getCategory() != PartType.Category.FUEL)
+            return false;
         int capacity = Math.max(0, partItem.getConfigType().getFuel());
         if (capacity <= 0)
-            return;
+            return false;
         int stored = Math.max(0, capacity - stack.getDamageValue());
         if (stored <= 0)
         {
             stack.shrink(1);
-            driveableData.setFuelStack(stack.isEmpty() ? ItemStack.EMPTY : stack);
-            return;
+            driveableData.setItem(slot, stack.isEmpty() ? ItemStack.EMPTY : stack);
+            return false;
         }
         int transfer = Math.min(stored, Math.max(1, Mth.ceil(configType.getFuelTankSize() - getFuel())));
         setFuel(getFuel() + transfer);
         stack.setDamageValue(stack.getDamageValue() + transfer);
         if (stack.getDamageValue() >= capacity)
             stack.shrink(1);
-        driveableData.setFuelStack(stack.isEmpty() ? ItemStack.EMPTY : stack);
+        driveableData.setItem(slot, stack.isEmpty() ? ItemStack.EMPTY : stack);
+        return true;
     }
 
     private void refuelFromEnergyItems(@NotNull PartType engine)

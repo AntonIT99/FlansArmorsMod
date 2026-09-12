@@ -6,7 +6,7 @@ Initial audit: 2026-09-10. Last updated: 2026-09-12. Direction is strictly refer
 - Target initially audited: `C:/Users/alpha/Documents/Minecraft-Development/Flans-Mod-Ultimate-2.0`, HEAD `08494f8a4972c249feb4e7d8522e981547439c4e`.
 - Sources inspected were the current working trees, not pristine commit snapshots. Existing staged reference texture deletions and the target's unrelated `warfare44/pack_names.json` change were left untouched.
 - Completed findings are removed as they are implemented, so the report remains a backlog rather than a historical snapshot.
-- Remaining: **7 MISSING, 8 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
+- Remaining: **7 MISSING, 7 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
 
 ## Scope and evidence conventions
 
@@ -77,16 +77,6 @@ Input suppression depends on the bound button, selected gun function, and hit re
 Missing: Separate configurable inventory-block and all-block interaction suppression while armed.
 
 ## Vehicles, aircraft, and mechas
-
-### Automatic fuel-can consumption from cargo — PARTIAL
-
-Reference: `R/common/driveables/EntityDriveable.java` (fuel-handling inventory loop).
-For combustion engines, the entity scans the entire driveable inventory for fuel parts. Fuel cans carried in cargo can therefore replenish the tank without moving them into the dedicated fuel slot.
-
-Target checked: `T/common/entity/Driveable.java#refuelFromInventory`, `T/common/driveables/DriveableData.java#getFuelStack`, cargo/fuel slot accessors, and `T/common/inventory/DriveableInventoryMenu.java`.
-Combustion refueling reads only `getFuelStack()`, which resolves to one dedicated slot. The separate energy refueling loop scans the inventory, but does not handle ordinary fuel cans.
-
-Missing: Automatic combustion refueling from fuel cans elsewhere in the driveable inventory, particularly cargo.
 
 ### BuildCraft oil/fuel bucket refueling — MISSING
 
@@ -193,7 +183,6 @@ Missing: Mod-level normal/sneaking name-tag distance controls.
 | Armor | Zero-enchantability anvil restriction | PARTIAL | MEDIUM |
 | Inventory | Per-player reload preferences | PARTIAL | HIGH |
 | Interactions | Configurable armed block-use suppression | PARTIAL | HIGH |
-| Driveables | Fuel cans consumed from cargo | PARTIAL | HIGH |
 | Driveables | BuildCraft oil/fuel bucket integration | MISSING | HIGH |
 | Driveables | Passenger guns on destroyed parts override | PARTIAL | HIGH |
 | Vehicles | Driver zoom and permission | MISSING | HIGH |

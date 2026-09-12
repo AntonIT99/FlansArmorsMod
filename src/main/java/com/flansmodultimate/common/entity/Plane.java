@@ -19,6 +19,8 @@ import com.flansmodultimate.common.driveables.ThrottleLeverRamp;
 import com.flansmodultimate.common.driveables.physics.AircraftPerformancePhysics;
 import com.flansmodultimate.common.driveables.physics.EnumDriveType;
 import com.flansmodultimate.common.driveables.physics.GroundPropulsionPhysics;
+import com.flansmodultimate.common.driveables.physics.HelicopterPhysics;
+import com.flansmodultimate.common.driveables.physics.RealWorldVehicleSpec;
 import com.flansmodultimate.common.driveables.physics.ResolvedVehiclePhysics;
 import com.flansmodultimate.common.driveables.physics.VehiclePhysicsConstants;
 import com.flansmodultimate.common.driveables.physics.VehiclePhysicsUnits;
@@ -67,6 +69,9 @@ public class Plane extends Driveable
     @Getter protected float prevPropellerAngle;
     @Getter protected float rotorAngle;
     @Getter protected float prevRotorAngle;
+    private double rotorPhase;
+    private double previousRotorPhase;
+    private float rotorSpeed;
     @Getter protected float flapYaw;
     @Getter protected float flapPitchLeft;
     @Getter protected float flapPitchRight;
@@ -325,6 +330,8 @@ public class Plane extends Driveable
             ? velocity.length() : velocity.horizontalDistance();
         boolean liftingOff = LegacyPlanePhysics.isLiftingOff(getPlaneMode(), measuredTakeoffSpeed,
             requiredTakeoffSpeed, flightForwardVector().y, velocity.y);
+        if (getPlaneMode() == EnumPlaneMode.HELI || getPlaneMode() == EnumPlaneMode.VTOL)
+            liftingOff = velocity.y > 0.01D;
         if (!ModCommonConfig.forceLegacyPlanePhysics())
             velocity = enforceSpeedCap(velocity, ModCommonConfig.maxPlaneSpeedKmh());
         if (isGearDeployed() && !liftingOff)
@@ -364,7 +371,12 @@ public class Plane extends Driveable
         float animationThrottle = LegacyPlanePhysics.engineAnimationThrottle(isEngineActive(), getThrottle(),
             IDLE_ENGINE_ANIMATION_THROTTLE);
         propellerAngle = Mth.wrapDegrees(propellerAngle + LegacyPlanePhysics.propellerStep(animationThrottle));
-        rotorAngle = Mth.wrapDegrees(rotorAngle + LegacyPlanePhysics.rotorStep(animationThrottle));
+        PlaneType type = getPlaneType();
+        rotorSpeed = HelicopterPhysics.spool(rotorSpeed,
+            isEngineActive() && type != null && rotorEfficiency(type) > 0F);
+        previousRotorPhase = rotorPhase;
+        rotorPhase += LegacyPlanePhysics.rotorStep(rotorSpeed);
+        rotorAngle = HelicopterPhysics.rotorAngle(rotorPhase, rotorPhase, 1F, 1F);
         prevFlapYaw = flapYaw;
         prevFlapPitchLeft = flapPitchLeft;
         prevFlapPitchRight = flapPitchRight;
@@ -654,29 +666,60 @@ public class Plane extends Driveable
         angularRoll *= 0.99F;
     }
 
+    public float getRotorRenderAngle(float partialTick, float speedRatio)
+    {
+        return HelicopterPhysics.rotorAngle(previousRotorPhase, rotorPhase, partialTick, speedRatio);
+    }
+
     private Vec3 helicopterPhysics(PlaneType type)
     {
         Vec3 current = getDeltaMovement();
-        applyLegacyControls(type, current);
-        if (type.getHeliPropellers().isEmpty())
-            return current.add(0D, -0.05D, 0D);
         float rotorFraction = rotorEfficiency(type);
         float throttle = isEngineActive() ? getThrottle() : 0F;
         float thrust = LegacyPlanePhysics.thrust(throttle, type.getMaxThrottle(), type.getMaxNegativeThrottle(),
-            type.getMaxThrottleInWater(), getEngineSpeed(), isUnderWater()) * rotorFraction * 2F;
-        double upwardsForce = throttle * thrust + (0.05D - thrust * 0.5D);
-        if (throttle < 0.5F)
-            upwardsForce = 0.05D * throttle * 2D;
-        if (!isPartIntact(EnumDriveablePart.BLADES))
-            upwardsForce = 0D;
-        Vec3 up = flightUpVector();
-        if (throttle > 0.48F && throttle < 0.52F && up.y >= 0.7D)
-            upwardsForce = 0.05D / up.y;
-        Vec3 velocity = current.add(up.x * upwardsForce * 0.5D,
-            up.y * upwardsForce - 0.05D, up.z * upwardsForce * 0.5D);
-        float drag = LegacyPlanePhysics.drag(type.getDrag());
-        double horizontalDrag = 1D - (1D - drag) / 5D;
-        return new Vec3(velocity.x * horizontalDrag, velocity.y * drag, velocity.z * horizontalDrag);
+            type.getMaxThrottleInWater(), getEngineSpeed(), isUnderWater()) * 2F;
+        ResolvedVehiclePhysics resolved = type.getResolvedPhysics();
+        RealWorldVehicleSpec spec = ModCommonConfig.forceLegacyPlanePhysics()
+            ? RealWorldVehicleSpec.EMPTY : resolved.source();
+        HelicopterPhysics.Performance performance = HelicopterPhysics.resolve(spec, getEngineSpeed(),
+            thrust, type.getDrag(), ModCommonConfig.realisticSpeedScale(resolved.category()));
+        applyHelicopterControls(type, rotorFraction, performance);
+        return HelicopterPhysics.step(current, flightUpVector(), performance, throttle, rotorSpeed, rotorFraction);
+    }
+
+    private void applyHelicopterControls(PlaneType type, float rotorFraction,
+                                         HelicopterPhysics.Performance performance)
+    {
+        // Rotor control authority exists at hover, independent of airspeed. The
+        // legacy directional modifiers still describe the pilot's control rates.
+        float authority = rotorSpeed * rotorSpeed * rotorFraction
+            * (float)Math.min(1D, performance.maximumLift() / HelicopterPhysics.GRAVITY);
+        LegacyPlanePhysics.ControlRates rates = LegacyPlanePhysics.controlRates(EnumPlaneMode.HELI,
+            0F, 0F, 0.5F, flapYaw, (flapPitchLeft + flapPitchRight) * 0.5F,
+            (flapPitchRight - flapPitchLeft) * 0.5F,
+            type.getTurnLeftModifier(), type.getTurnRightModifier(), type.getLookUpModifier(),
+            type.getLookDownModifier(), type.getRollLeftModifier(), type.getRollRightModifier());
+        float tailEfficiency = isPartIntact(EnumDriveablePart.TAIL)
+            ? intactPropellerFraction(type.getHeliTailPropellers()) : 0F;
+        // Explicit multi-rotor craft without a tail rotor cancel their own torque.
+        boolean needsTail = !type.getHeliTailPropellers().isEmpty()
+            || type.getHeliPropellers().size() == 1
+                && type.getResolvedPhysics().source().aircraft().effectiveRotorCount() == 1;
+        float yaw = rates.yaw();
+        if (needsTail)
+            yaw = yaw * tailEfficiency + 10F * Math.max(0F, getThrottle()) * (1F - tailEfficiency);
+        float response = type.getResolvedPhysics().hasAircraftProfile() && !ModCommonConfig.forceLegacyPlanePhysics()
+            ? 1F / type.getResolvedPhysics().rollInertiaFactor() : 1F;
+        angularYaw = LegacyPlanePhysics.approachMomentum(angularYaw, yaw * authority, response);
+        angularPitch = LegacyPlanePhysics.approachMomentum(angularPitch, rates.pitch() * authority, response);
+        angularRoll = LegacyPlanePhysics.approachMomentum(angularRoll, rates.roll() * authority, response);
+        axes.rotateLocalYaw(angularYaw);
+        axes.rotateLocalPitch(angularPitch);
+        axes.rotateLocalRoll(-angularRoll);
+        setOrientation(axes.getYaw(), axes.getPitch(), axes.getRoll());
+        angularYaw *= 0.95F;
+        angularPitch *= 0.95F;
+        angularRoll *= 0.95F;
     }
 
     private Vec3 sixDofPhysics(PlaneType type)
@@ -804,15 +847,16 @@ public class Plane extends Driveable
 
     private float rotorEfficiency(PlaneType type)
     {
-        float efficiency = intactPropellerFraction(type.getHeliPropellers());
-        if (!isPartIntact(EnumDriveablePart.BLADES))
-            efficiency *= 0.1F;
-        return efficiency;
+        if (type.getHeliPropellers().isEmpty() || !isPartIntact(EnumDriveablePart.BLADES))
+            return 0F;
+        return intactPropellerFraction(type.getHeliPropellers());
     }
 
     private boolean hasWorkingPropeller(PlaneType type)
     {
-        List<Propeller> relevant = getPlaneMode() == EnumPlaneMode.HELI ? type.getHeliPropellers() : type.getPropellers();
+        if (getPlaneMode() == EnumPlaneMode.HELI || getPlaneMode() == EnumPlaneMode.VTOL)
+            return rotorEfficiency(type) > 0F;
+        List<Propeller> relevant = type.getPropellers();
         return relevant.isEmpty() || relevant.stream().anyMatch(propeller -> isPartIntact(propeller.getPlanePart()));
     }
 

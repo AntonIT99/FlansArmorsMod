@@ -279,26 +279,31 @@ public class ModelPlane extends ModelDriveable
                               float scale, EnumRenderPass renderPass)
     {
         PlaneType type = driveable.getConfigType() instanceof PlaneType planeType ? planeType : null;
-        // Rotors run off their own accumulator: the legacy plane advanced them
-        // linearly with throttle, while the propeller used a throttle^0.4 curve.
-        float rotorAngle = driveable instanceof Plane plane
-            ? Mth.rotLerp(state.partialTick(), plane.getPrevRotorAngle(), plane.getRotorAngle())
-            : state.animationTime() * (18F + 34F * Math.abs(state.throttle()));
+        // Scale continuous phase before wrapping. Multiplying a wrapped base
+        // angle makes fractional-speed rotors jump once every base revolution.
         for (int i = 0; i < heliMainRotorModels.length; i++)
         {
+            if (!driveable.isPartIntact(EnumDriveablePart.BLADES))
+                continue;
             if (type != null && i < type.getHeliPropellers().size()
                 && !driveable.isPartIntact(type.getHeliPropellers().get(i).getPlanePart()))
                 continue;
-            float speed = i < heliRotorSpeeds.length ? heliRotorSpeeds[i] : 1F;
+            float speed = heliRotorSpeeds != null && i < heliRotorSpeeds.length ? heliRotorSpeeds[i] : 1F;
+            float rotorAngle = driveable instanceof Plane plane
+                ? plane.getRotorRenderAngle(state.partialTick(), speed) : 0F;
             renderAround(heliMainRotorModels[i], vectorAt(heliMainRotorOrigins, i), Axis.YP,
-                rotorAngle * speed, poseStack, vertexConsumer,
+                rotorAngle, poseStack, vertexConsumer,
                 packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
         }
         for (int i = 0; i < heliTailRotorModels.length; i++)
         {
+            if (!driveable.isPartIntact(EnumDriveablePart.TAIL))
+                continue;
             if (type != null && i < type.getHeliTailPropellers().size()
                 && !driveable.isPartIntact(type.getHeliTailPropellers().get(i).getPlanePart()))
                 continue;
+            float rotorAngle = driveable instanceof Plane plane
+                ? plane.getRotorRenderAngle(state.partialTick(), 1F) : 0F;
             renderAround(heliTailRotorModels[i], vectorAt(heliTailRotorOrigins, i), Axis.ZP,
                 rotorAngle, poseStack, vertexConsumer,
                 packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
@@ -363,7 +368,7 @@ public class ModelPlane extends ModelDriveable
         poseStack.popPose();
     }
 
-    private void renderAround(ModelRendererTurbo[] parts, Vector3f origin, Axis axis, float angleDegrees,
+    void renderAround(ModelRendererTurbo[] parts, Vector3f origin, Axis axis, float angleDegrees,
                               PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay,
                               float red, float green, float blue, float alpha, float scale, EnumRenderPass renderPass)
     {
@@ -371,11 +376,19 @@ public class ModelPlane extends ModelDriveable
             return;
         poseStack.pushPose();
         if (origin != null)
-            poseStack.translate(origin.x, origin.y, origin.z);
+            poseStack.translate(origin.x * scale, origin.y * scale, origin.z * scale);
         poseStack.mulPose(axis.rotationDegrees(angleDegrees));
         if (origin != null)
-            poseStack.translate(-origin.x, -origin.y, -origin.z);
-        renderPart(parts, poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, alpha, scale, renderPass);
+            poseStack.translate(-origin.x * scale, -origin.y * scale, -origin.z * scale);
+        // Legacy renderRotor/renderTailRotor used ordinary TMT rendering even
+        // when the airframe requested oldRotateOrder. Applying the airframe's
+        // alternate order here reverses authored blade rotations and offsets.
+        for (ModelRendererTurbo part : parts)
+        {
+            if (part != null)
+                part.render(poseStack, vertexConsumer, packedLight, packedOverlay,
+                    red, green, blue, alpha, scale, renderPass, false);
+        }
         poseStack.popPose();
     }
 

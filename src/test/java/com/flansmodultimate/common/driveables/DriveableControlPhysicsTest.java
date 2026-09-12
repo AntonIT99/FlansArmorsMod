@@ -40,11 +40,12 @@ class DriveableControlPhysicsTest
     @Test
     void enginePitchUsesThrottleMagnitudeAcrossTheConfiguredRange()
     {
-        assertEquals(0.6F, DriveableControlPhysics.engineSoundPitch(0F, 0.8F), EPSILON);
-        assertEquals(1F, DriveableControlPhysics.engineSoundPitch(0.5F, 0.8F), EPSILON);
-        assertEquals(1.4F, DriveableControlPhysics.engineSoundPitch(1F, 0.8F), EPSILON);
-        assertEquals(1.4F, DriveableControlPhysics.engineSoundPitch(-1F, 0.8F), EPSILON);
-        assertEquals(1F, DriveableControlPhysics.engineSoundPitch(1F, 0F), EPSILON);
+        assertEquals(0.6F, DriveableControlPhysics.engineSoundPitch(0F, 0.8F, 0.4F), EPSILON);
+        assertEquals(1F, DriveableControlPhysics.engineSoundPitch(0.5F, 0.8F, 0.4F), EPSILON);
+        assertEquals(1.4F, DriveableControlPhysics.engineSoundPitch(1F, 0.8F, 0.4F), EPSILON);
+        assertEquals(0.92F, DriveableControlPhysics.engineSoundPitch(-1F, 0.8F, 0.4F), EPSILON);
+        assertEquals(0.76F, DriveableControlPhysics.engineSoundPitch(-0.5F, 0.8F, 0.4F), EPSILON);
+        assertEquals(1F, DriveableControlPhysics.engineSoundPitch(1F, 0F, 0.4F), EPSILON);
     }
 
     @Test

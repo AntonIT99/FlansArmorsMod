@@ -69,7 +69,8 @@ public class EntitySoundInstance extends AbstractTickableSoundInstance
 
         followSource();
         if (source instanceof Driveable driveable)
-            pitch = DriveableControlPhysics.engineSoundPitch(driveable.getThrottle(), pitchRange);
+            pitch = DriveableControlPhysics.engineSoundPitch(driveable.getThrottle(), pitchRange,
+                driveable.getEngineSoundReverseSpeedRatio());
     }
 
     private void followSource()

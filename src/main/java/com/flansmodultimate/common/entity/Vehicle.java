@@ -40,8 +40,6 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Vehicle extends Driveable
 {
-    /** Brake pedal throttle bleed per tick; full demand reaches neutral in about two thirds of a second. */
-    private static final float BRAKE_THROTTLE_STEP = 0.08F;
     @Getter protected float wheelYaw;
     @Getter protected float prevWheelYaw;
     @Getter protected float wheelAngle;
@@ -288,8 +286,9 @@ public class Vehicle extends Driveable
         fixedThrottle = DriveableControlPhysics.fixedVehicleThrottle(fixedThrottle, canControl, braking, input);
         // Advanced every tick, including the ones where nothing is held, so the
         // ramp is counting an uninterrupted hold and nothing else.
-        int leverDirection = canControl && !pedalInput ? ThrottleLeverRamp.direction(input,
-            DriveableInput.THROTTLE_INCREASE, DriveableInput.THROTTLE_DECREASE) : 0;
+        int leverDirection = canControl && braking && throttle != 0F ? (throttle > 0F ? -1 : 1)
+            : canControl && !pedalInput ? ThrottleLeverRamp.direction(input,
+                DriveableInput.THROTTLE_INCREASE, DriveableInput.THROTTLE_DECREASE) : 0;
         float leverMultiplier = throttleRamp.advance(leverDirection, ThrottleLeverRamp.VEHICLE_MAX_STEP_MULTIPLIER);
         if (canControl)
         {
@@ -323,19 +322,23 @@ public class Vehicle extends Driveable
             // ramp restarts as the lever passes through zero, so drive to
             // reverse is never swept.
             float leverStep = ThrottleLeverRamp.VEHICLE_LEVER_BASE_STEP * damageMultiplier * leverMultiplier;
-            if (leverDirection > 0)
+            if (braking)
+                throttle = DriveableControlPhysics.brakedThrottle(throttle,
+                    leverStep * Math.max(0F, type.getBrakingModifier()));
+            else if (leverDirection > 0)
                 throttle += leverStep * (throttle < 0F ? type.getBrakingModifier() : 1F);
             else if (leverDirection < 0)
                 throttle -= leverStep * (throttle > 0F ? type.getBrakingModifier() : 1F);
         }
-        if (braking)
-            throttle = DriveableControlPhysics.brakedThrottle(throttle, BRAKE_THROTTLE_STEP);
-        else if (type.isTank() && Math.abs(throttle) < 0.3F && Math.abs(axis(input, DriveableInput.RIGHT, DriveableInput.LEFT)) > 0F)
-            throttle += Math.max(0F, type.getClutchBrake());
-        else if (throttleDecayDelay > 0)
-            --throttleDecayDelay;
-        else if (!fixedThrottle)
-            throttle = approach(throttle, 0F, type.getThrottleDecay());
+        if (!braking)
+        {
+            if (type.isTank() && Math.abs(throttle) < 0.3F && Math.abs(axis(input, DriveableInput.RIGHT, DriveableInput.LEFT)) > 0F)
+                throttle += Math.max(0F, type.getClutchBrake());
+            else if (throttleDecayDelay > 0)
+                --throttleDecayDelay;
+            else if (!fixedThrottle)
+                throttle = approach(throttle, 0F, type.getThrottleDecay());
+        }
         float damageLimit = DriveableControlPhysics.damagedThrottleLimit(getThrottleDamageNerf());
         if (Math.abs(throttle) > damageLimit)
             throttle = (Math.copySign(damageLimit, throttle) + throttle * 2F) / 3F;

@@ -29,14 +29,17 @@ public final class DriveableControlPhysics
     }
 
     /**
-     * Centres an engine's authored pitch span on normal pitch and moves across it with throttle
-     * magnitude. Reverse therefore revs the engine without ever producing a negative pitch.
+     * Centres an engine's authored pitch span on normal pitch and moves across it with throttle.
+     * Reverse uses the fraction of forward top speed that the driveable can attain in reverse.
      */
-    public static float engineSoundPitch(float throttle, float pitchRange)
+    public static float engineSoundPitch(float throttle, float pitchRange, float reverseSpeedRatio)
     {
         float safeRange = Float.isFinite(pitchRange) ? Math.max(0F, pitchRange) : 0F;
         float magnitude = Float.isFinite(throttle) ? clamp(Math.abs(throttle), 0F, 1F) : 0F;
-        return clamp(1F - safeRange * 0.5F + magnitude * safeRange, 0.01F, 2F);
+        float directionalRange = throttle < 0F
+            ? safeRange * (Float.isFinite(reverseSpeedRatio) ? Math.max(0F, reverseSpeedRatio) : 0F)
+            : safeRange;
+        return clamp(1F - safeRange * 0.5F + magnitude * directionalRange, 0.01F, 2F);
     }
 
     /** Moves a brake-held throttle lever toward neutral without snapping it there. */

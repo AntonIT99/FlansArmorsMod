@@ -478,6 +478,19 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
     /** Initial model pitch used when this driveable is placed in the world. */
     public float getInitialPlacementPitch() { return 0F; }
     public float getThrottle() { return entityData.get(DATA_THROTTLE); }
+
+    /** Reverse-to-forward top-speed ratio used to scale the engine sound's reverse pitch sweep. */
+    public float getEngineSoundReverseSpeedRatio()
+    {
+        if (configType == null)
+            return 0F;
+        ResolvedVehiclePhysics physics = configType.getResolvedPhysics();
+        if (physics != null && physics.hasReverseSpeedOverride() && physics.maxSpeedKmh() > 0F)
+            return Math.max(0F, physics.maxReverseSpeedKmh() / physics.maxSpeedKmh());
+        float forwardPower = configType.getMaxThrottle();
+        return Float.isFinite(forwardPower) && forwardPower > 0F
+            ? Math.max(0F, configType.getMaxNegativeThrottle()) / forwardPower : 0F;
+    }
     public float getTurretYaw() { return useClientVisualTransform() ? clientVisualTurretYaw : getSyncedTurretYaw(); }
     public float getTurretPitch() { return useClientVisualTransform() ? clientVisualTurretPitch : getSyncedTurretPitch(); }
     public float getFlightPitchControl() { return entityData.get(DATA_FLIGHT_PITCH); }

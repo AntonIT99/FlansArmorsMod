@@ -6,7 +6,7 @@ Initial audit: 2026-09-10. Last updated: 2026-09-12. Direction is strictly refer
 - Target initially audited: `C:/Users/alpha/Documents/Minecraft-Development/Flans-Mod-Ultimate-2.0`, HEAD `08494f8a4972c249feb4e7d8522e981547439c4e`.
 - Sources inspected were the current working trees, not pristine commit snapshots. Existing staged reference texture deletions and the target's unrelated `warfare44/pack_names.json` change were left untouched.
 - Completed findings are removed as they are implemented, so the report remains a backlog rather than a historical snapshot.
-- Remaining: **7 MISSING, 6 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
+- Remaining: **6 MISSING, 6 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
 
 ## Scope and evidence conventions
 
@@ -130,18 +130,6 @@ Kill feed packets and persistent statistics do not provide this detailed event l
 
 Missing: The reference's detailed explosion-kill server audit records and possible spawn-kill warning. This is logging, not spawn protection or automatic moderation.
 
-## Crafting
-
-### Optional charcoal/glowstone gunpowder recipe — MISSING
-
-Reference: `R/common/FlansMod.java` (recipe registration guarded by `addGunpowderRecipe`).
-The enabled option adds a shapeless recipe converting three charcoal and one glowstone dust into one gunpowder.
-
-Target checked: target `../src/main/resources/data`, `T/common/recipe/RecipeJsonGenerator.java`, `T/common/recipe/RecipeResolver.java`, and common configuration.
-No equivalent recipe or toggle was found. The target's `data/flansmodapocalypse/recipes/gunpowder_from_sulphur.json` consumes a different resource and does not replace this crafting route.
-
-Missing: The three-charcoal plus glowstone-dust recipe and its enable/disable option.
-
 ## HUD and rendering preferences
 
 ### Independent ammo-HUD visibility and legacy layout selection — PARTIAL
@@ -178,7 +166,6 @@ Missing: Mod-level normal/sneaking name-tag distance controls.
 | Teams | Separate configurable results/voting phases | PARTIAL | HIGH |
 | Teams | Autobalance interval and advance warning | PARTIAL | HIGH |
 | Administration | Explosion-kill audit/spawn-kill warning | MISSING | HIGH |
-| Crafting | Charcoal/glowstone gunpowder recipe | MISSING | HIGH |
 | HUD | Ammo-HUD visibility/layout controls | PARTIAL | HIGH |
 | Rendering | Normal/sneaking name-tag range controls | MISSING | HIGH |
 

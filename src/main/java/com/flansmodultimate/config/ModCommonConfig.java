@@ -98,6 +98,7 @@ public final class ModCommonConfig
     private static final String ENTITY_TRACKING_CONFIG_SECTION = "Entity Tracking Settings";
 
     private static final ForgeConfigSpec.BooleanValue ADD_ALL_PAINTJOBS_TO_CREATIVE;
+    private static final ForgeConfigSpec.BooleanValue ADD_GUNPOWDER_RECIPE;
     private static final ForgeConfigSpec.BooleanValue VALIDATE_CONTENT_REFERENCES_ON_WORLD_LOAD;
     private static final ForgeConfigSpec.ConfigValue<String> DEFAULT_VEHICLE_ENGINE;
     private static final ForgeConfigSpec.ConfigValue<String> DEFAULT_PLANE_ENGINE;
@@ -213,6 +214,10 @@ public final class ModCommonConfig
         ADD_ALL_PAINTJOBS_TO_CREATIVE = builder
             .comment("Whether all paintjobs should appear in creative")
             .define("addAllPaintjobsToCreative", true);
+        ADD_GUNPOWDER_RECIPE = builder
+            .comment("Add a shapeless recipe for gunpowder using three charcoal and one glowstone dust.",
+                "Changes take effect after restarting or reloading server data.")
+            .define("addGunpowderRecipe", true);
         VALIDATE_CONTENT_REFERENCES_ON_WORLD_LOAD = builder
             .comment("Force selected content references to resolve once when a server world loads.",
                 "Disabled by default because normal gameplay resolves these lazily.",
@@ -726,6 +731,11 @@ public final class ModCommonConfig
     {
         CommonConfigSnapshot override = serverOverride.get();
         return override != null ? override : instance.get();
+    }
+
+    public static boolean addGunpowderRecipe()
+    {
+        return ADD_GUNPOWDER_RECIPE.get();
     }
 
     /** Whether all aircraft movement must ignore the real-world profile and global movement tuning. */

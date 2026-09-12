@@ -5,6 +5,7 @@ import com.flansmodultimate.FlansMod;
 import com.flansmodultimate.ModRepositorySource;
 import com.flansmodultimate.PackagedContentRepositorySource;
 import com.flansmodultimate.apocalyse.ApocalypseDatapackSource;
+import com.flansmodultimate.common.recipe.GunpowderRecipeCondition;
 import com.flansmodultimate.config.ModApocalypseConfig;
 import com.flansmodultimate.config.ModClientConfig;
 import com.flansmodultimate.config.ModCommonConfig;
@@ -12,6 +13,7 @@ import com.flansmodultimate.config.ModCommonConfigSync;
 import com.flansmodultimate.network.PacketHandler;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -30,6 +32,7 @@ public final class ModCommonEventHandler
     public static void commonSetup(FMLCommonSetupEvent event)
     {
         PacketHandler.registerPackets();
+        event.enqueueWork(() -> CraftingHelper.register(GunpowderRecipeCondition.SERIALIZER));
     }
 
     @SubscribeEvent

@@ -37,8 +37,8 @@ public final class FlanEntityCommand
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
         dispatcher.register(Commands.literal("flansmodultimate")
-            .requires(source -> source.hasPermission(2))
             .then(Commands.literal("entities")
+                .requires(source -> source.hasPermission(2))
                 .then(operation("list", false))
                 .then(operation("remove", true))));
     }

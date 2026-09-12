@@ -32,6 +32,7 @@ import com.flansmodultimate.network.client.PacketKillMessage;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import net.minecraftforge.event.AnvilUpdateEvent;
 import net.minecraftforge.event.LootTableLoadEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -104,6 +105,16 @@ public final class CommonEventHandler
         TeamsCommand.register(event.getDispatcher());
         VehiclePhysicsCommand.register(event.getDispatcher());
         DigitalAmmoSupplyHandler.reloadSupplyBlocks();
+    }
+
+    @SubscribeEvent
+    public static void onAnvilUpdate(AnvilUpdateEvent event)
+    {
+        ItemStack left = event.getLeft();
+        if (left.getItem() instanceof CustomArmorItem armor
+            && armor.getEnchantmentValue() == 0
+            && !event.getRight().isEmpty())
+            event.setCanceled(true);
     }
 
     @SubscribeEvent

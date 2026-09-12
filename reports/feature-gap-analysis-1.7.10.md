@@ -6,7 +6,7 @@ Initial audit: 2026-09-10. Last updated: 2026-09-12. Direction is strictly refer
 - Target initially audited: `C:/Users/alpha/Documents/Minecraft-Development/Flans-Mod-Ultimate-2.0`, HEAD `08494f8a4972c249feb4e7d8522e981547439c4e`.
 - Sources inspected were the current working trees, not pristine commit snapshots. Existing staged reference texture deletions and the target's unrelated `warfare44/pack_names.json` change were left untouched.
 - Completed findings are removed as they are implemented, so the report remains a backlog rather than a historical snapshot.
-- Remaining: **7 MISSING, 7 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
+- Remaining: **7 MISSING, 6 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
 
 ## Scope and evidence conventions
 
@@ -43,16 +43,6 @@ Target checked: `T/event/handler/CommonEventHandler.java`, `T/config/ModCommonCo
 There is no corresponding ambient spawn handler or armor-spawn probability setting. Apocalypse skeleton-display world generation does not equip naturally spawning mobs.
 
 Missing: Configurable ambient zombie/skeleton equipment drawn from loaded armor and team definitions.
-
-### Zero-enchantability armor's anvil restriction — PARTIAL
-
-Reference: `R/common/eventhandlers/AnvilUpdateEventListener.java#onAnvilUsedEvent`, registered in `R/common/FlansMod.java`.
-When global `armourEnchantability` is zero, an anvil operation with team armor on the left and a non-null right input is canceled. This is broader than merely preventing enchantment-table rolls.
-
-Target checked: `T/common/item/CustomArmorItem.java#getEnchantmentValue`, `T/common/item/CustomArmorMaterial.java`, `T/config/ModCommonConfig.java`, and target event handlers.
-The target exposes default/per-type enchantability but has no equivalent anvil cancellation handler or armor-specific anvil restriction. Returning zero enchantability does not reproduce the reference's explicit cancellation policy.
-
-Missing: The global zero-enchantability rule blocking anvil operations with a second input. Exact vanilla anvil combinations should be verified in-game; source confidence is MEDIUM.
 
 ## Handheld weapons and inventory preferences
 
@@ -180,7 +170,6 @@ Missing: Mod-level normal/sneaking name-tag distance controls.
 | --------- | ------- | ------ | ---------- |
 | Multiplayer | Content-definition mismatch enforcement | MISSING | HIGH |
 | Armor/mobs | Ambient zombie/skeleton pack armor | MISSING | HIGH |
-| Armor | Zero-enchantability anvil restriction | PARTIAL | MEDIUM |
 | Inventory | Per-player reload preferences | PARTIAL | HIGH |
 | Interactions | Configurable armed block-use suppression | PARTIAL | HIGH |
 | Driveables | BuildCraft oil/fuel bucket integration | MISSING | HIGH |
@@ -195,7 +184,6 @@ Missing: Mod-level normal/sneaking name-tag distance controls.
 
 ## Areas requiring deeper audit
 
-- Validate the armor anvil finding with representative enchantment-book, repair, and combination inputs; the missing explicit policy is visible in source, but accepted operations also depend on vanilla item/anvil rules.
 - Driveable physics, collision response, aircraft controls, mecha movement, and legacy model animation have substantially different implementations. This audit does not establish trajectory-level or visual equivalence across representative packs, especially articulated vehicles and custom model transforms.
 - Exercise multiplayer reconnect/reload, late entity tracking, occupied-seat synchronization, and persisted rounds in-game to assess timing-dependent parity. Source-level searches do not prove absence of subtle synchronization differences.
 - The BuildCraft finding is a source integration gap. Choosing an applicable modern fluid ecosystem would require a separate compatibility investigation.

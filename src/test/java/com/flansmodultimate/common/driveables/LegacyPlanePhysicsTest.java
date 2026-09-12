@@ -97,6 +97,26 @@ class LegacyPlanePhysicsTest
     }
 
     @Test
+    void aLandedPlaneReturnsGraduallyToItsRestingAttitude()
+    {
+        assertEquals(9.75F, LegacyPlanePhysics.landingAttitudeAngle(10F, 0F), EPSILON);
+        assertEquals(-9.75F, LegacyPlanePhysics.landingAttitudeAngle(-10F, 0F), EPSILON);
+        assertEquals(2F, LegacyPlanePhysics.landingAttitudeAngle(2.1F, 2F), EPSILON,
+            "the recovery must stop at the resting angle rather than overshoot");
+    }
+
+    @Test
+    void fallingBelowRequiredSpeedAddsAModestSmoothSinkPenalty()
+    {
+        assertEquals(0F, LegacyPlanePhysics.lowSpeedSinkGravityFraction(40D, 40D), EPSILON);
+        assertEquals(0F, LegacyPlanePhysics.lowSpeedSinkGravityFraction(50D, 40D), EPSILON);
+        assertEquals(0.125F, LegacyPlanePhysics.lowSpeedSinkGravityFraction(20D, 40D), EPSILON);
+        assertEquals(LegacyPlanePhysics.LOW_SPEED_EXTRA_SINK_GRAVITY_FRACTION,
+            LegacyPlanePhysics.lowSpeedSinkGravityFraction(0D, 40D), EPSILON,
+            "even a stopped aircraft gains only a restrained extra quarter-g");
+    }
+
+    @Test
     void bladesStandStillOnStandby()
     {
         assertEquals(0F, LegacyPlanePhysics.propellerStep(0F), EPSILON);

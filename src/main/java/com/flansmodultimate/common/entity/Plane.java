@@ -328,7 +328,11 @@ public class Plane extends Driveable
         if (!ModCommonConfig.forceLegacyPlanePhysics())
             velocity = enforceSpeedCap(velocity, ModCommonConfig.maxPlaneSpeedKmh());
         if (isGearDeployed() && !liftingOff)
+        {
             velocity = applyWheelContactPhysics(velocity, true);
+            if (hasWheelContact() && getPlaneMode() == EnumPlaneMode.PLANE && getThrottle() <= 0.4F)
+                recoverLandingAttitude();
+        }
         else
             // Wheel contact is only sampled while the gear is down and the
             // aircraft is not lifting off. Clearing it on the other branch keeps
@@ -460,7 +464,9 @@ public class Plane extends Driveable
             : current.lengthSqr() * intactWings * 0.5D;
         lift *= Math.abs(flightUpVector().y);
         lift = Math.min(lift, LegacyPlanePhysics.GRAVITY);
-        velocity = velocity.add(0D, lift - LegacyPlanePhysics.GRAVITY, 0D);
+        double lowSpeedSink = LegacyPlanePhysics.lowSpeedSinkGravityFraction(speed, type.getTakeoffSpeed())
+            * LegacyPlanePhysics.GRAVITY;
+        velocity = velocity.add(0D, lift - LegacyPlanePhysics.GRAVITY - lowSpeedSink, 0D);
         if (onGround() && velocity.y <= 0D)
             velocity = new Vec3(velocity.x, -0.01D, velocity.z);
         velocity = new Vec3(velocity.x * drag,
@@ -536,8 +542,9 @@ public class Plane extends Driveable
 
         int intactWings = (isPartIntact(EnumDriveablePart.LEFT_WING) ? 1 : 0)
             + (isPartIntact(EnumDriveablePart.RIGHT_WING) ? 1 : 0);
-        double liftFraction = AircraftPerformancePhysics.liftFraction(airspeedMs,
-            physics.referenceSpeedMs(speedScale, ModCommonConfig.realisticAircraftReferenceSpeedScale()))
+        double referenceSpeedMs = physics.referenceSpeedMs(speedScale,
+            ModCommonConfig.realisticAircraftReferenceSpeedScale());
+        double liftFraction = AircraftPerformancePhysics.liftFraction(airspeedMs, referenceSpeedMs)
             * intactWings * 0.5D;
         Float climbRate = physics.source().aircraft().climbRateMs();
         double excessAllowance = AircraftPerformancePhysics.maxExcessLiftFraction(
@@ -567,7 +574,9 @@ public class Plane extends Driveable
         }
 
         double lift = liftFraction * LegacyPlanePhysics.GRAVITY * Math.abs(flightUpVector().y);
-        velocity = velocity.add(0D, lift - LegacyPlanePhysics.GRAVITY, 0D);
+        double lowSpeedSink = LegacyPlanePhysics.lowSpeedSinkGravityFraction(airspeedMs, referenceSpeedMs)
+            * LegacyPlanePhysics.GRAVITY;
+        velocity = velocity.add(0D, lift - LegacyPlanePhysics.GRAVITY - lowSpeedSink, 0D);
         if (onGround() && velocity.y <= 0D)
             velocity = new Vec3(velocity.x, -0.01D, velocity.z);
         // Retained legacy trims: folded wings and an unoccupied airframe still
@@ -577,6 +586,20 @@ public class Plane extends Driveable
         if (getControllingEntity() == null)
             velocity = velocity.multiply(emptyDrag(type), 0.98D, emptyDrag(type));
         return velocity;
+    }
+
+    /**
+     * Eases a landed fixed-wing aircraft back into its authored resting pose.
+     * Terrain alignment has already run for this tick, so this is deliberately
+     * slower than the suspension response and cannot produce a visible snap.
+     */
+    private void recoverLandingAttitude()
+    {
+        float pitch = LegacyPlanePhysics.landingAttitudeAngle(getPitch(), getInitialPlacementPitch());
+        float roll = LegacyPlanePhysics.landingAttitudeAngle(getRoll(), 0F);
+        setOrientation(getYaw(), pitch, roll);
+        angularPitch *= 0.8F;
+        angularRoll *= 0.8F;
     }
 
     /**

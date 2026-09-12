@@ -11,6 +11,10 @@ public final class LegacyPlanePhysics
     public static final float MAX_FLAP_ANGLE = 20F;
     /** Blocks per tick at which legacy fixed-wing aircraft gain full control authority. */
     public static final float FULL_CONTROL_AUTHORITY_SPEED = 0.2F;
+    /** Maximum pitch or roll recovery on the landing roll, in degrees per tick. */
+    public static final float LANDING_ATTITUDE_RECOVERY_DEG_PER_TICK = 0.25F;
+    /** Maximum extra sink below required airspeed, as a fraction of gravity. */
+    public static final double LOW_SPEED_EXTRA_SINK_GRAVITY_FRACTION = 1.0D;
     private static final double PROPELLER_FULL_THROTTLE_RADIANS = 1.5D;
     private static final double PROPELLER_THROTTLE_EXPONENT = 0.4D;
     private static final double ROTOR_THROTTLE_DIVISOR = 7D;
@@ -171,6 +175,29 @@ public final class LegacyPlanePhysics
             return false;
         double requiredSpeed = Math.max(0.15D, Double.isFinite(takeoffSpeed) ? takeoffSpeed : 0D);
         return speed >= requiredSpeed && forwardVertical > 0.02D && verticalSpeed > 0D;
+    }
+
+    /** Eases one attitude axis toward its authored resting angle without overshooting. */
+    public static float landingAttitudeAngle(float current, float resting)
+    {
+        if (!Float.isFinite(current) || !Float.isFinite(resting))
+            return 0F;
+        return current < resting
+            ? Math.min(resting, current + LANDING_ATTITUDE_RECOVERY_DEG_PER_TICK)
+            : Math.max(resting, current - LANDING_ATTITUDE_RECOVERY_DEG_PER_TICK);
+    }
+
+    /**
+     * Extra downward acceleration below the aircraft's required airspeed,
+     * expressed as a fraction of gravity. The linear deficit keeps the onset
+     * smooth and caps a fully stopped aircraft at one extra quarter-g.
+     */
+    public static double lowSpeedSinkGravityFraction(double airspeed, double requiredAirspeed)
+    {
+        if (!Double.isFinite(airspeed) || !Double.isFinite(requiredAirspeed) || requiredAirspeed <= 0D)
+            return 0D;
+        double deficit = 1D - Math.max(0D, Math.abs(airspeed)) / requiredAirspeed;
+        return Math.max(0D, deficit) * LOW_SPEED_EXTRA_SINK_GRAVITY_FRACTION;
     }
 
     private static float finite(float value)

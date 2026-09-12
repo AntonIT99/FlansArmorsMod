@@ -176,7 +176,8 @@ public class Mecha extends Driveable
         boolean walking = intent.lengthSqr() > 0.01D;
         boolean canMove = getControllingEntity() != null && isEngineActive() && hasFuelForMovement()
             && isPartIntact(EnumDriveablePart.HIPS);
-        double moveSpeed = MechaPhysics.movementSpeed(type.getMoveSpeed(), getEngineSpeed(), speedMultiplier());
+        double moveSpeed = MechaPhysics.movementSpeed(type.getMoveSpeed(), type.getRealWorldSpec().maxSpeedKmh(),
+            getEngineSpeed(), speedMultiplier());
         Vec3 current = getDeltaMovement();
         float rocketPower = Mth.clamp(jetPackPower(), 0.1F, 8F);
         MechaItemType rocket = rocketPack();

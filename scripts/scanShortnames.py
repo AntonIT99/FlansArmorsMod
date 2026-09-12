@@ -24,6 +24,7 @@ FOLDER_TO_CATEGORY: Dict[str, str] = {
     "bullets": "bullet",
     "vehicles": "vehicle",
     "planes": "plane",
+    "mechas": "mecha",
 }
 
 CATEGORY_TO_JSON: Dict[str, str] = {
@@ -34,6 +35,7 @@ CATEGORY_TO_JSON: Dict[str, str] = {
     "bullet": "bullet_categories.json",
     "vehicle": "vehicle_categories.json",
     "plane": "plane_categories.json",
+    "mecha": "mecha_categories.json",
 }
 
 SHORTNAME_RE = re.compile(r"^\s*Shortname\s+(\S+)\s*$", re.IGNORECASE)

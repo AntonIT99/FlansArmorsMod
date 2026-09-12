@@ -9,7 +9,8 @@ It applies to `gun_categories.json`, `aagun_categories.json`,
 `bullet_categories.json`, `grenade_categories.json`, `vehicle_categories.json`, and
 `plane_categories.json`. It does not apply to `armor_categories.json`, which already
 covers generic and fictional items through its own tier tables; see
-[armor.md](armor.md).
+[armor.md](armor.md). Mecha chassis use [mechas.md](mechas.md), not this
+reference; mecha-mounted weapons still follow their own weapon/ammunition doctrine.
 
 Read it together with the applicable domain reference. This file decides *what
 identity and what values* a non-historical item gets. The domain reference still

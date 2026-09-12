@@ -1,5 +1,8 @@
 package com.flansmodultimate.common.driveables;
 
+import com.flansmodultimate.common.driveables.physics.VehiclePhysicsUnits;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
@@ -44,12 +47,21 @@ public final class MechaPhysics
         return intent.lengthSqr() > 1D ? intent.normalize() : intent;
     }
 
-    public static double movementSpeed(float configuredSpeed, float engineSpeed, float addonMultiplier)
+    /**
+     * Resolves the chassis speed to blocks per tick. A positive {@code RealMaxSpeedKmh}
+     * is authoritative; legacy definitions fall back to the historical
+     * {@code 4.3 * MoveSpeed} blocks-per-second conversion. Engine and addon
+     * multipliers remain gameplay modifiers on both paths.
+     */
+    public static double movementSpeed(float legacyConfiguredSpeed, @Nullable Float realMaxSpeedKmh,
+                                       float engineSpeed, float addonMultiplier)
     {
-        if (!Float.isFinite(configuredSpeed) || !Float.isFinite(engineSpeed) || !Float.isFinite(addonMultiplier))
+        if (!Float.isFinite(legacyConfiguredSpeed) || !Float.isFinite(engineSpeed) || !Float.isFinite(addonMultiplier))
             return 0D;
-        return Math.max(0D, configuredSpeed) * Math.max(0D, engineSpeed)
-            * Math.max(0D, addonMultiplier) * LEGACY_SPEED_PER_TICK;
+        double chassisSpeed = VehiclePhysicsUnits.isUsablePositive(realMaxSpeedKmh)
+            ? VehiclePhysicsUnits.kmhToBlocksPerTick(realMaxSpeedKmh)
+            : Math.max(0D, legacyConfiguredSpeed) * LEGACY_SPEED_PER_TICK;
+        return chassisSpeed * Math.max(0D, engineSpeed) * Math.max(0D, addonMultiplier);
     }
 
     /** Returns the legacy +X-forward mecha-model yaw that faces the supplied world direction. */

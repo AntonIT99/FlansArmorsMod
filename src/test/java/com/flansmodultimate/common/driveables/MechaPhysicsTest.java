@@ -48,8 +48,22 @@ class MechaPhysicsTest
     @Test
     void configuredSpeedUsesTheLegacyPerTickConversion()
     {
-        assertEquals(0.43D, MechaPhysics.movementSpeed(2F, 1F, 1F), EPSILON);
-        assertEquals(0.645D, MechaPhysics.movementSpeed(2F, 1.5F, 1F), EPSILON);
+        assertEquals(0.43D, MechaPhysics.movementSpeed(2F, null, 1F, 1F), EPSILON);
+        assertEquals(0.645D, MechaPhysics.movementSpeed(2F, null, 1.5F, 1F), EPSILON);
+    }
+
+    @Test
+    void realMaximumSpeedUsesKmhAndRetainsGameplayModifiers()
+    {
+        assertEquals(1D, MechaPhysics.movementSpeed(99F, 72F, 1F, 1F), EPSILON);
+        assertEquals(3D, MechaPhysics.movementSpeed(99F, 72F, 1.5F, 2F), EPSILON);
+    }
+
+    @Test
+    void invalidRealMaximumSpeedFallsBackToLegacySpeed()
+    {
+        assertEquals(0.215D, MechaPhysics.movementSpeed(1F, 0F, 1F, 1F), EPSILON);
+        assertEquals(0.215D, MechaPhysics.movementSpeed(1F, Float.NaN, 1F, 1F), EPSILON);
     }
 
     @Test

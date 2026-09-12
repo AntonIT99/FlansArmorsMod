@@ -13,14 +13,17 @@ A category applies only to the definition type named by its file. Gun short name
 belong in `gun_categories.json`, AA-gun short names in `aagun_categories.json`, and
 magazine, cartridge, bullet, shell, missile, bomb, depth-charge, mine, and torpedo
 short names in `bullet_categories.json`; use the analogous grenade, vehicle, plane,
-and armor files for their types. Bombs live in the `bullets` folder and belong in
+armor, and mecha files for their types. `definitions/mechas` maps to
+`mecha_categories.json`; `mechaItems` tools/upgrades are excluded from chassis
+coverage. Bombs live in the `bullets` folder and belong in
 `bullet_categories.json` despite resembling grenades. Ships have no file of their
 own: they follow the folder the pack put them in, so a hull under `definitions/planes`
 belongs in `plane_categories.json` and one under `definitions/vehicles` in
 `vehicle_categories.json`. See [ships.md](ships.md) for what that choice changes.
 
 Use `scripts/scanShortnames.py` to find supported short names absent from all
-category JSON. It scans bundled source packs and `run/flan` ZIP packs and writes
+category JSON. It scans source packs under `src/*/resources/flans_content` and
+`run/flan` ZIP packs and writes
 `missing_shortnames.csv` at repository root. Its `full_name` should come from that
 pack's `item.flansmod.<shortname>` English localization when present, falling back
 to definition `Name`. Treat the CSV as an initial research queue, not proof that a
@@ -108,19 +111,20 @@ Labels without a leading metric calibre use the natural fallback. So 128 mm and
 
 ## Validation checklist
 
-After every category edit:
+After every category edit, run the checks that apply to the changed types.
+Scanner-only work validates discovery and coverage without loading domain tables:
 
 1. Strictly parse every changed JSON file.
 2. Locate every added `items` short name in source definitions; confirm sanitized
    spelling, lowercase, category type, identity, aliases, and variant boundaries.
 3. Run `scripts/scanShortnames.py` after coverage changes. Inspect all remaining
-   relevant rows and classify each one by the resolution step it stopped at, per
-   [generic-and-fictional.md](generic-and-fictional.md). A generic or fictional row
+   relevant rows. For historical/generic/fictional research, classify by resolution
+   step in [generic-and-fictional.md](generic-and-fictional.md). A generic or fictional row
    is not by itself a correct skip: only an item whose identity and class are both
-   unknowable is. Armor rows are never a correct skip, since every one of them is
-   expected to end up in a category.
+   unknowable is. Armor and mecha rows are never a correct skip;
+   every one is expected to end up in a category.
 4. Validate ammo groups in both directions: every selectable shell has each intended
-   `AddToAmmoGroup`, and every gun, AA gun, vehicle, or aircraft consumer has exact
+   `AddToAmmoGroup`, and every gun, AA gun or driveable consumer has exact
    matching `UseAmmoGroup`. Check duplicate ammunition after combining groups.
    For every `RemoveAmmo`, confirm the named short name really reaches that weapon,
    that removing it is a repair or a deliberate narrowing rather than a way of
@@ -143,28 +147,16 @@ After every category edit:
    pairing: ammunition `MuzzleVelocity` / `BulletSpeed` wins when present; gun
    velocity remains a compatible fallback. Autocannon belts, shells, and missiles
    require ammunition velocity.
-7. Validate mandatory properties against the applicable domain reference: every
-   categorized gun and AA gun that fires ammunition has nonzero `RoundsPerMin` and
-   `Dispersion` (a melee-only gun needs neither), and every
-   researched, game-sourced, or invented fallback is identified; AA-gun mass/health
-   opt-in and multi-barrel cadence; ammunition mass/gravity and shell/missile
-   statistics; every explosive
-   grenade's and bomb's nonzero `ExplosiveMassTNTg`/`ExplosiveMassTNTKg`, with a bomb's
-   `FragType` taken from casing construction, its `Mass` authored as the complete
-   filled store, and any authored `Fuse` justified as a real timed function rather
-   than an arming delay; complete vehicle
-   propulsion, armour/turret/track sets; complete aircraft
-   mass/power/speed/span/area/climb; quoted realistic-weapon/health flags for
-   driveables; exactly one weapon-bank cadence key per bank that has no gun mount,
-   and none on a bank that has one; marine craft additionally carrying `DriveType MARINE`, a full-load
-   displacement, an astern speed, `RealDraftM`, and naval rather than hull armour
-   keys; and the five mandatory armor properties with their slot, coverage,
-   and tier-table checks from `armor.md`.
+7. Validate mandatory fields and resolved values using only the applicable domain
+   reference: weapons/ammunition, vehicles/aircraft, ships, armor or mechas.
+   Armor uses fixed slot/coverage tables; mechas use chassis tables and preserve
+   collision geometry. Neither uses the generic/fictional real-item ceiling.
 8. Recheck configuration consistency and every value based only on a game, broad
    reference, conversion, approximation, neighboring face, or sibling variant.
    Preserve provenance for the final report.
 9. Confirm category ordering and scan all category files for conflicting assignments of
-   affected short names: two categories may share an item, but not a property. For generic and fictional categories, also
+   affected short names: two categories may share an item, but not a property.
+   For generic and fictional categories other than armor/mechas, also
    run the additional checks in
    [generic-and-fictional.md](generic-and-fictional.md): marker suffix, no collision
    with a historical label, exemplar traceability, energy-round damage read from the calibration ladder, and
@@ -184,11 +176,11 @@ For a classification batch, report:
 - number of new categories per JSON file;
 - number of newly covered short names;
 - identifiable historical items left unresolved and why;
-- generic and fictional items, broken down by the resolution step they reached, and
+- generic and fictional items (excluding armor/mechas), by resolution step, and
   the additional report items required by `generic-and-fictional.md`;
-- unsupported or otherwise intentionally skipped items, excluding armor, where
+- unsupported or otherwise intentionally skipped items, excluding armor and mechas, where
   nothing is intentionally skipped;
-- for armor batches, the additional report items required by `armor.md`;
+- for armor/mecha batches, the additional report items in `armor.md` / `mechas.md`;
 - principal primary and specialist sources;
 - values relying on broad/game/weak fallbacks or a neighboring configuration;
 - conversions, RHAe values, inferred belts, copied armour faces, final-resort

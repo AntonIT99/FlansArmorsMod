@@ -74,6 +74,15 @@ class DriveableTypeRealWorldPhysicsTest
         assertEquals(8D, plane("Model Spitfire").getResolvedPhysics().movementClampBlocksPerTick());
     }
 
+    @Test
+    void aMechaCanReadRealMaximumSpeedWithoutActivatingACoupledPropulsionProfile()
+    {
+        MechaType type = mecha("MoveSpeed 9", "RealMaxSpeedKmh 22");
+        assertEquals(22F, type.getRealWorldSpec().maxSpeedKmh());
+        assertEquals(EnumVehiclePhysicsMode.LEGACY, type.getResolvedPhysics().mode());
+        assertEquals(EnumVehicleCategory.OTHER, type.getResolvedPhysics().category());
+    }
+
     // ---------------------------------------------------- complete profiles
 
     @Test
@@ -213,6 +222,13 @@ class DriveableTypeRealWorldPhysicsTest
     {
         PlaneType type = new PlaneType();
         type.read(file(EnumType.PLANE, "testPlane", lines));
+        return type;
+    }
+
+    private static MechaType mecha(String... lines)
+    {
+        MechaType type = new MechaType();
+        type.read(file(EnumType.MECHA, "testMecha", lines));
         return type;
     }
 

@@ -28,6 +28,28 @@ public final class DriveableControlPhysics
         return Math.round(clamp(throttle, -1F, 1F) * 100F);
     }
 
+    /**
+     * Centres an engine's authored pitch span on normal pitch and moves across it with throttle
+     * magnitude. Reverse therefore revs the engine without ever producing a negative pitch.
+     */
+    public static float engineSoundPitch(float throttle, float pitchRange)
+    {
+        float safeRange = Float.isFinite(pitchRange) ? Math.max(0F, pitchRange) : 0F;
+        float magnitude = Float.isFinite(throttle) ? clamp(Math.abs(throttle), 0F, 1F) : 0F;
+        return clamp(1F - safeRange * 0.5F + magnitude * safeRange, 0.01F, 2F);
+    }
+
+    /** Moves a brake-held throttle lever toward neutral without snapping it there. */
+    public static float brakedThrottle(float throttle, float step)
+    {
+        if (!Float.isFinite(throttle))
+            return 0F;
+        float amount = Float.isFinite(step) ? Math.max(0F, step) : 0F;
+        if (throttle > 0F)
+            return Math.max(0F, throttle - amount);
+        return Math.min(0F, throttle + amount);
+    }
+
     /** Signed propulsion after applying the configured forward / reverse / water power. */
     public static float directionalPropulsion(float throttle, float forwardPower, float reversePower,
                                                float waterPower, boolean inWater)

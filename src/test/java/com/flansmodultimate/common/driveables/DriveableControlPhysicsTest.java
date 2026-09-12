@@ -9,6 +9,14 @@ class DriveableControlPhysicsTest
     private static final float EPSILON = 1.0E-6F;
 
     @Test
+    void engineToggleIsAValidatedEdgeTriggeredIntent()
+    {
+        assertEquals(DriveableInput.TOGGLE_ENGINE, DriveableInput.sanitize(DriveableInput.TOGGLE_ENGINE));
+        assertTrue(DriveableInput.isDown(DriveableInput.EDGE_TRIGGERED_MASK, DriveableInput.TOGGLE_ENGINE));
+        assertFalse(DriveableInput.isDown(DriveableInput.CONTINUOUS_MASK, DriveableInput.TOGGLE_ENGINE));
+    }
+
+    @Test
     void throttleIsNormalizedIndependentlyOfConfiguredPropulsion()
     {
         assertEquals(1F, DriveableControlPhysics.normalizedThrottle(8F, 0F), EPSILON);
@@ -27,6 +35,25 @@ class DriveableControlPhysicsTest
         assertEquals(100, DriveableControlPhysics.throttlePercent(4F));
         assertEquals(-100, DriveableControlPhysics.throttlePercent(-4F));
         assertEquals(0, DriveableControlPhysics.throttlePercent(Float.NaN));
+    }
+
+    @Test
+    void enginePitchUsesThrottleMagnitudeAcrossTheConfiguredRange()
+    {
+        assertEquals(0.6F, DriveableControlPhysics.engineSoundPitch(0F, 0.8F), EPSILON);
+        assertEquals(1F, DriveableControlPhysics.engineSoundPitch(0.5F, 0.8F), EPSILON);
+        assertEquals(1.4F, DriveableControlPhysics.engineSoundPitch(1F, 0.8F), EPSILON);
+        assertEquals(1.4F, DriveableControlPhysics.engineSoundPitch(-1F, 0.8F), EPSILON);
+        assertEquals(1F, DriveableControlPhysics.engineSoundPitch(1F, 0F), EPSILON);
+    }
+
+    @Test
+    void brakingBleedsThrottleTowardNeutralWithoutCrossingIt()
+    {
+        assertEquals(0.92F, DriveableControlPhysics.brakedThrottle(1F, 0.08F), EPSILON);
+        assertEquals(-0.12F, DriveableControlPhysics.brakedThrottle(-0.2F, 0.08F), EPSILON);
+        assertEquals(0F, DriveableControlPhysics.brakedThrottle(0.04F, 0.08F), EPSILON);
+        assertEquals(0F, DriveableControlPhysics.brakedThrottle(-0.04F, 0.08F), EPSILON);
     }
 
     @Test

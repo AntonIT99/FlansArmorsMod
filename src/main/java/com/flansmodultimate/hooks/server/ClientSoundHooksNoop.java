@@ -16,7 +16,7 @@ public class ClientSoundHooksNoop implements IClientSoundHooks
         /* no-op */
     }
 
-    public void setLoopingEntitySound(Entity source, String channel, @Nullable String sound, float range)
+    public void setLoopingEntitySound(Entity source, String channel, @Nullable String sound, float range, float pitchRange)
     {
         /* no-op */
     }

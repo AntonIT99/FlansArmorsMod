@@ -115,6 +115,15 @@ class LegacyPlanePhysicsTest
     }
 
     @Test
+    void activeEngineKeepsPropellersAtAVisualIdle()
+    {
+        assertEquals(0F, LegacyPlanePhysics.engineAnimationThrottle(false, 0.7F, 0.08F), EPSILON);
+        assertEquals(0.08F, LegacyPlanePhysics.engineAnimationThrottle(true, 0F, 0.08F), EPSILON);
+        assertEquals(-0.08F, LegacyPlanePhysics.engineAnimationThrottle(true, -0.03F, 0.08F), EPSILON);
+        assertEquals(0.4F, LegacyPlanePhysics.engineAnimationThrottle(true, 0.4F, 0.08F), EPSILON);
+    }
+
+    @Test
     void rotorTracksThrottleLinearlyAndFollowsItsSign()
     {
         assertEquals(65.4809F, LegacyPlanePhysics.rotorStep(1F), 1.0E-3F);

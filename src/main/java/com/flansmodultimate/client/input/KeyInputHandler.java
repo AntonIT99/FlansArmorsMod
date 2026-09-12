@@ -83,6 +83,7 @@ public final class KeyInputHandler
     private static final KeyMapping secondaryAlternativeKey = key("driveable.secondary_alternative", InputConstants.UNKNOWN.getValue(), EnumKeyConflictContext.DRIVEABLE, CATEGORY_DRIVEABLES);
     private static final KeyMapping changeSeatKey = key("driveable.change_seat", InputConstants.KEY_NUMPAD0, EnumKeyConflictContext.DRIVEABLE, CATEGORY_DRIVEABLES);
     private static final KeyMapping doorKey = key("driveable.door", InputConstants.KEY_K, EnumKeyConflictContext.DRIVEABLE, CATEGORY_DRIVEABLES);
+    private static final KeyMapping engineKey = key("driveable.engine", InputConstants.KEY_SEMICOLON, EnumKeyConflictContext.DRIVEABLE, CATEGORY_DRIVEABLES);
     private static final KeyMapping flareKey = key("driveable.flare", InputConstants.KEY_X, EnumKeyConflictContext.DRIVEABLE, CATEGORY_DRIVEABLES);
 
     // Ground vehicles and mechas. These default to the vanilla movement keys so
@@ -121,13 +122,13 @@ public final class KeyInputHandler
         preferredAmmoKey, secondaryModeKey, increaseZoomKey, decreaseZoomKey);
 
     private static final List<KeyMapping> DRIVEABLE_BINDS = List.of(driveableInventoryKey, driveablePlayerInventoryKey,
-        primaryKey, primaryAlternativeKey, secondaryKey, secondaryAlternativeKey, changeSeatKey, doorKey, flareKey);
+        primaryKey, primaryAlternativeKey, secondaryKey, secondaryAlternativeKey, changeSeatKey, doorKey, engineKey, flareKey);
     /** Binds that claim their key while the player is at the controls of an aircraft. */
     private static final List<KeyMapping> AIRCRAFT_BINDS = List.of(pitchDownKey, pitchUpKey,
         yawLeftKey, yawRightKey, rollLeftKey, rollRightKey, throttleUpKey, throttleDownKey,
         controlModeKey, gearKey, modeKey,
         driveableInventoryKey, primaryKey, primaryAlternativeKey, secondaryKey, secondaryAlternativeKey,
-        changeSeatKey, doorKey, flareKey, driveablePlayerInventoryKey);
+        changeSeatKey, doorKey, engineKey, flareKey, driveablePlayerInventoryKey);
     /** Binds that claim their key while the player is at the controls of anything else. */
     private static final List<KeyMapping> GROUND_BINDS = List.of(driveForwardKey, driveBackwardKey,
         steerLeftKey, steerRightKey, brakeKey, driveableInventoryKey, primaryKey, primaryAlternativeKey,
@@ -136,13 +137,13 @@ public final class KeyInputHandler
     private static final List<KeyMapping> VEHICLE_BINDS = List.of(driveForwardKey, driveBackwardKey,
         steerLeftKey, steerRightKey, brakeKey, decreaseVehicleThrottleKey, increaseVehicleThrottleKey,
         driveableInventoryKey, primaryKey, primaryAlternativeKey, secondaryKey, secondaryAlternativeKey,
-        changeSeatKey, doorKey, flareKey, driveablePlayerInventoryKey);
+        changeSeatKey, doorKey, engineKey, flareKey, driveablePlayerInventoryKey);
     /**
      * Binds read with consumeClick. Forge gates isDown on the conflict context
      * but not consumeClick, so a press made outside the context stays queued and
      * would fire the moment the player mounts. These are drained instead.
      */
-    private static final List<KeyMapping> CLICK_BINDS = List.of(driveableInventoryKey, changeSeatKey, doorKey,
+    private static final List<KeyMapping> CLICK_BINDS = List.of(driveableInventoryKey, changeSeatKey, doorKey, engineKey,
         flareKey, controlModeKey, gearKey, modeKey, driveablePlayerInventoryKey);
 
     private static final int[] LEGACY_KEYS = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18};
@@ -189,6 +190,7 @@ public final class KeyInputHandler
         event.register(secondaryAlternativeKey);
         event.register(changeSeatKey);
         event.register(doorKey);
+        event.register(engineKey);
         event.register(flareKey);
         event.register(driveForwardKey);
         event.register(driveBackwardKey);
@@ -462,6 +464,8 @@ public final class KeyInputHandler
             if (changeSeatKey.consumeClick()) edgeMask |= DriveableInput.CHANGE_SEAT;
             if (gearKey.consumeClick()) edgeMask |= DriveableInput.TOGGLE_GEAR;
             if (doorKey.consumeClick()) edgeMask |= DriveableInput.TOGGLE_DOOR;
+            if (engineKey.consumeClick() && (driveable instanceof Vehicle || driveable instanceof Plane))
+                edgeMask |= DriveableInput.TOGGLE_ENGINE;
             if (modeKey.consumeClick()) edgeMask |= DriveableInput.TOGGLE_MODE;
             if (flareKey.consumeClick()) edgeMask |= DriveableInput.FLARE;
             if (controlModeKey.consumeClick() && ModClient.tryToggleDriveableControlMode(player, driveable))

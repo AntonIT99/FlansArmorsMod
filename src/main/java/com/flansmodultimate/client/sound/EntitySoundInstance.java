@@ -1,12 +1,12 @@
 package com.flansmodultimate.client.sound;
 
 import com.flansmodultimate.client.SoundHelper;
+import com.flansmodultimate.common.driveables.DriveableControlPhysics;
 import com.flansmodultimate.common.entity.Driveable;
 
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 
@@ -20,12 +20,14 @@ import net.minecraft.world.entity.Entity;
 public class EntitySoundInstance extends AbstractTickableSoundInstance
 {
     private final Entity source;
+    private float pitchRange;
     private boolean stopRequested;
 
-    public EntitySoundInstance(SoundEvent soundEvent, Entity source, float range, boolean looping)
+    public EntitySoundInstance(SoundEvent soundEvent, Entity source, float range, boolean looping, float pitchRange)
     {
         super(soundEvent, SoundSource.PLAYERS, RandomSource.create());
         this.source = source;
+        this.pitchRange = pitchRange;
         this.looping = looping;
         delay = 0;
         volume = SoundHelper.getVolumeFromRange(range, false);
@@ -51,6 +53,11 @@ public class EntitySoundInstance extends AbstractTickableSoundInstance
         return getLocation().getPath().equals(sound);
     }
 
+    public void setPitchRange(float pitchRange)
+    {
+        this.pitchRange = pitchRange;
+    }
+
     @Override
     public void tick()
     {
@@ -62,7 +69,7 @@ public class EntitySoundInstance extends AbstractTickableSoundInstance
 
         followSource();
         if (source instanceof Driveable driveable)
-            pitch = 0.5F + Mth.clamp(Math.abs(driveable.getThrottle()), 0F, 1F);
+            pitch = DriveableControlPhysics.engineSoundPitch(driveable.getThrottle(), pitchRange);
     }
 
     private void followSource()

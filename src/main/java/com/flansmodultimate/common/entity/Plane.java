@@ -58,6 +58,8 @@ public class Plane extends Driveable
     private static final int DOOR_CLEARANCE = 3;
     /** Throttle at or below which the legacy plane counted as parked. */
     private static final float PARKED_THROTTLE = 0.05F;
+    /** Visual engine idle speed; it does not contribute thrust or consume throttle-based fuel. */
+    private static final float IDLE_ENGINE_ANIMATION_THROTTLE = 0.08F;
     /** Rudder deflection forced on a SpinWithoutTail plane once its tail is gone. */
     private static final float SPIN_WITHOUT_TAIL_FLAP_YAW = 15F;
 
@@ -355,11 +357,10 @@ public class Plane extends Driveable
     {
         prevPropellerAngle = propellerAngle;
         prevRotorAngle = rotorAngle;
-        // Blades stand still on standby: the legacy plane advanced them only
-        // while the throttle was actually open.
-        float throttle = getThrottle();
-        propellerAngle = Mth.wrapDegrees(propellerAngle + LegacyPlanePhysics.propellerStep(throttle));
-        rotorAngle = Mth.wrapDegrees(rotorAngle + LegacyPlanePhysics.rotorStep(throttle));
+        float animationThrottle = LegacyPlanePhysics.engineAnimationThrottle(isEngineActive(), getThrottle(),
+            IDLE_ENGINE_ANIMATION_THROTTLE);
+        propellerAngle = Mth.wrapDegrees(propellerAngle + LegacyPlanePhysics.propellerStep(animationThrottle));
+        rotorAngle = Mth.wrapDegrees(rotorAngle + LegacyPlanePhysics.rotorStep(animationThrottle));
         prevFlapYaw = flapYaw;
         prevFlapPitchLeft = flapPitchLeft;
         prevFlapPitchRight = flapPitchRight;
@@ -400,7 +401,7 @@ public class Plane extends Driveable
     private void updateThrottle(PlaneType type)
     {
         boolean occupied = getControllingEntity() != null;
-        boolean powered = occupied && hasFuelForEngine() && hasWorkingPropeller(type);
+        boolean powered = occupied && isEngineActive() && hasWorkingPropeller(type);
         float throttle = getThrottle();
         // Holding the lever moves it progressively faster; a tap is still the
         // authored fine step. Released or reversed, the ramp starts over.

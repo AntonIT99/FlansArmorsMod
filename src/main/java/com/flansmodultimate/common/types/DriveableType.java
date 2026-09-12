@@ -62,6 +62,8 @@ public class DriveableType extends PaintableType implements IAmmoGroupUser, IAmm
 {
     /** Legacy default rate applied when a weapon bank states neither a rate nor a delay. */
     private static final float DEFAULT_ROUNDS_PER_MIN = 60F;
+    /** Slightly narrower than the former hard-coded 0.5-to-1.5 engine pitch sweep. */
+    public static final float DEFAULT_ENGINE_SOUND_PITCH_RANGE = 0.8F;
 
     protected final Map<EnumDriveablePart, CollisionBox> health = new EnumMap<>(EnumDriveablePart.class);
     /** Original, unscaled definitions retained so repeated finalization is idempotent. */
@@ -190,9 +192,12 @@ public class DriveableType extends PaintableType implements IAmmoGroupUser, IAmm
     protected int startSoundRange = 50;
     protected String startSound = StringUtils.EMPTY;
     protected int startSoundLength;
+    protected String startEngineSound = StringUtils.EMPTY;
+    protected int startEngineSoundLength = 20;
     protected int engineSoundRange = 50;
     protected String engineSound = StringUtils.EMPTY;
     protected int engineSoundLength;
+    protected float engineSoundPitchRange = DEFAULT_ENGINE_SOUND_PITCH_RANGE;
     protected int backSoundRange = 50;
     protected String exitSound = StringUtils.EMPTY;
     protected int exitSoundLength = 50;
@@ -714,9 +719,13 @@ public class DriveableType extends PaintableType implements IAmmoGroupUser, IAmm
     {
         startSoundRange = readValue("StartSoundRange", startSoundRange, file);
         startSoundLength = readSoundLength("StartSoundLength", startSoundLength, file);
+        startEngineSoundLength = readSoundLength("StartEngineSoundLength", startEngineSoundLength, file);
         engineSoundRange = readValue("EngineSoundRange", engineSoundRange, file);
         engineSoundLength = readSoundLength("EngineSoundLength", engineSoundLength, file);
+        float configuredPitchRange = readValue("EngineSoundPitchRange", engineSoundPitchRange, file);
+        engineSoundPitchRange = Float.isFinite(configuredPitchRange) ? Math.max(0F, configuredPitchRange) : 0F;
         idleSoundLength = readSoundLength("IdleSoundLength", idleSoundLength, file);
+        idleSoundLength = readSoundLength("IdleEngineSoundLength", idleSoundLength, file);
         exitSoundLength = readSoundLength("ExitSoundLength", exitSoundLength, file);
         backSoundRange = readValue("BackSoundRange", backSoundRange, file);
         backSoundLength = readSoundLength("BackSoundLength", backSoundLength, file);
@@ -731,8 +740,9 @@ public class DriveableType extends PaintableType implements IAmmoGroupUser, IAmm
             driver.setPitchSound(readSound("PitchSound", driver.getPitchSound(), file));
         }
         startSound = readSound("StartSound", startSound, file);
+        startEngineSound = readSound("StartEngineSound", startEngineSound, file);
         engineSound = readSound("EngineSound", engineSound, file);
-        idleSound = readSound("IdleSound", idleSound, file);
+        idleSound = aliasSound(idleSound, file, "IdleSound", "IdleEngineSound");
         exitSound = readSound("ExitSound", exitSound, file);
         backSound = readSound("BackSound", backSound, file);
         shootSoundPrimary = aliasSound(shootSoundPrimary, file, "ShootMainSound", "BombSound", "ShootSoundPrimary", "ShellSound");
@@ -748,6 +758,7 @@ public class DriveableType extends PaintableType implements IAmmoGroupUser, IAmm
         flareSound = readSound("FlareSound", flareSound, file);
 
         registerSoundTimer("StartSoundLength", () -> startSound, () -> startSoundLength, length -> startSoundLength = length);
+        registerSoundTimer("StartEngineSoundLength", () -> startEngineSound, () -> startEngineSoundLength, length -> startEngineSoundLength = length);
         registerSoundTimer("EngineSoundLength", () -> engineSound, () -> engineSoundLength, length -> engineSoundLength = length);
         registerSoundTimer("IdleSoundLength", () -> idleSound, () -> idleSoundLength, length -> idleSoundLength = length);
         registerSoundTimer("ExitSoundLength", () -> exitSound, () -> exitSoundLength, length -> exitSoundLength = length);

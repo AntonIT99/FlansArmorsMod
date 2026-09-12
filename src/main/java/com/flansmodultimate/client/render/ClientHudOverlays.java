@@ -791,7 +791,10 @@ public final class ClientHudOverlays
 
         int throttlePercent = DriveableControlPhysics.throttlePercent(driveable.getThrottle());
         double speed = ModClientConfig.get().driveableSpeedUnit.convert(driveable.getDeltaMovement().length() * 20D);
-        g.drawString(font, Component.translatable("hud.flansmodultimate.driveable.throttle", throttlePercent),
+        Component throttleText = driveable.isEngineActive()
+            ? Component.translatable("hud.flansmodultimate.driveable.throttle", throttlePercent)
+            : Component.translatable("hud.flansmodultimate.driveable.engine_off");
+        g.drawString(font, throttleText,
             LEGACY_HUD_LEFT, y, HUD_WHITE, false);
         y += LEGACY_HUD_LINE_HEIGHT;
         g.drawString(font, Component.translatable("hud.flansmodultimate.driveable.speed",

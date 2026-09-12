@@ -50,6 +50,16 @@ public final class LegacyPlanePhysics
                 * (180D / Math.PI));
     }
 
+    /** Supplies a small visual idle speed while the engine is active, without affecting thrust. */
+    public static float engineAnimationThrottle(boolean engineActive, float throttle, float idleThrottle)
+    {
+        if (!engineActive)
+            return 0F;
+        float value = finite(throttle);
+        float idle = Math.abs(finite(idleThrottle));
+        return Math.abs(value) < idle ? Math.copySign(idle, value == 0F ? 1F : value) : value;
+    }
+
     /** Degrees a rotor turns in one tick. Unlike the propeller this is linear and signed. */
     public static float rotorStep(float throttle)
     {

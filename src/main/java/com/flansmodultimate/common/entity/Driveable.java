@@ -150,6 +150,7 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
     public static final String NBT_MODE = "driveable_mode";
     public static final String NBT_OWNER = "driveable_owner";
     public static final String NBT_LOCKED = "driveable_locked";
+    public static final String NBT_ENGINE_REQUESTED = "engine_requested";
     public static final String NBT_ENGINE_START_TICKS = "engine_start_ticks";
     public static final String NBT_PRIMARY_SHOOT_DELAY = "primary_shoot_delay";
     public static final String NBT_SECONDARY_SHOOT_DELAY = "secondary_shoot_delay";
@@ -309,7 +310,10 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
     protected int lockOnSoundDelay;
     protected int underWaterCheckTick = Integer.MIN_VALUE;
     protected boolean underWaterCached;
-    protected boolean wasEngineRequested;
+    protected boolean engineRequested;
+    protected boolean engineStarting;
+    protected boolean driverWasPresent;
+    protected boolean wasEngineActive;
     protected boolean placementEffectsPending;
     protected boolean destroyed;
     protected boolean suppressDrops;
@@ -359,7 +363,10 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
             collisionHelper.unregister();
         collisionHelper = new DriveableCollisionHelper(type.getCollisionProfile());
         getPersistentData().putBoolean("CanMountEntity", type.isCanMountEntity());
-        engineStartTicks = Math.max(0, type.getEngineStartTime());
+        engineStartTicks = 0;
+        engineRequested = false;
+        engineStarting = false;
+        driverWasPresent = false;
         placementEffectsPending = !level().isClientSide;
         recoilTicksRemaining = 0;
         recoilDuration = 0;
@@ -739,12 +746,15 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         setThrottle(tag.getFloat(NBT_THROTTLE));
         setTurretAim(tag.getFloat(NBT_TURRET_YAW), tag.getFloat(NBT_TURRET_PITCH));
         entityData.set(DATA_FLAGS, tag.contains(NBT_FLAGS) ? tag.getInt(NBT_FLAGS) : FLAG_GEAR);
+        engineRequested = tag.contains(NBT_ENGINE_REQUESTED, Tag.TAG_BYTE)
+            ? tag.getBoolean(NBT_ENGINE_REQUESTED) : isEngineActive();
         setDriveableMode(tag.getInt(NBT_MODE));
         if (tag.hasUUID(NBT_OWNER))
             ownerId = tag.getUUID(NBT_OWNER);
         locked = tag.getBoolean(NBT_LOCKED);
         if (tag.contains(NBT_ENGINE_START_TICKS, Tag.TAG_INT))
             engineStartTicks = Math.max(0, tag.getInt(NBT_ENGINE_START_TICKS));
+        engineStarting = engineRequested && !isEngineActive() && engineStartTicks > 0;
         setPrimaryShootDelay(tag.contains(NBT_PRIMARY_SHOOT_DELAY, Tag.TAG_INT)
             ? Math.max(0, tag.getInt(NBT_PRIMARY_SHOOT_DELAY)) : 0);
         setSecondaryShootDelay(tag.contains(NBT_SECONDARY_SHOOT_DELAY, Tag.TAG_INT)
@@ -799,6 +809,7 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         if (ownerId != null)
             tag.putUUID(NBT_OWNER, ownerId);
         tag.putBoolean(NBT_LOCKED, locked);
+        tag.putBoolean(NBT_ENGINE_REQUESTED, engineRequested);
         tag.putInt(NBT_ENGINE_START_TICKS, Math.max(0, engineStartTicks));
         tag.putInt(NBT_PRIMARY_SHOOT_DELAY, Math.max(0, primaryShootDelay));
         tag.putInt(NBT_SECONDARY_SHOOT_DELAY, Math.max(0, secondaryShootDelay));
@@ -1074,14 +1085,44 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
     {
         if (configType == null)
             return;
+        boolean occupied = getControllingEntity() != null;
+        if (occupied && !driverWasPresent)
+            engineRequested = true;
+        else if (!occupied && driverWasPresent)
+        {
+            engineRequested = false;
+            engineStarting = false;
+            engineStartTicks = 0;
+            setThrottle(0F);
+        }
+        driverWasPresent = occupied;
+
         boolean flooded = isUnderWater() && !configType.isWorksUnderWater();
         if (flooded)
             setThrottle(0F);
+        boolean canStart = occupied && !flooded && hasFuelForEngine();
+        if (!engineRequested || !canStart)
+        {
+            setFlag(FLAG_ENGINE, false);
+            engineStarting = false;
+            engineStartTicks = 0;
+            return;
+        }
+
+        if (isEngineActive())
+            return;
+        if (!engineStarting)
+        {
+            engineStarting = true;
+            engineStartTicks = Math.max(0, configType.getEngineStartTime());
+        }
         if (engineStartTicks > 0)
             --engineStartTicks;
-        boolean occupied = getControllingEntity() != null;
-        boolean ready = occupied && !flooded && hasFuelForEngine() && engineStartTicks <= 0;
-        setFlag(FLAG_ENGINE, ready);
+        if (engineStartTicks <= 0)
+        {
+            engineStarting = false;
+            setFlag(FLAG_ENGINE, true);
+        }
     }
 
     protected void tickWeapons()
@@ -2181,29 +2222,35 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         if (configType == null)
             return;
 
-        boolean ready = isEngineActive() && getControllingEntity() != null;
-        boolean requested = ready && Math.abs(getThrottle()) > 0.001F;
+        boolean active = isEngineActive() && getControllingEntity() != null;
+        boolean throttled = active && Math.abs(getThrottle()) > 0.001F;
 
         if (startSoundTicks > 0)
             --startSoundTicks;
 
-        if (requested && !wasEngineRequested && StringUtils.isNotBlank(configType.getStartSound()))
+        if (active && !wasEngineActive && StringUtils.isNotBlank(configType.getStartEngineSound()))
         {
-            ClientHooks.SOUND.playEntitySound(this, configType.getStartSound(), Math.max(1, configType.getStartSoundRange()));
-            startSoundTicks = Math.max(1, configType.getStartSoundLength());
+            ClientHooks.SOUND.playEntitySound(this, configType.getStartEngineSound(), Math.max(1, configType.getStartSoundRange()));
+            startSoundTicks = Math.max(1, configType.getStartEngineSoundLength());
         }
-        wasEngineRequested = requested;
+        if (!active)
+            startSoundTicks = 0;
+        wasEngineActive = active;
 
         // The engine and idle loops share a channel because they never play together, so switching
         // between them replaces the running loop instead of layering a second one on top.
         String engineLoop = null;
         if (startSoundTicks <= 0)
-            engineLoop = requested ? configType.getEngineSound() : (ready ? configType.getIdleSound() : null);
+            engineLoop = throttled ? configType.getEngineSound()
+                : (active ? StringUtils.firstNonBlank(configType.getIdleSound(), configType.getStartSound()) : null);
 
-        ClientHooks.SOUND.setLoopingEntitySound(this, SOUND_CHANNEL_ENGINE, engineLoop, Math.max(1, configType.getEngineSoundRange()));
+        float pitchRange = throttled ? configType.getEngineSoundPitchRange() : 0F;
+        ClientHooks.SOUND.setLoopingEntitySound(this, SOUND_CHANNEL_ENGINE, engineLoop,
+            Math.max(1, configType.getEngineSoundRange()), pitchRange);
 
-        String reverseLoop = ready && getThrottle() < -0.05F ? configType.getBackSound() : null;
-        ClientHooks.SOUND.setLoopingEntitySound(this, SOUND_CHANNEL_REVERSE, reverseLoop, Math.max(1, configType.getBackSoundRange()));
+        String reverseLoop = active && getThrottle() < -0.05F ? configType.getBackSound() : null;
+        ClientHooks.SOUND.setLoopingEntitySound(this, SOUND_CHANNEL_REVERSE, reverseLoop,
+            Math.max(1, configType.getBackSoundRange()), 0F);
     }
 
     protected void updateRiderVisibility()
@@ -2750,6 +2797,8 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
             toggleDoor(player);
         if (DriveableInput.isDown(rising, DriveableInput.TOGGLE_MODE))
             toggleDriveableMode(player);
+        if (DriveableInput.isDown(rising, DriveableInput.TOGGLE_ENGINE))
+            toggleEngine();
         if (DriveableInput.isDown(rising, DriveableInput.TRIM))
             setOrientation(getYaw(), 0F, 0F);
         if (DriveableInput.isDown(rising, DriveableInput.FLARE))
@@ -2780,6 +2829,24 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
     protected void toggleDriveableMode(@NotNull Player player)
     {
         setDriveableMode(Math.floorMod(getDriveableMode() + 1, 2));
+    }
+
+    /** Applies a driver's engine intent; fuel and environment checks remain server-authoritative. */
+    protected void toggleEngine()
+    {
+        if (!(this instanceof Vehicle || this instanceof Plane))
+            return;
+        boolean occupied = getControllingEntity() != null;
+        boolean currentlyRequested = engineRequested || occupied && !driverWasPresent;
+        engineRequested = !currentlyRequested;
+        driverWasPresent = occupied;
+        engineStarting = false;
+        engineStartTicks = 0;
+        if (!engineRequested)
+        {
+            setFlag(FLAG_ENGINE, false);
+            setThrottle(0F);
+        }
     }
 
     protected void deployFlare()
@@ -3348,6 +3415,8 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
     protected void emitConfiguredParticles()
     {
         if (configType == null || (configType.isEmittersRequireOccupant() && !hasDriveableOccupant()))
+            return;
+        if ((this instanceof Vehicle || this instanceof Plane) && !isEngineActive())
             return;
         configType.getEmitters().forEach(emitter -> {
             if (tickCount % emitter.getEmitRate() != 0 || !isPartIntact(emitter.getPart()))

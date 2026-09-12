@@ -40,6 +40,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true, onlyExplicitlyIncluded = true)
 public class Vehicle extends Driveable
 {
+    /** Brake pedal throttle bleed per tick; full demand reaches neutral in about two thirds of a second. */
+    private static final float BRAKE_THROTTLE_STEP = 0.08F;
     @Getter protected float wheelYaw;
     @Getter protected float prevWheelYaw;
     @Getter protected float wheelAngle;
@@ -201,8 +203,6 @@ public class Vehicle extends Driveable
         {
             Vec3 desired = forward.scale(targetSpeed);
             velocity = new Vec3(Mth.lerp(grip, current.x, desired.x), current.y, Mth.lerp(grip, current.z, desired.z));
-            if (braking)
-                velocity = velocity.multiply(0.55D, 1D, 0.55D);
         }
         velocity = applyVehicleVerticalPhysics(velocity, type);
         double descent = velocity.y;
@@ -282,7 +282,7 @@ public class Vehicle extends Driveable
     {
         int input = getInputMask();
         float throttle = getThrottle();
-        boolean canControl = getControllingEntity() != null && hasFuelForEngine();
+        boolean canControl = getControllingEntity() != null && isEngineActive();
         boolean braking = DriveableInput.isDown(input, DriveableInput.BRAKE | DriveableInput.ASCEND);
         boolean pedalInput = DriveableInput.isDown(input, DriveableInput.FORWARD | DriveableInput.BACKWARD);
         fixedThrottle = DriveableControlPhysics.fixedVehicleThrottle(fixedThrottle, canControl, braking, input);
@@ -329,7 +329,7 @@ public class Vehicle extends Driveable
                 throttle -= leverStep * (throttle > 0F ? type.getBrakingModifier() : 1F);
         }
         if (braking)
-            throttle = 0F;
+            throttle = DriveableControlPhysics.brakedThrottle(throttle, BRAKE_THROTTLE_STEP);
         else if (type.isTank() && Math.abs(throttle) < 0.3F && Math.abs(axis(input, DriveableInput.RIGHT, DriveableInput.LEFT)) > 0F)
             throttle += Math.max(0F, type.getClutchBrake());
         else if (throttleDecayDelay > 0)

@@ -30,15 +30,18 @@ class OggDurationReaderTest
         assertEquals(OptionalInt.of(60), OggDurationReader.readDurationTicks(file));
     }
 
+    /**
+     * A sound repeated on the last tick it is still playing overlaps itself inaudibly, while one
+     * repeated a tick late leaves an audible gap, so a part tick is always dropped.
+     */
     @Test
-    void roundsToTheNearestTick() throws IOException
+    void truncatesPartTicksRatherThanRoundingUp() throws IOException
     {
-        // 2.52 seconds is 50.4 ticks, 2.53 seconds is 50.6 ticks.
-        Path roundedDown = writeOggFile("rounded_down.ogg", SAMPLE_RATE, (long)(SAMPLE_RATE * 2.52));
-        Path roundedUp = writeOggFile("rounded_up.ogg", SAMPLE_RATE, (long)(SAMPLE_RATE * 2.53));
+        Path justOver = writeOggFile("just_over.ogg", SAMPLE_RATE, (long)(SAMPLE_RATE * 2.51));
+        Path justUnder = writeOggFile("just_under.ogg", SAMPLE_RATE, (long)(SAMPLE_RATE * 2.99));
 
-        assertEquals(OptionalInt.of(50), OggDurationReader.readDurationTicks(roundedDown));
-        assertEquals(OptionalInt.of(51), OggDurationReader.readDurationTicks(roundedUp));
+        assertEquals(OptionalInt.of(50), OggDurationReader.readDurationTicks(justOver));
+        assertEquals(OptionalInt.of(59), OggDurationReader.readDurationTicks(justUnder));
     }
 
     @Test

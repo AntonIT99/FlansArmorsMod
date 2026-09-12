@@ -133,7 +133,7 @@ class SoundLengthIndexTest
 
         Path indexFile = tempDir.resolve(SoundLengthIndex.FILE_NAME);
         SoundLengthIndex.generate(soundsDir, indexFile);
-        Files.writeString(indexFile, Files.readString(indexFile).replace("\"version\": 1", "\"version\": 0"));
+        Files.writeString(indexFile, Files.readString(indexFile).replaceFirst("\"version\": \\d+", "\"version\": 0"));
 
         assertTrue(SoundLengthIndex.isOutdated(soundsDir, indexFile));
     }

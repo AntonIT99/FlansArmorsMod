@@ -1,10 +1,10 @@
 {
-  "version": 1,
+  "version": 2,
   "sounds": {
     "bullet1.ogg": {
       "key": "bullet1",
       "size": 8794,
-      "ticks": 8
+      "ticks": 7
     },
     "bullet2.ogg": {
       "key": "bullet2",
@@ -14,7 +14,7 @@
     "bullet3.ogg": {
       "key": "bullet3",
       "size": 10285,
-      "ticks": 9
+      "ticks": 8
     },
     "bullet4.ogg": {
       "key": "bullet4",
@@ -34,7 +34,7 @@
     "bulletair3.ogg": {
       "key": "bulletair3",
       "size": 6291,
-      "ticks": 4
+      "ticks": 3
     },
     "bulletair4.ogg": {
       "key": "bulletair4",
@@ -54,37 +54,37 @@
     "bulletair7.ogg": {
       "key": "bulletair7",
       "size": 6373,
-      "ticks": 4
+      "ticks": 3
     },
     "defaultshellinsert.ogg": {
       "key": "defaultshellinsert",
       "size": 12555,
-      "ticks": 11
+      "ticks": 10
     },
     "emptyclick.ogg": {
       "key": "emptyclick",
       "size": 12726,
-      "ticks": 10
+      "ticks": 9
     },
     "impact_bricks-01.ogg": {
       "key": "impact_bricks-01",
       "size": 15416,
-      "ticks": 17
+      "ticks": 16
     },
     "impact_bricks-02.ogg": {
       "key": "impact_bricks-02",
       "size": 19106,
-      "ticks": 21
+      "ticks": 20
     },
     "impact_bricks-03.ogg": {
       "key": "impact_bricks-03",
       "size": 19934,
-      "ticks": 24
+      "ticks": 23
     },
     "impact_bricks-04.ogg": {
       "key": "impact_bricks-04",
       "size": 19246,
-      "ticks": 22
+      "ticks": 21
     },
     "impact_bricks-05.ogg": {
       "key": "impact_bricks-05",
@@ -94,27 +94,27 @@
     "impact_dirt-01.ogg": {
       "key": "impact_dirt-01",
       "size": 13670,
-      "ticks": 16
+      "ticks": 15
     },
     "impact_dirt-02.ogg": {
       "key": "impact_dirt-02",
       "size": 14011,
-      "ticks": 16
+      "ticks": 15
     },
     "impact_dirt-03.ogg": {
       "key": "impact_dirt-03",
       "size": 13623,
-      "ticks": 16
+      "ticks": 15
     },
     "impact_dirt-04.ogg": {
       "key": "impact_dirt-04",
       "size": 14071,
-      "ticks": 16
+      "ticks": 15
     },
     "impact_glass-01.ogg": {
       "key": "impact_glass-01",
       "size": 15310,
-      "ticks": 15
+      "ticks": 14
     },
     "impact_glass-02.ogg": {
       "key": "impact_glass-02",
@@ -134,7 +134,7 @@
     "impact_glass-05.ogg": {
       "key": "impact_glass-05",
       "size": 12075,
-      "ticks": 15
+      "ticks": 14
     },
     "impact_metal-01.ogg": {
       "key": "impact_metal-01",
@@ -144,12 +144,12 @@
     "impact_metal-02.ogg": {
       "key": "impact_metal-02",
       "size": 10665,
-      "ticks": 12
+      "ticks": 11
     },
     "impact_metal-03.ogg": {
       "key": "impact_metal-03",
       "size": 12325,
-      "ticks": 15
+      "ticks": 14
     },
     "impact_metal-04.ogg": {
       "key": "impact_metal-04",
@@ -159,7 +159,7 @@
     "impact_metal-05.ogg": {
       "key": "impact_metal-05",
       "size": 12437,
-      "ticks": 15
+      "ticks": 14
     },
     "impact_rock-01.ogg": {
       "key": "impact_rock-01",
@@ -184,7 +184,7 @@
     "impact_water-01.ogg": {
       "key": "impact_water-01",
       "size": 17721,
-      "ticks": 25
+      "ticks": 24
     },
     "impact_water-02.ogg": {
       "key": "impact_water-02",
@@ -194,7 +194,7 @@
     "impact_water-03.ogg": {
       "key": "impact_water-03",
       "size": 12646,
-      "ticks": 20
+      "ticks": 19
     },
     "impact_water-04.ogg": {
       "key": "impact_water-04",
@@ -209,12 +209,12 @@
     "impact_wood-01.ogg": {
       "key": "impact_wood-01",
       "size": 19283,
-      "ticks": 19
+      "ticks": 18
     },
     "impact_wood-02.ogg": {
       "key": "impact_wood-02",
       "size": 16221,
-      "ticks": 17
+      "ticks": 16
     },
     "impact_wood-03.ogg": {
       "key": "impact_wood-03",
@@ -229,7 +229,7 @@
     "impact_wood-05.ogg": {
       "key": "impact_wood-05",
       "size": 16241,
-      "ticks": 16
+      "ticks": 15
     },
     "skullboss_laugh.ogg": {
       "key": "skullboss_laugh",
@@ -239,7 +239,7 @@
     "skullboss_spawn.ogg": {
       "key": "skullboss_spawn",
       "size": 28972,
-      "ticks": 50
+      "ticks": 49
     },
     "unlocknotch.ogg": {
       "key": "unlocknotch",

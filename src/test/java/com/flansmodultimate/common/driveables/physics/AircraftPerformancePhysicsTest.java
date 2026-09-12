@@ -193,6 +193,18 @@ class AircraftPerformancePhysicsTest
     }
 
     @Test
+    void controlsRetainArcadeAuthorityAtLowSpeed()
+    {
+        double terminal = VehiclePhysicsUnits.kmhToBlocksPerTick(635D, 1D);
+        assertEquals(0.5F, AircraftPerformancePhysics.normalizedControlAuthority(
+            terminal * VehiclePhysicsConstants.FULL_CONTROL_AUTHORITY_SPEED_FRACTION * 0.5D, terminal), 1.0E-6F);
+        assertEquals(1F, AircraftPerformancePhysics.normalizedControlAuthority(
+            terminal * VehiclePhysicsConstants.FULL_CONTROL_AUTHORITY_SPEED_FRACTION, terminal), 1.0E-6F);
+        assertEquals(1F, AircraftPerformancePhysics.normalizedControlAuthority(terminal * 0.25D, terminal),
+            1.0E-6F, "reduced-throttle flight should retain full control authority");
+    }
+
+    @Test
     void manoeuvresBleedSpeedAndYawCostsMoreThanRoll()
     {
         assertEquals(0D, AircraftPerformancePhysics.maneuverDecelerationMs2(100D, 0F, 0F, 0F), 1.0E-9D);

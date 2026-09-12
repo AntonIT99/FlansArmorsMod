@@ -9,6 +9,8 @@ public final class LegacyPlanePhysics
 {
     public static final float GRAVITY = 0.98F / 10F;
     public static final float MAX_FLAP_ANGLE = 20F;
+    /** Blocks per tick at which legacy fixed-wing aircraft gain full control authority. */
+    public static final float FULL_CONTROL_AUTHORITY_SPEED = 0.2F;
     private static final double PROPELLER_FULL_THROTTLE_RADIANS = 1.5D;
     private static final double PROPELLER_THROTTLE_EXPONENT = 0.4D;
     private static final double ROTOR_THROTTLE_DIVISOR = 7D;
@@ -71,11 +73,13 @@ public final class LegacyPlanePhysics
         else
         {
             float safeSpeed = Math.max(0F, finite(speed));
-            sensitivity = safeSpeed < 0.5F ? 0F
-                : safeSpeed < 1F ? 2F * safeSpeed - 1F
+            sensitivity = safeSpeed < FULL_CONTROL_AUTHORITY_SPEED
+                ? safeSpeed / FULL_CONTROL_AUTHORITY_SPEED
+                : safeSpeed < 1F ? 1F
                 : safeSpeed < 3F ? 1.5F - safeSpeed * 0.5F : 0F;
             float divisor = (float)Math.sqrt(Math.max(1.0E-4F, finite(turnRight)));
-            yawSensitivity = horizontalSpeed < 0.7F ? 2.5F * safeSpeed / divisor : sensitivity;
+            yawSensitivity = horizontalSpeed < 0.7F
+                ? Math.max(sensitivity, 2.5F * safeSpeed / divisor) : sensitivity;
         }
         sensitivity *= 0.125F;
         yawSensitivity *= 0.125F;
@@ -100,8 +104,8 @@ public final class LegacyPlanePhysics
      * degrees per second; a real aircraft rolls fastest, pitches more slowly and
      * yaws slowest, because the rudder is the smallest surface.
      *
-     * <p>The legacy method is left exactly as it was; legacy aircraft never
-     * reach this one.
+     * <p>Legacy aircraft use a comparable arcade-biased control curve expressed
+     * in absolute blocks per tick; they never reach this normalized method.
      */
     public static ControlRates derivedControlRates(float authority, float flapYaw, float flapPitch, float flapRoll,
                                                    float turnLeft, float turnRight, float lookUp, float lookDown,

@@ -57,6 +57,22 @@ class LegacyPlanePhysicsTest
     }
 
     @Test
+    void legacyFixedWingControlsReachFullAuthorityAtLowSpeed()
+    {
+        var half = LegacyPlanePhysics.controlRates(EnumPlaneMode.PLANE,
+            LegacyPlanePhysics.FULL_CONTROL_AUTHORITY_SPEED * 0.5F, 0F, 1F,
+            0F, 10F, 10F, 1F, 1F, 1F, 1F, 1F, 1F);
+        var full = LegacyPlanePhysics.controlRates(EnumPlaneMode.PLANE,
+            LegacyPlanePhysics.FULL_CONTROL_AUTHORITY_SPEED, 0F, 1F,
+            0F, 10F, 10F, 1F, 1F, 1F, 1F, 1F, 1F);
+        assertEquals(full.yaw() * 0.5F, half.yaw(), EPSILON);
+        assertEquals(full.pitch() * 0.5F, half.pitch(), EPSILON);
+        assertEquals(full.roll() * 0.5F, half.roll(), EPSILON);
+        assertEquals(1.25F, full.pitch(), EPSILON);
+        assertEquals(1.25F, full.roll(), EPSILON);
+    }
+
+    @Test
     void legacyPowerIsConvertedToPerTickThrustOnce()
     {
         assertEquals(0.09F, LegacyPlanePhysics.thrust(1F, 8F, 0F, 0F, 1F, false), EPSILON);
@@ -136,4 +152,5 @@ class LegacyPlanePhysicsTest
             0F, deflection, deflection, deflection, 1F, 1F, 1F, 1F, 1F, 1F);
         assertEquals(0F, none.roll(), 1.0E-6F);
     }
+
 }

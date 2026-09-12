@@ -140,6 +140,13 @@ public final class VehiclePhysicsConstants
     public static final float DERIVED_YAW_AUTHORITY_SCALE = 1.2F;
 
     /**
+     * Fraction of terminal speed at which the control axes reach full authority.
+     * The short ramp preserves an inert standstill while making ordinary
+     * reduced-throttle flight fully controllable for arcade handling.
+     */
+    public static final double FULL_CONTROL_AUTHORITY_SPEED_FRACTION = 0.1D;
+
+    /**
      * Manoeuvre-drag weights applied to actual body-axis angular rates. Yaw is
      * most expensive because it presents the fuselage to the airflow, pitch
      * follows, and roll is cheapest while still carrying a measurable induced

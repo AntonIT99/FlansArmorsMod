@@ -58,6 +58,7 @@ import com.flansmodultimate.common.types.ShootableType;
 import com.flansmodultimate.common.types.VehicleType;
 import com.flansmodultimate.config.ModCommonConfig;
 import com.flansmodultimate.event.GunFiredEvent;
+import com.flansmodultimate.hooks.ClientHooks;
 import com.flansmodultimate.network.PacketHandler;
 import com.flansmodultimate.network.client.PacketDriveableDamage;
 import com.flansmodultimate.network.client.PacketDriveableRenderState;
@@ -169,6 +170,10 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
     protected static final int FLAG_WING = 1 << 2;
     protected static final int FLAG_FLARE = 1 << 3;
     protected static final int FLAG_ENGINE = 1 << 4;
+
+    /** Looping sound channels this vehicle drives on the client. */
+    protected static final String SOUND_CHANNEL_ENGINE = "engine";
+    protected static final String SOUND_CHANNEL_REVERSE = "reverse";
     protected static final int FLAG_IT1_CAN_FIRE = 1 << 5;
     protected static final int FLAG_IT1_RELOADING = 1 << 6;
     /** Countermeasures have finished deploying but are not ready to fire again. */
@@ -294,9 +299,8 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
     protected int ticksSinceUsed;
     protected int markerTicks;
     protected int proxyCheckTicker;
-    protected int engineSoundTimer;
-    protected int idleSoundTimer;
-    protected int reverseSoundTimer;
+    /** Counts down while the start sound plays, holding the engine loop back until it has finished. */
+    protected int startSoundTicks;
     protected int engineStartTicks;
     protected int recoilTicksRemaining;
     protected int recoilDuration;
@@ -305,8 +309,6 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
     protected int lockOnSoundDelay;
     protected int underWaterCheckTick = Integer.MIN_VALUE;
     protected boolean underWaterCached;
-    protected boolean wasEngineActive;
-    protected boolean engineRequested;
     protected boolean wasEngineRequested;
     protected boolean placementEffectsPending;
     protected boolean destroyed;
@@ -926,6 +928,7 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
 
         if (level().isClientSide)
         {
+            tickEngineSounds();
             tickClientDriveable();
             if (collisionHelper != null)
                 collisionHelper.tick(this);
@@ -973,7 +976,6 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         tickWeapons();
         updateCurrentAmmoNames();
         tickWeaponAnimations();
-        tickSounds();
         previousInputMask = getInputMask();
         for (Seat seat : seats)
         {
@@ -1079,7 +1081,6 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
             --engineStartTicks;
         boolean occupied = getControllingEntity() != null;
         boolean ready = occupied && !flooded && hasFuelForEngine() && engineStartTicks <= 0;
-        engineRequested = ready && Math.abs(getThrottle()) > 0.001F;
         setFlag(FLAG_ENGINE, ready);
     }
 
@@ -2165,42 +2166,44 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
         }
     }
 
-    protected void tickSounds()
+    /**
+     * Runs the engine sounds on the client, where they can be looped by the sound engine and follow
+     * the vehicle.
+     * <p>
+     * Sending a fresh sound from the server once per repetition, as this used to do, left the sound
+     * behind at the position the vehicle had when the packet was sent, and started each repetition a
+     * network round trip late, so a moving vehicle could outrun its own engine sound. Everything this
+     * needs is already synchronised: {@link #isEngineActive()} carries {@code FLAG_ENGINE} and
+     * {@link #getThrottle()} its own data value, so the client reaches the same state on its own.
+     */
+    protected void tickEngineSounds()
     {
         if (configType == null)
             return;
-        boolean occupied = getControllingEntity() != null;
-        boolean ready = isEngineActive() && occupied;
-        boolean active = ready && engineRequested;
-        if (engineSoundTimer > 0)
-            --engineSoundTimer;
-        if (idleSoundTimer > 0)
-            --idleSoundTimer;
-        if (reverseSoundTimer > 0)
-            --reverseSoundTimer;
 
-        if (engineRequested && !wasEngineRequested && StringUtils.isNotBlank(configType.getStartSound()))
+        boolean ready = isEngineActive() && getControllingEntity() != null;
+        boolean requested = ready && Math.abs(getThrottle()) > 0.001F;
+
+        if (startSoundTicks > 0)
+            --startSoundTicks;
+
+        if (requested && !wasEngineRequested && StringUtils.isNotBlank(configType.getStartSound()))
         {
-            PacketPlaySound.sendSoundPacket(this, Math.max(1, configType.getStartSoundRange()), configType.getStartSound(), false);
-            engineSoundTimer = Math.max(engineSoundTimer, Math.max(1, configType.getStartSoundLength()));
+            ClientHooks.SOUND.playEntitySound(this, configType.getStartSound(), Math.max(1, configType.getStartSoundRange()));
+            startSoundTicks = Math.max(1, configType.getStartSoundLength());
         }
-        if (active && engineSoundTimer <= 0 && StringUtils.isNotBlank(configType.getEngineSound()))
-        {
-            PacketPlaySound.sendSoundPacket(this, Math.max(1, configType.getEngineSoundRange()), configType.getEngineSound(), true);
-            engineSoundTimer = Math.max(1, configType.getEngineSoundLength());
-        }
-        if (ready && !engineRequested && engineSoundTimer <= 0 && idleSoundTimer <= 0 && StringUtils.isNotBlank(configType.getIdleSound()))
-        {
-            PacketPlaySound.sendSoundPacket(this, Math.max(1, configType.getEngineSoundRange()), configType.getIdleSound(), false);
-            idleSoundTimer = Math.max(1, configType.getIdleSoundLength());
-        }
-        if (ready && getThrottle() < -0.05F && reverseSoundTimer <= 0 && StringUtils.isNotBlank(configType.getBackSound()))
-        {
-            PacketPlaySound.sendSoundPacket(this, Math.max(1, configType.getBackSoundRange()), configType.getBackSound(), false);
-            reverseSoundTimer = Math.max(1, configType.getBackSoundLength());
-        }
-        wasEngineActive = active;
-        wasEngineRequested = engineRequested;
+        wasEngineRequested = requested;
+
+        // The engine and idle loops share a channel because they never play together, so switching
+        // between them replaces the running loop instead of layering a second one on top.
+        String engineLoop = null;
+        if (startSoundTicks <= 0)
+            engineLoop = requested ? configType.getEngineSound() : (ready ? configType.getIdleSound() : null);
+
+        ClientHooks.SOUND.setLoopingEntitySound(this, SOUND_CHANNEL_ENGINE, engineLoop, Math.max(1, configType.getEngineSoundRange()));
+
+        String reverseLoop = ready && getThrottle() < -0.05F ? configType.getBackSound() : null;
+        ClientHooks.SOUND.setLoopingEntitySound(this, SOUND_CHANNEL_REVERSE, reverseLoop, Math.max(1, configType.getBackSoundRange()));
     }
 
     protected void updateRiderVisibility()

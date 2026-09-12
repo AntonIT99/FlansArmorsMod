@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "sounds": {
     "152mmshoot.ogg": {
       "key": "152mmshoot",
@@ -9,7 +9,7 @@
     "88mmshoot.ogg": {
       "key": "88mmshoot",
       "size": 45144,
-      "ticks": 260
+      "ticks": 259
     },
     "aafire.ogg": {
       "key": "aafire",
@@ -34,7 +34,7 @@
     "boltgun_fire2.ogg": {
       "key": "boltgun_fire2",
       "size": 11215,
-      "ticks": 21
+      "ticks": 20
     },
     "boltgun_reload.ogg": {
       "key": "boltgun_reload",
@@ -44,7 +44,7 @@
     "bomb.ogg": {
       "key": "bomb",
       "size": 8023,
-      "ticks": 8
+      "ticks": 7
     },
     "browningreload.ogg": {
       "key": "browningreload",
@@ -59,12 +59,12 @@
     "bullet.ogg": {
       "key": "bullet",
       "size": 11025,
-      "ticks": 14
+      "ticks": 13
     },
     "bullethit.ogg": {
       "key": "bullethit",
       "size": 11025,
-      "ticks": 14
+      "ticks": 13
     },
     "chainsword_idle.ogg": {
       "key": "chainsword_idle",
@@ -84,12 +84,12 @@
     "cylonblaster_fire.ogg": {
       "key": "cylonblaster_fire",
       "size": 7001,
-      "ticks": 9
+      "ticks": 8
     },
     "engine.ogg": {
       "key": "engine",
       "size": 14198,
-      "ticks": 23
+      "ticks": 22
     },
     "flak.ogg": {
       "key": "flak",
@@ -114,7 +114,7 @@
     "grenadelaunchershoot.ogg": {
       "key": "grenadelaunchershoot",
       "size": 10676,
-      "ticks": 13
+      "ticks": 12
     },
     "helo.ogg": {
       "key": "helo",
@@ -124,7 +124,7 @@
     "imperiallaser_fire.ogg": {
       "key": "imperiallaser_fire",
       "size": 9364,
-      "ticks": 11
+      "ticks": 10
     },
     "lancasterprop.ogg": {
       "key": "lancasterprop",
@@ -134,7 +134,7 @@
     "lasgun_fire.ogg": {
       "key": "lasgun_fire",
       "size": 17298,
-      "ticks": 22
+      "ticks": 21
     },
     "laspistol_fire.ogg": {
       "key": "laspistol_fire",
@@ -144,7 +144,7 @@
     "lightsaber_idle.ogg": {
       "key": "lightsaber_idle",
       "size": 18378,
-      "ticks": 15
+      "ticks": 14
     },
     "lightsaber_swing.ogg": {
       "key": "lightsaber_swing",
@@ -154,7 +154,7 @@
     "lkw_lauf.ogg": {
       "key": "lkw_lauf",
       "size": 29762,
-      "ticks": 121
+      "ticks": 120
     },
     "lkw_start.ogg": {
       "key": "lkw_start",
@@ -164,7 +164,7 @@
     "m1887reload.ogg": {
       "key": "m1887reload",
       "size": 65391,
-      "ticks": 101
+      "ticks": 100
     },
     "m1887shoot.ogg": {
       "key": "m1887shoot",
@@ -179,12 +179,12 @@
     "mg42shoot.ogg": {
       "key": "mg42shoot",
       "size": 15654,
-      "ticks": 11
+      "ticks": 10
     },
     "mp44reload.ogg": {
       "key": "mp44reload",
       "size": 16207,
-      "ticks": 54
+      "ticks": 53
     },
     "planeshoot.ogg": {
       "key": "planeshoot",
@@ -199,17 +199,17 @@
     "propstart.ogg": {
       "key": "propstart",
       "size": 18167,
-      "ticks": 29
+      "ticks": 28
     },
     "rebellaser_fire.ogg": {
       "key": "rebellaser_fire",
       "size": 7608,
-      "ticks": 5
+      "ticks": 4
     },
     "rocketfire1.ogg": {
       "key": "rocketfire1",
       "size": 13614,
-      "ticks": 19
+      "ticks": 18
     },
     "rocketfire2.ogg": {
       "key": "rocketfire2",
@@ -239,7 +239,7 @@
     "tank4shoot.ogg": {
       "key": "tank4shoot",
       "size": 42124,
-      "ticks": 70
+      "ticks": 69
     },
     "tankidle.ogg": {
       "key": "tankidle",
@@ -254,17 +254,17 @@
     "tankshell.ogg": {
       "key": "tankshell",
       "size": 9126,
-      "ticks": 8
+      "ticks": 7
     },
     "turbolaser.ogg": {
       "key": "turbolaser",
       "size": 7007,
-      "ticks": 9
+      "ticks": 8
     },
     "turbolaser_fire.ogg": {
       "key": "turbolaser_fire",
       "size": 7007,
-      "ticks": 9
+      "ticks": 8
     },
     "viper.ogg": {
       "key": "viper",

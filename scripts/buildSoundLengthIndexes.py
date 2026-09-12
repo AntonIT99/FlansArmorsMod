@@ -5,7 +5,7 @@ The packs bundled in this repository are never reprocessed, so their index is ge
 committed alongside the sound files.
 
 The output must stay identical to what com.flansmodultimate.util.SoundLengthIndex writes, so the
-parsing, the rounding and the JSON layout below mirror that class.
+parsing, the tick arithmetic and the JSON layout below mirror that class.
 
 Usage:
     python scripts/buildSoundLengthIndexes.py            regenerate every index
@@ -14,7 +14,6 @@ Usage:
 
 import argparse
 import json
-import math
 import re
 import sys
 from pathlib import Path
@@ -25,7 +24,7 @@ ASSETS_GLOB = "src/*/resources/assets/flansmod"
 SOUNDS_FOLDER_NAME = "sounds"
 INDEX_FILE_NAME = "sound-lengths.json"
 
-FORMAT_VERSION = 1
+FORMAT_VERSION = 2
 TICKS_PER_SECOND = 20
 TICKS_UNKNOWN = 0
 
@@ -90,8 +89,9 @@ def read_duration_ticks(file: Path) -> int:
     if total_samples <= 0:
         return TICKS_UNKNOWN
 
-    # Matches Java's Math.round, which rounds halves up rather than to even.
-    ticks = math.floor(total_samples * TICKS_PER_SECOND / sample_rate + 0.5)
+    # Integer division, matching Java. Truncating makes a repeated sound overlap itself
+    # inaudibly rather than leave an audible gap.
+    ticks = total_samples * TICKS_PER_SECOND // sample_rate
     return max(1, min(ticks, 2 ** 31 - 1))
 
 

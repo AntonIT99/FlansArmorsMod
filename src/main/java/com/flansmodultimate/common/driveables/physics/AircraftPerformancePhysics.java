@@ -275,10 +275,10 @@ public final class AircraftPerformancePhysics
      * to its own terminal speed, replacing the legacy fixed breakpoints at 0.5, 1
      * and 3 blocks per tick.
      *
-     * <p>Authority builds from zero at a standstill, peaks around a third of
-     * terminal speed where the aircraft is most manoeuvrable, and tapers at high
-     * speed as control surfaces load up. Unlike the legacy curve it never reaches
-     * zero at speed, which is what made fast aircraft uncontrollable.
+     * <p>Authority builds quickly from zero at a standstill, reaches full strength
+     * at a tenth of terminal speed, remains there through the low-speed range,
+     * and tapers at high speed as control surfaces load up. Unlike the legacy
+     * curve it never reaches zero at speed, which made fast aircraft uncontrollable.
      */
     public static float normalizedControlAuthority(double airspeedBlocksPerTick, double terminalBlocksPerTick)
     {
@@ -286,8 +286,10 @@ public final class AircraftPerformancePhysics
             return 0F;
         double ratio = Math.max(0D, airspeedBlocksPerTick) / terminalBlocksPerTick;
         double authority;
-        if (ratio <= 0.35D)
-            authority = ratio / 0.35D;
+        if (ratio <= VehiclePhysicsConstants.FULL_CONTROL_AUTHORITY_SPEED_FRACTION)
+            authority = ratio / VehiclePhysicsConstants.FULL_CONTROL_AUTHORITY_SPEED_FRACTION;
+        else if (ratio <= 0.35D)
+            authority = 1D;
         else
             authority = 1D - 0.55D * Math.min(1D, (ratio - 0.35D) / 0.65D);
         return (float) Math.max(0D, Math.min(1D, authority));

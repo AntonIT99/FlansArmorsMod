@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "sounds": {
     "bazookareload.ogg": {
       "key": "bazookareload",
@@ -9,22 +9,22 @@
     "blaster.ogg": {
       "key": "blaster",
       "size": 14722,
-      "ticks": 20
+      "ticks": 19
     },
     "bullet.ogg": {
       "key": "bullet",
       "size": 5463,
-      "ticks": 2
+      "ticks": 1
     },
     "dc15shoot.ogg": {
       "key": "dc15shoot",
       "size": 11658,
-      "ticks": 16
+      "ticks": 15
     },
     "dc17shoot.ogg": {
       "key": "dc17shoot",
       "size": 19740,
-      "ticks": 18
+      "ticks": 17
     },
     "dc19shoot.ogg": {
       "key": "dc19shoot",
@@ -34,7 +34,7 @@
     "detonator.ogg": {
       "key": "detonator",
       "size": 23478,
-      "ticks": 22
+      "ticks": 21
     },
     "detonator_explosion.ogg": {
       "key": "detonator_explosion",
@@ -49,7 +49,7 @@
     "e5shoot.ogg": {
       "key": "e5shoot",
       "size": 22347,
-      "ticks": 24
+      "ticks": 23
     },
     "flamethrower.ogg": {
       "key": "flamethrower",
@@ -64,7 +64,7 @@
     "lightsaber_idle.ogg": {
       "key": "lightsaber_idle",
       "size": 18378,
-      "ticks": 15
+      "ticks": 14
     },
     "lightsaber_swing.ogg": {
       "key": "lightsaber_swing",
@@ -74,12 +74,12 @@
     "lugerreload.ogg": {
       "key": "lugerreload",
       "size": 51196,
-      "ticks": 118
+      "ticks": 117
     },
     "mg34shoot.ogg": {
       "key": "mg34shoot",
       "size": 17656,
-      "ticks": 17
+      "ticks": 16
     },
     "mg42reload.ogg": {
       "key": "mg42reload",
@@ -109,7 +109,7 @@
     "miniuzishoot.ogg": {
       "key": "miniuzishoot",
       "size": 10919,
-      "ticks": 14
+      "ticks": 13
     },
     "moabdelay.ogg": {
       "key": "moabdelay",
@@ -124,12 +124,12 @@
     "reload1.ogg": {
       "key": "reload1",
       "size": 25533,
-      "ticks": 19
+      "ticks": 18
     },
     "rifle.ogg": {
       "key": "rifle",
       "size": 10625,
-      "ticks": 42
+      "ticks": 41
     },
     "stg44shoot.ogg": {
       "key": "stg44shoot",
@@ -139,7 +139,7 @@
     "z6blastercooldown.ogg": {
       "key": "z6blastercooldown",
       "size": 19940,
-      "ticks": 23
+      "ticks": 22
     },
     "z6blastershoot.ogg": {
       "key": "z6blastershoot",

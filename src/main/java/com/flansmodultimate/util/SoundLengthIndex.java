@@ -37,7 +37,7 @@ public final class SoundLengthIndex
     public static final String FILE_NAME = "sound-lengths.json";
 
     /** Bumped whenever the layout below changes, which makes every existing index regenerate. */
-    private static final int FORMAT_VERSION = 1;
+    private static final int FORMAT_VERSION = 2;
 
     private static final String FIELD_VERSION = "version";
     private static final String FIELD_SOUNDS = "sounds";

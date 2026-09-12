@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "sounds": {
     "20mmplane.ogg": {
       "key": "20mmplane",
@@ -14,32 +14,32 @@
     "57mmgun.ogg": {
       "key": "57mmgun",
       "size": 70226,
-      "ticks": 76
+      "ticks": 75
     },
     "75mmgun.ogg": {
       "key": "75mmgun",
       "size": 108900,
-      "ticks": 113
+      "ticks": 112
     },
     "88mmgun.ogg": {
       "key": "88mmgun",
       "size": 170390,
-      "ticks": 279
+      "ticks": 278
     },
     "90mm.ogg": {
       "key": "90mm",
       "size": 42641,
-      "ticks": 45
+      "ticks": 44
     },
     "aa12reload.ogg": {
       "key": "aa12reload",
       "size": 16207,
-      "ticks": 54
+      "ticks": 53
     },
     "aa12shoot.ogg": {
       "key": "aa12shoot",
       "size": 193374,
-      "ticks": 77
+      "ticks": 76
     },
     "aafire.ogg": {
       "key": "aafire",
@@ -54,12 +54,12 @@
     "adar15shoot.ogg": {
       "key": "adar15shoot",
       "size": 181016,
-      "ticks": 72
+      "ticks": 71
     },
     "ak47shoot.ogg": {
       "key": "ak47shoot",
       "size": 188943,
-      "ticks": 72
+      "ticks": 71
     },
     "ak74shoot.ogg": {
       "key": "ak74shoot",
@@ -69,7 +69,7 @@
     "alarmtrapdetonate.ogg": {
       "key": "alarmtrapdetonate",
       "size": 1854882,
-      "ticks": 639
+      "ticks": 638
     },
     "ammobagplace.ogg": {
       "key": "ammobagplace",
@@ -99,7 +99,7 @@
     "at4shoot.ogg": {
       "key": "at4shoot",
       "size": 85760,
-      "ticks": 41
+      "ticks": 40
     },
     "b4crossbowreload.ogg": {
       "key": "b4crossbowreload",
@@ -124,7 +124,7 @@
     "barshoot.ogg": {
       "key": "barshoot",
       "size": 49427,
-      "ticks": 51
+      "ticks": 50
     },
     "bazookareload.ogg": {
       "key": "bazookareload",
@@ -139,12 +139,12 @@
     "beartrap.ogg": {
       "key": "beartrap",
       "size": 16221,
-      "ticks": 16
+      "ticks": 15
     },
     "bomb.ogg": {
       "key": "bomb",
       "size": 8023,
-      "ticks": 8
+      "ticks": 7
     },
     "bow.ogg": {
       "key": "bow",
@@ -174,7 +174,7 @@
     "bullet.ogg": {
       "key": "bullet",
       "size": 11025,
-      "ticks": 14
+      "ticks": 13
     },
     "bullethit.ogg": {
       "key": "bullethit",
@@ -224,17 +224,17 @@
     "coltshoot.ogg": {
       "key": "coltshoot",
       "size": 25476,
-      "ticks": 25
+      "ticks": 24
     },
     "creeperexplode.ogg": {
       "key": "creeperexplode",
       "size": 29271,
-      "ticks": 57
+      "ticks": 56
     },
     "decoycanisterdetonate.ogg": {
       "key": "decoycanisterdetonate",
       "size": 1777426,
-      "ticks": 635
+      "ticks": 634
     },
     "deserteagleshoot.ogg": {
       "key": "deserteagleshoot",
@@ -289,17 +289,17 @@
     "engine.ogg": {
       "key": "engine",
       "size": 14198,
-      "ticks": 23
+      "ticks": 22
     },
     "executionerreload.ogg": {
       "key": "executionerreload",
       "size": 36519,
-      "ticks": 30
+      "ticks": 29
     },
     "executionershoot.ogg": {
       "key": "executionershoot",
       "size": 238458,
-      "ticks": 85
+      "ticks": 84
     },
     "famasreload.ogg": {
       "key": "famasreload",
@@ -309,12 +309,12 @@
     "famasshoot.ogg": {
       "key": "famasshoot",
       "size": 228714,
-      "ticks": 106
+      "ticks": 105
     },
     "fg42reload.ogg": {
       "key": "fg42reload",
       "size": 18574,
-      "ticks": 67
+      "ticks": 66
     },
     "fg42shoot.ogg": {
       "key": "fg42shoot",
@@ -339,7 +339,7 @@
     "flamethrowercooldown.ogg": {
       "key": "flamethrowercooldown",
       "size": 19031,
-      "ticks": 29
+      "ticks": 28
     },
     "flamethrowerloop.ogg": {
       "key": "flamethrowerloop",
@@ -349,7 +349,7 @@
     "flamethrowerreload.ogg": {
       "key": "flamethrowerreload",
       "size": 18574,
-      "ticks": 67
+      "ticks": 66
     },
     "flamethrowershoot.ogg": {
       "key": "flamethrowershoot",
@@ -364,17 +364,17 @@
     "flaregunreload.ogg": {
       "key": "flaregunreload",
       "size": 20272,
-      "ticks": 16
+      "ticks": 15
     },
     "flaregunshoot.ogg": {
       "key": "flaregunshoot",
       "size": 19938,
-      "ticks": 16
+      "ticks": 15
     },
     "fnscarshoot.ogg": {
       "key": "fnscarshoot",
       "size": 168285,
-      "ticks": 72
+      "ticks": 71
     },
     "fragmentationgrenadedetonate.ogg": {
       "key": "fragmentationgrenadedetonate",
@@ -384,7 +384,7 @@
     "g36shoot.ogg": {
       "key": "g36shoot",
       "size": 224613,
-      "ticks": 106
+      "ticks": 105
     },
     "galilreload.ogg": {
       "key": "galilreload",
@@ -404,7 +404,7 @@
     "gl6reload.ogg": {
       "key": "gl6reload",
       "size": 46329,
-      "ticks": 74
+      "ticks": 73
     },
     "glockshoot.ogg": {
       "key": "glockshoot",
@@ -419,12 +419,12 @@
     "grenadelaunchershoot.ogg": {
       "key": "grenadelaunchershoot",
       "size": 25863,
-      "ticks": 9
+      "ticks": 8
     },
     "grizzlybrshoot.ogg": {
       "key": "grizzlybrshoot",
       "size": 63628,
-      "ticks": 20
+      "ticks": 19
     },
     "guncocking.ogg": {
       "key": "guncocking",
@@ -439,22 +439,22 @@
     "helicopter1.ogg": {
       "key": "helicopter1",
       "size": 36965,
-      "ticks": 93
+      "ticks": 92
     },
     "helicopter2.ogg": {
       "key": "helicopter2",
       "size": 40398,
-      "ticks": 79
+      "ticks": 78
     },
     "helicopterstart.ogg": {
       "key": "helicopterstart",
       "size": 43822,
-      "ticks": 114
+      "ticks": 113
     },
     "honeybadgershoot.ogg": {
       "key": "honeybadgershoot",
       "size": 239321,
-      "ticks": 100
+      "ticks": 99
     },
     "jeepidle.ogg": {
       "key": "jeepidle",
@@ -464,7 +464,7 @@
     "jeepmove.ogg": {
       "key": "jeepmove",
       "size": 22876,
-      "ticks": 61
+      "ticks": 60
     },
     "jetengine1.ogg": {
       "key": "jetengine1",
@@ -474,12 +474,12 @@
     "jetengine2.ogg": {
       "key": "jetengine2",
       "size": 24057,
-      "ticks": 48
+      "ticks": 47
     },
     "jetidle.ogg": {
       "key": "jetidle",
       "size": 120497,
-      "ticks": 170
+      "ticks": 169
     },
     "judgereload.ogg": {
       "key": "judgereload",
@@ -489,12 +489,12 @@
     "juryreload.ogg": {
       "key": "juryreload",
       "size": 54358,
-      "ticks": 92
+      "ticks": 91
     },
     "juryshoot.ogg": {
       "key": "juryshoot",
       "size": 210352,
-      "ticks": 78
+      "ticks": 77
     },
     "kar98kreload.ogg": {
       "key": "kar98kreload",
@@ -504,7 +504,7 @@
     "kar98kshoot.ogg": {
       "key": "kar98kshoot",
       "size": 27140,
-      "ticks": 42
+      "ticks": 41
     },
     "kar98ksniperreload.ogg": {
       "key": "kar98ksniperreload",
@@ -519,7 +519,7 @@
     "kcasmartpistolreload.ogg": {
       "key": "kcasmartpistolreload",
       "size": 20673,
-      "ticks": 65
+      "ticks": 64
     },
     "kcasmartpistolshoot.ogg": {
       "key": "kcasmartpistolshoot",
@@ -544,7 +544,7 @@
     "krissvectorshoot.ogg": {
       "key": "krissvectorshoot",
       "size": 228714,
-      "ticks": 106
+      "ticks": 105
     },
     "l86shoot.ogg": {
       "key": "l86shoot",
@@ -554,7 +554,7 @@
     "l96shoot.ogg": {
       "key": "l96shoot",
       "size": 161314,
-      "ticks": 76
+      "ticks": 75
     },
     "lancasterprop.ogg": {
       "key": "lancasterprop",
@@ -564,7 +564,7 @@
     "leeenfieldreload.ogg": {
       "key": "leeenfieldreload",
       "size": 20673,
-      "ticks": 65
+      "ticks": 64
     },
     "leeenfieldshoot.ogg": {
       "key": "leeenfieldshoot",
@@ -574,7 +574,7 @@
     "longstrikereload.ogg": {
       "key": "longstrikereload",
       "size": 118521,
-      "ticks": 126
+      "ticks": 125
     },
     "longstrikeshoot.ogg": {
       "key": "longstrikeshoot",
@@ -609,7 +609,7 @@
     "m1887reload.ogg": {
       "key": "m1887reload",
       "size": 65391,
-      "ticks": 101
+      "ticks": 100
     },
     "m1887shoot.ogg": {
       "key": "m1887shoot",
@@ -619,7 +619,7 @@
     "m1a2_run.ogg": {
       "key": "m1a2_run",
       "size": 18748,
-      "ticks": 40
+      "ticks": 39
     },
     "m1a2start.ogg": {
       "key": "m1a2start",
@@ -634,7 +634,7 @@
     "m1carbineshoot.ogg": {
       "key": "m1carbineshoot",
       "size": 14790,
-      "ticks": 22
+      "ticks": 21
     },
     "m1garandreload.ogg": {
       "key": "m1garandreload",
@@ -654,12 +654,12 @@
     "m249shoot.ogg": {
       "key": "m249shoot",
       "size": 179523,
-      "ticks": 72
+      "ticks": 71
     },
     "m3a1reload.ogg": {
       "key": "m3a1reload",
       "size": 41709,
-      "ticks": 62
+      "ticks": 61
     },
     "m3a1shoot.ogg": {
       "key": "m3a1shoot",
@@ -669,12 +669,12 @@
     "m4carbinereload.ogg": {
       "key": "m4carbinereload",
       "size": 16207,
-      "ticks": 54
+      "ticks": 53
     },
     "m4carbineshoot.ogg": {
       "key": "m4carbineshoot",
       "size": 20229,
-      "ticks": 33
+      "ticks": 32
     },
     "m60shoot.ogg": {
       "key": "m60shoot",
@@ -684,12 +684,12 @@
     "m9shoot.ogg": {
       "key": "m9shoot",
       "size": 168563,
-      "ticks": 66
+      "ticks": 65
     },
     "makarovshoot.ogg": {
       "key": "makarovshoot",
       "size": 187681,
-      "ticks": 74
+      "ticks": 73
     },
     "mastiffreload.ogg": {
       "key": "mastiffreload",
@@ -699,17 +699,17 @@
     "mastiffshoot.ogg": {
       "key": "mastiffshoot",
       "size": 220488,
-      "ticks": 85
+      "ticks": 84
     },
     "maverickreload.ogg": {
       "key": "maverickreload",
       "size": 95242,
-      "ticks": 123
+      "ticks": 122
     },
     "maverickshoot.ogg": {
       "key": "maverickshoot",
       "size": 30412,
-      "ticks": 30
+      "ticks": 29
     },
     "medicbagplace.ogg": {
       "key": "medicbagplace",
@@ -719,12 +719,12 @@
     "mg34reload.ogg": {
       "key": "mg34reload",
       "size": 59711,
-      "ticks": 89
+      "ticks": 88
     },
     "mg34shoot.ogg": {
       "key": "mg34shoot",
       "size": 29220,
-      "ticks": 36
+      "ticks": 35
     },
     "mg42reload.ogg": {
       "key": "mg42reload",
@@ -734,7 +734,7 @@
     "mg42shoot.ogg": {
       "key": "mg42shoot",
       "size": 9742,
-      "ticks": 11
+      "ticks": 10
     },
     "miniguncooldown.ogg": {
       "key": "miniguncooldown",
@@ -764,17 +764,17 @@
     "mlrs6reload.ogg": {
       "key": "mlrs6reload",
       "size": 46329,
-      "ticks": 74
+      "ticks": 73
     },
     "mlrs6shoot.ogg": {
       "key": "mlrs6shoot",
       "size": 85760,
-      "ticks": 41
+      "ticks": 40
     },
     "mosinnagantshoot.ogg": {
       "key": "mosinnagantshoot",
       "size": 20553,
-      "ticks": 25
+      "ticks": 24
     },
     "mosinnagantsnipershoot.ogg": {
       "key": "mosinnagantsnipershoot",
@@ -784,7 +784,7 @@
     "mp40reload.ogg": {
       "key": "mp40reload",
       "size": 55611,
-      "ticks": 126
+      "ticks": 125
     },
     "mp40shoot.ogg": {
       "key": "mp40shoot",
@@ -799,22 +799,22 @@
     "mp44shoot.ogg": {
       "key": "mp44shoot",
       "size": 37356,
-      "ticks": 34
+      "ticks": 33
     },
     "mp5kreload.ogg": {
       "key": "mp5kreload",
       "size": 14657,
-      "ticks": 32
+      "ticks": 31
     },
     "mp5kshoot.ogg": {
       "key": "mp5kshoot",
       "size": 10643,
-      "ticks": 14
+      "ticks": 13
     },
     "mp5shoot.ogg": {
       "key": "mp5shoot",
       "size": 215065,
-      "ticks": 84
+      "ticks": 83
     },
     "mwbazookareload.ogg": {
       "key": "mwbazookareload",
@@ -824,12 +824,12 @@
     "mwcoltreload.ogg": {
       "key": "mwcoltreload",
       "size": 27551,
-      "ticks": 45
+      "ticks": 44
     },
     "mwlugerreload.ogg": {
       "key": "mwlugerreload",
       "size": 51196,
-      "ticks": 118
+      "ticks": 117
     },
     "mwmp40reload.ogg": {
       "key": "mwmp40reload",
@@ -839,12 +839,12 @@
     "mwmp44reload.ogg": {
       "key": "mwmp44reload",
       "size": 16207,
-      "ticks": 54
+      "ticks": 53
     },
     "mwspringfieldreload.ogg": {
       "key": "mwspringfieldreload",
       "size": 34912,
-      "ticks": 87
+      "ticks": 86
     },
     "mwstenreload.ogg": {
       "key": "mwstenreload",
@@ -854,12 +854,12 @@
     "mwthompsonreload.ogg": {
       "key": "mwthompsonreload",
       "size": 50020,
-      "ticks": 117
+      "ticks": 116
     },
     "nitronreload.ogg": {
       "key": "nitronreload",
       "size": 41464,
-      "ticks": 49
+      "ticks": 48
     },
     "nitronshoot.ogg": {
       "key": "nitronshoot",
@@ -869,7 +869,7 @@
     "p90shoot.ogg": {
       "key": "p90shoot",
       "size": 203600,
-      "ticks": 106
+      "ticks": 105
     },
     "peacekeeperreload.ogg": {
       "key": "peacekeeperreload",
@@ -879,7 +879,7 @@
     "peacekeepershoot.ogg": {
       "key": "peacekeepershoot",
       "size": 240432,
-      "ticks": 85
+      "ticks": 84
     },
     "planeshoot.ogg": {
       "key": "planeshoot",
@@ -894,7 +894,7 @@
     "ppshshoot.ogg": {
       "key": "ppshshoot",
       "size": 23149,
-      "ticks": 31
+      "ticks": 30
     },
     "pr3reload.ogg": {
       "key": "pr3reload",
@@ -909,7 +909,7 @@
     "praxisreload.ogg": {
       "key": "praxisreload",
       "size": 42916,
-      "ticks": 49
+      "ticks": 48
     },
     "praxisshoot.ogg": {
       "key": "praxisshoot",
@@ -924,7 +924,7 @@
     "propstart.ogg": {
       "key": "propstart",
       "size": 18167,
-      "ticks": 29
+      "ticks": 28
     },
     "ptboatidle.ogg": {
       "key": "ptboatidle",
@@ -939,7 +939,7 @@
     "pyragonreload.ogg": {
       "key": "pyragonreload",
       "size": 42508,
-      "ticks": 54
+      "ticks": 53
     },
     "pyragonshoot.ogg": {
       "key": "pyragonshoot",
@@ -949,7 +949,7 @@
     "r700shoot.ogg": {
       "key": "r700shoot",
       "size": 187328,
-      "ticks": 76
+      "ticks": 75
     },
     "r870shoot.ogg": {
       "key": "r870shoot",
@@ -964,7 +964,7 @@
     "raidershoot.ogg": {
       "key": "raidershoot",
       "size": 21591,
-      "ticks": 20
+      "ticks": 19
     },
     "rampagereload.ogg": {
       "key": "rampagereload",
@@ -984,7 +984,7 @@
     "reconshoot.ogg": {
       "key": "reconshoot",
       "size": 35525,
-      "ticks": 36
+      "ticks": 35
     },
     "reload1.ogg": {
       "key": "reload1",
@@ -994,12 +994,12 @@
     "retaliatorreload.ogg": {
       "key": "retaliatorreload",
       "size": 57645,
-      "ticks": 75
+      "ticks": 74
     },
     "retaliatorshoot.ogg": {
       "key": "retaliatorshoot",
       "size": 21331,
-      "ticks": 20
+      "ticks": 19
     },
     "rocket1reload.ogg": {
       "key": "rocket1reload",
@@ -1059,7 +1059,7 @@
     "rpdshoot.ogg": {
       "key": "rpdshoot",
       "size": 191375,
-      "ticks": 72
+      "ticks": 71
     },
     "rpgshoot.ogg": {
       "key": "rpgshoot",
@@ -1079,7 +1079,7 @@
     "shotgunshoot.ogg": {
       "key": "shotgunshoot",
       "size": 15930,
-      "ticks": 40
+      "ticks": 39
     },
     "sigp229shoot.ogg": {
       "key": "sigp229shoot",
@@ -1089,7 +1089,7 @@
     "skorpionshoot.ogg": {
       "key": "skorpionshoot",
       "size": 170907,
-      "ticks": 64
+      "ticks": 63
     },
     "spasreload.ogg": {
       "key": "spasreload",
@@ -1104,12 +1104,12 @@
     "springfieldreload.ogg": {
       "key": "springfieldreload",
       "size": 41336,
-      "ticks": 89
+      "ticks": 88
     },
     "springfieldshoot.ogg": {
       "key": "springfieldshoot",
       "size": 64445,
-      "ticks": 66
+      "ticks": 65
     },
     "stampedereload.ogg": {
       "key": "stampedereload",
@@ -1124,7 +1124,7 @@
     "stenreload.ogg": {
       "key": "stenreload",
       "size": 63251,
-      "ticks": 104
+      "ticks": 103
     },
     "stenshoot.ogg": {
       "key": "stenshoot",
@@ -1139,17 +1139,17 @@
     "stryfereload.ogg": {
       "key": "stryfereload",
       "size": 38547,
-      "ticks": 49
+      "ticks": 48
     },
     "stryfeshoot.ogg": {
       "key": "stryfeshoot",
       "size": 19419,
-      "ticks": 21
+      "ticks": 20
     },
     "tank1shoot.ogg": {
       "key": "tank1shoot",
       "size": 47902,
-      "ticks": 80
+      "ticks": 79
     },
     "tank2shoot.ogg": {
       "key": "tank2shoot",
@@ -1159,12 +1159,12 @@
     "tank3shoot.ogg": {
       "key": "tank3shoot",
       "size": 53433,
-      "ticks": 80
+      "ticks": 79
     },
     "tank4shoot.ogg": {
       "key": "tank4shoot",
       "size": 37115,
-      "ticks": 54
+      "ticks": 53
     },
     "tankidle.ogg": {
       "key": "tankidle",
@@ -1184,7 +1184,7 @@
     "thompsonreload.ogg": {
       "key": "thompsonreload",
       "size": 50020,
-      "ticks": 117
+      "ticks": 116
     },
     "thompsonshoot.ogg": {
       "key": "thompsonshoot",
@@ -1194,7 +1194,7 @@
     "trenchgunreload.ogg": {
       "key": "trenchgunreload",
       "size": 85535,
-      "ticks": 127
+      "ticks": 126
     },
     "trenchgunshoot.ogg": {
       "key": "trenchgunshoot",
@@ -1214,12 +1214,12 @@
     "tt33reload.ogg": {
       "key": "tt33reload",
       "size": 128315,
-      "ticks": 40
+      "ticks": 39
     },
     "tt33shoot.ogg": {
       "key": "tt33shoot",
       "size": 13353,
-      "ticks": 15
+      "ticks": 14
     },
     "turrettraverse1.ogg": {
       "key": "turrettraverse1",
@@ -1229,12 +1229,12 @@
     "turrettraverse2.ogg": {
       "key": "turrettraverse2",
       "size": 28740,
-      "ticks": 39
+      "ticks": 38
     },
     "type100reload.ogg": {
       "key": "type100reload",
       "size": 14240,
-      "ticks": 19
+      "ticks": 18
     },
     "type100shoot.ogg": {
       "key": "type100shoot",
@@ -1244,12 +1244,12 @@
     "type38shoot.ogg": {
       "key": "type38shoot",
       "size": 13640,
-      "ticks": 19
+      "ticks": 18
     },
     "type99shoot.ogg": {
       "key": "type99shoot",
       "size": 40521,
-      "ticks": 54
+      "ticks": 53
     },
     "uspshoot.ogg": {
       "key": "uspshoot",
@@ -1279,7 +1279,7 @@
     "webleyreload.ogg": {
       "key": "webleyreload",
       "size": 56327,
-      "ticks": 107
+      "ticks": 106
     },
     "webleyshoot.ogg": {
       "key": "webleyshoot",
@@ -1289,12 +1289,12 @@
     "winchestermodel70reload.ogg": {
       "key": "winchestermodel70reload",
       "size": 34912,
-      "ticks": 87
+      "ticks": 86
     },
     "winchestermodel70shoot.ogg": {
       "key": "winchestermodel70shoot",
       "size": 19966,
-      "ticks": 36
+      "ticks": 35
     }
   }
 }

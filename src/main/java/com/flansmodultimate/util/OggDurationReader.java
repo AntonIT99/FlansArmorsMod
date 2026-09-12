@@ -47,7 +47,7 @@ public final class OggDurationReader
     private static final Logger log = com.mojang.logging.LogUtils.getLogger();
 
     /**
-     * Reads how many ticks the given Ogg Vorbis file plays for, rounded to the nearest tick.
+     * Reads how many whole ticks the given Ogg Vorbis file plays for, truncated rather than rounded.
      *
      * @param file the {@code .ogg} file to measure
      * @return the length in ticks, at least {@code 1}, or empty when the file is not readable Ogg Vorbis
@@ -68,7 +68,10 @@ public final class OggDurationReader
             if (totalSamples <= 0)
                 return OptionalInt.empty();
 
-            long ticks = Math.round(totalSamples * (double)TICKS_PER_SECOND / sampleRate);
+            // Integer division truncates, which is what a sound timer wants: a sound repeated on the
+            // last tick it is still playing overlaps itself inaudibly, while one repeated a tick late
+            // leaves a gap that is clearly audible in a continuous sound such as an engine.
+            long ticks = totalSamples * TICKS_PER_SECOND / sampleRate;
             return OptionalInt.of((int)Math.max(1L, Math.min(Integer.MAX_VALUE, ticks)));
         }
         catch (IOException e)

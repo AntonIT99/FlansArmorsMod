@@ -151,7 +151,7 @@ public class GunItemHandler
         if (data.getShootTime(hand) > 0F)
             return EnumFireDecision.NO_ACTION;
         if (emptyAmmo)
-            return EnumFireDecision.RELOAD;
+            return ModCommonConfig.reloadOnEmptyFire() ? EnumFireDecision.RELOAD : EnumFireDecision.NO_ACTION;
         if (mode == EnumFireMode.MINIGUN)
             return (data.getMinigunSpeed() >= type.getMinigunStartSpeed()) ? EnumFireDecision.SHOOT : EnumFireDecision.NO_ACTION;
         return EnumFireDecision.SHOOT;

@@ -6,7 +6,7 @@ Initial audit: 2026-09-10. Last updated: 2026-09-12. Direction is strictly refer
 - Target initially audited: `C:/Users/alpha/Documents/Minecraft-Development/Flans-Mod-Ultimate-2.0`, HEAD `08494f8a4972c249feb4e7d8522e981547439c4e`.
 - Sources inspected were the current working trees, not pristine commit snapshots. Existing staged reference texture deletions and the target's unrelated `warfare44/pack_names.json` change were left untouched.
 - Completed findings are removed as they are implemented, so the report remains a backlog rather than a historical snapshot.
-- Remaining: **7 MISSING, 10 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
+- Remaining: **7 MISSING, 9 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
 
 ## Scope and evidence conventions
 
@@ -55,16 +55,6 @@ The target exposes default/per-type enchantability but has no equivalent anvil c
 Missing: The global zero-enchantability rule blocking anvil operations with a second input. Exact vanilla anvil combinations should be verified in-game; source confidence is MEDIUM.
 
 ## Handheld weapons and inventory preferences
-
-### Disabling empty-gun reloads triggered by firing — PARTIAL
-
-Reference: `R/common/guns/ItemGun.java` (empty `bulletStack` branch guarded by `FlansMod.reloadOnRightClick`), `R/common/FlansMod.java`, `R/common/network/PacketModConfig.java`.
-The server can disable automatic reload on an empty firing attempt, requiring the explicit reload key instead. The old option's name mentions right click because that is the legacy fire binding.
-
-Target checked: `T/common/item/GunItem.java#serverTick`, `T/common/item/GunItemHandler.java#computeFireDecision`, `T/common/item/GunItemHandler.java#doPlayerReload`, `T/network/server/PacketGunReload.java`, `T/config/CommonConfigSnapshot.java`.
-The target supports both explicit reload requests and an automatic `RELOAD` fire decision. `serverTick` executes that decision without an equivalent configurable prohibition.
-
-Missing: The server-selectable manual-reload-only behavior; the missing capability is independent of which mouse button is bound to fire.
 
 ### Per-player reload inventory preferences — PARTIAL
 
@@ -211,7 +201,6 @@ Missing: Mod-level normal/sneaking name-tag distance controls.
 | Multiplayer | Content-definition mismatch enforcement | MISSING | HIGH |
 | Armor/mobs | Ambient zombie/skeleton pack armor | MISSING | HIGH |
 | Armor | Zero-enchantability anvil restriction | PARTIAL | MEDIUM |
-| Weapons | Disable fire-triggered automatic reload | PARTIAL | HIGH |
 | Inventory | Per-player reload preferences | PARTIAL | HIGH |
 | Interactions | Configurable armed block-use suppression | PARTIAL | HIGH |
 | Driveables | Fuel cans consumed from cargo | PARTIAL | HIGH |

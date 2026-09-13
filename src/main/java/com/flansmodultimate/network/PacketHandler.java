@@ -2,6 +2,7 @@ package com.flansmodultimate.network;
 
 import com.flansmodultimate.FlansMod;
 import com.flansmodultimate.network.client.PacketAllowDebug;
+import com.flansmodultimate.network.client.PacketApocalypseCountdown;
 import com.flansmodultimate.network.client.PacketBaseEditState;
 import com.flansmodultimate.network.client.PacketBlockHitEffect;
 import com.flansmodultimate.network.client.PacketBulletTrail;
@@ -104,6 +105,7 @@ public final class PacketHandler {
     {
         // Server to Client Packets
         registerS2C(PacketAllowDebug.class);
+        registerS2C(PacketApocalypseCountdown.class);
         registerS2C(PacketBaseEditState.class);
         registerS2C(PacketBlockHitEffect.class);
         registerS2C(PacketBulletTrail.class);

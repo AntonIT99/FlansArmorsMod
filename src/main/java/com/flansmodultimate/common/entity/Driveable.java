@@ -1094,11 +1094,21 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
             PacketPlaySound.sendSoundPacket(this, ModCommonConfig.get().soundRange(), secondarySound, false);
     }
 
+    /**
+     * Whether something is currently commanding this driveable, so its engine may run and
+     * its controls may be acted on. Normally that means an occupied driver seat; autonomous
+     * driveables override this to command themselves.
+     */
+    protected boolean isUnderCommand()
+    {
+        return getControllingEntity() != null;
+    }
+
     protected void updateEngineState()
     {
         if (configType == null)
             return;
-        boolean occupied = getControllingEntity() != null;
+        boolean occupied = isUnderCommand();
         if (occupied && !driverWasPresent)
             engineRequested = true;
         else if (!occupied && driverWasPresent)

@@ -3,12 +3,15 @@ package com.flansmodultimate.apocalyse.event.handler;
 import com.flansmodultimate.FlansMod;
 import com.flansmodultimate.apocalyse.ApocalypseContent;
 import com.flansmodultimate.apocalyse.common.entity.SurvivorEntity;
+import com.flansmodultimate.apocalyse.common.util.ApocalypseDriveableHelper;
+import com.flansmodultimate.apocalyse.common.world.ApocalypseEventManager;
 import com.flansmodultimate.apocalyse.common.world.ApocalypseSavedData;
 import com.flansmodultimate.apocalyse.common.world.ApocalypseWorldgen;
 import com.flansmodultimate.config.ModApocalypseConfig;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.ChunkEvent;
@@ -54,19 +57,37 @@ public final class CommonEventHandler
             return;
 
         runPendingWorldgen(event.getServer());
+        ApocalypseEventManager.tick(event.getServer());
 
-        if (!ModApocalypseConfig.apocalypseDimensionEnabled()
-            || !ModApocalypseConfig.apocalypseMobsEnabled())
+        if (!ModApocalypseConfig.apocalypseDimensionEnabled())
             return;
 
         for (ServerPlayer player : event.getServer().getPlayerList().getPlayers())
         {
             if (!player.serverLevel().dimension().equals(ApocalypseContent.APOCALYPSE_LEVEL) || player.isSpectator())
                 continue;
+            if (player.getRandom().nextInt(ModApocalypseConfig.apocalypseFlyByRarity()) == 0)
+                ApocalypseDriveableHelper.spawnFlyBy(player.serverLevel(), player.position(), player.getRandom());
+            if (!ModApocalypseConfig.apocalypseMobsEnabled())
+                continue;
             if (player.getRandom().nextInt(ModApocalypseConfig.apocalypseWanderingSurvivorRarity()) != 0)
                 continue;
             spawnWanderingSurvivor(player);
         }
+    }
+
+    /**
+     * Arms the apocalypse when a mecha running an AI chip appears in the world.
+     *
+     * <p>This is the placement hook: a mecha reaches the world through its item, through a
+     * command, or out of a structure, and every one of those routes ends here.</p>
+     */
+    @SubscribeEvent
+    public static void onEntityJoinLevel(EntityJoinLevelEvent event)
+    {
+        if (event.getLevel().isClientSide)
+            return;
+        ApocalypseEventManager.onDriveableSpawned(event.getEntity());
     }
 
     @SubscribeEvent

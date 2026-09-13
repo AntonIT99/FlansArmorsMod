@@ -107,6 +107,21 @@ public final class ApocalypseGunHelper
         });
     }
 
+    /** A spare magazine for {@code gun}, for stocking the cargo of whatever carries it. */
+    public static Optional<ItemStack> spareAmmoFor(GunType gun, RandomSource random)
+    {
+        List<BulletType> ammo = combatAmmoTypes(gun, false);
+        if (ammo.isEmpty())
+            return Optional.empty();
+        BulletType selected = ammo.get(random.nextInt(ammo.size()));
+        int count = selected.getMaxStackSize() > 1 ? 1 + random.nextInt(Math.min(3, selected.getMaxStackSize())) : 1;
+        return ModUtils.getItemStack(selected, count).map(stack -> {
+            if (stack.getItem() instanceof ShootableItem)
+                ShootableItem.setRoundsRemaining(stack, Math.max(1, selected.getRoundsPerItem()));
+            return stack;
+        });
+    }
+
     public static boolean shootLoadedGun(LivingEntity shooter, LivingEntity target)
     {
         ItemStack gunStack = shooter.getMainHandItem();

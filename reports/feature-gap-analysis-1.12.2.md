@@ -1,10 +1,11 @@
 # Feature gap analysis: Flan's Mod 5.10.0 (1.12.2) → Ultimate 2.0
 
-Audit date: 2026-09-12. Direction is strictly reference → target.
+Initial audit: 2026-09-12. Last updated: 2026-09-13. Direction is strictly reference → target.
 
 - Reference: `C:/Users/alpha/Documents/Minecraft-Development/FlansMod`, Flan's Mod 5.10.0 / MC 1.12.2, HEAD `71ba7ed065d906d48f34ca471bbd0172b5192f6b`.
 - Target: `C:/Users/alpha/Documents/Minecraft-Development/Flans-Mod-Ultimate-2.0`, Forge 1.20.1, HEAD `c7af2b0fb3cb85711796129fec789c51e96b999e` (clean tree).
-- Result: **7 MISSING, 4 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
+- Remaining: **2 MISSING, 3 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
+- Completed findings are removed as they are implemented, so this stays a backlog rather than a historical snapshot. The initial audit found 7 MISSING and 4 PARTIAL; the six Apocalypse findings were implemented on 2026-09-13.
 
 ## Scope and evidence conventions
 
@@ -18,71 +19,9 @@ Evidence paths use these roots:
 - `T/` = target `src/main/java/com/flansmodultimate`.
 - Resource paths explicitly identify their repository.
 
-`MISSING` means the described capability has no equivalent in the inspected target paths. `PARTIAL` means the broader mechanic exists but the stated behavior does not. Confidence concerns the narrow finding, not full subsystem equivalence. Nothing was modified in either repository, and no builds or in-game tests were run.
+`MISSING` means the described capability has no equivalent in the inspected target paths. `PARTIAL` means the broader mechanic exists but the stated behavior does not. Confidence concerns the narrow finding, not full subsystem equivalence. The audit itself changed nothing; the Apocalypse findings were implemented separately afterwards and removed from this backlog.
 
 Large, well-ported areas that produced no findings are deliberately not enumerated. Notable examples verified as present: mecha upgrade behaviors (including diamond detection, auto-repair, ore multipliers, rocket pack, item vacuum, waste compaction, forced light level), grenade behaviors (proximity triggers, stickiness, deployable bags, smoke/potion effects, heal amounts), AA gun and deployed-MG mechanics, CTF flag handling, smart weapon drops with ammo consolidation, team spawner vehicle/item spawning, dungeon-loot injection, creative paintjob variants, gun attribute modifiers, flashlight attachments, and the Mecha Parts pack contents (folded into the target's Titan pack).
-
-## Apocalypse: the apocalypse event
-
-### AI-chip mecha apocalypse trigger sequence — MISSING
-
-Reference: `R/apocalypse/common/CommonProxyApocalypse.java#itemPlaced` and `#serverTick` (lines 85-137, 208-226), `R/apocalypse/common/FlansModApocalypse.java:87,114,342,353,365`, `R/apocalypse/common/network/PacketApocalypseCountdown.java`, `R/apocalypse/common/entity/EntityNukeDrop.java`.
-Spawning a mecha in the overworld whose engine part has `IsAIChip` starts a server-side countdown (`Apocalypse Countdown Length`, default 469 ticks), which is pushed to the placer's HUD. During the countdown the mecha's head sweeps randomly and a nuke is dropped every 20 ticks within a 150-block radius. When the countdown expires the mecha is removed and players are transferred to the apocalypse dimension according to the configurable `Option` (`PLACER_ONLY`, `DIM`, `DIM_OPT_IN`, `NEARBY`, `NEARBY_OPT_IN`).
-
-Target checked: `T/apocalyse/ApocalypseContent.java`, `T/apocalyse/event/handler/CommonEventHandler.java`, `T/apocalyse/common/world/ApocalypsePortalManager.java`, `T/apocalyse/common/world/ApocalypseBossFightManager.java`, `T/config/ModApocalypseConfig.java`, `T/common/types/PartType.java:72,92`.
-`PartType.aiChip` is parsed and is read only by `T/apocalyse/common/util/ApocalypseLoot.java:127` to *exclude* AI chips from loot. `ModApocalypseConfig.APOCALYPSE_COUNTDOWN_LENGTH` is declared, config-synced and exposed by `apocalypseCountdownLength()`, but no code reads that accessor — the value is dead. `NukeDropEntity` exists but is only summoned by `SkullBossEntity#callNukeDrop`. Dimension entry in the target happens solely through the teleporter/portal blocks. No countdown, no countdown HUD packet, and no teleport-option setting were found.
-
-Missing: The entire AI-chip-triggered apocalypse event — countdown with client HUD, the nuke barrage, and the configurable mass transfer of players to the apocalypse dimension.
-
-### Dimension entry: inventory holder and starter kit — MISSING
-
-Reference: `R/apocalypse/common/CommonProxyApocalypse.java#sendPlayerToApocalypse` (lines 208-226) and `#giveStarterKit` (lines 228-235), `R/apocalypse/common/entity/EntityFakePlayer.java`, `R/apocalypse/client/model/RenderFakePlayer.java`.
-Being sent to the apocalypse spawns an `EntityFakePlayer` copy at the departure point that holds the player's inventory until they return, clears the real inventory, and grants a starter kit (stone pickaxe, stone shovel, 8 logs, 4 cooked beef).
-
-Target checked: `T/apocalyse/common/world/ApocalypsePortalManager.java#teleportPlayer`, `T/apocalyse/common/world/ApocalypseSavedData.java`, `T/apocalyse/event/handler/CommonEventHandler.java`, `T/ApocalypseContent.java` entity registry.
-`teleportPlayer` records the entry point and teleports the player with their inventory untouched; there is no fake-player entity registered, no inventory stripping and no starter kit anywhere in the target.
-
-Missing: Inventory confiscation into a persistent stand-in entity on entry, and the survival starter kit.
-
-### Fly-by planes with skeleton pilots — MISSING
-
-Reference: `R/apocalypse/common/CommonProxyApocalypse.java` lines 148-187, `R/apocalypse/common/entity/EntityFlyByPlane.java`, `R/apocalypse/common/FlansModLootGenerator.java` (`getRandomPlane`, `getRandomEngine`), registered at `R/apocalypse/common/FlansModApocalypse.java:321,330`.
-Roughly once every 5000 player-ticks in the apocalypse dimension, a randomly chosen plane type with a random engine spawns 200 blocks away at Y=120 at full throttle, oriented toward the player, with a skeleton seated in the pilot seat.
-
-Target checked: `T/apocalyse/event/handler/CommonEventHandler.java` (the per-player server tick, which handles only wandering survivors), `T/apocalyse/common/util/ApocalypseLoot.java`, `T/apocalyse/ApocalypseContent.java`, plus a repository-wide search for `flyby`/`fly_by` (only `Bullet#playFlybyIfClose`, an unrelated bullet whizz sound).
-No ambient aircraft spawning exists in the target.
-
-Missing: Periodic hostile-atmosphere plane flyovers in the apocalypse dimension.
-
-### AI-piloted guard mechas in apocalypse structures — MISSING
-
-Reference: `R/apocalypse/common/entity/EntityAIMecha.java` (registered at `R/apocalypse/common/FlansModApocalypse.java:318,327`), spawned by `R/apocalypse/common/world/buildings/WorldGenResearchLab.java:290-306` and `R/apocalypse/common/world/buildings/WorldGenAbandonedPortal.java`.
-Research labs and abandoned portals are guarded by autonomous mechas that run at full throttle, acquire a target within 20 blocks every 40 ticks, and fire the random guns placed in their left/right tool slots, with matching ammunition stocked in their cargo slots.
-
-Target checked: `T/apocalyse/common/world/ApocalypseWorldgen.java#generateResearchLab` (`:209-215`) and `#generateBossPillar`, `T/apocalyse/common/world/ApocalypsePortalManager.java#createPortal`, `T/common/entity/Mecha.java`, `T/apocalyse/ApocalypseContent.java`.
-The target's research lab is a plain 7×4×7 lab-stone room with two loot chests and one gun rack; portals are bare frames. A repository-wide search for `aimecha`/`ai_mecha` returns nothing — no autonomous mecha entity or mecha AI exists.
-
-Missing: Autonomous armed mecha guards and the structure population that places them.
-
-### Apocalypse biomes and terrain generation — PARTIAL
-
-Reference: `R/apocalypse/common/world/BiomeApocalypse.java:17-28`, `BiomeDesertCanyon.java`, `BiomeSulphurPits.java`, `BiomeProviderApocalypse.java`, `GenLayerApocalypse.java`, `GenLayerBiomes.java`, `ChunkProviderApocalypse.java`, `BiomeDecoratorApocalypse.java`, `WorldProviderApocalypse.java`.
-The dimension is built from six purpose-made biomes (Deep Canyon, Canyon, Desert, Plateau, High Plateau, Sulphur Pits) at fixed base heights from -1.8 to 2.5 with no height variation and rain disabled, laid out by a custom `GenLayer` chain of common/rare biomes, rendered by a bespoke chunk provider with red-sand surfaces, and decorated per biome (sulphur lakes only in Sulphur Pits). Structure placement is biome-gated — runways and research labs only spawn on High Plateau (`ChunkProviderApocalypse.java:74,77`).
-
-Target checked: `src/main/resources/datapacks/apocalypse/data/flansmodapocalypse/dimension/apocalypse.json`, `.../worldgen/biome/apocalypse.json`, `.../dimension_type/apocalypse.json`, `T/apocalyse/ApocalypseDatapackSource.java`, `T/apocalyse/common/world/ApocalypseWorldgen.java`.
-The dimension exists and is themed (custom sky/fog/grass colors, no precipitation, no vanilla spawners or features), and the scattered decorations are reproduced procedurally in `ApocalypseWorldgen`. But the generator is `minecraft:noise` with the unmodified `minecraft:overworld` noise settings over a `minecraft:fixed` biome source pinned to one biome, so terrain shape and surface blocks are vanilla overworld.
-
-Missing: The multiple canyon/plateau/sulphur biomes with their own base heights and surface blocks, the biome layout layer, the wasteland terrain shape, biome-specific decoration, and biome-gated structure placement.
-
-### Abandoned villages and road networks — MISSING
-
-Reference: `R/apocalypse/common/world/buildings/MapGenAbandonedVillage.java`, `StructureAbandonedVillagePieces.java`, `WorldGenRoads.java`, wired into `R/apocalypse/common/world/ChunkProviderApocalypse.java:59,71,227`.
-The apocalypse chunk generator places ruined villages during chunk generation and lays a road network across the wasteland.
-
-Target checked: `T/apocalyse/common/world/ApocalypseWorldgen.java#generate` (the complete feature list: sulphur pools, dead trees, skeleton displays, portals, research labs, dye factories, runways, abandoned vehicles, boss pillars, survivors), and the apocalypse datapack, whose biome declares `"features": []`.
-Neither villages nor roads appear in the target's generation list, and there are no structure or feature JSONs for them.
-
-Missing: Abandoned-village structures and generated road networks in the apocalypse dimension.
 
 ## Teams
 
@@ -142,12 +81,6 @@ Missing: Refueling a driveable from a liquid-fuel bucket. (BuildCraft itself has
 
 | Subsystem | Feature | Status | Confidence |
 | --------- | ------- | ------ | ---------- |
-| Apocalypse | AI-chip mecha apocalypse trigger sequence | MISSING | HIGH |
-| Apocalypse | Dimension-entry inventory holder and starter kit | MISSING | HIGH |
-| Apocalypse | Fly-by planes with skeleton pilots | MISSING | HIGH |
-| Apocalypse | AI-piloted guard mechas in structures | MISSING | HIGH |
-| Apocalypse | Custom biomes and wasteland terrain generation | PARTIAL | HIGH |
-| Apocalypse | Abandoned villages and road networks | MISSING | HIGH |
 | Teams | Server MOTD and `/teams motd` | MISSING | HIGH |
 | Teams | Separate rank-update intermission stage | PARTIAL | HIGH |
 | Teams | Mid-round defection kill, broadcast and class feedback | PARTIAL | HIGH |
@@ -156,8 +89,9 @@ Missing: Refueling a driveable from a liquid-fuel bucket. (BuildCraft itself has
 
 ## Areas requiring deeper audit
 
-- **Apocalypse structure interiors.** The target rebuilds the reference's `common/world/buildings/*` generators procedurally rather than porting them. Only the research lab was compared closely (finding above); the dye factory, runway, boss pillar, dead tree, skeleton display and abandoned-portal generators were read at call-site level only, so smaller content differences (block palettes, loot placement, secondary rooms, spawned props) may remain inside each.
+- **Apocalypse structure interiors.** The target rebuilds the reference's `common/world/buildings/*` generators procedurally rather than porting them. The research lab and the village were compared closely; the dye factory, runway, boss pillar, dead tree, skeleton display and abandoned-portal generators were read at call-site level only, so smaller content differences (block palettes, loot placement, secondary rooms, spawned props) may remain inside each.
 - **Apocalypse mob AI.** `SurvivorEntity`, `SkullBossEntity` and `SkullDroneEntity` exist in the target, but their goal sets were not diffed against `EntitySurvivor`, `EntitySkullBoss` and `EntitySkullDrone`, nor against `EntityAIGoSomewhere`. `EntitySkuller` was excluded because it is never registered in the reference.
+- **Apocalypse terrain shape.** The implemented dimension keeps the vanilla overworld noise router and supplies its own biomes, climate placement and surface rules on top. That reproduces the reference's biome set, its canyon-low/plateau-high ordering and its red-sand wasteland surface, but not the 1.12.2 chunk provider's exact per-biome base heights, which have no direct equivalent in 1.18+ terrain generation.
 - **Driveable flight and ground physics.** The target replaced the reference's per-tick math with a `common/driveables/physics/**` model (`LegacyPlanePhysics`, `AircraftPerformancePhysics`, `SuspensionPhysics`, `MarineDraftPhysics`, …). Every reference `type.*` field consumed by `EntityPlane`/`EntityVehicle` has a target consumer, but numeric handling parity was not established and can only be judged in play.
 - **Teams gametype hook surface.** The reference `Gametype` exposes hooks the target's `GameType` does not (`baseAttacked`, `objectAttacked`, `entityKilled`, `playerJoined`, `playerQuit`, `playerRespawned`, `roundCleanup`, `getTeamsCanSpawnAs`, `givePoints`). In the shipped gametypes most of these bodies are empty and the non-empty ones were traced to target equivalents in `TeamsManager`, but a third-party gametype extending the reference class would have less to override.
 - **Content-pack Java model classes.** The reference ships pack models as compiled classes inside the mod jar (`R/modernweapons/**`, `R/titan/**`, `R/nerf/**`); the target compiles pack-supplied Java models at load time (`T/util/JavaModelCompiler.java`, `ContentPackClassLoader`). Coverage of individual legacy model classes and their animation fields was not enumerated here.

@@ -3,6 +3,7 @@ package com.flansmodultimate.apocalyse.common.world;
 import com.flansmodultimate.FlansMod;
 import com.flansmodultimate.apocalyse.ApocalypseContent;
 import com.flansmodultimate.apocalyse.common.entity.SurvivorEntity;
+import com.flansmodultimate.apocalyse.common.util.ApocalypseDriveableHelper;
 import com.flansmodultimate.apocalyse.common.util.ApocalypseLoot;
 import com.flansmodultimate.common.block.entity.ItemHolderBlockEntity;
 import com.flansmodultimate.common.driveables.DriveablePart;
@@ -16,12 +17,14 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChestBlock;
@@ -53,8 +56,14 @@ public final class ApocalypseWorldgen
 
         if (apocalypse)
         {
-            if (random.nextInt(SULPHUR_POOL_RARITY) == 0)
-                generateSulphurPool(level, random, randomSurfacePos(chunk, random));
+            ApocalypseRoads.generate(level, chunk);
+            ApocalypseVillage.generate(level, chunk);
+
+            // Sulphur wells up where the ground is already poisoned, as the 1.7.10 sulphur
+            // pit decorator did, rather than anywhere in the wasteland.
+            BlockPos poolSite = randomSurfacePos(chunk, random);
+            if (isBiome(level, poolSite, ApocalypseContent.BIOME_SULPHUR_PITS) && random.nextInt(SULPHUR_POOL_RARITY) == 0)
+                generateSulphurPool(level, random, poolSite);
             if (random.nextInt(ModApocalypseConfig.apocalypseDeadTreeRarity()) == 0)
                 generateDeadTree(level, randomSurfacePos(chunk, random));
             if (random.nextInt(ModApocalypseConfig.apocalypseSkeletonRarity()) == 0)
@@ -62,13 +71,17 @@ public final class ApocalypseWorldgen
             if (ModApocalypseConfig.apocalypseDimensionEnabled()
                 && ModApocalypseConfig.apocalypsePortalsEnabled()
                 && random.nextInt(ModApocalypseConfig.apocalypseAbandonedPortalRarity()) == 0)
-                ApocalypsePortalManager.createPortal(level, randomSurfacePos(chunk, random), null);
-            if (random.nextInt(ModApocalypseConfig.apocalypseLabRarity()) == 0)
-                generateResearchLab(level, random, randomSurfacePos(chunk, random));
+                generateAbandonedPortal(level, random, randomSurfacePos(chunk, random));
+
+            // Labs and runways were built on the high ground, and still only appear there.
+            BlockPos labSite = randomSurfacePos(chunk, random);
+            if (isBiome(level, labSite, ApocalypseContent.BIOME_HIGH_PLATEAU) && random.nextInt(ModApocalypseConfig.apocalypseLabRarity()) == 0)
+                generateResearchLab(level, random, labSite);
             if (random.nextInt(ModApocalypseConfig.apocalypseDyeFactoryRarity()) == 0)
                 generateFactory(level, random, randomSurfacePos(chunk, random));
-            if (random.nextInt(ModApocalypseConfig.apocalypseAirportRarity()) == 0)
-                generateRunway(level, randomSurfacePos(chunk, random));
+            BlockPos runwaySite = randomSurfacePos(chunk, random);
+            if (isBiome(level, runwaySite, ApocalypseContent.BIOME_HIGH_PLATEAU) && random.nextInt(ModApocalypseConfig.apocalypseAirportRarity()) == 0)
+                generateRunway(level, runwaySite);
             if (random.nextInt(ModApocalypseConfig.apocalypseVehicleRarity()) == 0)
                 generateAbandonedVehicle(level, random, randomSurfacePos(chunk, random));
             if (random.nextInt(BOSS_PILLAR_RARITY) == 0)
@@ -212,6 +225,27 @@ public final class ApocalypseWorldgen
         placeChest(level, random, origin.offset(2, 1, 2));
         placeChest(level, random, origin.offset(4, 1, 4));
         flanBlock("flangunrack").ifPresent(block -> placeItemHolder(level, random, block, origin.offset(3, 1, 1), Direction.SOUTH, true));
+        postGuard(level, random, origin.getX() + 3, origin.getZ() - 3);
+    }
+
+    /** Abandoned portals were the way in, and are still watched over. */
+    private static void generateAbandonedPortal(ServerLevel level, RandomSource random, BlockPos origin)
+    {
+        if (!ApocalypsePortalManager.createPortal(level, origin, null))
+            return;
+        if (random.nextBoolean())
+            postGuard(level, random, origin.getX() + (random.nextBoolean() ? 6 : -3), origin.getZ() + (random.nextBoolean() ? 6 : -3));
+    }
+
+    /** Stands an autonomous mecha on the ground beside whatever was just built. */
+    private static void postGuard(ServerLevel level, RandomSource random, int x, int z)
+    {
+        if (!ModApocalypseConfig.apocalypseMobsEnabled())
+            return;
+        BlockPos ground = surfacePos(level, x, z);
+        if (!isClear(level, ground))
+            return;
+        ApocalypseDriveableHelper.spawnGuardMecha(level, ground, random);
     }
 
     private static void generateFactory(ServerLevel level, RandomSource random, BlockPos origin)
@@ -272,7 +306,7 @@ public final class ApocalypseWorldgen
         level.setBlock(origin.offset(width / 2, 2, 0), Blocks.AIR.defaultBlockState(), 3);
     }
 
-    private static void placeChest(ServerLevel level, RandomSource random, BlockPos pos)
+    static void placeChest(ServerLevel level, RandomSource random, BlockPos pos)
     {
         if (!level.getBlockState(pos).isAir())
             return;
@@ -281,7 +315,7 @@ public final class ApocalypseWorldgen
             ApocalypseLoot.fillContainer(random, container);
     }
 
-    private static void placeItemHolder(ServerLevel level, RandomSource random, Block block, BlockPos pos, Direction facing, boolean gunsOnly)
+    static void placeItemHolder(ServerLevel level, RandomSource random, Block block, BlockPos pos, Direction facing, boolean gunsOnly)
     {
         BlockState state = block.defaultBlockState();
         if (state.hasProperty(HorizontalDirectionalBlock.FACING))
@@ -300,18 +334,23 @@ public final class ApocalypseWorldgen
         return new BlockPos(x, Math.max(chunk.getMinBuildHeight() + 1, y), z);
     }
 
-    private static BlockPos surfacePos(ServerLevel level, int x, int z)
+    static BlockPos surfacePos(ServerLevel level, int x, int z)
     {
         int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
         return new BlockPos(x, Math.max(level.getMinBuildHeight() + 1, y), z);
     }
 
-    private static boolean isClear(ServerLevel level, BlockPos pos)
+    static boolean isClear(ServerLevel level, BlockPos pos)
     {
         return level.getWorldBorder().isWithinBounds(pos) && level.getBlockState(pos).isAir() && level.getBlockState(pos.above()).isAir();
     }
 
-    private static Optional<Block> flanBlock(String path)
+    private static boolean isBiome(ServerLevel level, BlockPos pos, ResourceKey<Biome> biome)
+    {
+        return level.getBiome(pos).is(biome);
+    }
+
+    static Optional<Block> flanBlock(String path)
     {
         Block block = ForgeRegistries.BLOCKS.getValue(ResourceLocation.fromNamespaceAndPath(FlansMod.FLANSMOD_ID, path));
         if (block == null || block == Blocks.AIR)

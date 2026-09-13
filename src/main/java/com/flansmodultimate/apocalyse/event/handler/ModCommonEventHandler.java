@@ -2,6 +2,7 @@ package com.flansmodultimate.apocalyse.event.handler;
 
 import com.flansmodultimate.FlansMod;
 import com.flansmodultimate.apocalyse.ApocalypseContent;
+import com.flansmodultimate.apocalyse.common.entity.InventoryHolderEntity;
 import com.flansmodultimate.apocalyse.common.entity.SkullBossEntity;
 import com.flansmodultimate.apocalyse.common.entity.SkullDroneEntity;
 import com.flansmodultimate.apocalyse.common.entity.SurvivorEntity;
@@ -21,5 +22,6 @@ public final class ModCommonEventHandler
         event.put(ApocalypseContent.survivor.get(), SurvivorEntity.createAttributes().build());
         event.put(ApocalypseContent.skullDrone.get(), SkullDroneEntity.createAttributes().build());
         event.put(ApocalypseContent.skullBoss.get(), SkullBossEntity.createAttributes().build());
+        event.put(ApocalypseContent.inventoryHolder.get(), InventoryHolderEntity.createAttributes().build());
     }
 }

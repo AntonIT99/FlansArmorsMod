@@ -106,7 +106,14 @@ public class Mecha extends Driveable
     public Mecha(Level level, MechaType type, double x, double y, double z, float yaw,
                  @Nullable Player placer, ItemStack sourceStack)
     {
-        super(FlansMod.mechaEntity.get(), level, type, x, y, z, yaw, placer, sourceStack);
+        this(FlansMod.mechaEntity.get(), level, type, x, y, z, yaw, placer, sourceStack);
+    }
+
+    /** Placement constructor for subclasses registered under their own entity type. */
+    protected Mecha(EntityType<?> entityType, Level level, MechaType type, double x, double y, double z, float yaw,
+                    @Nullable Player placer, ItemStack sourceStack)
+    {
+        super(entityType, level, type, x, y, z, yaw, placer, sourceStack);
     }
 
     @Override
@@ -174,7 +181,7 @@ public class Mecha extends Driveable
         Vec3 intent = MechaPhysics.movementIntent(
             MechaPhysics.driverMovementYaw(getYaw() + getTurretYaw()), forwardInput, sideInput);
         boolean walking = intent.lengthSqr() > 0.01D;
-        boolean canMove = getControllingEntity() != null && isEngineActive() && hasFuelForMovement()
+        boolean canMove = isUnderCommand() && isEngineActive() && hasFuelForMovement()
             && isPartIntact(EnumDriveablePart.HIPS);
         double moveSpeed = MechaPhysics.movementSpeed(type.getMoveSpeed(), type.getRealWorldSpec().maxSpeedKmh(),
             getEngineSpeed(), speedMultiplier());
@@ -411,7 +418,7 @@ public class Mecha extends Driveable
     private void useHandTool(EnumMechaSlotType slot, boolean left, boolean held)
     {
         int index = left ? 0 : 1;
-        if (driveableData == null || getControllingEntity() == null
+        if (driveableData == null || !isUnderCommand()
             || !isPartIntact(left ? EnumDriveablePart.LEFT_ARM : EnumDriveablePart.RIGHT_ARM))
         {
             handGunHeldTicks[index] = 0;

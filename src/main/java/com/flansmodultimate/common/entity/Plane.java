@@ -97,7 +97,14 @@ public class Plane extends Driveable
     public Plane(Level level, PlaneType type, double x, double y, double z, float yaw,
                  @Nullable Player placer, ItemStack sourceStack)
     {
-        super(FlansMod.planeEntity.get(), level, type, x, y, z, yaw, placer, sourceStack);
+        this(FlansMod.planeEntity.get(), level, type, x, y, z, yaw, placer, sourceStack);
+    }
+
+    /** Placement constructor for subclasses registered under their own entity type. */
+    protected Plane(EntityType<?> entityType, Level level, PlaneType type, double x, double y, double z, float yaw,
+                    @Nullable Player placer, ItemStack sourceStack)
+    {
+        super(entityType, level, type, x, y, z, yaw, placer, sourceStack);
         setOrientation(yaw, getInitialPlacementPitch(), 0F);
         setDriveableMode(type.getMode() == EnumPlaneMode.VTOL ? 0 : type.getMode().ordinal());
         // HasGear means retractable gear. Fixed landing gear is still always down.
@@ -416,7 +423,7 @@ public class Plane extends Driveable
 
     private void updateThrottle(PlaneType type)
     {
-        boolean occupied = getControllingEntity() != null;
+        boolean occupied = isUnderCommand();
         boolean powered = occupied && isEngineActive() && hasWorkingPropeller(type);
         float throttle = getThrottle();
         // Holding the lever moves it progressively faster; a tap is still the

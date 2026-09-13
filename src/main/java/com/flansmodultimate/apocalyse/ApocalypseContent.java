@@ -5,6 +5,9 @@ import com.flansmodultimate.apocalyse.common.block.PowerCubeBlock;
 import com.flansmodultimate.apocalyse.common.block.SulphurBlock;
 import com.flansmodultimate.apocalyse.common.block.SulphuricAcidBlock;
 import com.flansmodultimate.apocalyse.common.block.entity.PowerCubeBlockEntity;
+import com.flansmodultimate.apocalyse.common.entity.AiMechaEntity;
+import com.flansmodultimate.apocalyse.common.entity.FlyByPlaneEntity;
+import com.flansmodultimate.apocalyse.common.entity.InventoryHolderEntity;
 import com.flansmodultimate.apocalyse.common.entity.NukeDropEntity;
 import com.flansmodultimate.apocalyse.common.entity.SkullBossEntity;
 import com.flansmodultimate.apocalyse.common.entity.SkullDroneEntity;
@@ -30,6 +33,7 @@ import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -52,6 +56,20 @@ public final class ApocalypseContent
     public static final ResourceLocation SULPHURIC_ACID_OVERLAY_TEXTURE = ResourceLocation.fromNamespaceAndPath(FlansMod.APOCALYPSE_ID, "textures/misc/sulphuric_acid_overlay.png");
 
     public static final ResourceKey<Level> APOCALYPSE_LEVEL = ResourceKey.create(Registries.DIMENSION, ResourceLocation.fromNamespaceAndPath(FlansMod.APOCALYPSE_ID, "apocalypse"));
+
+    // Biomes of the wasteland. Supplied by the built-in apocalypse datapack; worldgen reads
+    // them back to decide what belongs where, as the 1.7.10 biome decorators did.
+    public static final ResourceKey<Biome> BIOME_DESERT = biome("apocalypse");
+    public static final ResourceKey<Biome> BIOME_DEEP_CANYON = biome("deep_canyon");
+    public static final ResourceKey<Biome> BIOME_CANYON = biome("canyon");
+    public static final ResourceKey<Biome> BIOME_PLATEAU = biome("plateau");
+    public static final ResourceKey<Biome> BIOME_HIGH_PLATEAU = biome("high_plateau");
+    public static final ResourceKey<Biome> BIOME_SULPHUR_PITS = biome("sulphur_pits");
+
+    private static ResourceKey<Biome> biome(String name)
+    {
+        return ResourceKey.create(Registries.BIOME, ResourceLocation.fromNamespaceAndPath(FlansMod.APOCALYPSE_ID, name));
+    }
 
     // Registries
     private static final DeferredRegister<Block> blockRegistry = DeferredRegister.create(ForgeRegistries.BLOCKS, FlansMod.APOCALYPSE_ID);
@@ -166,6 +184,28 @@ public final class ApocalypseContent
         .clientTrackingRange(128)
         .updateInterval(2)
         .build(ResourceLocation.fromNamespaceAndPath(FlansMod.APOCALYPSE_ID, "autodrone").toString())
+    );
+    public static final RegistryObject<EntityType<InventoryHolderEntity>> inventoryHolder = entityRegistry.register("fakeplayer", () -> EntityType.Builder.of(InventoryHolderEntity::new, MobCategory.CREATURE)
+        .sized(0.6F, 1.95F)
+        .clientTrackingRange(80)
+        .updateInterval(3)
+        .build(ResourceLocation.fromNamespaceAndPath(FlansMod.APOCALYPSE_ID, "fakeplayer").toString())
+    );
+    // The two autonomous driveables mirror the plane and mecha entity types they extend, so
+    // they are tracked and sized exactly like the piloted ones.
+    public static final RegistryObject<EntityType<FlyByPlaneEntity>> flyByPlane = entityRegistry.register("flybyplane", () -> EntityType.Builder.<FlyByPlaneEntity>of(FlyByPlaneEntity::new, MobCategory.MISC)
+        .sized(3F, 2F)
+        .clientTrackingRange(128)
+        .updateInterval(1)
+        .setShouldReceiveVelocityUpdates(true)
+        .build(ResourceLocation.fromNamespaceAndPath(FlansMod.APOCALYPSE_ID, "flybyplane").toString())
+    );
+    public static final RegistryObject<EntityType<AiMechaEntity>> aiMecha = entityRegistry.register("aimecha", () -> EntityType.Builder.<AiMechaEntity>of(AiMechaEntity::new, MobCategory.MISC)
+        .sized(2F, 4F)
+        .clientTrackingRange(128)
+        .updateInterval(1)
+        .setShouldReceiveVelocityUpdates(true)
+        .build(ResourceLocation.fromNamespaceAndPath(FlansMod.APOCALYPSE_ID, "aimecha").toString())
     );
     public static final RegistryObject<EntityType<SkullBossEntity>> skullBoss = entityRegistry.register("skullboss", () -> EntityType.Builder.of(SkullBossEntity::new, MobCategory.MONSTER)
         .sized(8.0F, 8.0F)

@@ -119,6 +119,7 @@
   "key.flansmodultimate.vehicle.right": "Поворот вправо / шаг вправо",
   "key.flansmodultimate.vehicle.throttle_decrease": "Уменьшить фиксированную тягу",
   "key.flansmodultimate.vehicle.throttle_increase": "Увеличить фиксированную тягу",
+  "key.flansmodultimate.vehicle.zoom": "Переключить приближение водителя",
   "message.flansmodultimate.apocalypse_boss_awakened": "Босс-Череп пробуждается.",
   "message.flansmodultimate.apocalypse_dimension_unavailable": "Измерение апокалипсиса недоступно.",
   "message.flansmodultimate.apocalypse_portal_failed": "Портал апокалипсиса не смог найти безопасное место назначения.",

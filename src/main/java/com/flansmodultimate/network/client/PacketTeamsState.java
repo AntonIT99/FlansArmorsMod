@@ -35,6 +35,7 @@ public final class PacketTeamsState implements IClientPacket
 
     private OpenScreen openScreen = OpenScreen.NONE;
     private boolean enabled;
+    private boolean vehiclesCanZoom;
     private boolean roundRunning;
     private boolean sortedByTeam;
     private boolean showZombieScore;
@@ -57,6 +58,7 @@ public final class PacketTeamsState implements IClientPacket
         PacketTeamsState packet = new PacketTeamsState();
         packet.openScreen = openScreen;
         packet.enabled = manager.isEnabled();
+        packet.vehiclesCanZoom = manager.isVehiclesCanZoom();
         packet.roundRunning = manager.isRoundRunning();
         packet.timeLeftTicks = manager.getRoundTimeLeftTicks();
         packet.intermissionTicks = manager.getIntermissionTicks();
@@ -149,6 +151,7 @@ public final class PacketTeamsState implements IClientPacket
     {
         data.writeByte(openScreen.ordinal());
         data.writeBoolean(enabled);
+        data.writeBoolean(vehiclesCanZoom);
         data.writeBoolean(roundRunning);
         data.writeBoolean(sortedByTeam);
         data.writeBoolean(showZombieScore);
@@ -190,6 +193,7 @@ public final class PacketTeamsState implements IClientPacket
         int screen = data.readUnsignedByte();
         openScreen = screen < OpenScreen.values().length ? OpenScreen.values()[screen] : OpenScreen.NONE;
         enabled = data.readBoolean();
+        vehiclesCanZoom = data.readBoolean();
         roundRunning = data.readBoolean();
         sortedByTeam = data.readBoolean();
         showZombieScore = data.readBoolean();
@@ -221,6 +225,7 @@ public final class PacketTeamsState implements IClientPacket
 
     public OpenScreen getOpenScreen() { return openScreen; }
     public boolean isEnabled() { return enabled; }
+    public boolean isVehiclesCanZoom() { return vehiclesCanZoom; }
     public boolean isRoundRunning() { return roundRunning; }
     public boolean isSortedByTeam() { return sortedByTeam; }
     public boolean isShowZombieScore() { return showZombieScore; }

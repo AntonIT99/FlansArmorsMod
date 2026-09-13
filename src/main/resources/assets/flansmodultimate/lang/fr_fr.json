@@ -119,6 +119,7 @@
   "key.flansmodultimate.vehicle.right": "Tourner à droite / déplacement latéral droit",
   "key.flansmodultimate.vehicle.throttle_decrease": "Réduire les gaz persistants",
   "key.flansmodultimate.vehicle.throttle_increase": "Augmenter les gaz persistants",
+  "key.flansmodultimate.vehicle.zoom": "Basculer le zoom du conducteur",
   "message.flansmodultimate.apocalypse_boss_awakened": "Le Boss crâne s'éveille.",
   "message.flansmodultimate.apocalypse_dimension_unavailable": "La dimension de l'apocalypse est indisponible.",
   "message.flansmodultimate.apocalypse_portal_failed": "Le portail de l'apocalypse n'a pas pu trouver de destination sûre.",

@@ -125,6 +125,7 @@ public final class ModCommonConfig
     private static final ForgeConfigSpec.DoubleValue VEHICLE_WHEEL_SEAT_EXPLOSION_MODIFIER;
     private static final ForgeConfigSpec.BooleanValue DRIVEABLE_COLLISIONS_BREAK_BLOCKS;
     private static final ForgeConfigSpec.BooleanValue AUTO_REFILL_VEHICLE_AMMO;
+    private static final ForgeConfigSpec.BooleanValue GUNS_IN_DESTROYED_PARTS_WORK;
 
     private static final ForgeConfigSpec.IntValue BREAKABLE_ARMOR;
     private static final ForgeConfigSpec.IntValue DEFAULT_ARMOR_DURABILITY;
@@ -304,6 +305,10 @@ public final class ModCommonConfig
             .comment("Whether an emptied gun, shell, missile or bomb slot of a driveable is reloaded with one more item",
                 "of the same ammunition, taken from the driveable's cargo first and then from the driver's inventory.")
             .define("autoRefillVehicleAmmo", true);
+        GUNS_IN_DESTROYED_PARTS_WORK = builder
+            .comment("Whether an occupied passenger gun remains usable when the driveable part supporting its seat is destroyed.",
+                "Disabled by default. Destroyed seats still cannot be newly occupied.")
+            .define("gunsInDestroyedPartsWork", false);
         builder.pop();
 
         builder.push("Armor Settings");
@@ -659,6 +664,7 @@ public final class ModCommonConfig
             VEHICLE_WHEEL_SEAT_EXPLOSION_MODIFIER.get().floatValue(),
             DRIVEABLE_COLLISIONS_BREAK_BLOCKS.get(),
             AUTO_REFILL_VEHICLE_AMMO.get(),
+            GUNS_IN_DESTROYED_PARTS_WORK.get(),
 
             BREAKABLE_ARMOR.get(),
             DEFAULT_ARMOR_DURABILITY.get(),
@@ -894,6 +900,12 @@ public final class ModCommonConfig
     {
         CommonConfigSnapshot config = get();
         return config == null || config.autoRefillVehicleAmmo();
+    }
+
+    public static boolean gunsInDestroyedPartsWork()
+    {
+        CommonConfigSnapshot config = get();
+        return config != null && config.gunsInDestroyedPartsWork();
     }
 
     public static double maxArmorImpactAngleDeg()

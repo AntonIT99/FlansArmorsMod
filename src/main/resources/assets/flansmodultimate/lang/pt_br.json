@@ -119,6 +119,7 @@
   "key.flansmodultimate.vehicle.right": "Virar à direita / mover-se para a direita",
   "key.flansmodultimate.vehicle.throttle_decrease": "Diminuir acelerador persistente",
   "key.flansmodultimate.vehicle.throttle_increase": "Aumentar acelerador persistente",
+  "key.flansmodultimate.vehicle.zoom": "Alternar zoom do motorista",
   "message.flansmodultimate.apocalypse_boss_awakened": "O Chefe Caveira desperta.",
   "message.flansmodultimate.apocalypse_dimension_unavailable": "A dimensão do apocalipse está indisponível.",
   "message.flansmodultimate.apocalypse_portal_failed": "O portal do apocalipse não conseguiu encontrar um destino seguro.",

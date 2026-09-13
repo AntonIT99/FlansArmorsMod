@@ -74,6 +74,7 @@ public final class TeamsManager
     private static final String NBT_ADVENTURE = "adventure";
     private static final String NBT_ARMOUR_DROPS = "armour_drops";
     private static final String NBT_FUEL = "fuel";
+    private static final String NBT_VEHICLES_CAN_ZOOM = "vehicles_can_zoom";
     private static final String NBT_OVERRIDE_HUNGER = "override_hunger";
     private static final String NBT_BREAK_VEHICLES = "break_vehicles";
     private static final String NBT_PLACE_VEHICLES = "place_vehicles";
@@ -121,6 +122,8 @@ public final class TeamsManager
     private boolean armourDrops = true;
     @Getter
     private boolean vehiclesNeedFuel = true;
+    @Getter
+    private boolean vehiclesCanZoom;
     @Getter @Setter 
     private boolean overrideHunger = true;
     @Getter @Setter 
@@ -287,6 +290,13 @@ public final class TeamsManager
     {
         this.vehiclesNeedFuel = vehiclesNeedFuel;
         saveRuntime();
+    }
+
+    public void setVehiclesCanZoom(boolean vehiclesCanZoom)
+    {
+        this.vehiclesCanZoom = vehiclesCanZoom;
+        saveRuntime();
+        syncAll(PacketTeamsState.OpenScreen.NONE);
     }
 
     public Optional<TeamsRound> getCurrentRound()
@@ -1259,6 +1269,7 @@ public final class TeamsManager
             armourDrops = tag.getBoolean(NBT_ARMOUR_DROPS);
         if (tag.contains(NBT_FUEL))
             vehiclesNeedFuel = tag.getBoolean(NBT_FUEL);
+        vehiclesCanZoom = tag.contains(NBT_VEHICLES_CAN_ZOOM) && tag.getBoolean(NBT_VEHICLES_CAN_ZOOM);
         if (tag.contains(NBT_OVERRIDE_HUNGER))
             overrideHunger = tag.getBoolean(NBT_OVERRIDE_HUNGER);
         if (tag.contains(NBT_BREAK_VEHICLES))
@@ -1317,7 +1328,8 @@ public final class TeamsManager
         tag.put(NBT_VOTE_OPTIONS, voteOptions); tag.putBoolean(NBT_EXPLOSIONS, explosionsBreakBlocks); tag.putBoolean(NBT_BREAK_GLASS, canBreakGlass);
         tag.putBoolean(NBT_BREAK_GUNS, canBreakGuns); tag.putBoolean(NBT_DRIVEABLES_BREAK_BLOCKS, driveablesBreakBlocks); tag.putBoolean(NBT_BOMBS, bombsEnabled);
         tag.putBoolean(NBT_SHELLS, shellsEnabled); tag.putBoolean(NBT_BULLETS, bulletsEnabled); tag.putBoolean(NBT_ADVENTURE, forceAdventureMode);
-        tag.putBoolean(NBT_ARMOUR_DROPS, armourDrops); tag.putBoolean(NBT_FUEL, vehiclesNeedFuel); tag.putBoolean(NBT_OVERRIDE_HUNGER, overrideHunger);
+        tag.putBoolean(NBT_ARMOUR_DROPS, armourDrops); tag.putBoolean(NBT_FUEL, vehiclesNeedFuel); tag.putBoolean(NBT_VEHICLES_CAN_ZOOM, vehiclesCanZoom);
+        tag.putBoolean(NBT_OVERRIDE_HUNGER, overrideHunger);
         tag.putBoolean(NBT_BREAK_VEHICLES, survivalCanBreakVehicles); tag.putBoolean(NBT_PLACE_VEHICLES, survivalCanPlaceVehicles);
         tag.putInt(NBT_WEAPON_DROPS, weaponDrops.ordinal()); tag.putInt(NBT_MG_LIFE, mgLife); tag.putInt(NBT_PLANE_LIFE, planeLife);
         tag.putInt(NBT_VEHICLE_LIFE, vehicleLife); tag.putInt(NBT_MECHA_LIFE, mechaLife); tag.putInt(NBT_AA_LIFE, aaLife);

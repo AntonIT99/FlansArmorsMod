@@ -1,12 +1,12 @@
 # Feature gap analysis: Ultimate 1.7.10 → Ultimate 2.0
 
-Initial audit: 2026-09-10. Last updated: 2026-09-12. Direction is strictly reference → target.
+Initial audit: 2026-09-10. Last updated: 2026-09-13. Direction is strictly reference → target.
 
 - Reference: `C:/Users/alpha/Documents/Minecraft-Development/Flans-Mod-Ultimate-1.7.10`, HEAD `9b669b12149c3c9fa3a69f1a4ac5d8a55367506d`.
 - Target initially audited: `C:/Users/alpha/Documents/Minecraft-Development/Flans-Mod-Ultimate-2.0`, HEAD `08494f8a4972c249feb4e7d8522e981547439c4e`.
 - Sources inspected were the current working trees, not pristine commit snapshots. Existing staged reference texture deletions and the target's unrelated `warfare44/pack_names.json` change were left untouched.
 - Completed findings are removed as they are implemented, so the report remains a backlog rather than a historical snapshot.
-- Remaining: **4 MISSING, 4 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
+- Remaining: **3 MISSING, 3 PARTIAL, 0 UNCERTAIN**. These counts describe the findings below, not a percentage of port completeness.
 
 ## Scope and evidence conventions
 
@@ -66,26 +66,6 @@ Combustion refueling accepts Flan fuel parts. The Forge energy capability path s
 
 Missing: The reference's external oil/fuel-container integration. Availability of a compatible external mod on the target Minecraft version is outside this local source audit.
 
-### Passenger guns functioning after their parent part is destroyed — PARTIAL
-
-Reference: `R/common/driveables/EntitySeat.java#pressKey`, `R/common/FlansMod.java` (`gunsInDeadPartsWork`), `R/common/network/PacketModConfig.java`.
-The optional global rule permits passenger-gun fire when its associated driveable part is no longer intact.
-
-Target checked: `T/common/entity/Driveable.java#tickPassengerGuns`, `T/common/entity/Seat.java#tick`, and `T/config/CommonConfigSnapshot.java`.
-The target always rejects passenger-gun fire on a destroyed part. Seat ticking also ejects passengers when their associated part is destroyed. No matching override exists.
-
-Missing: The optional legacy behavior that keeps passenger weapons usable after destruction of their associated part.
-
-### Driver-controlled vehicle zoom — MISSING
-
-Reference: `R/common/driveables/EntityVehicle.java#pressKey` (key 5), `#resetZoom`, `R/common/teams/CommandTeams.java` (`vehiclesCanZoom`), `R/common/network/PacketTeamInfo.java`.
-When the server permits it, a vehicle control toggles a narrow field of view and lower mouse sensitivity, with zoom reset support. This does not depend on holding a scoped gun.
-
-Target checked: `T/common/entity/Vehicle.java`, `T/common/entity/Driveable.java`, `T/common/driveables/DriveableInput.java`, `T/client/input/KeyInputHandler.java`, `T/client/render/MountedCameraView.java`, `T/client/ModClient.java` (scope/FOV paths).
-Mounted camera transforms and handheld scope zoom are implemented, but no equivalent vehicle-only zoom action or synchronized permission is present.
-
-Missing: A vehicle driver's zoom toggle, sensitivity adjustment, and server enable/disable control. Restoring the behavior would not require copying the reference's hardcoded default FOV restoration.
-
 ## Teams and administration
 
 ### Detailed explosion-kill audit and spawn-kill warning log — MISSING
@@ -118,8 +98,6 @@ Missing: Independent ammo-HUD visibility and user-selectable legacy ammo-HUD lay
 | Inventory | Per-player reload preferences | PARTIAL | HIGH |
 | Interactions | Configurable armed block-use suppression | PARTIAL | HIGH |
 | Driveables | BuildCraft oil/fuel bucket integration | MISSING | HIGH |
-| Driveables | Passenger guns on destroyed parts override | PARTIAL | HIGH |
-| Vehicles | Driver zoom and permission | MISSING | HIGH |
 | Administration | Explosion-kill audit/spawn-kill warning | MISSING | HIGH |
 | HUD | Ammo-HUD visibility/layout controls | PARTIAL | HIGH |
 

@@ -6,6 +6,7 @@ import com.flansmodultimate.common.driveables.DriveableInput;
 import com.flansmodultimate.common.driveables.EnumDriveablePart;
 import com.flansmodultimate.common.driveables.LegacyDriveableCoordinates;
 import com.flansmodultimate.common.driveables.SeatInfo;
+import com.flansmodultimate.config.ModCommonConfig;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -303,7 +304,9 @@ public class Seat extends Entity implements IControllable
         snapToParent();
 
         EnumDriveablePart part = seatInfo == null ? EnumDriveablePart.CORE : seatInfo.getPart();
-        if (!driveable.isPartIntact(part) && isVehicle())
+        boolean keepDestroyedPassengerGun = ModCommonConfig.gunsInDestroyedPartsWork()
+            && !isDriverSeat() && seatInfo != null && seatInfo.getGunType() != null;
+        if (!driveable.isPartIntact(part) && isVehicle() && !keepDestroyedPassengerGun)
             ejectPassengers();
 
         Entity passenger = getFirstPassenger();

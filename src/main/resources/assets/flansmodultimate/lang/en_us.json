@@ -139,6 +139,7 @@
   "key.flansmodultimate.vehicle.right": "Steer Right / Strafe Right",
   "key.flansmodultimate.vehicle.throttle_decrease": "Decrease Persistent Throttle",
   "key.flansmodultimate.vehicle.throttle_increase": "Increase Persistent Throttle",
+  "key.flansmodultimate.vehicle.zoom": "Toggle Driver Zoom",
   "message.flansmodultimate.apocalypse_begun": "The apocalypse has begun.",
   "message.flansmodultimate.apocalypse_boss_awakened": "The Skull Boss awakens.",
   "message.flansmodultimate.apocalypse_dimension_unavailable": "The apocalypse dimension is unavailable.",

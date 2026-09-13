@@ -2006,7 +2006,8 @@ public abstract class Driveable extends Entity implements IEntityAdditionalSpawn
             Seat seat = seats[index];
             SeatInfo info = seat == null ? null : seat.getSeatInfo();
             GunType gun = info == null ? null : info.getGunType();
-            if (seat == null || info == null || gun == null || seat.getRiddenByEntity() == null || !isPartIntact(info.getPart()))
+            if (seat == null || info == null || gun == null || seat.getRiddenByEntity() == null
+                || !isPartIntact(info.getPart()) && !ModCommonConfig.gunsInDestroyedPartsWork())
                 continue;
 
             boolean held = seat.isInputDown(DriveableInput.PRIMARY_FIRE);

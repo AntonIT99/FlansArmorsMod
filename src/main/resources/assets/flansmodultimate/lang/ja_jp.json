@@ -119,6 +119,7 @@
   "key.flansmodultimate.vehicle.right": "右旋回 / 右ストレイフ",
   "key.flansmodultimate.vehicle.throttle_decrease": "固定スロットルを下げる",
   "key.flansmodultimate.vehicle.throttle_increase": "固定スロットルを上げる",
+  "key.flansmodultimate.vehicle.zoom": "運転手ズームを切り替え",
   "message.flansmodultimate.apocalypse_boss_awakened": "スカルボスが目覚めた。",
   "message.flansmodultimate.apocalypse_dimension_unavailable": "アポカリプスディメンションは利用できません。",
   "message.flansmodultimate.apocalypse_portal_failed": "アポカリプスポータルは安全な移動先を見つけられませんでした。",

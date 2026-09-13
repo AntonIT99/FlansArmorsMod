@@ -96,6 +96,7 @@ public final class KeyInputHandler
     private static final KeyMapping brakeKey = key("vehicle.brake", InputConstants.KEY_SPACE, EnumKeyConflictContext.GROUND_DRIVEABLE, CATEGORY_VEHICLES);
     private static final KeyMapping decreaseVehicleThrottleKey = key("vehicle.throttle_decrease", InputConstants.KEY_Q, EnumKeyConflictContext.VEHICLE, CATEGORY_VEHICLES);
     private static final KeyMapping increaseVehicleThrottleKey = key("vehicle.throttle_increase", InputConstants.KEY_E, EnumKeyConflictContext.VEHICLE, CATEGORY_VEHICLES);
+    private static final KeyMapping vehicleZoomKey = key("vehicle.zoom", InputConstants.KEY_C, EnumKeyConflictContext.VEHICLE, CATEGORY_VEHICLES);
 
     // Planes and helicopters. Aircraft fly on their own binds rather than the
     // vanilla movement keys, so the flight axes can be rebound without changing
@@ -136,6 +137,7 @@ public final class KeyInputHandler
     /** Ground binds plus the persistent throttle lever that only vehicles answer. */
     private static final List<KeyMapping> VEHICLE_BINDS = List.of(driveForwardKey, driveBackwardKey,
         steerLeftKey, steerRightKey, brakeKey, decreaseVehicleThrottleKey, increaseVehicleThrottleKey,
+        vehicleZoomKey,
         driveableInventoryKey, primaryKey, primaryAlternativeKey, secondaryKey, secondaryAlternativeKey,
         changeSeatKey, doorKey, engineKey, flareKey, driveablePlayerInventoryKey);
     /**
@@ -144,7 +146,7 @@ public final class KeyInputHandler
      * would fire the moment the player mounts. These are drained instead.
      */
     private static final List<KeyMapping> CLICK_BINDS = List.of(driveableInventoryKey, changeSeatKey, doorKey, engineKey,
-        flareKey, controlModeKey, gearKey, modeKey, driveablePlayerInventoryKey);
+        flareKey, controlModeKey, gearKey, modeKey, driveablePlayerInventoryKey, vehicleZoomKey);
 
     private static final int[] LEGACY_KEYS = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18};
 
@@ -199,6 +201,7 @@ public final class KeyInputHandler
         event.register(brakeKey);
         event.register(decreaseVehicleThrottleKey);
         event.register(increaseVehicleThrottleKey);
+        event.register(vehicleZoomKey);
         event.register(pitchDownKey);
         event.register(pitchUpKey);
         event.register(yawLeftKey);
@@ -446,6 +449,7 @@ public final class KeyInputHandler
                 {
                     if (increaseVehicleThrottleKey.isDown()) mask |= DriveableInput.THROTTLE_INCREASE;
                     if (decreaseVehicleThrottleKey.isDown()) mask |= DriveableInput.THROTTLE_DECREASE;
+                    if (vehicleZoomKey.consumeClick()) ModClient.toggleVehicleZoom(player);
                 }
             }
 

@@ -321,6 +321,7 @@ public final class ClientEventHandler
     @SubscribeEvent
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event)
     {
+        ModClient.resetVehicleZoom();
         ModClient.clearTransientLighting();
         DebugHelper.getActiveDebugEntities().clear(); // cleanup on world/connection change
         TeamsClientState.clear();

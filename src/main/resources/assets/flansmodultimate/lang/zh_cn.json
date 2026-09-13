@@ -119,6 +119,7 @@
   "key.flansmodultimate.vehicle.right": "向右转向 / 向右横移",
   "key.flansmodultimate.vehicle.throttle_decrease": "降低持续油门",
   "key.flansmodultimate.vehicle.throttle_increase": "提高持续油门",
+  "key.flansmodultimate.vehicle.zoom": "切换驾驶员缩放",
   "message.flansmodultimate.apocalypse_boss_awakened": "骷髅首领苏醒了。",
   "message.flansmodultimate.apocalypse_dimension_unavailable": "天启维度不可用。",
   "message.flansmodultimate.apocalypse_portal_failed": "天启传送门无法找到安全的目的地。",
